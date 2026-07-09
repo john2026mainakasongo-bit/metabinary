@@ -4758,3 +4758,598 @@ body,
     height: 44px !important;
   }
 }
+/* =====================================================
+   DERIV-LIKE PHONE MANUAL TRADER
+   Paste at the VERY BOTTOM of App.css
+===================================================== */
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  .app {
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  .topbar {
+    height: 116px !important;
+    min-height: 116px !important;
+    padding: 7px 9px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: 34px 36px 34px !important;
+    gap: 4px !important;
+    overflow: hidden !important;
+    background: #10164a !important;
+  }
+
+  .brand {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    gap: 7px !important;
+    font-size: 14px !important;
+    min-width: 0 !important;
+  }
+
+  .logo {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 9px !important;
+    font-size: 15px !important;
+  }
+
+  .topActions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: auto 76px 1fr 38px !important;
+    gap: 5px !important;
+    width: 100% !important;
+    align-items: center !important;
+  }
+
+  .topActions select,
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .accountSwitch {
+    height: 34px !important;
+    border-radius: 11px !important;
+    padding: 3px !important;
+  }
+
+  .accountSwitch button {
+    min-width: 43px !important;
+    border-radius: 9px !important;
+    font-size: 11px !important;
+  }
+
+  .balanceBox {
+    min-width: 74px !important;
+    text-align: left !important;
+    line-height: 1 !important;
+  }
+
+  .balanceBox small {
+    font-size: 8px !important;
+  }
+
+  .balanceBox strong {
+    font-size: 12px !important;
+  }
+
+  .depositBtn {
+    height: 34px !important;
+    border-radius: 11px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+  }
+
+  .iconBtn {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 11px !important;
+    font-size: 19px !important;
+  }
+
+  .mainTabs {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    height: 34px !important;
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 5px !important;
+    scrollbar-width: none !important;
+  }
+
+  .mainTabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .mainTabs button {
+    height: 32px !important;
+    min-width: max-content !important;
+    border-radius: 10px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+  }
+
+  .layout {
+    height: calc(100dvh - 116px) !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 54% 46% !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  .leftPanel {
+    display: none !important;
+  }
+
+  .chartArea {
+    grid-row: 1 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    display: block !important;
+  }
+
+  .liveChart {
+    height: 100% !important;
+    min-height: 0 !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  .marketCard {
+    position: absolute !important;
+    top: 8px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    height: 66px !important;
+    margin: 0 !important;
+    border-radius: 5px !important;
+    padding: 9px 42px 9px 72px !important;
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.08) !important;
+    border: none !important;
+    background: #ffffff !important;
+    z-index: 10 !important;
+  }
+
+  .marketCard::before {
+    content: "100";
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    width: 40px;
+    height: 34px;
+    border-radius: 8px;
+    background: #f1f4f7;
+    color: #111827;
+    font-size: 10px;
+    font-weight: 900;
+    display: grid;
+    place-items: center;
+  }
+
+  .marketCard::after {
+    content: "⌄";
+    position: absolute;
+    right: 18px;
+    top: 15px;
+    color: #222;
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .marketCard small {
+    font-size: 18px !important;
+    color: #222 !important;
+    font-weight: 900 !important;
+    margin: 0 0 5px !important;
+    white-space: nowrap !important;
+  }
+
+  .marketCard h1 {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #9ca3af !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
+
+  .marketCard span {
+    display: none !important;
+  }
+
+  .modeLabel,
+  .timeframes,
+  .chartSvg,
+  .priceTag,
+  .chartNumbers {
+    display: none !important;
+  }
+
+  .digitBar {
+    position: absolute !important;
+    left: 26px !important;
+    right: 26px !important;
+    top: 128px !important;
+    height: 138px !important;
+    min-height: 138px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 16px 18px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    z-index: 30 !important;
+  }
+
+  .digit {
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 50% !important;
+    justify-self: center !important;
+    align-self: center !important;
+    background: #ffffff !important;
+    border: 7px solid #e6e7e9 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    position: relative !important;
+  }
+
+  .digit strong {
+    font-size: 16px !important;
+    line-height: 1 !important;
+    color: #222 !important;
+  }
+
+  .digit small {
+    font-size: 11px !important;
+    margin-top: 2px !important;
+    color: #333 !important;
+  }
+
+  .digit.activeDigit,
+  .digit.selectedDigit {
+    background: #ffffff !important;
+    border-color: #51b9b8 !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .digit.activeDigit strong,
+  .digit.activeDigit small,
+  .digit.selectedDigit strong,
+  .digit.selectedDigit small {
+    color: #222 !important;
+  }
+
+  .digit.selectedDigit::after {
+    content: "";
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-bottom: 14px solid #ff654d;
+  }
+
+  .tradePanel {
+    grid-row: 2 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+    padding: 0 10px 10px !important;
+    background: #ffffff !important;
+  }
+
+  .mobileTradeCard {
+    width: 100% !important;
+    height: 100% !important;
+    background: #f4f4f4 !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .learnText {
+    font-size: 12px !important;
+    color: #333 !important;
+    width: max-content !important;
+    border-bottom: 1px dotted #555 !important;
+  }
+
+  .contractSelectorCard {
+    height: 50px !important;
+    min-height: 50px !important;
+    background: #ffffff !important;
+    border-radius: 5px !important;
+    display: grid !important;
+    grid-template-columns: 54px 1fr 24px !important;
+    align-items: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 0 12px !important;
+  }
+
+  .contractIcons {
+    display: flex !important;
+    gap: 4px !important;
+  }
+
+  .contractIcons span {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 5px !important;
+    background: #eff2f5 !important;
+    color: #5bb9bb !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+  }
+
+  .contractText strong {
+    font-size: 18px !important;
+    color: #222 !important;
+    font-weight: 900 !important;
+  }
+
+  .contractText small {
+    display: block !important;
+    font-size: 9px !important;
+    color: #8a8a8a !important;
+  }
+
+  .contractSelectorCard select {
+    position: absolute !important;
+    inset: 0 !important;
+    opacity: 0 !important;
+    z-index: 4 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .contractArrow {
+    font-size: 34px !important;
+    color: #222 !important;
+    justify-self: end !important;
+  }
+
+  .mobilePredictionRow {
+    height: 34px !important;
+    min-height: 34px !important;
+    background: #ffffff !important;
+    border-radius: 5px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 76px !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+    color: #333 !important;
+  }
+
+  .mobilePredictionRow select {
+    height: 26px !important;
+    border: none !important;
+    background: #f1f3f5 !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    font-weight: 900 !important;
+  }
+
+  .mobileTradeParams {
+    height: 42px !important;
+    min-height: 42px !important;
+    display: grid !important;
+    grid-template-columns: 86px 1fr 70px !important;
+    overflow: hidden !important;
+    border-radius: 5px !important;
+    background: #ffffff !important;
+  }
+
+  .mobileParam {
+    background: #ffffff !important;
+    color: #333 !important;
+    font-size: 16px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  .mobileParam.muted {
+    color: #a0a0a0 !important;
+  }
+
+  .mobileStakeBox {
+    display: grid !important;
+    grid-template-columns: 34px 1fr 34px !important;
+    align-items: center !important;
+    background: #ffffff !important;
+  }
+
+  .mobileStakeBox button {
+    height: 100% !important;
+    background: #ffffff !important;
+    color: #222 !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+
+  .mobileStakeBox strong {
+    text-align: center !important;
+    font-size: 17px !important;
+    color: #222 !important;
+    font-weight: 900 !important;
+  }
+
+  .tradeActionGrid {
+    flex: 1 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    min-height: 0 !important;
+  }
+
+  .tradeActionBtn {
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    color: #ffffff !important;
+    display: grid !important;
+    grid-template-rows: 1fr 44px !important;
+    min-height: 96px !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+
+  .buyAction {
+    background: #50b6b5 !important;
+  }
+
+  .sellAction {
+    background: #ef3f43 !important;
+  }
+
+  .actionMain {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 14px !important;
+    padding: 8px !important;
+  }
+
+  .actionIcon {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+  }
+
+  .actionMain strong {
+    font-size: 20px !important;
+    font-weight: 900 !important;
+  }
+
+  .actionFooter {
+    background: rgba(0, 0, 0, 0.12) !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+  }
+
+  .actionFooter span {
+    font-size: 13px !important;
+  }
+
+  .actionFooter strong {
+    font-size: 12px !important;
+    font-weight: 900 !important;
+  }
+
+  .aiBubble {
+    width: 44px !important;
+    height: 44px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    font-size: 13px !important;
+    z-index: 3000 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .topbar {
+    height: 108px !important;
+    min-height: 108px !important;
+    grid-template-rows: 32px 34px 32px !important;
+  }
+
+  .layout {
+    height: calc(100dvh - 108px) !important;
+    grid-template-rows: 52% 48% !important;
+  }
+
+  .digitBar {
+    top: 112px !important;
+    left: 20px !important;
+    right: 20px !important;
+    gap: 12px 14px !important;
+  }
+
+  .digit {
+    width: 52px !important;
+    height: 52px !important;
+    border-width: 6px !important;
+  }
+
+  .digit strong {
+    font-size: 14px !important;
+  }
+
+  .digit small {
+    font-size: 10px !important;
+  }
+
+  .marketCard {
+    height: 60px !important;
+    padding-left: 64px !important;
+  }
+
+  .marketCard small {
+    font-size: 16px !important;
+  }
+
+  .marketCard h1 {
+    font-size: 12px !important;
+  }
+
+  .mobileTradeCard {
+    padding: 8px !important;
+    gap: 6px !important;
+  }
+
+  .contractSelectorCard {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+
+  .mobileTradeParams {
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+
+  .tradeActionBtn {
+    min-height: 88px !important;
+    grid-template-rows: 1fr 38px !important;
+  }
+
+  .actionMain strong {
+    font-size: 18px !important;
+  }
+}
