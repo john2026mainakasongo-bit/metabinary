@@ -4373,3 +4373,388 @@ body,
     border-radius: 0 10px 10px 0 !important;
   }
 }
+/* =========================
+   FINAL MANUAL TRADER PHONE FIT
+   Shows chart + digits + trade panel on one screen
+========================= */
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden !important;
+  }
+
+  .app {
+    width: 100vw !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  /* smaller top area */
+  .topbar {
+    height: 138px !important;
+    min-height: 138px !important;
+    padding: 8px 10px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: 38px 42px 42px !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .brand {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    font-size: 15px !important;
+    gap: 7px !important;
+  }
+
+  .logo {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+  }
+
+  .topActions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: auto 78px 1fr 42px !important;
+    gap: 6px !important;
+    align-items: center !important;
+  }
+
+  .topActions select,
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .accountSwitch {
+    height: 38px !important;
+    border-radius: 12px !important;
+  }
+
+  .accountSwitch button {
+    min-width: 48px !important;
+    font-size: 12px !important;
+    border-radius: 9px !important;
+  }
+
+  .balanceBox {
+    min-width: 74px !important;
+    text-align: left !important;
+    line-height: 1 !important;
+  }
+
+  .balanceBox small {
+    font-size: 9px !important;
+  }
+
+  .balanceBox strong {
+    font-size: 13px !important;
+  }
+
+  .depositBtn {
+    height: 38px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    padding: 0 10px !important;
+  }
+
+  .iconBtn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    font-size: 20px !important;
+  }
+
+  .mainTabs {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    height: 42px !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    display: flex !important;
+    gap: 6px !important;
+    scrollbar-width: none !important;
+  }
+
+  .mainTabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .mainTabs button {
+    height: 38px !important;
+    min-width: max-content !important;
+    padding: 0 14px !important;
+    border-radius: 12px !important;
+    font-size: 12px !important;
+  }
+
+  /* screen divided into chart and trading controls */
+  .layout {
+    height: calc(100dvh - 138px) !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 56% 44% !important;
+    overflow: hidden !important;
+  }
+
+  .leftPanel {
+    display: none !important;
+  }
+
+  .chartArea {
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  .tradePanel {
+    grid-row: 2 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    border-left: none !important;
+    border-top: 1px solid #dfe5f2 !important;
+    padding: 10px 12px 14px !important;
+    background: #f7f8fb !important;
+  }
+
+  /* chart compact */
+  .marketCard {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: calc(100% - 20px) !important;
+    margin: 8px 10px !important;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .marketCard small {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .marketCard h1 {
+    font-size: 28px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .marketCard span {
+    font-size: 12px !important;
+  }
+
+  .timeframes {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: calc(100% - 20px) !important;
+    margin: 0 10px !important;
+    height: 38px !important;
+    padding: 3px !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+    scrollbar-width: none !important;
+  }
+
+  .timeframes::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .timeframes button {
+    height: 32px !important;
+    min-width: 45px !important;
+    font-size: 12px !important;
+  }
+
+  .modeLabel {
+    display: none !important;
+  }
+
+  .chartSvg {
+    inset: 124px 38px 82px 0 !important;
+    width: calc(100% - 38px) !important;
+    height: calc(100% - 206px) !important;
+  }
+
+  .priceTag {
+    top: 178px !important;
+    right: 8px !important;
+    font-size: 12px !important;
+  }
+
+  .chartNumbers {
+    font-size: 11px !important;
+  }
+
+  .chartNumbers.top {
+    top: 128px !important;
+  }
+
+  .chartNumbers.mid {
+    top: 210px !important;
+  }
+
+  .chartNumbers.low {
+    bottom: 105px !important;
+  }
+
+  .chartNumbers.bottom {
+    display: none !important;
+  }
+
+  /* digits like Deriv mobile */
+  .digitBar {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    display: grid !important;
+    grid-template-columns: repeat(10, 1fr) !important;
+    gap: 4px !important;
+    padding: 6px !important;
+    background: white !important;
+    z-index: 20 !important;
+  }
+
+  .digit {
+    height: 58px !important;
+    width: 100% !important;
+    border-radius: 50% !important;
+  }
+
+  .digit strong {
+    font-size: 15px !important;
+  }
+
+  .digit small {
+    font-size: 8px !important;
+  }
+
+  /* compact trade card */
+  .tradePanel .learnBox {
+    height: 28px !important;
+    margin-bottom: 6px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+  }
+
+  .tradePanel label {
+    font-size: 11px !important;
+    margin: 6px 0 4px !important;
+  }
+
+  .tradePanel select,
+  .panelInput {
+    height: 38px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    padding: 0 12px !important;
+  }
+
+  .tradePanel input[type="range"] {
+    height: 18px !important;
+  }
+
+  .stakeBox {
+    height: 42px !important;
+    border-radius: 10px !important;
+    grid-template-columns: 48px 1fr 48px !important;
+  }
+
+  .stakeBox button {
+    font-size: 21px !important;
+  }
+
+  .stakeBox strong {
+    font-size: 15px !important;
+  }
+
+  .payoutBox {
+    min-height: 38px !important;
+    padding: 8px 12px !important;
+    margin: 8px 0 !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+  }
+
+  .riseBtn,
+  .fallBtn {
+    height: 48px !important;
+    border-radius: 10px !important;
+    font-size: 17px !important;
+    margin-bottom: 8px !important;
+    padding-left: 14px !important;
+  }
+
+  .aiBubble {
+    width: 50px !important;
+    height: 50px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    z-index: 3000 !important;
+  }
+}
+
+/* very small phones */
+@media (max-width: 390px) {
+  .topbar {
+    height: 132px !important;
+    min-height: 132px !important;
+    grid-template-rows: 34px 40px 40px !important;
+  }
+
+  .layout {
+    height: calc(100dvh - 132px) !important;
+    grid-template-rows: 54% 46% !important;
+  }
+
+  .marketCard h1 {
+    font-size: 24px !important;
+  }
+
+  .chartSvg {
+    inset: 116px 35px 76px 0 !important;
+    width: calc(100% - 35px) !important;
+    height: calc(100% - 192px) !important;
+  }
+
+  .digitBar {
+    height: 76px !important;
+    min-height: 76px !important;
+  }
+
+  .digit {
+    height: 52px !important;
+  }
+
+  .digit strong {
+    font-size: 13px !important;
+  }
+
+  .digit small {
+    font-size: 7px !important;
+  }
+
+  .riseBtn,
+  .fallBtn {
+    height: 44px !important;
+  }
+}
