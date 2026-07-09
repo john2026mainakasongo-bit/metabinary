@@ -3990,3 +3990,386 @@ body,
     font-size: 12px !important;
   }
 }
+/* =========================
+   FINAL PHONE APP FIT FIX
+   Manual + Free Bot
+========================= */
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden !important;
+  }
+
+  .app {
+    width: 100vw !important;
+    min-height: 100dvh !important;
+    overflow-x: hidden !important;
+  }
+
+  .topbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+
+  .brand {
+    grid-column: 1 / -1;
+    font-size: 18px !important;
+  }
+
+  .topActions {
+    grid-column: 1 / -1;
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: auto auto 1fr auto auto !important;
+    gap: 8px !important;
+    align-items: center;
+  }
+
+  .topActions select,
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .accountSwitch {
+    height: 44px !important;
+  }
+
+  .accountSwitch button {
+    min-width: 54px !important;
+    font-size: 13px !important;
+  }
+
+  .balanceBox {
+    min-width: 82px !important;
+    text-align: left !important;
+  }
+
+  .balanceBox small {
+    font-size: 11px !important;
+  }
+
+  .balanceBox strong {
+    font-size: 15px !important;
+  }
+
+  .depositBtn {
+    height: 44px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+  }
+
+  .iconBtn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .mainTabs {
+    grid-column: 1 / -1 !important;
+    width: 100%;
+    height: 54px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    display: flex !important;
+    gap: 8px !important;
+    scrollbar-width: none;
+  }
+
+  .mainTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mainTabs button {
+    height: 46px !important;
+    min-width: max-content !important;
+    padding: 0 18px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+  }
+
+  .layout {
+    height: calc(100dvh - 176px) !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow: hidden !important;
+  }
+
+  .leftPanel {
+    display: none !important;
+  }
+
+  .chartArea {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .marketCard {
+    margin: 10px !important;
+    width: calc(100% - 20px) !important;
+    padding: 14px !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+
+  .marketCard h1 {
+    font-size: 34px !important;
+  }
+
+  .timeframes {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    margin: 0 10px !important;
+    width: calc(100% - 20px) !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+  }
+
+  .modeLabel {
+    display: none !important;
+  }
+
+  .chartSvg {
+    inset: 205px 44px 122px 0 !important;
+    width: calc(100% - 44px) !important;
+    height: calc(100% - 327px) !important;
+  }
+
+  .priceTag {
+    top: 285px !important;
+    right: 10px !important;
+  }
+
+  .digitBar {
+    position: absolute !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 120px !important;
+    min-height: 120px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+    background: white;
+    z-index: 10;
+  }
+
+  .digit {
+    height: 52px !important;
+    border-radius: 999px !important;
+  }
+
+  .digit strong {
+    font-size: 18px !important;
+  }
+
+  .digit small {
+    font-size: 10px !important;
+  }
+
+  .tradePanel {
+    display: none !important;
+  }
+
+  .aiBubble {
+    width: 54px !important;
+    height: 54px !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    z-index: 1200 !important;
+  }
+}
+
+/* =========================
+   TRADE TOAST NOTIFICATIONS
+========================= */
+
+.tradeToastWrap {
+  position: fixed;
+  top: 92px;
+  right: 18px;
+  z-index: 6000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tradeToast {
+  min-width: 260px;
+  max-width: 340px;
+  background: #10164a;
+  color: white;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 18px 45px rgba(7, 11, 51, 0.35);
+  border-left: 5px solid #00c896;
+}
+
+.tradeToast strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.tradeToast span {
+  display: block;
+  color: #cbd2ef;
+  font-size: 13px;
+}
+
+.tradeToast.win {
+  border-left-color: #00c896;
+}
+
+.tradeToast.loss {
+  border-left-color: #ff4057;
+}
+
+.tradeToast.loss strong {
+  color: #ffb8c0;
+}
+
+.tradeToast.win strong {
+  color: #a7ffe7;
+}
+
+@media (max-width: 760px) {
+  .tradeToastWrap {
+    top: 180px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .tradeToast {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* =========================
+   FREE BOT PAGE BEHAVIOR
+========================= */
+
+@media (max-width: 760px) {
+  .botBuilderPanel {
+    height: calc(100dvh - 176px) !important;
+    overflow: hidden !important;
+  }
+
+  .botLeftMenu {
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+
+  .botWorkspace {
+    height: 100% !important;
+    overflow: auto !important;
+  }
+
+  .botRunPanel {
+    height: 100% !important;
+  }
+
+  .runnerMode {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 7000 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    background: white !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .runnerMode .runnerBackTop {
+    display: flex !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 0 12px !important;
+    background: white !important;
+    border-bottom: 1px solid #e6e8ee !important;
+  }
+
+  .runnerMode .runnerBackTop button {
+    height: 34px !important;
+    border-radius: 999px !important;
+    background: #f1f3f7 !important;
+    color: #111827 !important;
+    font-weight: 900 !important;
+    padding: 0 14px !important;
+  }
+
+  .runnerMode .botLeftMenu,
+  .runnerMode .botWorkspace {
+    display: none !important;
+  }
+
+  .runnerMode .derivRunPanel {
+    flex: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border: none !important;
+  }
+
+  .runnerMode .athenaStatusRow {
+    order: 1 !important;
+    min-height: 42px !important;
+  }
+
+  .runnerMode .derivTabs {
+    order: 2 !important;
+    min-height: 56px !important;
+  }
+
+  .runnerMode .derivPanelBody {
+    order: 3 !important;
+    flex: 1 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .runnerMode .derivStats {
+    order: 4 !important;
+    min-height: 140px !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .runnerMode .derivRunHeader {
+    order: 5 !important;
+    min-height: 78px !important;
+    grid-template-columns: 118px 1fr !important;
+    border-top: 1px solid #e6e8ee !important;
+  }
+
+  .runnerMode .derivRunBtn,
+  .runnerMode .derivStopBtn {
+    height: 58px !important;
+    font-size: 20px !important;
+    border-radius: 14px 0 0 14px !important;
+  }
+
+  .runnerMode .derivStatus {
+    height: 58px !important;
+    border-radius: 0 10px 10px 0 !important;
+  }
+}
