@@ -1,6 +1,20 @@
 import { useMemo, useState } from "react";
 
-export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
+function money(value) {
+  return Number(value || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+export default function FreeBotBuilder({
+  freeBotRunning,
+  startFreeBot,
+  stopFreeBot,
+  openTrades = [],
+  closedTrades = [],
+  transactions = [],
+}) {
   const bots = useMemo(
     () => [
       {
@@ -64,7 +78,51 @@ export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
   );
 
   const [selectedName, setSelectedName] = useState("Over 2 Recovery");
+  const [activeTab, setActiveTab] = useState("summary");
+
   const selectedBot = bots.find((bot) => bot.name === selectedName) || bots[0];
+
+  const botOpenTrades = openTrades.filter((trade) => trade.botName);
+  const botClosedTrades = closedTrades.filter((trade) => trade.botName);
+  const botTransactions = transactions.filter(
+    (tx) => tx.method === "Free Bot" || String(tx.type).includes("Bot")
+  );
+
+  const currentTrade = botOpenTrades[0];
+  const lastClosed = botClosedTrades[0];
+
+  const totalStake = [...botOpenTrades, ...botClosedTrades].reduce(
+    (sum, trade) => sum + Number(trade.stake || 0),
+    0
+  );
+
+  const totalPayout = botClosedTrades.reduce(
+    (sum, trade) => sum + Number(trade.won ? trade.returnAmount || trade.payout || 0 : 0),
+    0
+  );
+
+  const totalWon = botClosedTrades.filter((trade) => trade.won).length;
+  const totalLost = botClosedTrades.filter((trade) => !trade.won).length;
+
+  const totalProfitLoss = botClosedTrades.reduce((sum, trade) => {
+    if (trade.won) return sum + Number(trade.profit || 0);
+    return sum - Number(trade.stake || 0);
+  }, 0);
+
+  const noOfRuns = botOpenTrades.length + botClosedTrades.length;
+
+  const statusText = freeBotRunning
+    ? currentTrade
+      ? "Contract bought"
+      : lastClosed?.won
+      ? "Won"
+      : lastClosed
+      ? "Lost"
+      : "Bot is running"
+    : "Bot is not running";
+
+  const statusClass =
+    statusText === "Won" ? "wonStatus" : statusText === "Lost" ? "lostStatus" : "";
 
   return (
     <aside className="botBuilderPanel">
@@ -116,13 +174,6 @@ export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
             <strong>{selectedBot.name}</strong>
             <span>{selectedBot.description}</span>
           </div>
-
-          <button
-            onClick={() => startFreeBot(selectedBot)}
-            disabled={freeBotRunning}
-          >
-            {freeBotRunning ? "Running..." : "Run This Bot"}
-          </button>
         </div>
 
         <div className="blocksCanvas">
@@ -143,27 +194,27 @@ export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
 
             <div className="blockRow">
               <span>Market</span>
-              <select value={selectedBot.market} readOnly>
+              <select value={selectedBot.market} onChange={() => {}}>
                 <option>{selectedBot.market}</option>
               </select>
             </div>
 
             <div className="blockRow">
               <span>Trade Type</span>
-              <select value={selectedBot.contract} readOnly>
+              <select value={selectedBot.contract} onChange={() => {}}>
                 <option>{selectedBot.contract}</option>
               </select>
             </div>
 
             <div className="blockRow">
               <span>Contract</span>
-              <select value={selectedBot.choice} readOnly>
+              <select value={selectedBot.choice} onChange={() => {}}>
                 <option>{selectedBot.choice}</option>
               </select>
             </div>
 
             <div className="blockGroup">
-              <strong>Run once at start</strong>
+              <strong>Run continuously until Stop Bot</strong>
 
               <div className="blockLine">
                 set <b>Bot Name</b> to <em>{selectedBot.name}</em>
@@ -208,7 +259,7 @@ export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
             <div className="blockTitle">2. Purchase conditions</div>
 
             <div className="logicLine">
-              if <b>Bot is selected</b> and <b>Balance is enough</b> then
+              if <b>Bot is running</b> and <b>Balance is enough</b> then
             </div>
 
             <div className="blockLine successLine">
@@ -220,19 +271,11 @@ export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
             <div className="blockTitle">4. Restart trading conditions</div>
 
             <div className="logicLine">
-              if <b>Total profit/loss</b> ≥ <b>Take Profit</b> then
+              if <b>Stop Bot clicked</b> then
             </div>
 
             <div className="blockLine">
-              print <b>{selectedBot.name} target profit reached</b>
-            </div>
-
-            <div className="logicLine">
-              else if <b>Total profit/loss</b> ≤ <b>Stop Loss</b> then
-            </div>
-
-            <div className="blockLine">
-              print <b>{selectedBot.name} maximum loss reached</b>
+              stop <b>{selectedBot.name}</b>
             </div>
 
             <div className="logicLine">
@@ -254,83 +297,304 @@ export default function FreeBotBuilder({ freeBotRunning, startFreeBot }) {
         </div>
       </div>
 
-      <div className="botRunPanel">
-        <div className="runTop">
-          <button
-            className="runBotBtn"
-            onClick={() => startFreeBot(selectedBot)}
-            disabled={freeBotRunning}
-          >
-            ▶ Run
-          </button>
+      <div className="botRunPanel derivRunPanel">
+        <div className="derivRunHeader">
+          {freeBotRunning ? (
+            <button className="derivStopBtn" onClick={stopFreeBot}>
+              ■ Stop
+            </button>
+          ) : (
+            <button className="derivRunBtn" onClick={() => startFreeBot(selectedBot)}>
+              ▶ Run
+            </button>
+          )}
 
-          <div className="botRunStatus">
-            <strong>{freeBotRunning ? "Bot is running" : "Bot is not running"}</strong>
-            <div className="runProgress">
-              <span className={freeBotRunning ? "runningProgress" : ""}></span>
+          <div className={`derivStatus ${statusClass}`}>
+            <strong>{statusText}</strong>
+            <div className="derivProgress">
+              <span className={freeBotRunning ? "activeProgress" : ""}></span>
             </div>
           </div>
         </div>
 
-        <div className="selectedRunCard">
-          <strong>Selected bot</strong>
-          <span>{selectedBot.name}</span>
-          <small>{selectedBot.description}</small>
+        <div className="athenaStatusRow">
+          <div className="athenaPill">
+            Athena <span className={freeBotRunning ? "athenaOn" : ""}></span>
+          </div>
+
+          <div className="smallStatusBox">
+            <strong>STATUS</strong>
+            <span>Latest strategy update shows here when the bot runs.</span>
+          </div>
+
+          <a>Full log</a>
         </div>
 
-        <div className="athenaRow">
-          <span>Athena</span>
-          <div className={freeBotRunning ? "toggle active" : "toggle"}></div>
+        <div className="botTabs derivTabs">
+          <button
+            className={activeTab === "summary" ? "active" : ""}
+            onClick={() => setActiveTab("summary")}
+          >
+            Summary
+          </button>
+
+          <button
+            className={activeTab === "transactions" ? "active" : ""}
+            onClick={() => setActiveTab("transactions")}
+          >
+            Transactions
+          </button>
+
+          <button
+            className={activeTab === "journal" ? "active" : ""}
+            onClick={() => setActiveTab("journal")}
+          >
+            Journal
+          </button>
         </div>
 
-        <div className="botTabs">
-          <button className="active">Summary</button>
-          <button>Transactions</button>
-          <button>Journal</button>
+        {activeTab === "summary" && (
+          <div className="derivPanelBody">
+            <SummaryView
+              currentTrade={currentTrade}
+              lastClosed={lastClosed}
+              freeBotRunning={freeBotRunning}
+              selectedBot={selectedBot}
+            />
+          </div>
+        )}
+
+        {activeTab === "transactions" && (
+          <div className="derivPanelBody">
+            <TransactionsView trades={[...botOpenTrades, ...botClosedTrades]} />
+          </div>
+        )}
+
+        {activeTab === "journal" && (
+          <div className="derivPanelBody">
+            <JournalView transactions={botTransactions} trades={botClosedTrades} />
+          </div>
+        )}
+
+        <div className="derivStats">
+          <div>
+            <strong>Total stake</strong>
+            <span>{money(totalStake)} USD</span>
+          </div>
+
+          <div>
+            <strong>Total payout</strong>
+            <span>{money(totalPayout)} USD</span>
+          </div>
+
+          <div>
+            <strong>No. of runs</strong>
+            <span>{noOfRuns}</span>
+          </div>
+
+          <div>
+            <strong>Contracts lost</strong>
+            <span>{totalLost}</span>
+          </div>
+
+          <div>
+            <strong>Contracts won</strong>
+            <span>{totalWon}</span>
+          </div>
+
+          <div>
+            <strong>Total profit/loss</strong>
+            <span className={totalProfitLoss >= 0 ? "profitText" : "lossText"}>
+              {totalProfitLoss >= 0 ? "+" : ""}
+              {money(totalProfitLoss)} USD
+            </span>
+          </div>
         </div>
 
-        <div className="summaryBox">
-          <p>
-            Selected: <b>{selectedBot.name}</b>
-            <br />
-            Click <b>Run</b> to start this bot.
-          </p>
-        </div>
-
-        <div className="botStats">
-          <div>
-            <strong>${selectedBot.stake}</strong>
-            <span>Stake</span>
-          </div>
-
-          <div>
-            <strong>${selectedBot.takeProfit}</strong>
-            <span>Take profit</span>
-          </div>
-
-          <div>
-            <strong>${selectedBot.stopLoss}</strong>
-            <span>Stop loss</span>
-          </div>
-
-          <div>
-            <strong>{selectedBot.duration}</strong>
-            <span>Ticks</span>
-          </div>
-
-          <div>
-            <strong>{selectedBot.choice}</strong>
-            <span>Contract</span>
-          </div>
-
-          <div>
-            <strong>{selectedBot.prediction}</strong>
-            <span>Prediction</span>
-          </div>
-        </div>
-
-        <button className="resetBotBtn">Reset</button>
+        <button className="derivResetBtn">Reset</button>
       </div>
     </aside>
+  );
+}
+
+function SummaryView({ currentTrade, lastClosed, freeBotRunning, selectedBot }) {
+  if (!freeBotRunning && !currentTrade && !lastClosed) {
+    return (
+      <div className="summaryEmpty">
+        <p>
+          When you’re ready to trade, hit <b>Run</b>. You’ll be able to track your
+          bot’s performance here.
+        </p>
+      </div>
+    );
+  }
+
+  if (!currentTrade && lastClosed) {
+    return (
+      <div className={lastClosed.won ? "closedCard wonClosed" : "closedCard lostClosed"}>
+        <strong>⚑ Closed</strong>
+        <h2>
+          {lastClosed.won ? "+" : "-"}
+          {money(lastClosed.won ? lastClosed.profit : lastClosed.stake)} USD
+        </h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="contractCard">
+      <div className="contractTop">
+        <div>
+          <small>{currentTrade?.botName || selectedBot.name}</small>
+          <strong>{selectedBot.market}</strong>
+        </div>
+
+        <div className="contractChoice">↗ {currentTrade?.choice || selectedBot.choice}</div>
+      </div>
+
+      <div className="tickLine">
+        <span>Tick 1</span>
+        <div>
+          <i></i>
+        </div>
+      </div>
+
+      <div className="currencyPill">USD</div>
+
+      <div className="contractGrid">
+        <div>
+          <span>Total profit/loss:</span>
+          <strong className="lossText">0.00</strong>
+        </div>
+
+        <div>
+          <span>Contract value:</span>
+          <strong>0.00</strong>
+        </div>
+
+        <div>
+          <span>Stake:</span>
+          <strong>{money(currentTrade?.stake || selectedBot.stake)}</strong>
+        </div>
+
+        <div>
+          <span>Potential payout:</span>
+          <strong>{money(currentTrade?.payout || selectedBot.stake * 1.85)}</strong>
+        </div>
+      </div>
+
+      <div className="resaleText">Resale not offered</div>
+    </div>
+  );
+}
+
+function TransactionsView({ trades }) {
+  if (trades.length === 0) {
+    return (
+      <div className="summaryEmpty small">
+        <p>No transactions yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="transactionTable">
+      <div className="transactionTools">
+        <button disabled>Download</button>
+        <button>View Detail</button>
+      </div>
+
+      <div className="tableHead">
+        <strong>Type</strong>
+        <strong>Entry/Exit spot</strong>
+        <strong>Buy price and P/L</strong>
+      </div>
+
+      {trades.slice(0, 14).map((trade) => {
+        const pl = trade.status === "RUNNING" ? null : trade.won ? trade.profit : -trade.stake;
+
+        return (
+          <div className="tableRow" key={trade.id}>
+            <div>
+              <span className="tinyChart">▥</span>
+              <span className="tinyArrow">↗</span>
+            </div>
+
+            <div>
+              <span className="spotDot redDot"></span>
+              <span>{trade.startPrice ? money(trade.startPrice) : "—"}</span>
+              <span className="spotDot grayDot"></span>
+              <span>{trade.endPrice ? money(trade.endPrice) : "—"}</span>
+            </div>
+
+            <div>
+              <strong>{money(trade.stake)} USD</strong>
+              {pl !== null && (
+                <span className={pl >= 0 ? "profitText" : "lossText"}>
+                  {pl >= 0 ? "+" : ""}
+                  {money(pl)} USD
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function JournalView({ transactions, trades }) {
+  const items = [
+    ...transactions.map((tx) => ({
+      id: tx.id,
+      title: tx.type,
+      amount: tx.amount,
+      status: tx.status,
+      time: tx.time,
+    })),
+    ...trades.map((trade) => ({
+      id: trade.id,
+      title: trade.won ? "Profit amount" : "Loss amount",
+      amount: trade.won ? trade.profit : -trade.stake,
+      status: trade.won ? "Profit" : "Loss",
+      time: trade.settledAt,
+    })),
+  ].slice(0, 12);
+
+  if (items.length === 0) {
+    return (
+      <div className="summaryEmpty small">
+        <p>No journal logs yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="journalList">
+      <div className="journalTop">
+        <button>Download</button>
+        <span>Filters ≡</span>
+      </div>
+
+      {items.map((item) => (
+        <div className="journalItem" key={item.id}>
+          <p>
+            {String(item.title).includes("Opened") || String(item.title).includes("Started") ? (
+              <>
+                <b>Bought:</b> Contract purchased
+              </>
+            ) : (
+              <>
+                {item.status === "Loss" ? "Loss amount:" : "Profit amount:"}{" "}
+                <span className={Number(item.amount) >= 0 ? "profitText" : "lossText"}>
+                  {money(item.amount)} USD
+                </span>
+              </>
+            )}
+          </p>
+          <small>{item.time || new Date().toLocaleString()}</small>
+        </div>
+      ))}
+    </div>
   );
 }

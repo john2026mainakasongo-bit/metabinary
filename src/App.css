@@ -2315,3 +2315,980 @@ button:disabled {
     width: 100%;
   }
 }
+.derivRunPanel {
+  padding: 0;
+  background: #ffffff;
+}
+
+.derivRunHeader {
+  height: 64px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.derivRunBtn,
+.derivStopBtn {
+  height: 54px;
+  border-radius: 12px;
+  color: white;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.derivRunBtn {
+  background: #7c5cff;
+}
+
+.derivStopBtn {
+  background: #6f5df6;
+}
+
+.derivStatus {
+  height: 54px;
+  border: 1px solid #d9dde8;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  background: white;
+}
+
+.derivStatus strong {
+  font-size: 14px;
+  color: #333;
+}
+
+.derivStatus.wonStatus {
+  background: linear-gradient(90deg, rgba(0, 200, 150, 0.12), rgba(0, 200, 150, 0.03));
+}
+
+.derivStatus.wonStatus strong {
+  color: #35b7b4;
+  font-size: 22px;
+}
+
+.derivStatus.lostStatus {
+  background: linear-gradient(90deg, rgba(255, 64, 87, 0.12), rgba(255, 64, 87, 0.03));
+}
+
+.derivStatus.lostStatus strong {
+  color: #ff4057;
+  font-size: 22px;
+}
+
+.derivProgress {
+  width: 100%;
+  height: 5px;
+  background: #d6dde0;
+  border-radius: 999px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.derivProgress span {
+  display: block;
+  width: 10%;
+  height: 100%;
+  background: #9fc2c4;
+}
+
+.derivProgress .activeProgress {
+  width: 70%;
+  background: #40b8b6;
+}
+
+.athenaStatusRow {
+  display: grid;
+  grid-template-columns: 82px 1fr 48px;
+  gap: 7px;
+  align-items: center;
+  padding: 0 8px 8px;
+  border-bottom: 1px solid #edf1f8;
+}
+
+.athenaPill {
+  height: 28px;
+  border: 1px solid #dfe5f2;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 11px;
+  color: #333;
+}
+
+.athenaPill span {
+  width: 22px;
+  height: 14px;
+  border-radius: 999px;
+  background: #dfe5f2;
+}
+
+.athenaPill span.athenaOn {
+  background: #35b7b4;
+}
+
+.smallStatusBox {
+  height: 28px;
+  border: 1px solid #dfe5f2;
+  border-radius: 6px;
+  padding: 3px 7px;
+  overflow: hidden;
+}
+
+.smallStatusBox strong {
+  display: block;
+  font-size: 8px;
+  color: #8a94aa;
+}
+
+.smallStatusBox span {
+  display: block;
+  font-size: 8px;
+  color: #8a94aa;
+  white-space: nowrap;
+}
+
+.athenaStatusRow a {
+  color: #008f8f;
+  font-size: 10px;
+  text-decoration: underline;
+}
+
+.derivTabs {
+  height: 54px;
+}
+
+.derivTabs button {
+  font-size: 18px;
+}
+
+.derivPanelBody {
+  height: 330px;
+  overflow-y: auto;
+  padding: 12px 18px;
+  background: white;
+}
+
+.summaryEmpty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: #f5f5f5;
+  color: #333;
+  padding: 25px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.summaryEmpty.small {
+  height: 220px;
+}
+
+.contractCard {
+  background: linear-gradient(90deg, rgba(255, 64, 87, 0.12), rgba(255, 255, 255, 0.9));
+  border-radius: 6px;
+  border: 1px solid #f4d4da;
+  padding: 20px;
+  min-height: 300px;
+}
+
+.contractTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contractTop small {
+  display: inline-block;
+  background: #333;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin-right: 8px;
+}
+
+.contractTop strong {
+  color: #333;
+}
+
+.contractChoice {
+  font-weight: 900;
+  color: #333;
+}
+
+.tickLine {
+  margin: 28px 0 20px;
+}
+
+.tickLine span {
+  display: block;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.tickLine div {
+  height: 6px;
+  border-radius: 999px;
+  background: #8eb6b7;
+  overflow: hidden;
+}
+
+.tickLine i {
+  display: block;
+  width: 70%;
+  height: 100%;
+  background: #40b8b6;
+}
+
+.currencyPill {
+  display: inline-block;
+  background: #8eb6b7;
+  color: white;
+  border-radius: 5px;
+  padding: 4px 7px;
+  font-weight: 900;
+  margin-bottom: 14px;
+}
+
+.contractGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.contractGrid span {
+  display: block;
+  color: #444;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.contractGrid strong {
+  color: #333;
+}
+
+.resaleText {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 22px;
+  padding-top: 20px;
+  text-align: center;
+  color: #555;
+}
+
+.closedCard {
+  height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.closedCard strong {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.closedCard h2 {
+  font-size: 22px;
+}
+
+.wonClosed {
+  background: rgba(0, 200, 150, 0.12);
+  color: #35b7b4;
+}
+
+.lostClosed {
+  background: rgba(255, 64, 87, 0.12);
+  color: #ff4057;
+}
+
+.derivStats {
+  min-height: 140px;
+  background: #f0f1f3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 22px 16px;
+  text-align: center;
+}
+
+.derivStats strong {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.derivStats span {
+  color: #333;
+}
+
+.profitText {
+  color: #35b7b4 !important;
+  font-weight: 900;
+}
+
+.lossText {
+  color: #ff4057 !important;
+  font-weight: 900;
+}
+
+.derivResetBtn {
+  width: calc(100% - 32px);
+  height: 42px;
+  margin: 14px 16px 18px;
+  border-radius: 12px;
+  border: 1px solid #d8ccff;
+  color: #333;
+  background: white;
+  font-weight: 900;
+}
+
+.transactionTools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.transactionTools button,
+.journalTop button {
+  height: 30px;
+  border: 1px solid #d8ccff;
+  background: white;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-weight: 900;
+  color: #333;
+}
+
+.transactionTools button:disabled {
+  color: #bbb;
+}
+
+.tableHead,
+.tableRow {
+  display: grid;
+  grid-template-columns: 90px 1fr 120px;
+  gap: 10px;
+  align-items: center;
+}
+
+.tableHead {
+  padding: 10px 0 20px;
+  border-bottom: 1px solid #edf1f8;
+}
+
+.tableHead strong {
+  font-size: 13px;
+  color: #333;
+}
+
+.tableRow {
+  min-height: 54px;
+  border-bottom: 1px solid #edf1f8;
+  font-size: 13px;
+}
+
+.tableRow > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tinyChart {
+  color: #35b7b4;
+  font-size: 18px;
+}
+
+.tinyArrow {
+  color: #ff4057;
+  font-size: 20px;
+}
+
+.spotDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.redDot {
+  border: 3px solid #ff4057;
+}
+
+.grayDot {
+  border: 2px solid #aaa;
+}
+
+.journalTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.journalTop span {
+  color: #333;
+  font-size: 18px;
+}
+
+.journalItem {
+  background: #f1f2f4;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.journalItem:nth-child(even) {
+  background: white;
+}
+
+.journalItem p {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.journalItem b {
+  color: #246bff;
+  font-weight: 500;
+}
+
+.journalItem small {
+  color: #8a94aa;
+}
+
+@media (max-width: 760px) {
+  .derivRunHeader {
+    grid-template-columns: 100px 1fr;
+  }
+
+  .derivPanelBody {
+    height: 330px;
+    padding: 10px;
+  }
+
+  .derivStats {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 18px 10px;
+  }
+
+  .derivStats strong {
+    font-size: 12px;
+  }
+
+  .derivStats span {
+    font-size: 12px;
+  }
+
+  .tableHead,
+  .tableRow {
+    grid-template-columns: 70px 1fr 105px;
+  }
+}
+/* CLEAN FREE BOT HEADER - remove green buttons area */
+
+.selectedBotBanner {
+  margin: 14px;
+  background: #10164a;
+  color: white;
+  border-radius: 18px;
+  padding: 18px;
+  display: block;
+}
+
+.selectedBotBanner strong {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.selectedBotBanner span {
+  display: block;
+  color: #cbd2ef;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Hide old green Run This Bot / Stop Bot buttons if any remain */
+.botBannerActions,
+.stopBotBannerBtn {
+  display: none !important;
+}
+/* =========================
+   FINAL MOBILE + 100% ZOOM FIX
+   Paste at bottom of App.css
+========================= */
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Make desktop also fit better at 100% zoom */
+@media (max-width: 1450px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .mainTabs button {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .balanceBox {
+    min-width: 92px;
+  }
+
+  .balanceBox strong {
+    font-size: 16px;
+  }
+
+  .depositBtn,
+  .topMiniBtn {
+    padding: 0 12px;
+  }
+
+  .layout {
+    grid-template-columns: 210px minmax(0, 1fr) 340px;
+  }
+}
+
+/* Tablet and phone layout */
+@media (max-width: 950px) {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    min-height: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .app {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible !important;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    height: auto !important;
+    min-height: auto;
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 10px;
+    z-index: 999;
+  }
+
+  .brand {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .topActions {
+    width: auto;
+    margin-left: 0 !important;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .topActions select,
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .mainTabs {
+    grid-column: 1 / -1;
+    order: 5;
+    width: 100%;
+    height: 46px;
+    display: flex;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    gap: 7px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .mainTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mainTabs button {
+    height: 40px;
+    min-width: max-content;
+    padding: 0 15px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+
+  .accountSwitch {
+    height: 40px;
+  }
+
+  .accountSwitch button {
+    min-width: 48px;
+    font-size: 12px;
+  }
+
+  .balanceBox {
+    min-width: 78px;
+    text-align: left;
+  }
+
+  .balanceBox small {
+    font-size: 9px;
+  }
+
+  .balanceBox strong {
+    font-size: 13px;
+  }
+
+  .depositBtn {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .iconBtn {
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+  }
+
+  .layout {
+    height: auto !important;
+    min-height: calc(100vh - 120px);
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .leftPanel {
+    display: none !important;
+  }
+
+  .chartArea {
+    width: 100%;
+    height: 610px !important;
+    min-height: 610px;
+    overflow: hidden !important;
+    border-bottom: 1px solid #dfe5f2;
+  }
+
+  .tradePanel {
+    width: 100%;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border-left: none !important;
+    border-top: 1px solid #dfe5f2;
+    padding: 16px 16px 95px;
+  }
+
+  .marketCard {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: auto !important;
+    margin: 12px;
+    padding: 14px;
+    z-index: 5;
+  }
+
+  .marketCard h1 {
+    font-size: 30px;
+  }
+
+  .modeLabel {
+    display: none !important;
+  }
+
+  .timeframes {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin: 0 12px;
+    width: calc(100% - 24px);
+    overflow-x: auto !important;
+    display: flex;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+
+  .timeframes::-webkit-scrollbar {
+    display: none;
+  }
+
+  .timeframes button {
+    min-width: 52px;
+    height: 40px;
+  }
+
+  .chartSvg {
+    inset: 210px 40px 118px 0 !important;
+    width: calc(100% - 40px) !important;
+    height: calc(100% - 328px) !important;
+  }
+
+  .priceTag {
+    top: 282px !important;
+    right: 10px !important;
+  }
+
+  .chartNumbers.top {
+    top: 230px !important;
+  }
+
+  .chartNumbers.mid {
+    top: 385px !important;
+  }
+
+  .chartNumbers.low {
+    bottom: 168px !important;
+  }
+
+  .chartNumbers.bottom {
+    display: none !important;
+  }
+
+  .digitBar {
+    height: auto !important;
+    min-height: auto !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .digit {
+    width: 100%;
+    height: 66px;
+  }
+
+  .digit strong {
+    font-size: 20px;
+  }
+
+  .digit small {
+    font-size: 10px;
+  }
+
+  .aiBubble {
+    width: 58px;
+    height: 58px;
+    right: 14px;
+    bottom: 14px;
+    z-index: 1000;
+  }
+}
+
+/* Small phones */
+@media (max-width: 430px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .topActions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    align-items: center;
+  }
+
+  .balanceBox {
+    min-width: 70px;
+  }
+
+  .depositBtn {
+    padding: 0 10px;
+  }
+
+  .menuWrap {
+    justify-self: end;
+  }
+
+  .chartArea {
+    height: 585px !important;
+    min-height: 585px;
+  }
+
+  .chartSvg {
+    inset: 210px 35px 120px 0 !important;
+    width: calc(100% - 35px) !important;
+  }
+
+  .digitBar {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 8px;
+  }
+
+  .digit {
+    height: 62px;
+  }
+}
+
+/* Free Bot mobile fix */
+@media (max-width: 950px) {
+  .botBuilderPanel {
+    width: 100%;
+    height: auto !important;
+    min-height: auto;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .botLeftMenu {
+    height: auto !important;
+    max-height: none !important;
+    border-right: none;
+    border-bottom: 1px solid #dfe5f2;
+  }
+
+  .botNameList {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .botWorkspace {
+    height: 620px !important;
+    overflow: auto !important;
+    border-bottom: 1px solid #dfe5f2;
+  }
+
+  .botToolbar {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .botToolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .blocksCanvas {
+    min-width: 820px !important;
+    min-height: 820px !important;
+    transform: scale(0.78);
+    transform-origin: top left;
+  }
+
+  .botRunPanel,
+  .derivRunPanel {
+    width: 100%;
+    height: auto !important;
+    min-height: auto;
+    overflow: visible !important;
+    border-left: none;
+  }
+
+  .derivPanelBody {
+    height: 340px !important;
+  }
+
+  .derivStats {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .botNameList {
+    grid-template-columns: 1fr;
+  }
+
+  .blocksCanvas {
+    transform: scale(0.7);
+  }
+
+  .botWorkspace {
+    height: 585px !important;
+  }
+
+  .derivRunHeader {
+    grid-template-columns: 105px 1fr !important;
+  }
+
+  .derivStats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .derivTabs button {
+    font-size: 15px;
+  }
+}
+
+/* Deposit modal mobile */
+@media (max-width: 650px) {
+  .darkModalOverlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .darkPaymentCard {
+    width: 100% !important;
+    max-height: 92vh;
+    border-radius: 24px 24px 0 0 !important;
+    overflow-y: auto;
+  }
+
+  .darkModalHeader {
+    padding: 22px;
+    min-height: auto;
+  }
+
+  .darkModalHeader h2 {
+    font-size: 26px;
+  }
+
+  .darkModalHeader p {
+    font-size: 16px;
+  }
+
+  .darkModalBody {
+    padding: 20px;
+  }
+
+  .paymentOption {
+    min-height: 98px;
+    grid-template-columns: 58px 1fr 30px;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .paymentIcon {
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
+  }
+
+  .paymentOption strong {
+    font-size: 19px;
+  }
+
+  .paymentOption span {
+    font-size: 15px;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Chart from "./components/Chart.jsx";
 import DigitBar from "./components/DigitBar.jsx";
 import TradePanel from "./components/TradePanel.jsx";
@@ -52,6 +52,10 @@ export default function App() {
 
   const [freeBotRunning, setFreeBotRunning] = useState(false);
   const [bulkCount, setBulkCount] = useState(5);
+
+  const botIntervalRef = useRef(null);
+  const botRunCountRef = useRef(0);
+  const activeBotNameRef = useRef("");
 
   const saveBalances = (nextBalances) => {
     localStorage.setItem("metabinary_balances", JSON.stringify(nextBalances));
@@ -110,7 +114,7 @@ export default function App() {
       ...item,
     };
 
-    setTransactions((old) => [tx, ...old].slice(0, 50));
+    setTransactions((old) => [tx, ...old].slice(0, 80));
   };
 
   const pollDepositStatus = (apiRef, amountUsd) => {
@@ -399,19 +403,19 @@ export default function App() {
     setOpenTrades((old) => [trade, ...old]);
 
     addTransaction({
-      type: "Trade Opened",
+      type: trade.botName ? `${trade.botName} Opened` : "Trade Opened",
       account,
       amount: tradeData.stake,
       status: "Running",
-      method: tradeData.contract,
-      phone: tradeData.choice,
+      method: trade.botName ? "Free Bot" : tradeData.contract,
+      phone: trade.botName ? `${tradeData.contract} · ${tradeData.choice}` : tradeData.choice,
     });
 
     setTimeout(() => {
       const settled = decideTradeResult(trade);
 
       setOpenTrades((old) => old.filter((item) => item.id !== trade.id));
-      setClosedTrades((old) => [settled, ...old].slice(0, 30));
+      setClosedTrades((old) => [settled, ...old].slice(0, 50));
 
       if (settled.won) {
         setBalances((old) => {
@@ -427,49 +431,157 @@ export default function App() {
       }
 
       addTransaction({
-        type: settled.won ? "Trade Won" : "Trade Lost",
+        type: settled.botName
+          ? `${settled.botName} ${settled.won ? "Won" : "Lost"}`
+          : settled.won
+          ? "Trade Won"
+          : "Trade Lost",
         account: trade.account,
         amount: settled.won ? settled.profit : settled.stake,
         status: settled.status,
-        method: settled.contract,
+        method: settled.botName ? "Free Bot" : settled.contract,
         phone: `${settled.choice} · digit ${settled.resultDigit}`,
       });
     }, trade.duration * 1000);
   };
 
-  const startFreeBot = () => {
+  const startFreeBot = (selectedBot = {}) => {
+    if (freeBotRunning) return;
+
+    const botName = selectedBot.name || "Over 2 Recovery";
+    const stake = Number(selectedBot.stake || 1);
+    const duration = Number(selectedBot.duration || 5);
+    const prediction = Number(selectedBot.prediction || 2);
+
+    botRunCountRef.current = 0;
+    activeBotNameRef.current = botName;
+
     setFreeBotRunning(true);
 
-    const botTrades = [
-      {
-        contract: "Over/Under",
-        choice: "Over",
-        stake: 1,
-        duration: 5,
-        prediction: 2,
-        payoutRate: 1.85,
-        payout: 1.85,
-        profit: 0.85,
-      },
-      {
-        contract: "Even/Odd",
-        choice: "Even",
-        stake: 1,
-        duration: 5,
-        prediction: 5,
-        payoutRate: 1.9,
-        payout: 1.9,
-        profit: 0.9,
-      },
-    ];
-
-    botTrades.forEach((trade, index) => {
-      setTimeout(() => placeTrade(trade), index * 1200);
+    addTransaction({
+      type: `${botName} Started`,
+      account,
+      amount: stake,
+      status: "Running",
+      method: "Free Bot",
+      phone: botName,
     });
 
-    setTimeout(() => {
-      setFreeBotRunning(false);
-    }, 8000);
+    const createBotTrade = () => {
+      botRunCountRef.current += 1;
+
+      let trade = {
+        contract: selectedBot.contract || "Over/Under",
+        choice: selectedBot.choice || "Over",
+        stake,
+        duration,
+        prediction,
+        payoutRate: 1.85,
+        payout: Number((stake * 1.85).toFixed(2)),
+        profit: Number((stake * 0.85).toFixed(2)),
+        botName,
+      };
+
+      if (botName === "Over 2 Recovery") {
+        const recoveryStake =
+          botRunCountRef.current % 3 === 0 ? Number((stake * 2).toFixed(2)) : stake;
+
+        trade = {
+          contract: "Over/Under",
+          choice: "Over",
+          stake: recoveryStake,
+          duration,
+          prediction: 2,
+          payoutRate: 1.85,
+          payout: Number((recoveryStake * 1.85).toFixed(2)),
+          profit: Number((recoveryStake * 0.85).toFixed(2)),
+          botName,
+        };
+      }
+
+      if (botName === "Even/Odd Hunter") {
+        const choice = botRunCountRef.current % 2 === 0 ? "Even" : "Odd";
+
+        trade = {
+          contract: "Even/Odd",
+          choice,
+          stake,
+          duration,
+          prediction: 5,
+          payoutRate: 1.9,
+          payout: Number((stake * 1.9).toFixed(2)),
+          profit: Number((stake * 0.9).toFixed(2)),
+          botName,
+        };
+      }
+
+      if (botName === "Rise/Fall Trend") {
+        const choice = botRunCountRef.current % 2 === 0 ? "Rise" : "Fall";
+
+        trade = {
+          contract: "Rise/Fall",
+          choice,
+          stake,
+          duration,
+          prediction,
+          payoutRate: 1.9,
+          payout: Number((stake * 1.9).toFixed(2)),
+          profit: Number((stake * 0.9).toFixed(2)),
+          botName,
+        };
+      }
+
+      if (botName === "Low Risk Demo Bot") {
+        trade = {
+          contract: "Over/Under",
+          choice: "Over",
+          stake,
+          duration,
+          prediction: 3,
+          payoutRate: 1.75,
+          payout: Number((stake * 1.75).toFixed(2)),
+          profit: Number((stake * 0.75).toFixed(2)),
+          botName,
+        };
+      }
+
+      addTransaction({
+        type: `${botName} Trade ${botRunCountRef.current}`,
+        account,
+        amount: trade.stake,
+        status: "Opened",
+        method: "Free Bot",
+        phone: `${trade.contract} · ${trade.choice}`,
+      });
+
+      placeTrade(trade);
+    };
+
+    createBotTrade();
+
+    botIntervalRef.current = setInterval(() => {
+      createBotTrade();
+    }, (duration + 2) * 1000);
+  };
+
+  const stopFreeBot = () => {
+    if (botIntervalRef.current) {
+      clearInterval(botIntervalRef.current);
+      botIntervalRef.current = null;
+    }
+
+    const botName = activeBotNameRef.current || "Free Bot";
+
+    setFreeBotRunning(false);
+
+    addTransaction({
+      type: `${botName} Stopped`,
+      account,
+      amount: 0,
+      status: "Stopped",
+      method: "Free Bot",
+      phone: botName,
+    });
   };
 
   const runBulkTrades = () => {
@@ -629,6 +741,7 @@ export default function App() {
                 <div className="positionCard" key={trade.id}>
                   <strong>{trade.choice}</strong>
                   <small>
+                    {trade.botName ? `${trade.botName} · ` : ""}
                     {trade.contract} · ${money(trade.stake)} · {trade.duration}s
                   </small>
                   <span>Running</span>
@@ -647,7 +760,7 @@ export default function App() {
                   key={trade.id}
                 >
                   <strong>{trade.status}</strong>
-                  <small>{trade.choice}</small>
+                  <small>{trade.botName || trade.choice}</small>
                   <small>{trade.contract}</small>
                   <small>Result digit: {trade.resultDigit}</small>
                   <span>
@@ -665,6 +778,10 @@ export default function App() {
           <FreeBotBuilder
             freeBotRunning={freeBotRunning}
             startFreeBot={startFreeBot}
+            stopFreeBot={stopFreeBot}
+            openTrades={openTrades}
+            closedTrades={closedTrades}
+            transactions={transactions}
           />
         ) : (
           <>
