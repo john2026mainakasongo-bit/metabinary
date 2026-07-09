@@ -3,6 +3,9 @@ import Chart from "./components/Chart.jsx";
 import DigitBar from "./components/DigitBar.jsx";
 import TradePanel from "./components/TradePanel.jsx";
 import AIAssistant from "./components/AIAssistant.jsx";
+import FreeBotBuilder from "./components/FreeBotBuilder.jsx";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const DEFAULT_BALANCES = {
   demo: 10000,
@@ -38,10 +41,14 @@ export default function App() {
   const [transactions, setTransactions] = useState([]);
 
   const [modal, setModal] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const [depositAmount, setDepositAmount] = useState(10);
   const [depositPhone, setDepositPhone] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState(5);
   const [withdrawPhone, setWithdrawPhone] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState("");
 
   const [freeBotRunning, setFreeBotRunning] = useState(false);
   const [bulkCount, setBulkCount] = useState(5);
@@ -84,9 +91,16 @@ export default function App() {
   };
 
   const logout = () => {
+    setMenuOpen(false);
     localStorage.removeItem("metabinary_user");
     setUser(null);
     setAuthMode("login");
+  };
+
+  const openModal = (name) => {
+    setMenuOpen(false);
+    setPaymentMessage("");
+    setModal(name);
   };
 
   const addTransaction = (item) => {
@@ -99,7 +113,59 @@ export default function App() {
     setTransactions((old) => [tx, ...old].slice(0, 50));
   };
 
-  const handleDeposit = () => {
+  const pollDepositStatus = (apiRef, amountUsd) => {
+    let attempts = 0;
+
+    const timer = setInterval(async () => {
+      attempts += 1;
+
+      try {
+        const res = await fetch(`${API_URL}/api/deposit/status/${apiRef}`);
+        const data = await res.json();
+
+        const status = String(data?.deposit?.status || "").toUpperCase();
+
+        if (status === "COMPLETED") {
+          clearInterval(timer);
+
+          setBalances((old) => {
+            const next = {
+              ...old,
+              real: Number((old.real + Number(amountUsd)).toFixed(2)),
+            };
+
+            return saveBalances(next);
+          });
+
+          addTransaction({
+            type: "Deposit",
+            account: "real",
+            amount: Number(amountUsd),
+            status: "Completed",
+            method: "M-Pesa",
+            phone: depositPhone,
+          });
+
+          setAccount("real");
+          setPaymentMessage("Payment completed. Real balance updated.");
+          alert("Payment completed. Real balance updated.");
+        }
+
+        if (attempts >= 40) {
+          clearInterval(timer);
+          setPaymentMessage(
+            "STK Push sent. Waiting for callback. If payment was completed, refresh after callback."
+          );
+        }
+      } catch {
+        if (attempts >= 40) {
+          clearInterval(timer);
+        }
+      }
+    }, 3000);
+  };
+
+  const sendMpesaStkPush = async () => {
     const amount = Number(depositAmount);
 
     if (!amount || amount < 1) {
@@ -108,31 +174,112 @@ export default function App() {
     }
 
     if (!depositPhone.trim()) {
-      alert("Enter phone number");
+      alert("Enter M-Pesa phone number");
       return;
     }
 
-    setBalances((old) => {
-      const next = {
-        ...old,
-        real: Number((old.real + amount).toFixed(2)),
-      };
+    try {
+      setPaymentLoading(true);
+      setPaymentMessage("Sending STK Push...");
 
-      return saveBalances(next);
-    });
+      const res = await fetch(`${API_URL}/api/deposit/mpesa`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          amountUsd: amount,
+          phone: depositPhone,
+        }),
+      });
 
-    addTransaction({
-      type: "Deposit",
-      account: "real",
-      amount,
-      status: "Completed",
-      method: "M-Pesa",
-      phone: depositPhone,
-    });
+      const data = await res.json();
 
-    setAccount("real");
-    setModal(null);
-    alert(`Deposit successful. Real balance updated by $${money(amount)}.`);
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || "STK Push failed");
+      }
+
+      setPaymentMessage("STK Push sent. Check your phone and enter M-Pesa PIN.");
+
+      addTransaction({
+        type: "Deposit Pending",
+        account: "real",
+        amount,
+        status: "Pending",
+        method: "M-Pesa",
+        phone: depositPhone,
+      });
+
+      if (data.apiRef) {
+        pollDepositStatus(data.apiRef, amount);
+      }
+    } catch (error) {
+      alert(error.message || "Failed to send STK Push");
+      setPaymentMessage(error.message || "Failed to send STK Push");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const openCardCheckout = async () => {
+    const amount = Number(depositAmount);
+
+    if (!amount || amount < 1) {
+      alert("Minimum deposit is $1");
+      return;
+    }
+
+    try {
+      setPaymentLoading(true);
+      setPaymentMessage("Creating card checkout...");
+
+      const res = await fetch(`${API_URL}/api/deposit/card`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          amountUsd: amount,
+          phone: depositPhone,
+          firstName: user.name || "MetaBinary",
+          lastName: "Trader",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || "Card checkout failed");
+      }
+
+      if (!data.checkoutUrl) {
+        throw new Error("Checkout URL missing from IntaSend response");
+      }
+
+      addTransaction({
+        type: "Card Deposit Started",
+        account: "real",
+        amount,
+        status: "Pending",
+        method: "Card",
+        phone: user.email,
+      });
+
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      alert(error.message || "Failed to create card checkout");
+      setPaymentMessage(error.message || "Failed to create card checkout");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const handleUsdtDeposit = () => {
+    setPaymentMessage(
+      "USDT is shown in the UI. We need your IntaSend crypto method enabled before real TRC20 deposits can work."
+    );
   };
 
   const handleWithdraw = () => {
@@ -427,106 +574,168 @@ export default function App() {
             <strong>${money(balances[account])}</strong>
           </div>
 
-          <button className="depositBtn" onClick={() => setModal("deposit")}>
+          <button className="depositBtn" onClick={() => openModal("depositOptions")}>
             Deposit
           </button>
 
-          <button className="topMiniBtn" onClick={() => setModal("withdraw")}>
+          <button className="topMiniBtn desktopOnly" onClick={() => openModal("withdraw")}>
             Withdraw
           </button>
 
-          <button className="topMiniBtn" onClick={() => setModal("history")}>
+          <button className="topMiniBtn desktopOnly" onClick={() => openModal("history")}>
             History
           </button>
 
-          <button className="iconBtn" onClick={logout} title="Logout">
-            ☰
-          </button>
+          <div className="menuWrap">
+            <button
+              className="iconBtn"
+              onClick={() => setMenuOpen((old) => !old)}
+              title="Menu"
+            >
+              ☰
+            </button>
+
+            {menuOpen && (
+              <div className="menuDropdown">
+                <div className="menuUser">
+                  <strong>{user.name}</strong>
+                  <small>{user.email}</small>
+                  <small>Broker ID: {user.brokerId}</small>
+                </div>
+
+                <button onClick={() => openModal("depositOptions")}>Deposit</button>
+                <button onClick={() => openModal("withdraw")}>Withdraw</button>
+                <button onClick={() => openModal("history")}>History</button>
+                <button onClick={() => setActivePage("analysis")}>Market Analyse</button>
+                <button onClick={() => setActivePage("tradingview")}>Trading View</button>
+                <button className="logoutMenuBtn" onClick={logout}>
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       <main className="layout">
-        <aside className="leftPanel">
-          <h3>Open Positions</h3>
+        {activePage !== "freebot" && (
+          <aside className="leftPanel">
+            <h3>Open Positions</h3>
 
-          {openTrades.length === 0 ? (
-            <p>No open trades</p>
-          ) : (
-            openTrades.map((trade) => (
-              <div className="positionCard" key={trade.id}>
-                <strong>{trade.choice}</strong>
-                <small>
-                  {trade.contract} · ${money(trade.stake)} · {trade.duration}s
-                </small>
-                <span>Running</span>
-              </div>
-            ))
-          )}
+            {openTrades.length === 0 ? (
+              <p>No open trades</p>
+            ) : (
+              openTrades.map((trade) => (
+                <div className="positionCard" key={trade.id}>
+                  <strong>{trade.choice}</strong>
+                  <small>
+                    {trade.contract} · ${money(trade.stake)} · {trade.duration}s
+                  </small>
+                  <span>Running</span>
+                </div>
+              ))
+            )}
 
-          <h3>Closed Positions</h3>
+            <h3>Closed Positions</h3>
 
-          {closedTrades.length === 0 ? (
-            <p>No trades yet</p>
-          ) : (
-            closedTrades.map((trade) => (
-              <div
-                className={`positionCard ${trade.won ? "winTrade" : "loseTrade"}`}
-                key={trade.id}
-              >
-                <strong>{trade.status}</strong>
-                <small>{trade.choice}</small>
-                <small>{trade.contract}</small>
-                <small>Result digit: {trade.resultDigit}</small>
-                <span>
-                  {trade.won
-                    ? `+$${money(trade.profit)}`
-                    : `-$${money(trade.stake)}`}
-                </span>
-              </div>
-            ))
-          )}
-        </aside>
-
-        <section className="chartArea">
-          {activePage === "tradingview" ? (
-            <TradingViewScreen />
-          ) : activePage === "analysis" ? (
-            <MarketAnalyseScreen />
-          ) : (
-            <>
-              <Chart activePage={activePage} />
-              <DigitBar />
-            </>
-          )}
-        </section>
-
-        {activePage === "manual" && <TradePanel onPlaceTrade={placeTrade} />}
-
-        {activePage === "freebot" && (
-          <FreeBotPanel freeBotRunning={freeBotRunning} startFreeBot={startFreeBot} />
+            {closedTrades.length === 0 ? (
+              <p>No trades yet</p>
+            ) : (
+              closedTrades.map((trade) => (
+                <div
+                  className={`positionCard ${trade.won ? "winTrade" : "loseTrade"}`}
+                  key={trade.id}
+                >
+                  <strong>{trade.status}</strong>
+                  <small>{trade.choice}</small>
+                  <small>{trade.contract}</small>
+                  <small>Result digit: {trade.resultDigit}</small>
+                  <span>
+                    {trade.won
+                      ? `+$${money(trade.profit)}`
+                      : `-$${money(trade.stake)}`}
+                  </span>
+                </div>
+              ))
+            )}
+          </aside>
         )}
 
-        {activePage === "bulk" && (
-          <BulkPanel
-            bulkCount={bulkCount}
-            setBulkCount={setBulkCount}
-            runBulkTrades={runBulkTrades}
+        {activePage === "freebot" ? (
+          <FreeBotBuilder
+            freeBotRunning={freeBotRunning}
+            startFreeBot={startFreeBot}
           />
+        ) : (
+          <>
+            <section className="chartArea">
+              {activePage === "tradingview" ? (
+                <TradingViewScreen />
+              ) : activePage === "analysis" ? (
+                <MarketAnalyseScreen />
+              ) : (
+                <>
+                  <Chart activePage={activePage} />
+                  <DigitBar />
+                </>
+              )}
+            </section>
+
+            {activePage === "manual" && <TradePanel onPlaceTrade={placeTrade} />}
+
+            {activePage === "bulk" && (
+              <BulkPanel
+                bulkCount={bulkCount}
+                setBulkCount={setBulkCount}
+                runBulkTrades={runBulkTrades}
+              />
+            )}
+
+            {activePage === "tradingview" && <TradingViewSidePanel />}
+
+            {activePage === "analysis" && <AnalysisSidePanel />}
+          </>
         )}
-
-        {activePage === "tradingview" && <TradingViewSidePanel />}
-
-        {activePage === "analysis" && <AnalysisSidePanel />}
       </main>
 
       <AIAssistant />
 
-      {modal === "deposit" && (
-        <Modal title="Deposit funds" close={() => setModal(null)}>
-          <p className="modalInfo">
-            Deposit updates the Real account balance immediately for testing.
-          </p>
+      {modal === "depositOptions" && (
+        <DarkPaymentModal
+          title="Deposit Funds"
+          subtitle="Choose payment method"
+          close={() => setModal(null)}
+        >
+          <PaymentOption
+            icon="▯"
+            title="M-Pesa"
+            subtitle="Instant mobile money"
+            onClick={() => openModal("depositMpesa")}
+          />
 
+          <PaymentOption
+            icon="▭"
+            title="Credit/Debit Card"
+            subtitle="Visa, Mastercard"
+            onClick={() => openModal("depositCard")}
+          />
+
+          <PaymentOption
+            icon="₿"
+            title="USDT (TRC20)"
+            subtitle="Cryptocurrency"
+            onClick={() => openModal("depositUsdt")}
+          />
+        </DarkPaymentModal>
+      )}
+
+      {modal === "depositMpesa" && (
+        <DarkPaymentModal
+          title="M-Pesa Deposit"
+          subtitle="Send real STK Push to your phone"
+          close={() => setModal(null)}
+          back={() => openModal("depositOptions")}
+        >
           <label>Amount USD</label>
           <input
             type="number"
@@ -537,15 +746,78 @@ export default function App() {
 
           <label>M-Pesa phone number</label>
           <input
+            placeholder="07XXXXXXXX or 2547XXXXXXXX"
+            value={depositPhone}
+            onChange={(e) => setDepositPhone(e.target.value)}
+          />
+
+          <button
+            className="darkPrimaryBtn"
+            onClick={sendMpesaStkPush}
+            disabled={paymentLoading}
+          >
+            {paymentLoading ? "Sending..." : "Send STK Push"}
+          </button>
+
+          {paymentMessage && <p className="paymentStatus">{paymentMessage}</p>}
+        </DarkPaymentModal>
+      )}
+
+      {modal === "depositCard" && (
+        <DarkPaymentModal
+          title="Card Deposit"
+          subtitle="Pay using Visa or Mastercard"
+          close={() => setModal(null)}
+          back={() => openModal("depositOptions")}
+        >
+          <label>Amount USD</label>
+          <input
+            type="number"
+            min="1"
+            value={depositAmount}
+            onChange={(e) => setDepositAmount(e.target.value)}
+          />
+
+          <label>Phone number optional</label>
+          <input
             placeholder="07XXXXXXXX"
             value={depositPhone}
             onChange={(e) => setDepositPhone(e.target.value)}
           />
 
-          <button className="modalPrimary" onClick={handleDeposit}>
-            Confirm Deposit
+          <button
+            className="darkPrimaryBtn"
+            onClick={openCardCheckout}
+            disabled={paymentLoading}
+          >
+            {paymentLoading ? "Creating..." : "Continue to Card Payment"}
           </button>
-        </Modal>
+
+          {paymentMessage && <p className="paymentStatus">{paymentMessage}</p>}
+        </DarkPaymentModal>
+      )}
+
+      {modal === "depositUsdt" && (
+        <DarkPaymentModal
+          title="USDT (TRC20)"
+          subtitle="Cryptocurrency deposit"
+          close={() => setModal(null)}
+          back={() => openModal("depositOptions")}
+        >
+          <div className="cryptoNotice">
+            <strong>USDT TRC20 setup required</strong>
+            <span>
+              We need to confirm the exact IntaSend crypto method enabled on your
+              account before real USDT deposits can work.
+            </span>
+          </div>
+
+          <button className="darkPrimaryBtn" onClick={handleUsdtDeposit}>
+            Check USDT Availability
+          </button>
+
+          {paymentMessage && <p className="paymentStatus">{paymentMessage}</p>}
+        </DarkPaymentModal>
       )}
 
       {modal === "withdraw" && (
@@ -606,54 +878,45 @@ export default function App() {
   );
 }
 
-function FreeBotPanel({ freeBotRunning, startFreeBot }) {
+function PaymentOption({ icon, title, subtitle, onClick }) {
   return (
-    <aside className="tradePanel">
-      <div className="learnBox">Free Bot</div>
+    <button className="paymentOption" onClick={onClick}>
+      <div className="paymentIcon">{icon}</div>
 
-      <div className="botStatusCard">
-        <strong>Over 2 Recovery Bot</strong>
-        <small>Free demo bot using small stake and simple recovery logic.</small>
+      <div>
+        <strong>{title}</strong>
+        <span>{subtitle}</span>
       </div>
 
-      <label>Strategy</label>
-      <select defaultValue="Over 2 Recovery">
-        <option>Over 2 Recovery</option>
-        <option>Even/Odd Recovery</option>
-        <option>Rise/Fall Trend</option>
-      </select>
+      <div className="paymentArrow">→</div>
+    </button>
+  );
+}
 
-      <label>Base stake</label>
-      <div className="stakeBox">
-        <button>-</button>
-        <strong>$1.00</strong>
-        <button>+</button>
+function DarkPaymentModal({ title, subtitle, close, back, children }) {
+  return (
+    <div className="darkModalOverlay">
+      <div className="darkPaymentCard">
+        <div className="darkModalHeader">
+          <div>
+            {back && (
+              <button className="darkBackBtn" onClick={back}>
+                ←
+              </button>
+            )}
+
+            <h2>{title}</h2>
+            <p>{subtitle}</p>
+          </div>
+
+          <button className="darkCloseBtn" onClick={close}>
+            ×
+          </button>
+        </div>
+
+        <div className="darkModalBody">{children}</div>
       </div>
-
-      <label>Martingale</label>
-      <select defaultValue="6 levels x2">
-        <option>6 levels x2</option>
-        <option>4 levels x2</option>
-        <option>No martingale</option>
-      </select>
-
-      <label>Take profit</label>
-      <input className="panelInput" defaultValue="20" />
-
-      <label>Stop loss</label>
-      <input className="panelInput" defaultValue="10" />
-
-      <div className="payoutBox">
-        <span>AI scan</span>
-        <strong>Ready</strong>
-      </div>
-
-      <button className="riseBtn" onClick={startFreeBot} disabled={freeBotRunning}>
-        {freeBotRunning ? "Bot Running..." : "Start Free Bot"}
-      </button>
-
-      <button className="fallBtn">Stop Bot</button>
-    </aside>
+    </div>
   );
 }
 

@@ -12,7 +12,6 @@ body,
   font-family: Inter, Arial, Helvetica, sans-serif;
   background: #f4f6fb;
   color: #111827;
-  overflow: hidden;
 }
 
 button,
@@ -125,10 +124,10 @@ button:disabled {
   display: flex;
   align-items: center;
   padding: 0 14px;
-  gap: 14px;
+  gap: 12px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 80;
   box-shadow: 0 8px 25px rgba(16, 22, 74, 0.22);
 }
 
@@ -137,7 +136,7 @@ button:disabled {
   align-items: center;
   gap: 9px;
   min-width: max-content;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
 }
 
@@ -168,11 +167,16 @@ button:disabled {
   gap: 7px;
   flex: 1;
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mainTabs::-webkit-scrollbar {
+  display: none;
 }
 
 .mainTabs button {
   height: 46px;
-  padding: 0 16px;
+  padding: 0 15px;
   border-radius: 12px;
   background: transparent;
   color: #c8d0ee;
@@ -271,6 +275,64 @@ button:disabled {
   background: #252c78;
   color: white;
   font-size: 24px;
+}
+
+.menuWrap {
+  position: relative;
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  width: 250px;
+  background: white;
+  border: 1px solid #dfe5f2;
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(7, 11, 51, 0.25);
+  padding: 12px;
+  z-index: 120;
+}
+
+.menuUser {
+  padding: 12px;
+  border-radius: 14px;
+  background: #f4f7fd;
+  margin-bottom: 8px;
+}
+
+.menuUser strong {
+  display: block;
+  color: #10164a;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.menuUser small {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.menuDropdown button {
+  width: 100%;
+  height: 42px;
+  background: transparent;
+  color: #10164a;
+  text-align: left;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.menuDropdown button:hover {
+  background: #f4f7fd;
+}
+
+.menuDropdown .logoutMenuBtn {
+  color: #ff4057;
 }
 
 /* MAIN LAYOUT */
@@ -725,6 +787,8 @@ button:disabled {
   background: #ff4057;
 }
 
+/* BOT / ANALYSIS */
+
 .botStatusCard,
 .analysisCard {
   background: #f4f7fd;
@@ -770,7 +834,7 @@ button:disabled {
 }
 
 .tvHeader {
-  height: 82px;
+  min-height: 82px;
   padding: 18px 22px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
@@ -1105,7 +1169,7 @@ button:disabled {
   font-weight: 900;
 }
 
-/* AI ASSISTANT FIXED */
+/* AI */
 
 .aiBubble {
   position: fixed;
@@ -1247,13 +1311,15 @@ button:disabled {
   font-weight: 900;
 }
 
-/* RESPONSIVE */
+/* TABLET */
 
 @media (max-width: 1250px) {
   html,
   body,
   #root {
     overflow: auto;
+    height: auto;
+    min-height: 100%;
   }
 
   .app {
@@ -1291,6 +1357,8 @@ button:disabled {
   .mainTabs {
     order: 3;
     width: 100%;
+    height: auto;
+    padding-bottom: 2px;
   }
 
   .topActions {
@@ -1301,9 +1369,15 @@ button:disabled {
   }
 }
 
+/* PHONE */
+
 @media (max-width: 700px) {
   .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: 10px;
+    align-items: center;
+    padding: 10px;
   }
 
   .brand {
@@ -1315,56 +1389,90 @@ button:disabled {
     height: 34px;
   }
 
-  .mainTabs button {
-    padding: 0 14px;
-    height: 42px;
-    font-size: 14px;
+  .topActions {
+    justify-content: flex-end;
+    gap: 6px;
   }
 
   .topActions select {
     display: none;
   }
 
+  .desktopOnly {
+    display: none !important;
+  }
+
+  .mainTabs {
+    grid-column: 1 / -1;
+    order: unset;
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    gap: 7px;
+    padding-top: 2px;
+  }
+
+  .mainTabs button {
+    padding: 0 14px;
+    height: 40px;
+    font-size: 13px;
+    border-radius: 11px;
+  }
+
   .accountSwitch {
-    height: 42px;
+    height: 40px;
   }
 
   .accountSwitch button {
-    min-width: 54px;
-    font-size: 13px;
+    min-width: 50px;
+    font-size: 12px;
   }
 
   .balanceBox {
-    min-width: 92px;
+    min-width: 82px;
+  }
+
+  .balanceBox small {
+    font-size: 10px;
   }
 
   .balanceBox strong {
-    font-size: 15px;
+    font-size: 14px;
   }
 
-  .depositBtn,
-  .topMiniBtn {
-    height: 42px;
+  .depositBtn {
+    height: 40px;
     padding: 0 12px;
     font-size: 12px;
   }
 
   .iconBtn {
-    width: 42px;
-    height: 42px;
-    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    font-size: 21px;
+  }
+
+  .menuDropdown {
+    top: 48px;
+    right: 0;
+    width: 240px;
   }
 
   .chartArea {
-    height: 560px;
+    height: 575px;
   }
 
   .marketCard {
     position: relative;
     top: auto;
     left: auto;
-    margin: 14px;
+    margin: 12px;
     width: auto;
+    padding: 14px;
+  }
+
+  .marketCard h1 {
+    font-size: 28px;
   }
 
   .modeLabel {
@@ -1372,33 +1480,48 @@ button:disabled {
   }
 
   .timeframes {
-    top: 136px;
-    left: 14px;
-    right: 14px;
+    top: 128px;
+    left: 12px;
+    right: 12px;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .timeframes::-webkit-scrollbar {
+    display: none;
+  }
+
+  .timeframes button {
+    min-width: 44px;
+    height: 35px;
+    font-size: 12px;
   }
 
   .chartSvg {
-    inset: 210px 48px 22px 0;
+    inset: 200px 48px 24px 0;
     width: calc(100% - 48px);
-    height: calc(100% - 232px);
+    height: calc(100% - 224px);
   }
 
   .priceTag {
-    top: 230px;
+    top: 216px;
     right: 12px;
   }
 
   .chartNumbers.top {
-    top: 180px;
+    top: 170px;
   }
 
   .chartNumbers.mid {
-    top: 330px;
+    top: 320px;
   }
 
   .chartNumbers.low {
-    bottom: 80px;
+    bottom: 82px;
+  }
+
+  .chartNumbers.bottom {
+    display: none;
   }
 
   .digitBar {
@@ -1406,6 +1529,7 @@ button:disabled {
     min-height: auto;
     grid-template-columns: repeat(5, 1fr);
     gap: 10px;
+    padding: 12px;
   }
 
   .digit {
@@ -1416,9 +1540,43 @@ button:disabled {
     font-size: 20px;
   }
 
+  .tradePanel {
+    padding: 16px;
+    padding-bottom: 105px;
+  }
+
+  .tradePanel select,
+  .panelInput {
+    height: 50px;
+    font-size: 15px;
+  }
+
+  .learnBox {
+    height: 48px;
+    font-size: 14px;
+  }
+
+  .riseBtn,
+  .fallBtn {
+    height: 54px;
+    font-size: 17px;
+  }
+
   .analysisGrid,
   .signalStrip {
     grid-template-columns: 1fr;
+  }
+
+  .marketAnalyseScreen {
+    padding: 16px;
+  }
+
+  .analysisHero {
+    padding: 22px;
+  }
+
+  .analysisHero strong {
+    font-size: 28px;
   }
 
   .tvHeader {
@@ -1433,13 +1591,16 @@ button:disabled {
     gap: 4px;
   }
 
-  .tradePanel {
-    padding-bottom: 105px;
+  .modalOverlay {
+    align-items: flex-end;
+    padding: 10px;
   }
 
   .modalCard {
-    padding: 24px;
-    border-radius: 20px;
+    width: 100%;
+    padding: 22px;
+    border-radius: 22px;
+    max-height: 88vh;
   }
 
   .modalCard h2 {
@@ -1462,9 +1623,37 @@ button:disabled {
   }
 
   .aiWindow {
-    right: 16px;
-    bottom: 84px;
-    width: calc(100vw - 32px);
+    right: 10px;
+    bottom: 82px;
+    width: calc(100vw - 20px);
     height: 500px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .topActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .balanceBox {
+    text-align: left;
+  }
+
+  .accountSwitch button {
+    min-width: 48px;
+  }
+
+  .depositBtn {
+    padding: 0 10px;
+  }
+
+  .menuWrap {
+    margin-left: auto;
   }
 }
