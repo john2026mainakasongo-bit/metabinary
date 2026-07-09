@@ -79,6 +79,7 @@ export default function FreeBotBuilder({
 
   const [selectedName, setSelectedName] = useState("Over 2 Recovery");
   const [activeTab, setActiveTab] = useState("summary");
+  const [runnerView, setRunnerView] = useState(false);
 
   const selectedBot = bots.find((bot) => bot.name === selectedName) || bots[0];
 
@@ -124,8 +125,25 @@ export default function FreeBotBuilder({
   const statusClass =
     statusText === "Won" ? "wonStatus" : statusText === "Lost" ? "lostStatus" : "";
 
+  const runSelectedBot = () => {
+    startFreeBot(selectedBot);
+    setRunnerView(true);
+    setActiveTab("summary");
+  };
+
+  const stopSelectedBot = () => {
+    stopFreeBot();
+  };
+
   return (
-    <aside className="botBuilderPanel">
+    <aside className={runnerView ? "botBuilderPanel runnerMode" : "botBuilderPanel"}>
+      {runnerView && (
+        <div className="runnerBackTop">
+          <button onClick={() => setRunnerView(false)}>‹ Back to Bot</button>
+          <strong>{selectedBot.name}</strong>
+        </div>
+      )}
+
       <div className="botLeftMenu">
         <div className="blocksHeader">
           <strong>Free Bots</strong>
@@ -300,11 +318,11 @@ export default function FreeBotBuilder({
       <div className="botRunPanel derivRunPanel">
         <div className="derivRunHeader">
           {freeBotRunning ? (
-            <button className="derivStopBtn" onClick={stopFreeBot}>
+            <button className="derivStopBtn" onClick={stopSelectedBot}>
               ■ Stop
             </button>
           ) : (
-            <button className="derivRunBtn" onClick={() => startFreeBot(selectedBot)}>
+            <button className="derivRunBtn" onClick={runSelectedBot}>
               ▶ Run
             </button>
           )}
@@ -378,32 +396,32 @@ export default function FreeBotBuilder({
 
         <div className="derivStats">
           <div>
-            <strong>Total stake</strong>
+            <strong>Stake</strong>
             <span>{money(totalStake)} USD</span>
           </div>
 
           <div>
-            <strong>Total payout</strong>
+            <strong>Payout</strong>
             <span>{money(totalPayout)} USD</span>
           </div>
 
           <div>
-            <strong>No. of runs</strong>
+            <strong>Runs</strong>
             <span>{noOfRuns}</span>
           </div>
 
           <div>
-            <strong>Contracts lost</strong>
+            <strong>Lost</strong>
             <span>{totalLost}</span>
           </div>
 
           <div>
-            <strong>Contracts won</strong>
+            <strong>Won</strong>
             <span>{totalWon}</span>
           </div>
 
           <div>
-            <strong>Total profit/loss</strong>
+            <strong>P/L</strong>
             <span className={totalProfitLoss >= 0 ? "profitText" : "lossText"}>
               {totalProfitLoss >= 0 ? "+" : ""}
               {money(totalProfitLoss)} USD
@@ -445,7 +463,7 @@ function SummaryView({ currentTrade, lastClosed, freeBotRunning, selectedBot }) 
     <div className="contractCard">
       <div className="contractTop">
         <div>
-          <small>{currentTrade?.botName || selectedBot.name}</small>
+          <small>10</small>
           <strong>{selectedBot.market}</strong>
         </div>
 
@@ -501,13 +519,13 @@ function TransactionsView({ trades }) {
     <div className="transactionTable">
       <div className="transactionTools">
         <button disabled>Download</button>
-        <button>View Detail</button>
+        <button>Details</button>
       </div>
 
       <div className="tableHead">
-        <strong>Type</strong>
-        <strong>Entry/Exit spot</strong>
-        <strong>Buy price and P/L</strong>
+        <strong>TYPE</strong>
+        <strong>ENTRY/EXIT</strong>
+        <strong>P/L</strong>
       </div>
 
       {trades.slice(0, 14).map((trade) => {

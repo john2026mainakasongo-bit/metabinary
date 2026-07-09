@@ -3632,3 +3632,85 @@ body,
     font-size: 12px !important;
   }
 }
+.runnerBackTop {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .runnerMode {
+    display: block !important;
+    background: #ffffff !important;
+  }
+
+  .runnerMode .runnerBackTop {
+    display: flex !important;
+    height: 46px;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    background: #ffffff;
+    border-bottom: 1px solid #e6e8ee;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+  }
+
+  .runnerMode .runnerBackTop button {
+    height: 32px;
+    border-radius: 999px;
+    background: #f0f2f7;
+    color: #111827;
+    font-weight: 900;
+    padding: 0 12px;
+  }
+
+  .runnerMode .runnerBackTop strong {
+    font-size: 13px;
+    color: #333333;
+  }
+
+  .runnerMode .botLeftMenu,
+  .runnerMode .botWorkspace {
+    display: none !important;
+  }
+
+  .runnerMode .derivRunPanel {
+    display: block !important;
+    width: 100% !important;
+    height: calc(100vh - 46px) !important;
+    min-height: calc(100vh - 46px) !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    bottom: auto !important;
+    box-shadow: none !important;
+    border-top: none !important;
+  }
+
+  .runnerMode .derivRunHeader {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: #ffffff;
+    order: 10;
+  }
+
+  .runnerMode .athenaStatusRow {
+    margin-top: 0;
+  }
+
+  .runnerMode .derivPanelBody {
+    height: calc(100vh - 330px) !important;
+    min-height: 360px !important;
+    overflow-y: auto !important;
+  }
+
+  .runnerMode .derivStats {
+    height: 155px !important;
+    min-height: 155px !important;
+  }
+
+  .runnerMode .derivResetBtn {
+    display: none !important;
+  }
+}
