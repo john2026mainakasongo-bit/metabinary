@@ -108,7 +108,7 @@ function initials(name = "JM") {
 function makePrices(start = 1.08564) {
   let value = start;
 
-  return Array.from({ length: 110 }, (_, i) => {
+  return Array.from({ length: 120 }, (_, i) => {
     value += (Math.random() - 0.48) * 0.00045 + Math.sin(i / 8) * 0.00005;
     return Number(value.toFixed(5));
   });
@@ -163,10 +163,14 @@ export default function App() {
       setPrices((old) => {
         const last = old[old.length - 1] || 1.08564;
         const next = Number(
-          (last + (Math.random() - 0.5) * 0.0006 + Math.sin(Date.now() / 7000) * 0.00006).toFixed(5)
+          (
+            last +
+            (Math.random() - 0.5) * 0.0006 +
+            Math.sin(Date.now() / 7000) * 0.00006
+          ).toFixed(5)
         );
 
-        return [...old.slice(-109), next];
+        return [...old.slice(-119), next];
       });
 
       setLastDigit(Math.floor(Math.random() * 10));
@@ -211,7 +215,7 @@ export default function App() {
     }, 6500);
 
     return () => clearInterval(timer);
-  }, [botRunning, selectedBot, balances, account]);
+  }, [botRunning, selectedBot, account, balances]);
 
   async function refreshUser() {
     try {
@@ -731,6 +735,7 @@ function Logo() {
       <div className="brokerLogoMark">
         <span>M</span>
       </div>
+
       <strong>
         Meta<span>Binary</span>
       </strong>
@@ -796,27 +801,32 @@ function AuthScreen({ mode, setMode, login, register }) {
               value={regData.firstName}
               onChange={(e) => setRegData({ ...regData, firstName: e.target.value })}
             />
+
             <input
               placeholder="Last name"
               value={regData.lastName}
               onChange={(e) => setRegData({ ...regData, lastName: e.target.value })}
             />
+
             <input
               placeholder="Email address"
               value={regData.email}
               onChange={(e) => setRegData({ ...regData, email: e.target.value })}
             />
+
             <input
               placeholder="+254 phone number"
               value={regData.phone}
               onChange={(e) => setRegData({ ...regData, phone: e.target.value })}
             />
+
             <input
               type="password"
               placeholder="Password"
               value={regData.password}
               onChange={(e) => setRegData({ ...regData, password: e.target.value })}
             />
+
             <input
               type="password"
               placeholder="Confirm password"
@@ -858,9 +868,11 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
           {isReal ? "LIVE ACCOUNT" : "DEMO ACCOUNT"}
           <i></i>
         </small>
+
         <strong>
           {money(balance)} <em>USD</em>
         </strong>
+
         <span>⌄</span>
       </button>
 
@@ -871,6 +883,7 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
         >
           Demo
         </button>
+
         <button
           className={account === "real" ? "active realActive" : ""}
           onClick={() => setAccount("real")}
@@ -998,11 +1011,14 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
       <section className="homeLowerGrid">
         <div className="aiTradingCard">
           <div className="aiChip">AI</div>
+
           <div>
             <h3>
               AI-Powered Trading <b>NEW</b>
             </h3>
+
             <p>Advanced algorithms analyze market patterns in real-time to deliver smarter trade signals.</p>
+
             <button onClick={() => setActivePage("bots")}>Explore AI Tools →</button>
           </div>
         </div>
@@ -1011,10 +1027,21 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
           <h3>Quick Actions</h3>
 
           <div>
-            <button onClick={() => setActivePage("trade")}>📉<span>New Trade</span></button>
-            <button onClick={() => setActivePage("bots")}>🧠<span>AI Signals</span></button>
-            <button onClick={() => setActivePage("reports")}>📄<span>Reports</span></button>
-            <button onClick={() => setActivePage("history")}>🗓<span>History</span></button>
+            <button onClick={() => setActivePage("trade")}>
+              📉<span>New Trade</span>
+            </button>
+
+            <button onClick={() => setActivePage("bots")}>
+              🧠<span>AI Signals</span>
+            </button>
+
+            <button onClick={() => setActivePage("reports")}>
+              📄<span>Reports</span>
+            </button>
+
+            <button onClick={() => setActivePage("history")}>
+              🗓<span>History</span>
+            </button>
           </div>
         </div>
 
@@ -1030,7 +1057,9 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
             ["₿", "BTC/USD", "63,245.12", "+0.24%", true],
           ].map(([icon, pair, price, change, good]) => (
             <p key={pair}>
-              <span>{icon} {pair}</span>
+              <span>
+                {icon} {pair}
+              </span>
               <b>{price}</b>
               <em className={good ? "green" : "red"}>{change}</em>
             </p>
@@ -1096,10 +1125,12 @@ function Stat({ icon, value, label, spark }) {
   return (
     <div className="statCard">
       {icon && <b>{icon}</b>}
+
       <div>
         <strong>{value}</strong>
         <span>{label}</span>
       </div>
+
       {spark && <MiniSpark type={spark} />}
     </div>
   );
@@ -1121,9 +1152,11 @@ function CandleGlow() {
       </defs>
 
       <path d="M5 62 C22 46 35 58 48 40 S72 28 94 12" fill="none" stroke="#006dff" strokeWidth=".7" />
+
       {bars.map((bar, i) => (
         <g key={i}>
           <line x1={bar.x} x2={bar.x} y1={65 - bar.h / 2} y2={68} stroke="#0077ff" strokeWidth=".4" opacity=".7" />
+
           <rect
             x={bar.x - 0.9}
             y={65 - bar.h / 2}
@@ -1160,7 +1193,15 @@ function LineMini({ prices }) {
 
 function MiniSpark({ type = "blue" }) {
   const color =
-    type === "green" ? "#00e884" : type === "purple" ? "#a855f7" : type === "yellow" ? "#ffa800" : type === "red" ? "#ff4057" : "#008cff";
+    type === "green"
+      ? "#00e884"
+      : type === "purple"
+      ? "#a855f7"
+      : type === "yellow"
+      ? "#ffa800"
+      : type === "red"
+      ? "#ff4057"
+      : "#008cff";
 
   const points =
     type === "red"
@@ -1287,6 +1328,7 @@ function ForexPage({
 
           <div className="orderInputs">
             <OrderInput label="Volume (Lots)" value={volume} setValue={setVolume} step={0.01} min={0.01} />
+
             <label className="orderInput">
               <span>Leverage</span>
               <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
@@ -1295,6 +1337,7 @@ function ForexPage({
                 <option>1:500</option>
               </select>
             </label>
+
             <OrderInput label="Stop Loss" value={stopLoss} setValue={setStopLoss} step={0.0001} min={0} />
             <OrderInput label="Take Profit" value={takeProfit} setValue={setTakeProfit} step={0.0001} min={0} />
           </div>
@@ -1313,10 +1356,25 @@ function ForexPage({
         </div>
 
         <div className="spreadStats">
-          <p><span>Spread</span><b>1.2 Pips</b></p>
-          <p><span>High</span><b className="green">1.08789</b></p>
-          <p><span>Low</span><b className="red">1.08312</b></p>
-          <p><span>Change</span><b className="green">+0.01%</b></p>
+          <p>
+            <span>Spread</span>
+            <b>1.2 Pips</b>
+          </p>
+
+          <p>
+            <span>High</span>
+            <b className="green">1.08789</b>
+          </p>
+
+          <p>
+            <span>Low</span>
+            <b className="red">1.08312</b>
+          </p>
+
+          <p>
+            <span>Change</span>
+            <b className="green">+0.01%</b>
+          </p>
         </div>
       </section>
 
@@ -1325,12 +1383,15 @@ function ForexPage({
           <button className={tab === "open" ? "active" : ""} onClick={() => setTab("open")}>
             Open Trades <b>{visiblePositions.length}</b>
           </button>
+
           <button className={tab === "profit" ? "active" : ""} onClick={() => setTab("profit")}>
             Profit <b>{visiblePositions.filter((p) => p.pl >= 0).length}</b>
           </button>
+
           <button className={tab === "loss" ? "active" : ""} onClick={() => setTab("loss")}>
             Loss <b>{visiblePositions.filter((p) => p.pl < 0).length}</b>
           </button>
+
           <button className={tab === "closed" ? "active" : ""} onClick={() => setTab("closed")}>
             History
           </button>
@@ -1340,7 +1401,9 @@ function ForexPage({
             Show lines
           </label>
 
-          <button className="closeAll" onClick={closeAllPositions}>Close All</button>
+          <button className="closeAll" onClick={closeAllPositions}>
+            Close All
+          </button>
         </div>
 
         <div className="tradeTable">
@@ -1373,14 +1436,8 @@ function ForexPage({
                 </>
               ) : (
                 <>
-                  <input
-                    value={p.stopLoss}
-                    onChange={(e) => updatePosition(p.id, { stopLoss: Number(e.target.value) })}
-                  />
-                  <input
-                    value={p.takeProfit}
-                    onChange={(e) => updatePosition(p.id, { takeProfit: Number(e.target.value) })}
-                  />
+                  <input value={p.stopLoss} onChange={(e) => updatePosition(p.id, { stopLoss: Number(e.target.value) })} />
+                  <input value={p.takeProfit} onChange={(e) => updatePosition(p.id, { takeProfit: Number(e.target.value) })} />
                 </>
               )}
 
@@ -1389,11 +1446,7 @@ function ForexPage({
                 {money(p.pl)}
               </em>
 
-              {tab === "closed" ? (
-                <span>Closed</span>
-              ) : (
-                <button onClick={() => closePosition(p.id)}>Close</button>
-              )}
+              {tab === "closed" ? <span>Closed</span> : <button onClick={() => closePosition(p.id)}>Close</button>}
             </div>
           ))}
         </div>
@@ -1414,10 +1467,15 @@ function OrderInput({ label, value, setValue, step, min }) {
   return (
     <label className="orderInput">
       <span>{label}</span>
+
       <div>
         <input value={value} onChange={(e) => setValue(Number(e.target.value))} />
-        <button type="button" onClick={dec}>−</button>
-        <button type="button" onClick={inc}>+</button>
+        <button type="button" onClick={dec}>
+          −
+        </button>
+        <button type="button" onClick={inc}>
+          +
+        </button>
       </div>
     </label>
   );
@@ -1433,10 +1491,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
     });
   }, [prices]);
 
-  const levels = [
-    livePrice,
-    ...positions.flatMap((p) => [p.openPrice, p.stopLoss, p.takeProfit]),
-  ].filter(Boolean);
+  const levels = [livePrice, ...positions.flatMap((p) => [p.openPrice, p.stopLoss, p.takeProfit])].filter(Boolean);
 
   const min = Math.min(...candles.map((c) => c.low), ...levels) - 0.00025;
   const max = Math.max(...candles.map((c) => c.high), ...levels) + 0.00025;
@@ -1473,15 +1528,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 
         <rect width="100" height="260" fill="url(#grid)" />
 
-        <line
-          x1="0"
-          x2="100"
-          y1={y(livePrice)}
-          y2={y(livePrice)}
-          stroke="#00d3a0"
-          strokeDasharray="1 1.5"
-          strokeWidth=".16"
-        />
+        <line x1="0" x2="100" y1={y(livePrice)} y2={y(livePrice)} stroke="#00d3a0" strokeDasharray="1 1.5" strokeWidth=".16" />
 
         {showLines &&
           positions.map((p) => (
@@ -1502,20 +1549,10 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
           return (
             <g key={i}>
               <line x1={x} x2={x} y1={y(c.high)} y2={y(c.low)} stroke={color} strokeWidth=".16" />
-              <rect
-                x={x - step * 0.23}
-                y={top}
-                width={step * 0.46}
-                height={Math.max(1.2, bottom - top)}
-                fill={color}
-              />
-              <rect
-                x={x - step * 0.18}
-                y={224 + Math.random() * 10}
-                width={step * 0.36}
-                height={12 + Math.random() * 22}
-                fill={up ? "rgba(0,211,160,.42)" : "rgba(255,64,87,.42)"}
-              />
+
+              <rect x={x - step * 0.23} y={top} width={step * 0.46} height={Math.max(1.2, bottom - top)} fill={color} />
+
+              <rect x={x - step * 0.18} y={224 + Math.random() * 10} width={step * 0.36} height={12 + Math.random() * 22} fill={up ? "rgba(0,211,160,.42)" : "rgba(255,64,87,.42)"} />
             </g>
           );
         })}
@@ -1548,11 +1585,60 @@ function TradePage({
   runBinaryTrade,
 }) {
   const actions = actionsFor(tradeType);
+  const indexValue = livePrice * 800;
+  const payoutOne = money(stake * payoutRate(tradeType, actions[0]));
+  const payoutTwo = money(stake * payoutRate(tradeType, actions[1]));
+
+  const marketStats = [
+    {
+      title: "Market Status",
+      value: "Open",
+      text: "Trading is active",
+      icon: "●",
+      className: "statusGreen",
+    },
+    {
+      title: "Current Index",
+      value: indexValue.toFixed(2),
+      text: "Volatility 100 (1s) Index",
+      icon: "▥",
+      className: "statusBlue",
+    },
+    {
+      title: "24h High",
+      value: (indexValue + 4.79).toFixed(2),
+      text: "Highest index today",
+      icon: "↗",
+      className: "statusGreen",
+    },
+    {
+      title: "24h Low",
+      value: (indexValue - 8.46).toFixed(2),
+      text: "Lowest index today",
+      icon: "↘",
+      className: "statusRed",
+    },
+    {
+      title: "24h Change",
+      value: "+1.45%",
+      text: "+12.42 points",
+      icon: "▮▮▮",
+      className: "statusBlue",
+    },
+    {
+      title: "Trend",
+      value: "Bullish",
+      text: "Strong uptrend",
+      icon: "⬟",
+      className: "statusGreen",
+    },
+  ];
 
   return (
-    <div className="page tradePage">
-      <section className="tradeTypeRow">
+    <div className="page tradePage tradePagePro">
+      <section className="proTradeTypeRow">
         <span>Trade Type</span>
+
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
           <button key={type} className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)}>
             {type}
@@ -1560,20 +1646,57 @@ function TradePage({
         ))}
       </section>
 
-      <section className="binaryBox">
-        <div className="binaryTop">
+      <section className="proTradeChartCard">
+        <div className="proChartTitle">
           <div>
-            <strong>Volatility 100 (1s) Index</strong>
-            <small>{(livePrice * 800).toFixed(2)} · LIVE</small>
+            <h2>Volatility 100 (1s) Index</h2>
+            <p>{indexValue.toFixed(2)} · LIVE</p>
           </div>
-          <button>1s⌄</button>
+
+          <strong>▲ 12.42 (1.45%)</strong>
+
+          <button>{duration}s⌄</button>
+          <button>⛶</button>
         </div>
 
-        <LineChart data={prices.map((x) => x * 800)} />
+        <div className="proChartArea">
+          <div className="priceScale">
+            <span>{(indexValue + 1.37).toFixed(2)}</span>
+            <span>{(indexValue - 0.63).toFixed(2)}</span>
+            <span>{(indexValue - 2.63).toFixed(2)}</span>
+            <span>{(indexValue - 4.63).toFixed(2)}</span>
+            <span>{(indexValue - 6.63).toFixed(2)}</span>
+          </div>
 
+          <div className="proChartCanvas">
+            <LineChart data={prices.map((x) => x * 800)} />
+
+            <div className="worldMapGlow"></div>
+
+            <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
+          </div>
+        </div>
+
+        <div className="chartTimeRow">
+          <span>10:45:30</span>
+          <span>10:47:00</span>
+          <span>10:48:30</span>
+          <span>10:50:00</span>
+          <span>10:51:30</span>
+        </div>
+
+        <div className="chartToolRow">
+          <button>⌁</button>
+          <button>▥</button>
+          <button>▱</button>
+          <button>⛶</button>
+        </div>
+      </section>
+
+      <section className="proDigitsCard">
         <h3>Last Digits</h3>
 
-        <div className="digitGrid">
+        <div className="proDigitsGrid">
           {digitStats.map((percent, digit) => (
             <button
               key={digit}
@@ -1587,36 +1710,59 @@ function TradePage({
         </div>
       </section>
 
-      <section className="binaryOrderPanel">
-        <label>
-          Ticks
-          <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
-            <option value={5}>5 ticks</option>
-            <option value={10}>10 ticks</option>
-            <option value={30}>30 ticks</option>
-          </select>
-        </label>
+      <section className="marketInfoGrid">
+        {marketStats.map((item) => (
+          <article key={item.title} className={item.className}>
+            <div>
+              <h4>{item.title}</h4>
+              <strong>{item.value}</strong>
+              <p>{item.text}</p>
+            </div>
 
-        <label>
-          Stake
-          <div className="stakeBox">
-            <button onClick={() => setStake((x) => Math.max(0.3, Number(x) - 1))}>−</button>
-            <strong>{money(stake)}</strong>
-            <button onClick={() => setStake((x) => Number(x) + 1)}>+</button>
-          </div>
-        </label>
+            <span>{item.icon}</span>
+          </article>
+        ))}
+      </section>
 
-        <div className="tradeButtons">
-          {actions.map((action, index) => (
-            <button
-              key={action}
-              className={index === 0 ? "greenTrade" : "redTrade"}
-              onClick={() => runBinaryTrade(tradeType, action)}
-            >
-              <strong>{action}</strong>
-              <span>Payout {money(stake * payoutRate(tradeType, action))} USD</span>
-            </button>
-          ))}
+      <section className="proBinaryOrderCard">
+        <div className="orderInputsTop">
+          <label>
+            Ticks
+            <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
+              <option value={5}>5 ticks</option>
+              <option value={10}>10 ticks</option>
+              <option value={30}>30 ticks</option>
+            </select>
+          </label>
+
+          <label>
+            Stake
+            <div className="proStakeBox">
+              <button onClick={() => setStake((x) => Math.max(0.3, Number(x) - 1))}>−</button>
+              <strong>{money(stake)}</strong>
+              <button onClick={() => setStake((x) => Number(x) + 1)}>+</button>
+            </div>
+          </label>
+        </div>
+
+        <div className="proTradeButtons">
+          <button className="proGreenTrade" onClick={() => runBinaryTrade(tradeType, actions[0])}>
+            <span>{actions[0] === "Even" ? "⌂" : "↗"}</span>
+
+            <div>
+              <strong>{actions[0]}</strong>
+              <small>Payout {payoutOne} USD</small>
+            </div>
+          </button>
+
+          <button className="proRedTrade" onClick={() => runBinaryTrade(tradeType, actions[1])}>
+            <span>{actions[1] === "Odd" ? "↓" : "↘"}</span>
+
+            <div>
+              <strong>{actions[1]}</strong>
+              <small>Payout {payoutTwo} USD</small>
+            </div>
+          </button>
         </div>
       </section>
     </div>
@@ -1660,6 +1806,7 @@ function BotsPage({ bots, startBot }) {
           <h1>My Bots</h1>
           <p>Create, manage and monitor your trading bots.</p>
         </div>
+
         <button>+ New Bot</button>
       </div>
 
@@ -1684,22 +1831,38 @@ function BotsPage({ bots, startBot }) {
 
             <div>
               <h2>{bot.name}</h2>
-              <p>{bot.type} · {bot.market}</p>
-              <small>Stake: {money(bot.stake)} USD · Duration: {bot.duration}s</small>
+              <p>
+                {bot.type} · {bot.market}
+              </p>
+              <small>
+                Stake: {money(bot.stake)} USD · Duration: {bot.duration}s
+              </small>
             </div>
 
-            <b className={bot.status === "Running" ? "botStatus running" : "botStatus stopped"}>
-              {bot.status}
-            </b>
+            <b className={bot.status === "Running" ? "botStatus running" : "botStatus stopped"}>{bot.status}</b>
 
             <div className="botGraph">
               <BotLine positive={bot.profit >= 0} />
             </div>
 
             <div className="botMetrics">
-              <p><span>Total Profit</span><strong className={bot.profit >= 0 ? "green" : "red"}>{bot.profit >= 0 ? "+" : ""}{money(bot.profit)} USD</strong></p>
-              <p><span>Win Rate</span><strong>{bot.winRate}%</strong></p>
-              <p><span>Trades</span><strong>{bot.trades}</strong></p>
+              <p>
+                <span>Total Profit</span>
+                <strong className={bot.profit >= 0 ? "green" : "red"}>
+                  {bot.profit >= 0 ? "+" : ""}
+                  {money(bot.profit)} USD
+                </strong>
+              </p>
+
+              <p>
+                <span>Win Rate</span>
+                <strong>{bot.winRate}%</strong>
+              </p>
+
+              <p>
+                <span>Trades</span>
+                <strong>{bot.trades}</strong>
+              </p>
             </div>
 
             <button className="botAction" onClick={() => startBot(bot)}>
@@ -1758,7 +1921,9 @@ function BotLivePage({ bot, running, stopBot, startBot, trades, botTab, setBotTa
 
         <div>
           <strong>{running ? "Contract bought" : "Bot is not running"}</strong>
-          <span><i></i></span>
+          <span>
+            <i></i>
+          </span>
         </div>
       </section>
 
@@ -1782,8 +1947,14 @@ function BotLivePage({ bot, running, stopBot, startBot, trades, botTab, setBotTa
           <div className="runnerList">
             {trades.slice(0, 8).map((trade) => (
               <p key={trade.id}>
-                <span>{trade.type} · {trade.action}</span>
-                <b className={trade.won ? "green" : "red"}>{trade.won ? "+" : "-"}{money(trade.won ? trade.profit : trade.stake)}</b>
+                <span>
+                  {trade.type} · {trade.action}
+                </span>
+
+                <b className={trade.won ? "green" : "red"}>
+                  {trade.won ? "+" : "-"}
+                  {money(trade.won ? trade.profit : trade.stake)}
+                </b>
               </p>
             ))}
           </div>
@@ -1811,7 +1982,7 @@ function BotLivePage({ bot, running, stopBot, startBot, trades, botTab, setBotTa
   );
 }
 
-function ProfilePage({ user, balances, transactions, logout, setActivePage }) {
+function ProfilePage({ user, balances, logout, setActivePage }) {
   const realBalance = balances?.real || 0;
   const demoBalance = balances?.demo || 10000;
   const accountId = user?.brokerId || "MB168844";
@@ -1962,6 +2133,7 @@ function ProfilePage({ user, balances, transactions, logout, setActivePage }) {
 
           <div className="referralLinkBox">
             <span>https://metabinary.com/ref/{userName.toLowerCase().replaceAll(" ", "")}</span>
+
             <button
               onClick={() =>
                 navigator.clipboard?.writeText(
@@ -1991,10 +2163,12 @@ function ProfilePage({ user, balances, transactions, logout, setActivePage }) {
 
       <button className="proLogoutButton" onClick={logout}>
         <span>⇥</span>
+
         <div>
           <strong>Logout</strong>
           <small>Sign out of your account</small>
         </div>
+
         <em>›</em>
       </button>
     </div>
@@ -2048,6 +2222,7 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
 
         <label>
           <span>Default Stake</span>
+
           <div className="stakeBox">
             <button onClick={() => setStake((x) => Math.max(0.3, Number(x) - 1))}>−</button>
             <strong>{money(stake)}</strong>
@@ -2057,7 +2232,10 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
 
         <div className="toggleGrid">
           {["Confirm before trading", "Quick Trade", "Sound Alerts", "Compact Mode"].map((item) => (
-            <p key={item}><span>{item}</span><b></b></p>
+            <p key={item}>
+              <span>{item}</span>
+              <b></b>
+            </p>
           ))}
         </div>
       </section>
@@ -2079,6 +2257,7 @@ function HistoryPage({ transactions }) {
               <strong>{tx.type}</strong>
               <small>{tx.time}</small>
             </span>
+
             <b className={tx.amount >= 0 ? "green" : "red"}>
               {tx.amount >= 0 ? "+" : ""}
               {money(tx.amount)} USD
@@ -2130,17 +2309,7 @@ function BottomNav({ activePage, setActivePage }) {
   );
 }
 
-function SideMenu({
-  user,
-  account,
-  setAccount,
-  balance,
-  close,
-  setActivePage,
-  openDeposit,
-  openWithdraw,
-  logout,
-}) {
+function SideMenu({ user, account, setAccount, balance, close, setActivePage, openDeposit, openWithdraw, logout }) {
   function go(page) {
     setActivePage(page);
     close();
@@ -2159,6 +2328,7 @@ function SideMenu({
         <section className="drawerAccount">
           <div className="drawerUser">
             <div>M</div>
+
             <section>
               <small>{account === "demo" ? "Demo Account" : "Real Account"}</small>
               <strong>{money(balance)} USD</strong>
@@ -2167,8 +2337,13 @@ function SideMenu({
           </div>
 
           <div className="drawerSwitch">
-            <button className={account === "demo" ? "active" : ""} onClick={() => setAccount("demo")}>Demo</button>
-            <button className={account === "real" ? "active" : ""} onClick={() => setAccount("real")}>Real</button>
+            <button className={account === "demo" ? "active" : ""} onClick={() => setAccount("demo")}>
+              Demo
+            </button>
+
+            <button className={account === "real" ? "active" : ""} onClick={() => setAccount("real")}>
+              Real
+            </button>
           </div>
         </section>
 
@@ -2180,8 +2355,24 @@ function SideMenu({
           </DrawerBlock>
 
           <DrawerBlock title="FUNDS">
-            <DrawerButton icon="▱" label="Cashier / Deposit" onClick={() => { openDeposit(); close(); }} />
-            <DrawerButton icon="⇧" label="Withdraw" onClick={() => { openWithdraw(); close(); }} />
+            <DrawerButton
+              icon="▱"
+              label="Cashier / Deposit"
+              onClick={() => {
+                openDeposit();
+                close();
+              }}
+            />
+
+            <DrawerButton
+              icon="⇧"
+              label="Withdraw"
+              onClick={() => {
+                openWithdraw();
+                close();
+              }}
+            />
+
             <DrawerButton icon="↺" label="History" onClick={() => go("history")} />
           </DrawerBlock>
 
@@ -2198,7 +2389,9 @@ function SideMenu({
           </DrawerBlock>
         </div>
 
-        <button className="drawerLogout" onClick={logout}>⇥ Logout</button>
+        <button className="drawerLogout" onClick={logout}>
+          ⇥ Logout
+        </button>
       </aside>
     </div>
   );
@@ -2232,7 +2425,9 @@ function DepositModal({ close, submit }) {
   return (
     <div className="modalLayer">
       <div className="depositModal">
-        <button className="closeModal" onClick={close}>×</button>
+        <button className="closeModal" onClick={close}>
+          ×
+        </button>
 
         {!method ? (
           <>
@@ -2245,7 +2440,9 @@ function DepositModal({ close, submit }) {
           </>
         ) : (
           <>
-            <button className="modalBack" onClick={() => setMethod("")}>‹ Back</button>
+            <button className="modalBack" onClick={() => setMethod("")}>
+              ‹ Back
+            </button>
 
             <h2>{method === "mpesa" ? "M-Pesa Deposit" : method === "card" ? "Card Deposit" : "USDT Deposit"}</h2>
             <p>Funds go to your real account.</p>
@@ -2274,10 +2471,12 @@ function PaymentButton({ icon, title, text, onClick }) {
   return (
     <button className="paymentButton" onClick={onClick}>
       <span>{icon}</span>
+
       <div>
         <strong>{title}</strong>
         <small>{text}</small>
       </div>
+
       <b>›</b>
     </button>
   );
@@ -2290,7 +2489,9 @@ function WithdrawModal({ close, submit }) {
   return (
     <div className="modalLayer">
       <div className="depositModal">
-        <button className="closeModal" onClick={close}>×</button>
+        <button className="closeModal" onClick={close}>
+          ×
+        </button>
 
         <h2>Withdraw Funds</h2>
         <p>Minimum withdrawal is 5 USD.</p>

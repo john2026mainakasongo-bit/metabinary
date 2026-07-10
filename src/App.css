@@ -4368,3 +4368,783 @@ select {
     font-size: 15px !important;
   }
 }
+/* =========================================
+   PROFESSIONAL MANUAL TRADE PAGE REPLACEMENT
+   Paste at the VERY BOTTOM of App.css
+========================================= */
+
+.tradePagePro {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-rows: 42px minmax(250px, 1fr) 114px 146px 118px !important;
+  gap: 10px !important;
+  padding: 0 !important;
+}
+
+.proTradeTypeRow,
+.proTradeChartCard,
+.proDigitsCard,
+.marketInfoGrid article,
+.proBinaryOrderCard {
+  background:
+    radial-gradient(circle at top right, rgba(0, 119, 255, 0.11), transparent 34%),
+    linear-gradient(135deg, rgba(7, 25, 45, 0.96), rgba(3, 12, 24, 0.98)) !important;
+  border: 1px solid rgba(70, 145, 255, 0.2) !important;
+  box-shadow:
+    inset 0 0 42px rgba(0, 119, 255, 0.045),
+    0 14px 42px rgba(0, 0, 0, 0.18) !important;
+}
+
+.proTradeTypeRow {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.proTradeTypeRow span {
+  color: #aebbd2;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.proTradeTypeRow button {
+  height: 30px;
+  min-width: 118px;
+  padding: 0 15px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.proTradeTypeRow button.active {
+  color: #008cff;
+  border-color: #008cff;
+  background:
+    linear-gradient(135deg, rgba(0, 119, 255, 0.18), rgba(0, 119, 255, 0.04));
+  box-shadow: 0 0 24px rgba(0, 119, 255, 0.18);
+}
+
+/* CHART CARD */
+
+.proTradeChartCard {
+  border-radius: 16px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 54px 1fr 28px 44px;
+  padding: 16px 18px 12px;
+  position: relative;
+}
+
+.proChartTitle {
+  display: grid;
+  grid-template-columns: 1fr auto 76px 46px;
+  gap: 12px;
+  align-items: start;
+}
+
+.proChartTitle h2 {
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 1000;
+  letter-spacing: -0.4px;
+}
+
+.proChartTitle p {
+  color: #aebbd2;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.proChartTitle > strong {
+  color: #00e884;
+  font-size: 15px;
+  font-weight: 1000;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.proChartTitle button {
+  height: 40px;
+  border-radius: 11px;
+  color: white;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 900;
+}
+
+.proChartArea {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 10px;
+}
+
+.priceScale {
+  display: grid;
+  align-content: space-between;
+  color: #d5dfef;
+  font-size: 15px;
+  padding: 12px 0;
+}
+
+.proChartCanvas {
+  min-height: 0;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 70% 40%, rgba(0, 232, 132, 0.1), transparent 32%),
+    #06111d;
+  background-size: 100% 48px, 90px 100%, auto, auto;
+}
+
+.proChartCanvas .lineChart {
+  position: absolute;
+  inset: 0;
+  height: 100% !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  z-index: 3;
+}
+
+.proChartCanvas .lineChart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.proChartCanvas .areaPath {
+  fill: rgba(0, 232, 132, 0.24) !important;
+}
+
+.proChartCanvas .linePath {
+  stroke: #00e884 !important;
+  stroke-width: 2.2 !important;
+  filter: drop-shadow(0 0 10px rgba(0, 232, 132, 0.6));
+}
+
+.worldMapGlow {
+  position: absolute;
+  inset: 12% 4%;
+  opacity: 0.2;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 16% 35%, rgba(0, 140, 255, 0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 43%, rgba(0, 140, 255, 0.48) 0 1px, transparent 2px),
+    radial-gradient(circle at 42% 29%, rgba(0, 140, 255, 0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 38%, rgba(0, 140, 255, 0.45) 0 1px, transparent 2px),
+    radial-gradient(circle at 75% 48%, rgba(0, 140, 255, 0.5) 0 1px, transparent 2px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 78%);
+}
+
+.chartLivePrice {
+  position: absolute;
+  right: 14px;
+  top: 42%;
+  z-index: 5;
+  height: 34px;
+  padding: 0 13px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #00d878;
+  color: white;
+  font-weight: 1000;
+  box-shadow: 0 0 22px rgba(0, 232, 132, 0.5);
+}
+
+.chartTimeRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: end;
+  color: #d5dfef;
+  font-size: 14px;
+  padding-left: 84px;
+}
+
+.chartToolRow {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+}
+
+.chartToolRow button {
+  width: 58px;
+  height: 36px;
+  border-radius: 11px;
+  color: #d5dfef;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 18px;
+}
+
+/* DIGITS */
+
+.proDigitsCard {
+  border-radius: 16px;
+  padding: 10px 18px 14px;
+  overflow: hidden;
+}
+
+.proDigitsCard h3 {
+  text-align: center;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.proDigitsGrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 12px;
+}
+
+.proDigitsGrid button {
+  width: 68px;
+  height: 68px;
+  justify-self: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+  border: 7px solid rgba(157, 178, 207, 0.18);
+  color: white;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  box-shadow:
+    inset 0 0 20px rgba(255, 255, 255, 0.035),
+    0 0 20px rgba(0, 0, 0, 0.18);
+}
+
+.proDigitsGrid button strong {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.proDigitsGrid button span {
+  margin-top: 4px;
+  color: #aebbd2;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.proDigitsGrid button.hot {
+  border-left-color: #00e884;
+  border-bottom-color: #00e884;
+  box-shadow:
+    0 0 22px rgba(0, 232, 132, 0.3),
+    inset 0 0 20px rgba(0, 232, 132, 0.06);
+}
+
+.proDigitsGrid button.picked {
+  border-top-color: #ff4057;
+}
+
+/* MARKET INFO CARDS */
+
+.marketInfoGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  overflow: hidden;
+}
+
+.marketInfoGrid article {
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 1fr 58px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.marketInfoGrid h4 {
+  color: #c9d6e8;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.marketInfoGrid strong {
+  display: block;
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.marketInfoGrid p {
+  color: #aebbd2;
+  font-size: 13px;
+}
+
+.marketInfoGrid article > span {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+  font-weight: 1000;
+}
+
+.marketInfoGrid .statusGreen strong,
+.marketInfoGrid .statusGreen > span {
+  color: #00e884;
+}
+
+.marketInfoGrid .statusBlue strong,
+.marketInfoGrid .statusBlue > span {
+  color: #008cff;
+}
+
+.marketInfoGrid .statusRed strong,
+.marketInfoGrid .statusRed > span {
+  color: #ff4057;
+}
+
+.marketInfoGrid .statusGreen > span {
+  background: rgba(0, 232, 132, 0.12);
+  border: 1px solid rgba(0, 232, 132, 0.35);
+}
+
+.marketInfoGrid .statusBlue > span {
+  background: rgba(0, 119, 255, 0.12);
+  border: 1px solid rgba(0, 119, 255, 0.35);
+}
+
+.marketInfoGrid .statusRed > span {
+  background: rgba(255, 64, 87, 0.12);
+  border: 1px solid rgba(255, 64, 87, 0.35);
+}
+
+/* ORDER CARD */
+
+.proBinaryOrderCard {
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 28px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.orderInputsTop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.orderInputsTop label {
+  color: #aebbd2;
+  font-size: 14px;
+}
+
+.orderInputsTop select,
+.proStakeBox {
+  margin-top: 8px;
+  height: 48px;
+  width: 100%;
+  border-radius: 12px;
+  background: rgba(2, 9, 18, 0.95);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.orderInputsTop select {
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.proStakeBox {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  overflow: hidden;
+}
+
+.proStakeBox button {
+  background: transparent;
+  color: white;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.proStakeBox strong {
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.proTradeButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  height: 84px;
+}
+
+.proTradeButtons button {
+  border-radius: 16px;
+  color: white;
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  align-items: center;
+  text-align: left;
+  overflow: hidden;
+}
+
+.proTradeButtons button > span {
+  width: 58px;
+  height: 58px;
+  margin-left: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.09);
+  font-size: 29px;
+  font-weight: 1000;
+}
+
+.proTradeButtons strong {
+  display: block;
+  font-size: 23px;
+}
+
+.proTradeButtons small {
+  display: block;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.proGreenTrade {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 35%),
+    linear-gradient(135deg, #009b70, #007d55);
+  box-shadow: 0 0 28px rgba(0, 232, 132, 0.18);
+}
+
+.proRedTrade {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 35%),
+    linear-gradient(135deg, #d40022, #aa001a);
+  box-shadow: 0 0 28px rgba(255, 64, 87, 0.16);
+}
+
+/* DESKTOP COMPACT HEIGHT */
+
+@media (max-height: 760px) and (min-width: 761px) {
+  .tradePagePro {
+    grid-template-rows: 36px minmax(210px, 1fr) 86px 102px 86px !important;
+    gap: 6px !important;
+  }
+
+  .proTradeChartCard {
+    grid-template-rows: 40px 1fr 20px 30px;
+    padding: 10px 14px 8px;
+  }
+
+  .proChartTitle h2 {
+    font-size: 16px;
+  }
+
+  .proChartTitle p,
+  .proChartTitle > strong {
+    font-size: 11px;
+  }
+
+  .proChartTitle button {
+    height: 28px;
+  }
+
+  .proDigitsGrid button {
+    width: 48px;
+    height: 48px;
+    border-width: 5px;
+  }
+
+  .proDigitsGrid button strong {
+    font-size: 15px;
+  }
+
+  .marketInfoGrid article {
+    padding: 10px 12px;
+    grid-template-columns: 1fr 38px;
+  }
+
+  .marketInfoGrid h4 {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  .marketInfoGrid strong {
+    font-size: 15px;
+    margin-bottom: 5px;
+  }
+
+  .marketInfoGrid p {
+    font-size: 9px;
+  }
+
+  .marketInfoGrid article > span {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .proBinaryOrderCard {
+    padding: 10px 14px;
+  }
+
+  .proTradeButtons {
+    height: 62px;
+  }
+}
+
+/* PHONE VIEW */
+
+@media (max-width: 760px) {
+  .tradePagePro {
+    height: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    grid-template-rows:
+      40px
+      430px
+      138px
+      310px
+      190px !important;
+    gap: 10px !important;
+    padding: 0 2px 12px !important;
+    scrollbar-width: none;
+  }
+
+  .tradePagePro::-webkit-scrollbar {
+    display: none;
+  }
+
+  .proTradeTypeRow {
+    height: 40px;
+    border-radius: 13px;
+    padding: 5px 8px;
+    gap: 7px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .proTradeTypeRow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .proTradeTypeRow span {
+    font-size: 12px;
+    flex: 0 0 auto;
+  }
+
+  .proTradeTypeRow button {
+    min-width: 112px;
+    height: 30px;
+    padding: 0 12px;
+    font-size: 12px;
+    flex: 0 0 auto;
+  }
+
+  .proTradeChartCard {
+    grid-template-rows: 74px 1fr 28px 42px;
+    border-radius: 16px;
+    padding: 14px 16px 12px;
+  }
+
+  .proChartTitle {
+    grid-template-columns: 1fr 74px 42px;
+    grid-template-rows: auto auto;
+    gap: 8px;
+  }
+
+  .proChartTitle div {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+  }
+
+  .proChartTitle h2 {
+    font-size: 21px;
+    line-height: 1.15;
+  }
+
+  .proChartTitle p {
+    font-size: 15px;
+  }
+
+  .proChartTitle > strong {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    justify-self: end;
+    font-size: 13px;
+  }
+
+  .proChartTitle button {
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  .proChartArea {
+    grid-template-columns: 66px 1fr;
+    gap: 8px;
+  }
+
+  .priceScale {
+    font-size: 15px;
+    padding: 10px 0;
+  }
+
+  .chartLivePrice {
+    right: 9px;
+    height: 32px;
+    font-size: 13px;
+    padding: 0 10px;
+  }
+
+  .chartTimeRow {
+    padding-left: 74px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .chartToolRow {
+    gap: 10px;
+  }
+
+  .chartToolRow button {
+    width: 52px;
+    height: 34px;
+    border-radius: 11px;
+  }
+
+  .proDigitsCard {
+    border-radius: 16px;
+    padding: 8px 10px 12px;
+  }
+
+  .proDigitsCard h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .proDigitsGrid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px 12px;
+  }
+
+  .proDigitsGrid button {
+    width: 56px;
+    height: 56px;
+    border-width: 6px;
+  }
+
+  .proDigitsGrid button strong {
+    font-size: 18px;
+  }
+
+  .proDigitsGrid button span {
+    font-size: 9px;
+  }
+
+  .marketInfoGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .marketInfoGrid article {
+    min-height: 96px;
+    border-radius: 14px;
+    padding: 13px 14px;
+    grid-template-columns: 1fr 44px;
+  }
+
+  .marketInfoGrid h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .marketInfoGrid strong {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .marketInfoGrid p {
+    font-size: 12px;
+  }
+
+  .marketInfoGrid article > span {
+    width: 42px;
+    height: 42px;
+    font-size: 19px;
+  }
+
+  .proBinaryOrderCard {
+    grid-template-columns: 1fr;
+    grid-template-rows: 62px 1fr;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 16px;
+  }
+
+  .orderInputsTop {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .orderInputsTop label {
+    font-size: 13px;
+  }
+
+  .orderInputsTop select,
+  .proStakeBox {
+    height: 44px;
+    border-radius: 12px;
+    margin-top: 6px;
+  }
+
+  .proStakeBox {
+    grid-template-columns: 44px 1fr 44px;
+  }
+
+  .proTradeButtons {
+    height: 92px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .proTradeButtons button {
+    border-radius: 15px;
+    grid-template-columns: 52px 1fr;
+  }
+
+  .proTradeButtons button > span {
+    width: 42px;
+    height: 42px;
+    margin-left: 10px;
+    font-size: 22px;
+  }
+
+  .proTradeButtons strong {
+    font-size: 21px;
+  }
+
+  .proTradeButtons small {
+    font-size: 13px;
+  }
+}
