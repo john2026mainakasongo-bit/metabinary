@@ -10,14 +10,14 @@ function money(value) {
   });
 }
 
-function makeId() {
+function uid() {
   return Date.now() + Math.random();
 }
 
-function saved(key, fallback) {
+function readStorage(key, fallback) {
   try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : fallback;
   } catch {
     return fallback;
   }
@@ -25,20 +25,22 @@ function saved(key, fallback) {
 
 export default function App() {
   const [user, setUser] = useState(() =>
-    saved("metabinary_user", {
+    readStorage("metabinary_user", {
       name: "John Maina",
       email: "johnmaina@gmail.com",
       initials: "JM",
       verified: true,
+      brokerId: "MB123456",
     })
   );
 
   const [activePage, setActivePage] = useState("home");
-  const [account, setAccount] = useState("real");
+  const [account, setAccount] = useState("demo");
+
   const [balances, setBalances] = useState(() =>
-    saved("metabinary_balances", {
+    readStorage("metabinary_balances", {
       demo: 10000,
-      real: 10250,
+      real: 0,
     })
   );
 
@@ -53,7 +55,7 @@ export default function App() {
 
   const [priceData, setPriceData] = useState(() =>
     Array.from(
-      { length: 56 },
+      { length: 60 },
       (_, i) => 1.085 + Math.sin(i / 6) * 0.002 + Math.random() * 0.0015
     )
   );
@@ -65,10 +67,10 @@ export default function App() {
 
   const [openTrades, setOpenTrades] = useState([]);
   const [closedTrades, setClosedTrades] = useState(() =>
-    saved("metabinary_closed_trades", [])
+    readStorage("metabinary_closed_trades", [])
   );
   const [transactions, setTransactions] = useState(() =>
-    saved("metabinary_transactions", [])
+    readStorage("metabinary_transactions", [])
   );
   const [toasts, setToasts] = useState([]);
 
@@ -99,12 +101,12 @@ export default function App() {
       setPriceData((old) => {
         const last = old[old.length - 1] || 1.08564;
         const next = Number((last + (Math.random() - 0.47) * 0.0009).toFixed(5));
-        return [...old.slice(-55), next];
+        return [...old.slice(-59), next];
       });
 
       setLastDigit(Math.floor(Math.random() * 10));
       setDigitStats(Array.from({ length: 10 }, () => 7 + Math.random() * 6));
-    }, 900);
+    }, 850);
 
     return () => clearInterval(timer);
   }, []);
@@ -130,12 +132,12 @@ export default function App() {
         real: Number(data.realBalance ?? data.real ?? old.real ?? 0),
       }));
     } catch {
-      // keep local balance if backend is offline
+      // Backend offline: keep local balances.
     }
   }
 
   function showToast(type, title, message) {
-    const toast = { id: makeId(), type, title, message };
+    const toast = { id: uid(), type, title, message };
     setToasts((old) => [toast, ...old].slice(0, 3));
 
     setTimeout(() => {
@@ -146,7 +148,7 @@ export default function App() {
   function addTransaction(item) {
     setTransactions((old) => [
       {
-        id: makeId(),
+        id: uid(),
         time: new Date().toLocaleString(),
         ...item,
       },
@@ -256,7 +258,7 @@ export default function App() {
     }
 
     const trade = {
-      id: makeId(),
+      id: uid(),
       account,
       contract: tradeType,
       choice,
@@ -430,7 +432,6 @@ export default function App() {
       }
 
       runs += 1;
-
       setTimeout(() => {
         placeTrade(bot.choice, bot.name);
       }, 80);
@@ -463,6 +464,7 @@ export default function App() {
             email: "johnmaina@gmail.com",
             initials: "JM",
             verified: true,
+            brokerId: "MB123456",
           })
         }
       />
@@ -501,11 +503,9 @@ export default function App() {
 
         {activePage === "forex" && (
           <ForexPage
-            account={account}
             balance={balance}
             setActivePage={setActivePage}
             onDeposit={() => setDepositOpen(true)}
-            onWithdraw={() => setWithdrawOpen(true)}
             priceData={priceData}
             livePrice={livePrice}
             openTrades={openTrades}
@@ -553,6 +553,7 @@ export default function App() {
             transactions={transactions}
             logout={logout}
             onDeposit={() => setDepositOpen(true)}
+            setActivePage={setActivePage}
           />
         )}
 
@@ -629,7 +630,7 @@ function AppHeader({
   return (
     <header className="appHeader">
       <div className="headerLine">
-        <button className="menuBtn" onClick={() => setMenuOpen((old) => !old)}>
+        <button className="menuBtn" onClick={() => setMenuOpen(true)}>
           ☰
         </button>
 
@@ -645,6 +646,7 @@ function AppHeader({
           <button className="bell">
             🔔<span>3</span>
           </button>
+
           <button className="avatar" onClick={() => setActivePage("profile")}>
             {user.initials}
             <i></i>
@@ -660,6 +662,7 @@ function AppHeader({
           >
             Demo
           </button>
+
           <button
             className={account === "real" ? "active" : ""}
             onClick={() => setAccount("real")}
@@ -679,18 +682,151 @@ function AppHeader({
       </div>
 
       {menuOpen && (
-        <div className="drawerMenu">
-          <button onClick={() => setActivePage("home")}>Home</button>
-          <button onClick={() => setActivePage("forex")}>Trader’s Hub</button>
-          <button onClick={() => setActivePage("reports")}>Reports</button>
-          <button onClick={onDeposit}>Cashier / Deposit</button>
-          <button onClick={onWithdraw}>Withdraw</button>
-          <button onClick={() => setActivePage("history")}>History</button>
-          <button onClick={() => setActivePage("settings")}>Settings</button>
-          <button onClick={logout}>Logout</button>
-        </div>
+        <SideMenu
+          user={user}
+          account={account}
+          setAccount={setAccount}
+          balance={balance}
+          setActivePage={setActivePage}
+          onDeposit={onDeposit}
+          onWithdraw={onWithdraw}
+          logout={logout}
+          closeMenu={() => setMenuOpen(false)}
+        />
       )}
     </header>
+  );
+}
+
+function SideMenu({
+  user,
+  account,
+  setAccount,
+  balance,
+  setActivePage,
+  onDeposit,
+  onWithdraw,
+  logout,
+  closeMenu,
+}) {
+  const openPage = (page) => {
+    setActivePage(page);
+    closeMenu();
+  };
+
+  const doAction = (action) => {
+    action();
+    closeMenu();
+  };
+
+  return (
+    <div className="sideMenuOverlay">
+      <button className="sideMenuShade" onClick={closeMenu}></button>
+
+      <aside className="sideMenuPanel">
+        <div className="sideMenuTop">
+          <Logo />
+          <button className="sideMenuClose" onClick={closeMenu}>
+            ×
+          </button>
+        </div>
+
+        <div className="sideAccountCard">
+          <div className="sideAccountHeader">
+            <div className="sideAccountLogo">M</div>
+
+            <div>
+              <small>{account === "demo" ? "Demo Account" : "Real Account"}</small>
+              <strong>{money(balance)} USD</strong>
+              <span>
+                Account ID: {user.brokerId || "MB123456"} <b>⧉</b>
+              </span>
+            </div>
+          </div>
+
+          <div className="sideAccountSwitch">
+            <button
+              className={account === "demo" ? "active" : ""}
+              onClick={() => setAccount("demo")}
+            >
+              Demo
+            </button>
+
+            <button
+              className={account === "real" ? "active" : ""}
+              onClick={() => setAccount("real")}
+            >
+              Real
+            </button>
+          </div>
+        </div>
+
+        <MenuSection title="TRADING">
+          <MenuItem icon="⌂" label="Trader's Hub" active onClick={() => openPage("forex")} />
+          <MenuItem icon="▥" label="Markets" onClick={() => openPage("markets")} />
+          <MenuItem icon="↕" label="Trade" onClick={() => openPage("trade")} />
+        </MenuSection>
+
+        <MenuSection title="FUNDS">
+          <MenuItem icon="▱" label="Cashier / Deposit" onClick={() => doAction(onDeposit)} />
+          <MenuItem icon="⇧" label="Withdraw" onClick={() => doAction(onWithdraw)} />
+          <MenuItem icon="↺" label="Transaction History" onClick={() => openPage("history")} />
+        </MenuSection>
+
+        <MenuSection title="AUTOMATION">
+          <MenuItem icon="🤖" label="My Bots" onClick={() => openPage("bots")} />
+          <MenuItem icon="⚙" label="Bot Builder" onClick={() => openPage("bots")} />
+          <MenuItem icon="▶" label="Running Bots" onClick={() => openPage("bots")} />
+          <MenuItem icon="↺" label="Bot History" onClick={() => openPage("bots")} />
+        </MenuSection>
+
+        <MenuSection title="ACCOUNT">
+          <MenuItem icon="♙" label="Profile" onClick={() => openPage("profile")} />
+          <MenuItem icon="⚙" label="Settings" onClick={() => openPage("settings")} />
+          <MenuItem icon="🛡" label="Security" onClick={() => openPage("settings")} />
+          <MenuItem icon="▣" label="Verification (KYC)" onClick={() => openPage("profile")} />
+          <MenuItem icon="👥" label="Referral Program" badge="Earn 30%" onClick={() => openPage("profile")} />
+          <MenuItem icon="🔔" label="Notifications" bubble="3" onClick={() => openPage("settings")} />
+        </MenuSection>
+
+        <MenuSection title="SUPPORT">
+          <MenuItem icon="?" label="Help Center" onClick={() => alert("Help Center will be added next.")} />
+          <MenuItem icon="☏" label="Live Chat" onClick={() => alert("Live Chat will be added next.")} />
+        </MenuSection>
+
+        <button
+          className="sideLogout"
+          onClick={() => {
+            logout();
+            closeMenu();
+          }}
+        >
+          <span>⇥</span>
+          Logout
+        </button>
+      </aside>
+    </div>
+  );
+}
+
+function MenuSection({ title, children }) {
+  return (
+    <div className="menuSection">
+      <h4>{title}</h4>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function MenuItem({ icon, label, active, badge, bubble, onClick }) {
+  return (
+    <button className={`menuItem ${active ? "active" : ""}`} onClick={onClick}>
+      <span className="menuItemIcon">{icon}</span>
+      <strong>{label}</strong>
+      {badge && <em className="menuBadge">{badge}</em>}
+      {bubble && <em className="menuBubble">{bubble}</em>}
+      <b>›</b>
+    </button>
   );
 }
 
@@ -754,17 +890,30 @@ function BottomNav({ activePage, setActivePage }) {
   );
 }
 
+function LandingPage({ onStart }) {
+  return (
+    <div className="landingPage">
+      <div className="landingCard">
+        <Logo />
+        <h1>Trade Smarter. Earn Consistently.</h1>
+        <p>MetaBinary broker platform with binary options, forex and AI bots.</p>
+        <button onClick={onStart}>Start Trading</button>
+      </div>
+    </div>
+  );
+}
+
 function HomePage({ setActivePage, onDeposit }) {
   return (
     <div className="homePage fitPage">
-      <DashboardCard setActivePage={setActivePage} onDeposit={onDeposit} />
+      <DashboardCard onDeposit={onDeposit} />
       <HubMenu setActivePage={setActivePage} active="Trader’s Hub" onDeposit={onDeposit} />
 
       <section className="homeGrid">
         <button onClick={() => setActivePage("forex")}>
           <span>▥</span>
           <strong>Forex Trading</strong>
-          <small>Open live forex terminal</small>
+          <small>Open live terminal</small>
         </button>
         <button onClick={() => setActivePage("trade")}>
           <span>↕</span>
@@ -774,32 +923,20 @@ function HomePage({ setActivePage, onDeposit }) {
         <button onClick={() => setActivePage("bots")}>
           <span>🤖</span>
           <strong>AI Bots</strong>
-          <small>Run smart strategies</small>
+          <small>Run strategies</small>
         </button>
         <button onClick={() => setActivePage("markets")}>
           <span>📊</span>
           <strong>Markets</strong>
-          <small>View top symbols</small>
+          <small>Top symbols</small>
         </button>
       </section>
 
       <section className="compactStats">
-        <div>
-          <small>Total Trades</small>
-          <strong>$2.45M</strong>
-        </div>
-        <div>
-          <small>Active Traders</small>
-          <strong>15,342</strong>
-        </div>
-        <div>
-          <small>Payouts</small>
-          <strong>$892K</strong>
-        </div>
-        <div>
-          <small>Success</small>
-          <strong>98.62%</strong>
-        </div>
+        <div><small>Total Trades</small><strong>$2.45M</strong></div>
+        <div><small>Active Traders</small><strong>15,342</strong></div>
+        <div><small>Payouts</small><strong>$892K</strong></div>
+        <div><small>Success</small><strong>98.62%</strong></div>
       </section>
 
       <TopMarkets compact />
@@ -827,15 +964,7 @@ function DashboardCard({ onDeposit }) {
   );
 }
 
-function ForexPage({
-  balance,
-  setActivePage,
-  onDeposit,
-  onWithdraw,
-  priceData,
-  livePrice,
-  openTrades,
-}) {
+function ForexPage({ balance, setActivePage, onDeposit, priceData, livePrice, openTrades }) {
   return (
     <div className="forexPage pageScroll">
       <DashboardCard onDeposit={onDeposit} />
@@ -1229,7 +1358,7 @@ function MarketsPage({ setActivePage, onDeposit }) {
         <h2>Markets</h2>
         <p>Choose forex, crypto, commodities, and volatility markets.</p>
       </div>
-      <TopMarkets />
+
       <section className="marketTiles">
         {["EUR/USD", "GBP/USD", "USD/JPY", "XAU/USD", "BTC/USD", "Volatility 100"].map((item) => (
           <button key={item}>
@@ -1238,6 +1367,8 @@ function MarketsPage({ setActivePage, onDeposit }) {
           </button>
         ))}
       </section>
+
+      <TopMarkets />
     </div>
   );
 }
@@ -1388,27 +1519,28 @@ function BotsPage({ startBot, setBotRunner }) {
   ];
 
   return (
-    <div className="botsPage pageScroll">
-      <div className="botTabsTop">
-        {["Bot Builder", "My Bots", "Running Bots", "Bot History", "Strategies"].map(
-          (tab, index) => (
-            <button className={index === 1 ? "active" : ""} key={tab}>
-              {tab}
-            </button>
-          )
-        )}
+    <div className="botsPage onePage">
+      <div className="botsHead">
+        <div>
+          <h2>My Bots</h2>
+          <p>Create, manage and monitor your trading bots.</p>
+        </div>
+        <button>+ New Bot</button>
       </div>
 
-      <div className="pageHead">
-        <h2>My Bots</h2>
-        <p>Create, manage and monitor your trading bots.</p>
+      <div className="botTabsTop">
+        {["My Bots", "Running", "Stopped", "History"].map((tab, index) => (
+          <button className={index === 0 ? "active" : ""} key={tab}>
+            {tab}
+          </button>
+        ))}
       </div>
 
       <div className="botStatsCards">
-        <BotStat title="Total Bots" value="12" tag="All Time" />
-        <BotStat title="Running" value="5" tag="Live Now" />
-        <BotStat title="Stopped" value="3" tag="Not running" />
-        <BotStat title="Completed" value="4" tag="Finished" />
+        <BotStat title="Total" value="12" tag="All Time" />
+        <BotStat title="Running" value="5" tag="Live" />
+        <BotStat title="Stopped" value="3" tag="Paused" />
+        <BotStat title="Completed" value="4" tag="Done" />
       </div>
 
       <div className="botSearchRow">
@@ -1418,7 +1550,6 @@ function BotsPage({ startBot, setBotRunner }) {
           <option>Running</option>
           <option>Stopped</option>
         </select>
-        <button>+ New Bot</button>
       </div>
 
       <div className="botList">
@@ -1438,15 +1569,15 @@ function BotsPage({ startBot, setBotRunner }) {
 
             <div className="botMetrics">
               <div>
-                <span>Total Profit</span>
+                <span>Profit</span>
                 <strong className={bot.profit >= 0 ? "green" : "red"}>
                   {bot.profit >= 0 ? "+" : ""}
-                  {money(bot.profit)} USD
+                  {money(bot.profit)}
                 </strong>
               </div>
               <div><span>Win Rate</span><strong>{bot.winRate}</strong></div>
               <div><span>Trades</span><strong>{bot.trades}</strong></div>
-              <div><span>Balance</span><strong>{money(bot.balance)} USD</strong></div>
+              <div><span>Balance</span><strong>{money(bot.balance)}</strong></div>
             </div>
 
             <button
@@ -1475,27 +1606,26 @@ function BotStat({ title, value, tag }) {
   );
 }
 
-function ProfilePage({ user, balances, transactions, logout, onDeposit }) {
+function ProfilePage({ user, balances, transactions, logout, onDeposit, setActivePage }) {
   return (
-    <div className="profilePage pageScroll">
-      <div className="profileHero">
+    <div className="profilePage onePage">
+      <div className="profileMainCard">
         <div className="profileAvatar">
           {user.initials}
           <span>📷</span>
         </div>
 
-        <div>
+        <div className="profileIdentity">
           <h2>{user.name} <b>✓</b></h2>
           <p>{user.email}</p>
           <em>Verified</em>
-          <small>Member since May 10, 2024 • Last login: Today, 09:35</small>
+          <small>ID: {user.brokerId || "MB123456"}</small>
         </div>
 
         <div className="levelCard">
           <strong>💎 Silver Trader</strong>
-          <span>Current Level</span>
+          <span>65% to Gold Trader</span>
           <div><i></i></div>
-          <small>Next: Gold Trader</small>
         </div>
       </div>
 
@@ -1506,15 +1636,34 @@ function ProfilePage({ user, balances, transactions, logout, onDeposit }) {
         <Stat value="63.25%" label="Win Rate" />
       </div>
 
-      <div className="settingsList">
+      <div className="profileActionGrid">
+        <button onClick={onDeposit}>
+          <span>▱</span>
+          <strong>Payment Methods</strong>
+          <small>Deposit and withdraw</small>
+        </button>
+        <button onClick={() => setActivePage("history")}>
+          <span>↺</span>
+          <strong>Transaction History</strong>
+          <small>{transactions.length} records</small>
+        </button>
+        <button onClick={() => setActivePage("settings")}>
+          <span>⚙</span>
+          <strong>Settings</strong>
+          <small>Platform preferences</small>
+        </button>
+        <button>
+          <span>👥</span>
+          <strong>Referral Program</strong>
+          <small>Earn up to 30%</small>
+        </button>
+      </div>
+
+      <div className="settingsList profileCompactList">
         <Setting title="Personal Information" desc="View and update your personal details" />
-        <Setting title="Security" desc="Password, 2FA, login activity and security settings" />
-        <Setting title="Verification (KYC)" desc="Verify your identity to unlock all features" badge="Verified" />
-        <Setting title="Account Preferences" desc="Language, timezone, theme and layout settings" />
-        <Setting title="Payment Methods" desc="Manage your deposit and withdrawal methods" onClick={onDeposit} />
-        <Setting title="Transaction History" desc={`${transactions.length} deposits, withdrawals and trades`} />
-        <Setting title="Referral Program" desc="Invite friends and earn commissions" badge="Earn up to 30%" />
-        <Setting title="Notifications" desc="Manage email and push notifications" />
+        <Setting title="Security" desc="Password, 2FA and login activity" />
+        <Setting title="Verification (KYC)" desc="Verify your identity" badge="Verified" />
+        <Setting title="Notifications" desc="Email and push settings" />
       </div>
 
       <button className="logoutCard" onClick={logout}>
@@ -1561,15 +1710,11 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
           {[
             ["General Settings", "Platform preferences", "⚙"],
             ["Security", "Password & 2FA", "🛡"],
-            ["Account Information", "Profile & personal details", "♙"],
-            ["Verification (KYC)", "Identity verification", "▣"],
-            ["Payment Methods", "Manage payment options", "▤"],
-            ["Notifications", "Email & push settings", "🔔"],
-            ["Language", "Choose your language", "🌐"],
-            ["Appearance", "Theme & display", "◉"],
-            ["Privacy", "Privacy & data settings", "▧"],
-            ["Data & Reports", "Export your data", "⇩"],
-            ["About", "App information", "ⓘ"],
+            ["Account Information", "Profile details", "♙"],
+            ["Verification", "Identity check", "▣"],
+            ["Payment Methods", "Deposit options", "▤"],
+            ["Notifications", "Push settings", "🔔"],
+            ["Language", "Choose language", "🌐"],
           ].map(([title, desc, icon], index) => (
             <button key={title} className={index === 0 ? "active" : ""}>
               <span>{icon}</span>
