@@ -76,6 +76,7 @@ export default function App() {
 
   const [botRunner, setBotRunner] = useState(null);
   const [botRunning, setBotRunning] = useState(false);
+  const [botTimer, setBotTimer] = useState(null);
 
   const balance = balances[account] || 0;
   const livePrice = priceData[priceData.length - 1] || 1.08564;
@@ -415,6 +416,8 @@ export default function App() {
   }
 
   function startBot(bot) {
+    if (botTimer) clearInterval(botTimer);
+
     setBotRunner(bot);
     setBotRunning(true);
     setTradeType(bot.contract);
@@ -426,28 +429,28 @@ export default function App() {
     let runs = 0;
 
     const runOnce = () => {
-      if (runs >= 12) {
-        setBotRunning(false);
+      if (runs >= 30) {
+        stopBot();
         return;
       }
 
       runs += 1;
-      setTimeout(() => {
-        placeTrade(bot.choice, bot.name);
-      }, 80);
+      placeTrade(bot.choice, bot.name);
     };
 
     runOnce();
 
     const timer = setInterval(() => {
-      if (runs >= 12) {
-        clearInterval(timer);
-        setBotRunning(false);
-        return;
-      }
-
       runOnce();
     }, (bot.duration + 2) * 1000);
+
+    setBotTimer(timer);
+  }
+
+  function stopBot() {
+    if (botTimer) clearInterval(botTimer);
+    setBotTimer(null);
+    setBotRunning(false);
   }
 
   function logout() {
@@ -456,19 +459,7 @@ export default function App() {
   }
 
   if (!user) {
-    return (
-      <LandingPage
-        onStart={() =>
-          setUser({
-            name: "John Maina",
-            email: "johnmaina@gmail.com",
-            initials: "JM",
-            verified: true,
-            brokerId: "MB123456",
-          })
-        }
-      />
-    );
+    return <LandingPage onStart={() => window.location.reload()} />;
   }
 
   return (
@@ -594,7 +585,7 @@ export default function App() {
           botRunning={botRunning}
           onClose={() => setBotRunner(null)}
           onStart={() => startBot(botRunner)}
-          onStop={() => setBotRunning(false)}
+          onStop={stopBot}
           openTrades={openTrades.filter((trade) => trade.botName)}
           closedTrades={closedTrades.filter((trade) => trade.botName)}
           transactions={transactions.filter((tx) => tx.method === "Bot")}
@@ -905,7 +896,7 @@ function LandingPage({ onStart }) {
 
 function HomePage({ setActivePage, onDeposit }) {
   return (
-    <div className="homePage fitPage">
+    <div className="homePage mobilePage">
       <DashboardCard onDeposit={onDeposit} />
       <HubMenu setActivePage={setActivePage} active="Trader’s Hub" onDeposit={onDeposit} />
 
@@ -954,7 +945,7 @@ function DashboardCard({ onDeposit }) {
       </div>
 
       <div>
-        <small>Profit / Loss (Today)</small>
+        <small>Profit / Loss Today</small>
         <strong className="green">+250.00 <em>USD</em></strong>
         <span>⌁</span>
       </div>
@@ -966,7 +957,7 @@ function DashboardCard({ onDeposit }) {
 
 function ForexPage({ balance, setActivePage, onDeposit, priceData, livePrice, openTrades }) {
   return (
-    <div className="forexPage pageScroll">
+    <div className="forexPage mobilePage">
       <DashboardCard onDeposit={onDeposit} />
       <HubMenu setActivePage={setActivePage} active="Forex" onDeposit={onDeposit} />
 
@@ -979,7 +970,7 @@ function ForexPage({ balance, setActivePage, onDeposit, priceData, livePrice, op
         </div>
         <div className="symbolPrice">
           <strong>{livePrice.toFixed(5)}</strong>
-          <small>+0.00231 (+0.21%) ▲</small>
+          <small>+0.00231 ▲</small>
         </div>
         <div>
           <small>24H High</small>
@@ -1001,7 +992,7 @@ function ForexPage({ balance, setActivePage, onDeposit, priceData, livePrice, op
         ))}
         <button>⌄</button>
         <button>⇅</button>
-        <button>ƒx Indicators</button>
+        <button>ƒx</button>
         <button>↶</button>
         <button>↷</button>
         <button>⛶</button>
@@ -1028,14 +1019,10 @@ function ForexPage({ balance, setActivePage, onDeposit, priceData, livePrice, op
 
         <div className="forexOrderGrid">
           <div className="forexInputs">
-            <ForexInput label="Volume (Lots)" value="0.01" plus />
+            <ForexInput label="Volume" value="0.01" plus />
             <ForexInput label="Leverage" value="1:100" />
             <ForexInput label="Stop Loss" value="0.00000" plus />
             <ForexInput label="Take Profit" value="0.00000" plus />
-            <div className="orderSmallText">
-              <span>Margin: 10.87 USD</span>
-              <span>Pip Value: 0.10 USD</span>
-            </div>
           </div>
 
           <div className="buySellStack">
@@ -1060,48 +1047,43 @@ function ForexPage({ balance, setActivePage, onDeposit, priceData, livePrice, op
 
       <section className="forexTrades">
         <div className="tradeTabs">
-          <button className="active">Open Trades <span>{Math.max(2, openTrades.length)}</span></button>
-          <button>Profit Trades <span>1</span></button>
-          <button>Loss Trades <span>1</span></button>
-          <button>On Hold <span>0</span></button>
+          <button className="active">Open <span>{Math.max(2, openTrades.length)}</span></button>
+          <button>Profit <span>1</span></button>
+          <button>Loss <span>1</span></button>
+          <button>Hold <span>0</span></button>
           <button>History</button>
-          <button className="closeAll">Close All</button>
         </div>
 
         <div className="forexTradeRow head">
           <span>Instrument</span>
           <span>Type</span>
-          <span>Volume</span>
-          <span>Open Price</span>
+          <span>Vol</span>
           <span>P/L</span>
           <span>Action</span>
         </div>
 
         <div className="forexTradeRow">
-          <strong>🇪🇺🇺🇸 EUR/USD</strong>
+          <strong>🇪🇺 EUR/USD</strong>
           <b className="green">Buy</b>
-          <span>0.01 Lots</span>
-          <span>1.08620</span>
-          <em className="green">+0.34<br />(+0.31%)</em>
+          <span>0.01</span>
+          <em className="green">+0.34</em>
           <button>Close</button>
         </div>
 
         <div className="forexTradeRow">
-          <strong>🇬🇧🇺🇸 GBP/USD</strong>
+          <strong>🇬🇧 GBP/USD</strong>
           <b className="red">Sell</b>
-          <span>0.01 Lots</span>
-          <span>1.26980</span>
-          <em className="red">-0.01<br />(-0.01%)</em>
+          <span>0.01</span>
+          <em className="red">-0.01</em>
           <button>Close</button>
         </div>
       </section>
 
       <section className="equityBar">
         <div><small>Equity</small><strong>{money(balance + 0.33)} USD</strong></div>
-        <div><small>Used Margin</small><strong>21.74 USD</strong></div>
-        <div><small>Free Margin</small><strong>{money(balance - 21.74)} USD</strong></div>
-        <div><small>Margin Level</small><strong>47,143.29%</strong></div>
-        <button>Stop Out<br />50%</button>
+        <div><small>Used</small><strong>21.74 USD</strong></div>
+        <div><small>Free</small><strong>{money(balance - 21.74)} USD</strong></div>
+        <div><small>Level</small><strong>47,143%</strong></div>
       </section>
     </div>
   );
@@ -1148,7 +1130,7 @@ function TradePage({
   const actions = getActions(tradeType);
 
   return (
-    <div className="tradePage fitPage">
+    <div className="tradePage mobilePage">
       <HubMenu setActivePage={setActivePage} active="Forex" onDeposit={onDeposit} />
 
       <section className="typeRow">
@@ -1170,7 +1152,7 @@ function TradePage({
         <div className="chartHeader">
           <div>
             <strong>Volatility 100 (1s) Index</strong>
-            <span>{money(livePrice * 800)} · 0.00 (0.00%)</span>
+            <span>{money(livePrice * 800)} · LIVE</span>
           </div>
           <button>1s⌄</button>
         </div>
@@ -1208,7 +1190,7 @@ function TradePage({
           </label>
 
           <label>
-            Stake (USD)
+            Stake
             <div className="stakeControl">
               <button onClick={() => setStake((old) => Math.max(0.3, Number(old) - 1))}>−</button>
               <strong>{money(stake)}</strong>
@@ -1352,7 +1334,7 @@ function MiniSpark() {
 
 function MarketsPage({ setActivePage, onDeposit }) {
   return (
-    <div className="marketsPage pageScroll">
+    <div className="marketsPage mobilePage">
       <HubMenu setActivePage={setActivePage} active="Reports" onDeposit={onDeposit} />
       <div className="pageHead">
         <h2>Markets</h2>
@@ -1375,7 +1357,7 @@ function MarketsPage({ setActivePage, onDeposit }) {
 
 function ReportsPage({ transactions }) {
   return (
-    <div className="reportsPage pageScroll">
+    <div className="reportsPage mobilePage">
       <div className="pageHead">
         <h2>Reports</h2>
         <p>Account reports, performance and trading activity.</p>
@@ -1407,7 +1389,7 @@ function ReportsPage({ transactions }) {
 
 function HistoryPage({ transactions, closedTrades }) {
   return (
-    <div className="historyPage pageScroll">
+    <div className="historyPage mobilePage">
       <div className="pageHead">
         <h2>History</h2>
         <p>Deposits, withdrawals and trade settlements.</p>
@@ -1519,7 +1501,7 @@ function BotsPage({ startBot, setBotRunner }) {
   ];
 
   return (
-    <div className="botsPage onePage">
+    <div className="botsPage mobilePage">
       <div className="botsHead">
         <div>
           <h2>My Bots</h2>
@@ -1540,7 +1522,7 @@ function BotsPage({ startBot, setBotRunner }) {
         <BotStat title="Total" value="12" tag="All Time" />
         <BotStat title="Running" value="5" tag="Live" />
         <BotStat title="Stopped" value="3" tag="Paused" />
-        <BotStat title="Completed" value="4" tag="Done" />
+        <BotStat title="Done" value="4" tag="Finished" />
       </div>
 
       <div className="botSearchRow">
@@ -1608,7 +1590,7 @@ function BotStat({ title, value, tag }) {
 
 function ProfilePage({ user, balances, transactions, logout, onDeposit, setActivePage }) {
   return (
-    <div className="profilePage onePage">
+    <div className="profilePage mobilePage">
       <div className="profileMainCard">
         <div className="profileAvatar">
           {user.initials}
@@ -1650,18 +1632,18 @@ function ProfilePage({ user, balances, transactions, logout, onDeposit, setActiv
         <button onClick={() => setActivePage("settings")}>
           <span>⚙</span>
           <strong>Settings</strong>
-          <small>Platform preferences</small>
+          <small>Preferences</small>
         </button>
         <button>
           <span>👥</span>
           <strong>Referral Program</strong>
-          <small>Earn up to 30%</small>
+          <small>Earn 30%</small>
         </button>
       </div>
 
       <div className="settingsList profileCompactList">
-        <Setting title="Personal Information" desc="View and update your personal details" />
-        <Setting title="Security" desc="Password, 2FA and login activity" />
+        <Setting title="Personal Information" desc="Update your details" />
+        <Setting title="Security" desc="Password and login activity" />
         <Setting title="Verification (KYC)" desc="Verify your identity" badge="Verified" />
         <Setting title="Notifications" desc="Email and push settings" />
       </div>
@@ -1692,14 +1674,14 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
   const [theme, setTheme] = useState("Dark");
   const [confirmTrade, setConfirmTrade] = useState(true);
   const [animations, setAnimations] = useState(true);
-  const [compactMode, setCompactMode] = useState(false);
+  const [compactMode, setCompactMode] = useState(true);
   const [quickTrade, setQuickTrade] = useState(true);
   const [showPositions, setShowPositions] = useState(true);
   const [soundAlerts, setSoundAlerts] = useState(true);
   const [autoClose, setAutoClose] = useState(false);
 
   return (
-    <div className="settingsPage pageScroll">
+    <div className="settingsPage mobilePage">
       <div className="settingsHero">
         <h1>Settings</h1>
         <p>Manage your account preferences and platform settings</p>
@@ -1708,13 +1690,12 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
       <div className="settingsLayout">
         <aside className="settingsSidebar">
           {[
-            ["General Settings", "Platform preferences", "⚙"],
-            ["Security", "Password & 2FA", "🛡"],
-            ["Account Information", "Profile details", "♙"],
-            ["Verification", "Identity check", "▣"],
-            ["Payment Methods", "Deposit options", "▤"],
-            ["Notifications", "Push settings", "🔔"],
-            ["Language", "Choose language", "🌐"],
+            ["General", "Platform", "⚙"],
+            ["Security", "Password", "🛡"],
+            ["Account", "Profile", "♙"],
+            ["KYC", "Identity", "▣"],
+            ["Payment", "Methods", "▤"],
+            ["Alerts", "Push", "🔔"],
           ].map(([title, desc, icon], index) => (
             <button key={title} className={index === 0 ? "active" : ""}>
               <span>{icon}</span>
@@ -1730,7 +1711,7 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
           <SettingsCard icon="⚙" title="Platform Preferences">
             <SettingSelect
               title="Default Account"
-              desc="Choose the account you want to use by default"
+              desc="Choose account"
               value={account === "real" ? "Real Account" : "Demo Account"}
               onChange={(value) => setAccount(value === "Real Account" ? "real" : "demo")}
               options={["Real Account", "Demo Account"]}
@@ -1738,7 +1719,7 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
 
             <SettingSelect
               title="Default Trade Type"
-              desc="Select your preferred trade type"
+              desc="Preferred trade type"
               value={tradeType}
               onChange={setTradeType}
               options={["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"]}
@@ -1747,7 +1728,7 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
             <div className="settingLine">
               <div>
                 <strong>Default Stake</strong>
-                <small>Set your default stake amount</small>
+                <small>Set stake amount</small>
               </div>
               <div className="settingsStake">
                 <button onClick={() => setStake((old) => Math.max(0.3, Number(old) - 1))}>−</button>
@@ -1756,14 +1737,14 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
               </div>
             </div>
 
-            <CheckLine checked={confirmTrade} setChecked={setConfirmTrade} label="Confirm before placing a trade" />
+            <CheckLine checked={confirmTrade} setChecked={setConfirmTrade} label="Confirm before placing trade" />
           </SettingsCard>
 
           <SettingsCard icon="▣" title="Display Preferences" purple>
             <div className="settingLine">
               <div>
                 <strong>Theme Mode</strong>
-                <small>Choose your preferred theme</small>
+                <small>Choose theme</small>
               </div>
 
               <div className="themeSwitch">
@@ -1775,15 +1756,15 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
               </div>
             </div>
 
-            <SwitchLine title="Animations" desc="Enable interface animations" checked={animations} setChecked={setAnimations} />
-            <SwitchLine title="Compact Mode" desc="Show more information in less space" checked={compactMode} setChecked={setCompactMode} />
+            <SwitchLine title="Animations" desc="Enable animations" checked={animations} setChecked={setAnimations} />
+            <SwitchLine title="Compact Mode" desc="Better mobile view" checked={compactMode} setChecked={setCompactMode} />
           </SettingsCard>
 
           <SettingsCard icon="↗" title="Trading Preferences" green>
-            <SwitchLine title="Quick Trade" desc="Enable one-click trading" checked={quickTrade} setChecked={setQuickTrade} />
-            <SwitchLine title="Show Positions on Chart" desc="Display open positions on chart" checked={showPositions} setChecked={setShowPositions} />
-            <SwitchLine title="Sound Alerts" desc="Play sound on trade events" checked={soundAlerts} setChecked={setSoundAlerts} />
-            <SwitchLine title="Auto Close on Take Profit" desc="Automatically close when take profit is hit" checked={autoClose} setChecked={setAutoClose} />
+            <SwitchLine title="Quick Trade" desc="One-click trading" checked={quickTrade} setChecked={setQuickTrade} />
+            <SwitchLine title="Show Positions" desc="Positions on chart" checked={showPositions} setChecked={setShowPositions} />
+            <SwitchLine title="Sound Alerts" desc="Trade event sounds" checked={soundAlerts} setChecked={setSoundAlerts} />
+            <SwitchLine title="Auto Close" desc="Close on profit" checked={autoClose} setChecked={setAutoClose} />
           </SettingsCard>
         </section>
       </div>

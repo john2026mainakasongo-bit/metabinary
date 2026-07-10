@@ -8,7 +8,8 @@ html,
 body,
 #root {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
   font-family: Inter, Arial, Helvetica, sans-serif;
   background: #02070d;
   color: white;
@@ -26,12 +27,14 @@ button {
 }
 
 .app {
-  width: 100%;
-  min-height: 100dvh;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
   background:
-    radial-gradient(circle at top right, rgba(0, 102, 255, 0.18), transparent 33%),
+    radial-gradient(circle at top right, rgba(0, 102, 255, 0.18), transparent 34%),
     linear-gradient(180deg, #020710, #02070d);
-  padding-bottom: 94px;
+  display: flex;
+  flex-direction: column;
 }
 
 .green {
@@ -45,20 +48,19 @@ button {
 /* HEADER */
 
 .appHeader {
-  position: sticky;
-  top: 0;
+  flex: 0 0 auto;
   z-index: 900;
   background: rgba(5, 12, 25, 0.98);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 14px 18px 12px;
+  padding: 12px 16px;
 }
 
 .headerLine {
   display: grid;
-  grid-template-columns: 34px auto 250px auto;
+  grid-template-columns: 40px auto 250px auto;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 }
 
 .menuBtn {
@@ -90,6 +92,7 @@ button {
   font-size: 30px;
   color: white;
   font-weight: 1000;
+  white-space: nowrap;
 }
 
 .brandLogo span {
@@ -97,7 +100,7 @@ button {
 }
 
 .topWallet {
-  height: 66px;
+  height: 60px;
   border-radius: 12px;
   background: rgba(4, 12, 24, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -110,56 +113,56 @@ button {
 .topWallet small {
   display: block;
   color: #00e884;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   margin-bottom: 6px;
 }
 
 .topWallet strong {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .topWallet span {
   position: absolute;
   right: 18px;
-  top: 23px;
+  top: 21px;
   color: #c7d2e5;
 }
 
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   justify-self: end;
 }
 
 .bell {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: transparent;
   color: white;
   position: relative;
-  font-size: 23px;
+  font-size: 22px;
 }
 
 .bell span {
   position: absolute;
   top: 0;
   right: 0;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #ff003b;
   display: grid;
   place-items: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
 }
 
 .avatar {
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: #050b14;
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -173,14 +176,75 @@ button {
   position: absolute;
   right: 3px;
   bottom: 4px;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #00e884;
 }
 
 .walletLine {
   display: none;
+}
+
+/* SCREEN */
+
+.screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+
+.mobilePage {
+  width: 100%;
+  max-width: 1180px;
+  height: 100%;
+  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 92px;
+  scrollbar-width: none;
+}
+
+.mobilePage::-webkit-scrollbar {
+  display: none;
+}
+
+/* COMMON CARDS */
+
+.dashboardCard,
+.hubRow,
+.homeGrid,
+.compactStats,
+.marketPanel,
+.forexSymbol,
+.forexToolbar,
+.forexChartPanel,
+.forexOrder,
+.forexTrades,
+.equityBar,
+.binaryChartCard,
+.orderBox,
+.miniTradeStatus,
+.simplePanel,
+.reportGrid,
+.marketTiles,
+.profileMainCard,
+.profileStats,
+.profileActionGrid,
+.settingsList,
+.logoutCard,
+.botTabsTop,
+.botStatsCards,
+.botSearchRow,
+.botCard,
+.botsHead,
+.settingsHero,
+.settingsCard {
+  background: rgba(5, 17, 29, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  box-shadow: inset 0 0 40px rgba(0, 102, 255, 0.04);
 }
 
 /* SIDE MENU */
@@ -213,19 +277,6 @@ button {
     linear-gradient(180deg, #06111d 0%, #02070d 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 30px 0 80px rgba(0, 0, 0, 0.6);
-  animation: sideMenuIn 0.22s ease-out;
-}
-
-@keyframes sideMenuIn {
-  from {
-    transform: translateX(-30px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
 }
 
 .sideMenuTop {
@@ -234,17 +285,6 @@ button {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 22px;
-}
-
-.sideMenuTop .brandLogo .mark {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  font-size: 25px;
-}
-
-.sideMenuTop .brandLogo strong {
-  font-size: 30px;
 }
 
 .sideMenuClose {
@@ -266,7 +306,6 @@ button {
   border-radius: 18px;
   padding: 22px 18px;
   margin-bottom: 22px;
-  box-shadow: inset 0 0 45px rgba(0, 119, 255, 0.05);
 }
 
 .sideAccountHeader {
@@ -332,7 +371,6 @@ button {
 .sideAccountSwitch button.active {
   background: linear-gradient(135deg, #00e884, #00b86b);
   color: white;
-  box-shadow: 0 0 24px rgba(0, 232, 132, 0.32);
 }
 
 .menuSection {
@@ -361,10 +399,6 @@ button {
   text-align: left;
   padding: 0 12px;
   margin: 4px 0;
-}
-
-.menuItem:hover {
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .menuItem.active {
@@ -431,87 +465,16 @@ button {
   font-weight: 900;
 }
 
-.sideLogout span {
-  font-size: 30px;
-}
-
-/* MAIN */
-
-.screen {
-  min-height: calc(100dvh - 94px);
-  padding: 14px;
-}
-
-.homePage,
-.forexPage,
-.tradePage,
-.marketsPage,
-.reportsPage,
-.historyPage,
-.botsPage,
-.profilePage,
-.settingsPage {
-  max-width: 1180px;
-  margin: 0 auto;
-}
-
-.pageScroll {
-  overflow-y: auto;
-  padding-bottom: 24px;
-}
-
-.onePage,
-.fitPage {
-  overflow: hidden;
-}
-
-/* COMMON */
-
-.dashboardCard,
-.hubRow,
-.homeGrid,
-.compactStats,
-.marketPanel,
-.forexSymbol,
-.forexToolbar,
-.forexChartPanel,
-.forexOrder,
-.forexTrades,
-.equityBar,
-.binaryChartCard,
-.orderBox,
-.miniTradeStatus,
-.simplePanel,
-.reportGrid,
-.marketTiles,
-.profileMainCard,
-.profileStats,
-.profileActionGrid,
-.settingsList,
-.logoutCard,
-.botTabsTop,
-.botStatsCards,
-.botSearchRow,
-.botCard,
-.botsHead,
-.settingsHero,
-.settingsCard {
-  background: rgba(5, 17, 29, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  box-shadow: inset 0 0 40px rgba(0, 102, 255, 0.04);
-}
-
 /* DASHBOARD */
 
 .dashboardCard {
-  min-height: 132px;
+  min-height: 110px;
   display: grid;
-  grid-template-columns: 1fr 1fr 260px;
-  gap: 24px;
+  grid-template-columns: 1fr 1fr 220px;
+  gap: 20px;
   align-items: center;
-  padding: 22px 34px;
-  margin-bottom: 12px;
+  padding: 18px 26px;
+  margin-bottom: 10px;
 }
 
 .dashboardCard > div {
@@ -522,27 +485,27 @@ button {
 .dashboardCard span {
   display: block;
   color: #aab6ca;
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
 }
 
 .dashboardCard strong {
   display: block;
-  font-size: 27px;
+  font-size: 24px;
 }
 
 .dashboardCard em {
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
 }
 
 .dashboardCard button {
-  height: 78px;
+  height: 64px;
   border-radius: 10px;
   background: #065dff;
   color: white;
-  font-size: 23px;
+  font-size: 20px;
   font-weight: 900;
 }
 
@@ -552,27 +515,27 @@ button {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .hubRow button {
-  height: 96px;
+  height: 82px;
   background: rgba(9, 31, 59, 0.45);
   color: #c8d2e3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 7px;
   border-bottom: 4px solid transparent;
 }
 
 .hubRow button span {
-  font-size: 32px;
+  font-size: 26px;
 }
 
 .hubRow button small {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .hubRow button.active {
@@ -585,7 +548,7 @@ button {
 
 .homePage {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .homeGrid {
@@ -595,23 +558,23 @@ button {
 }
 
 .homeGrid button {
-  min-height: 118px;
+  min-height: 112px;
   background: transparent;
   color: white;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .homeGrid span {
-  font-size: 32px;
+  font-size: 30px;
   color: #0077ff;
 }
 
 .homeGrid strong {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .homeGrid small {
@@ -628,8 +591,8 @@ button {
 
 .compactStats div,
 .statBox {
-  min-height: 86px;
-  padding: 16px;
+  min-height: 82px;
+  padding: 14px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -646,7 +609,7 @@ button {
 .compactStats strong,
 .statBox strong {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 /* MARKETS */
@@ -655,11 +618,11 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .panelTitle strong {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .panelTitle a {
@@ -668,15 +631,15 @@ button {
 }
 
 .marketPanel {
-  padding: 18px;
+  padding: 16px;
 }
 
 .marketRow {
   display: grid;
-  grid-template-columns: 52px 1fr 140px 110px 42px;
+  grid-template-columns: 52px 1fr 130px 110px 42px;
   gap: 10px;
   align-items: center;
-  padding: 14px 0;
+  padding: 13px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -721,7 +684,7 @@ button {
 }
 
 .marketTiles button {
-  height: 80px;
+  height: 78px;
   background: rgba(255,255,255,.04);
   color: white;
   border-radius: 12px;
@@ -733,33 +696,33 @@ button {
 
 .forexPage {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .forexSymbol {
-  min-height: 124px;
+  min-height: 100px;
   display: grid;
-  grid-template-columns: 34px 54px 1.2fr 1fr 130px 130px 54px 54px;
+  grid-template-columns: 34px 54px 1.2fr 1fr 120px 120px 50px 50px;
   align-items: center;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
 }
 
 .forexSymbol button {
-  height: 48px;
+  height: 44px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.035);
   color: white;
-  font-size: 25px;
+  font-size: 24px;
 }
 
 .pairFlag {
-  font-size: 34px;
+  font-size: 32px;
 }
 
 .forexSymbol strong {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .forexSymbol small {
@@ -775,32 +738,32 @@ button {
 
 .forexToolbar {
   display: grid;
-  grid-template-columns: repeat(6, 64px) 54px 70px 1fr 54px 54px 54px;
+  grid-template-columns: repeat(6, 62px) 50px 64px 1fr 50px 50px 50px;
   overflow: hidden;
 }
 
 .forexToolbar button {
-  height: 70px;
+  height: 62px;
   background: transparent;
   color: white;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 17px;
+  font-size: 15px;
 }
 
 .forexToolbar button.active {
   color: #0077ff;
   border: 1px solid #0077ff;
   border-radius: 8px;
-  margin: 12px;
-  height: 46px;
+  margin: 10px;
+  height: 42px;
 }
 
 .forexChartPanel {
-  height: 420px;
+  height: 360px;
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 86px 1fr;
+  grid-template-columns: 70px 1fr;
 }
 
 .toolStrip {
@@ -812,10 +775,10 @@ button {
 }
 
 .toolStrip button {
-  height: 34px;
+  height: 30px;
   background: transparent;
   color: #c7d2e5;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .candleChart {
@@ -839,7 +802,7 @@ button {
 
 .candleChart span {
   position: absolute;
-  width: 10px;
+  width: 9px;
   border-radius: 2px;
 }
 
@@ -882,16 +845,16 @@ button {
 }
 
 .orderTabs {
-  height: 82px;
+  height: 70px;
   display: flex;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .orderTabs button {
-  width: 220px;
+  width: 190px;
   background: transparent;
   color: #aab6ca;
-  font-size: 18px;
+  font-size: 17px;
   border-bottom: 4px solid transparent;
 }
 
@@ -902,14 +865,14 @@ button {
 
 .forexOrderGrid {
   display: grid;
-  grid-template-columns: 1fr 340px 300px;
-  gap: 28px;
-  padding: 28px;
+  grid-template-columns: 1fr 300px 250px;
+  gap: 22px;
+  padding: 22px;
 }
 
 .forexInputs {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .forexInput > span {
@@ -919,9 +882,9 @@ button {
 }
 
 .forexInput div {
-  height: 56px;
+  height: 50px;
   display: grid;
-  grid-template-columns: 1fr 54px 54px;
+  grid-template-columns: 1fr 48px 48px;
   border-radius: 8px;
   overflow: hidden;
   background: rgba(2, 7, 13, 0.7);
@@ -937,31 +900,25 @@ button {
 .forexInput button {
   background: transparent;
   color: white;
-  font-size: 26px;
+  font-size: 24px;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.orderSmallText {
-  display: flex;
-  justify-content: space-between;
-  color: #aab6ca;
 }
 
 .buySellStack {
   display: grid;
-  gap: 28px;
+  gap: 18px;
 }
 
 .forexBuy,
 .forexSell {
-  height: 132px;
+  height: 112px;
   border-radius: 10px;
   color: white;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 16px;
-  font-size: 28px;
+  gap: 12px;
+  font-size: 24px;
   border: 1px solid;
 }
 
@@ -984,7 +941,7 @@ button {
 }
 
 .spreadBox {
-  padding: 20px 24px;
+  padding: 18px;
   border-radius: 10px;
   background: rgba(2, 7, 13, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -993,7 +950,7 @@ button {
 .spreadBox div {
   display: flex;
   justify-content: space-between;
-  padding: 14px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1006,11 +963,11 @@ button {
 }
 
 .tradeTabs {
-  height: 76px;
+  height: 62px;
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding: 0 24px;
+  gap: 18px;
+  padding: 0 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   overflow-x: auto;
 }
@@ -1018,14 +975,14 @@ button {
 .tradeTabs button {
   background: transparent;
   color: #c7d2e5;
-  font-size: 16px;
+  font-size: 15px;
   min-width: max-content;
 }
 
 .tradeTabs button.active {
   color: white;
   border-bottom: 4px solid #0077ff;
-  height: 76px;
+  height: 62px;
 }
 
 .tradeTabs span {
@@ -1035,27 +992,18 @@ button {
   font-size: 12px;
 }
 
-.tradeTabs .closeAll {
-  margin-left: auto;
-  height: 44px;
-  padding: 0 22px;
-  border-radius: 8px;
-  color: #ff1f30;
-  border: 1px solid #ff1f30;
-}
-
 .forexTradeRow {
   display: grid;
-  grid-template-columns: 1.3fr 0.7fr 1fr 1fr 1fr 90px;
+  grid-template-columns: 1.3fr 0.7fr 0.7fr 0.8fr 90px;
   gap: 12px;
   align-items: center;
-  min-height: 72px;
-  padding: 0 28px;
+  min-height: 64px;
+  padding: 0 22px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .forexTradeRow.head {
-  min-height: 46px;
+  min-height: 42px;
   color: #aab6ca;
   font-size: 13px;
 }
@@ -1065,7 +1013,7 @@ button {
 }
 
 .forexTradeRow button {
-  height: 40px;
+  height: 38px;
   border-radius: 8px;
   background: rgba(255, 31, 48, 0.1);
   border: 1px solid #ff1f30;
@@ -1075,10 +1023,10 @@ button {
 
 .equityBar {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) 170px;
-  gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   align-items: center;
-  padding: 22px 32px;
+  padding: 18px;
 }
 
 .equityBar small {
@@ -1087,31 +1035,27 @@ button {
   margin-bottom: 7px;
 }
 
-.equityBar button {
-  height: 70px;
-  border-radius: 8px;
-  background: #065dff;
-  color: white;
-  font-size: 17px;
-  font-weight: 900;
-}
-
 /* TRADE */
 
 .tradePage {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .typeRow {
   display: flex;
   gap: 10px;
   align-items: center;
-  padding: 12px;
+  padding: 10px;
   overflow-x: auto;
   background: rgba(5, 17, 29, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
+  scrollbar-width: none;
+}
+
+.typeRow::-webkit-scrollbar {
+  display: none;
 }
 
 .typeRow span {
@@ -1120,7 +1064,7 @@ button {
 }
 
 .typeRow button {
-  height: 42px;
+  height: 38px;
   min-width: max-content;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
@@ -1135,19 +1079,19 @@ button {
 }
 
 .binaryChartCard {
-  padding: 14px;
+  padding: 12px;
 }
 
 .chartHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 11px;
+  margin-bottom: 9px;
 }
 
 .chartHeader strong {
   display: block;
-  font-size: 20px;
+  font-size: 19px;
 }
 
 .chartHeader span {
@@ -1157,8 +1101,8 @@ button {
 }
 
 .chartHeader button {
-  width: 76px;
-  height: 42px;
+  width: 70px;
+  height: 38px;
   border-radius: 9px;
   background: #07111d;
   color: white;
@@ -1166,7 +1110,7 @@ button {
 }
 
 .chartBox {
-  height: 245px;
+  height: 230px;
   border-radius: 12px;
   background:
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
@@ -1174,7 +1118,7 @@ button {
     #06111d;
   background-size: 80px 55px;
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .chartBox svg {
@@ -1203,31 +1147,30 @@ button {
 .darkDigits {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 13px 18px;
-  padding: 0 18px 10px;
+  gap: 12px 16px;
+  padding: 0 18px 8px;
 }
 
 .darkDigit {
-  width: 78px;
-  height: 78px;
+  width: 72px;
+  height: 72px;
   justify-self: center;
   border-radius: 50%;
-  border: 8px solid rgba(255, 255, 255, 0.12);
+  border: 7px solid rgba(255, 255, 255, 0.12);
   display: grid;
   place-items: center;
   align-content: center;
-  position: relative;
   color: white;
   background: transparent;
 }
 
 .darkDigit strong {
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .darkDigit span {
   color: #c7d2e5;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .darkDigit.active {
@@ -1240,7 +1183,7 @@ button {
 }
 
 .orderBox {
-  padding: 14px;
+  padding: 12px;
 }
 
 .orderInputs {
@@ -1258,7 +1201,7 @@ button {
 .orderBox select {
   margin-top: 6px;
   width: 100%;
-  height: 44px;
+  height: 42px;
   border-radius: 8px;
   background: #07111d;
   color: white;
@@ -1268,7 +1211,7 @@ button {
 
 .stakeControl {
   margin-top: 6px;
-  height: 44px;
+  height: 42px;
   display: grid;
   grid-template-columns: 40px 1fr 40px;
   border-radius: 8px;
@@ -1297,7 +1240,7 @@ button {
 
 .buyButton,
 .sellButton {
-  height: 92px;
+  height: 86px;
   border-radius: 10px;
   overflow: hidden;
   color: white;
@@ -1314,7 +1257,7 @@ button {
 
 .buyButton div,
 .sellButton div {
-  height: 54px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1323,12 +1266,12 @@ button {
 
 .buyButton div span,
 .sellButton div span {
-  font-size: 25px;
+  font-size: 24px;
 }
 
 .buyButton div strong,
 .sellButton div strong {
-  font-size: 22px;
+  font-size: 21px;
 }
 
 .buyButton small,
@@ -1336,7 +1279,7 @@ button {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  height: 38px;
+  height: 34px;
   padding: 0 14px;
   background: rgba(0, 0, 0, 0.15);
   font-size: 12px;
@@ -1358,15 +1301,15 @@ button {
 }
 
 .botsHead {
-  min-height: 78px;
+  min-height: 74px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 14px;
 }
 
 .botsHead h2 {
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .botsHead p {
@@ -1375,7 +1318,7 @@ button {
 }
 
 .botsHead button {
-  height: 44px;
+  height: 42px;
   border-radius: 10px;
   background: #065dff;
   color: white;
@@ -1411,7 +1354,7 @@ button {
 }
 
 .botStat {
-  padding: 16px;
+  padding: 14px;
   border-radius: 12px;
   background: rgba(255,255,255,.035);
 }
@@ -1424,7 +1367,7 @@ button {
 
 .botStat strong {
   display: block;
-  font-size: 26px;
+  font-size: 24px;
   margin: 5px 0;
 }
 
@@ -1437,7 +1380,7 @@ button {
 
 .botSearchRow input,
 .botSearchRow select {
-  height: 50px;
+  height: 48px;
   border-radius: 10px;
   background: #02070d;
   color: white;
@@ -1448,7 +1391,6 @@ button {
 .botList {
   display: grid;
   gap: 10px;
-  overflow: auto;
 }
 
 .botCard {
@@ -1522,7 +1464,7 @@ button {
 
 .outlineBlue {
   margin-top: 12px;
-  width: 180px;
+  width: 170px;
   height: 40px;
   border-radius: 8px;
   background: transparent;
@@ -1542,20 +1484,20 @@ button {
 
 .profileMainCard {
   display: grid;
-  grid-template-columns: 100px 1fr 220px;
+  grid-template-columns: 90px 1fr 210px;
   gap: 16px;
   align-items: center;
   padding: 16px;
 }
 
 .profileAvatar {
-  width: 92px;
-  height: 92px;
+  width: 82px;
+  height: 82px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.13);
-  font-size: 34px;
+  font-size: 30px;
   position: relative;
 }
 
@@ -1563,17 +1505,17 @@ button {
   position: absolute;
   right: 0;
   bottom: 6px;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #00c76f;
   display: grid;
   place-items: center;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .profileIdentity h2 {
-  font-size: 24px;
+  font-size: 23px;
 }
 
 .profileIdentity h2 b {
@@ -1604,8 +1546,7 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.levelCard span,
-.levelCard small {
+.levelCard span {
   color: #c7d2e5;
   display: block;
   margin-top: 8px;
@@ -1640,7 +1581,7 @@ button {
 }
 
 .profileActionGrid button {
-  min-height: 90px;
+  min-height: 86px;
   border-radius: 12px;
   background: rgba(255,255,255,.035);
   color: white;
@@ -1665,7 +1606,7 @@ button {
 
 .settingRow {
   width: 100%;
-  min-height: 70px;
+  min-height: 66px;
   background: transparent;
   color: white;
   display: grid;
@@ -1718,6 +1659,7 @@ button {
   text-align: left;
   color: #ff4057;
   border: 1px solid rgba(255,0,59,.35);
+  background: rgba(255, 0, 59, 0.04);
 }
 
 .logoutCard strong {
@@ -1731,7 +1673,7 @@ button {
   margin-top: 6px;
 }
 
-/* SIMPLE PAGES */
+/* SIMPLE */
 
 .pageHead {
   margin: 16px 6px;
@@ -1776,53 +1718,50 @@ button {
 /* SETTINGS */
 
 .settingsHero {
-  padding: 28px;
-  border-radius: 14px 14px 0 0;
+  padding: 24px;
+  margin-bottom: 10px;
 }
 
 .settingsHero h1 {
-  font-size: 34px;
-  margin-bottom: 10px;
+  font-size: 32px;
+  margin-bottom: 8px;
 }
 
 .settingsHero p {
   color: #c7d2e5;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .settingsLayout {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 22px;
-  background: rgba(5, 17, 29, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-top: none;
-  border-radius: 0 0 14px 14px;
-  padding-bottom: 22px;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
 }
 
 .settingsSidebar {
   background: rgba(5, 17, 29, 0.88);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 .settingsSidebar button {
   width: 100%;
-  min-height: 74px;
+  min-height: 70px;
   background: transparent;
   color: #dce7fa;
   display: grid;
-  grid-template-columns: 48px 1fr;
+  grid-template-columns: 44px 1fr;
   gap: 12px;
   align-items: center;
   text-align: left;
-  padding: 0 20px;
+  padding: 0 18px;
   border-left: 4px solid transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .settingsSidebar button span {
-  font-size: 24px;
+  font-size: 23px;
 }
 
 .settingsSidebar button strong {
@@ -1842,13 +1781,9 @@ button {
   background: rgba(0, 119, 255, 0.08);
 }
 
-.settingsContent {
-  padding-right: 18px;
-}
-
 .settingsCard {
-  padding: 20px;
-  margin-top: 22px;
+  padding: 18px;
+  margin-bottom: 12px;
 }
 
 .settingsCardTitle {
@@ -1861,14 +1796,14 @@ button {
 }
 
 .settingsCardTitle span {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 14px;
   display: grid;
   place-items: center;
   background: rgba(0, 119, 255, 0.18);
   color: #0077ff;
-  font-size: 24px;
+  font-size: 23px;
 }
 
 .settingsCardTitle span.purple {
@@ -1882,13 +1817,13 @@ button {
 }
 
 .settingsCardTitle strong {
-  font-size: 23px;
+  font-size: 22px;
 }
 
 .settingLine {
-  min-height: 72px;
+  min-height: 68px;
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: 1fr 210px;
   gap: 18px;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -1906,7 +1841,7 @@ button {
 }
 
 .settingLine select {
-  height: 46px;
+  height: 44px;
   border-radius: 10px;
   background: rgba(2, 7, 13, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -1915,10 +1850,10 @@ button {
 }
 
 .settingsStake {
-  height: 46px;
+  height: 44px;
   border-radius: 10px;
   display: grid;
-  grid-template-columns: 50px 1fr 50px;
+  grid-template-columns: 48px 1fr 48px;
   overflow: hidden;
   background: rgba(2, 7, 13, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -1939,18 +1874,18 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 54px;
+  height: 50px;
   color: #c7d2e5;
 }
 
 .checkLine input {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   accent-color: #065dff;
 }
 
 .themeSwitch {
-  height: 46px;
+  height: 44px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   background: rgba(2, 7, 13, 0.7);
@@ -2416,11 +2351,12 @@ button {
 /* BOTTOM NAV */
 
 .bottomNav {
+  flex: 0 0 auto;
   position: fixed;
   left: 10px;
   right: 10px;
   bottom: 8px;
-  height: 76px;
+  height: 74px;
   border-radius: 18px;
   background: rgba(5, 17, 29, 0.97);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2440,11 +2376,11 @@ button {
 }
 
 .bottomNav button span {
-  font-size: 30px;
+  font-size: 28px;
 }
 
 .bottomNav button small {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .bottomNav button.active {
@@ -2452,12 +2388,12 @@ button {
 }
 
 .bottomNav button:nth-child(3) {
-  transform: translateY(-28px);
+  transform: translateY(-26px);
 }
 
 .bottomNav button:nth-child(3) span {
-  width: 76px;
-  height: 76px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -2466,45 +2402,29 @@ button {
   box-shadow: 0 0 30px rgba(0, 102, 255, 0.55);
 }
 
-/* MOBILE */
+/* MOBILE FIX */
 
 @media (max-width: 760px) {
-  html,
-  body,
-  #root {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .app {
-    width: 100vw;
-    height: 100dvh;
-    min-height: 100dvh;
-    overflow: hidden;
-    padding-bottom: 72px;
-  }
-
   .appHeader {
-    height: 120px;
-    padding: 8px 12px;
+    height: 112px;
+    padding: 8px 10px;
   }
 
   .headerLine {
-    grid-template-columns: 26px auto 1fr 76px;
-    gap: 8px;
-    height: 42px;
+    height: 40px;
+    grid-template-columns: 26px auto 1fr 70px;
+    gap: 7px;
   }
 
   .menuBtn {
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 11px;
-    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 17px;
   }
 
   .brandLogo {
@@ -2512,7 +2432,7 @@ button {
   }
 
   .brandLogo strong {
-    font-size: 20px;
+    font-size: 19px;
   }
 
   .topWallet {
@@ -2520,24 +2440,24 @@ button {
   }
 
   .headerRight {
-    gap: 7px;
+    gap: 6px;
   }
 
   .bell,
   .avatar {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
+    width: 33px;
+    height: 33px;
+    font-size: 13px;
   }
 
   .bell {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .bell span {
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
+    width: 17px;
+    height: 17px;
+    font-size: 9px;
   }
 
   .walletLine {
@@ -2546,11 +2466,11 @@ button {
     align-items: center;
     gap: 7px;
     margin-top: 8px;
-    height: 48px;
+    height: 44px;
   }
 
   .accountToggle {
-    height: 42px;
+    height: 40px;
     border-radius: 12px;
     background: #060b17;
     display: flex;
@@ -2560,7 +2480,7 @@ button {
   }
 
   .accountToggle button {
-    min-width: 50px;
+    min-width: 49px;
     border-radius: 9px;
     background: transparent;
     color: #aab6ca;
@@ -2574,7 +2494,7 @@ button {
   }
 
   .mobileBalance {
-    height: 42px;
+    height: 40px;
     overflow: hidden;
   }
 
@@ -2592,7 +2512,7 @@ button {
   }
 
   .depositBig {
-    height: 42px;
+    height: 40px;
     min-width: 92px;
     border-radius: 11px;
     background: #065dff;
@@ -2601,265 +2521,264 @@ button {
     font-weight: 900;
   }
 
+  .screen {
+    height: calc(100dvh - 112px);
+    padding: 6px;
+  }
+
+  .mobilePage {
+    height: 100%;
+    padding-bottom: 78px;
+    overflow-y: auto;
+  }
+
   .sideMenuPanel {
     width: 82vw;
     max-width: 82vw;
-    padding: 22px 18px 110px;
+    padding: 18px 14px 100px;
   }
 
   .sideMenuTop {
-    height: 48px;
-    margin-bottom: 18px;
+    height: 42px;
+    margin-bottom: 14px;
   }
 
   .sideMenuTop .brandLogo .mark {
-    width: 42px;
-    height: 42px;
-    border-radius: 13px;
-    font-size: 22px;
+    width: 38px;
+    height: 38px;
   }
 
   .sideMenuTop .brandLogo strong {
-    font-size: 25px;
+    font-size: 22px;
   }
 
   .sideMenuClose {
-    width: 42px;
-    height: 42px;
-    font-size: 42px;
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
   }
 
   .sideAccountCard {
-    padding: 18px 16px;
-    border-radius: 16px;
-    margin-bottom: 18px;
+    padding: 14px;
+    border-radius: 15px;
+    margin-bottom: 14px;
   }
 
   .sideAccountHeader {
-    grid-template-columns: 64px 1fr;
-    gap: 14px;
+    grid-template-columns: 58px 1fr;
+    gap: 12px;
   }
 
   .sideAccountLogo {
-    width: 64px;
-    height: 64px;
+    width: 58px;
+    height: 58px;
     border-radius: 14px;
-    font-size: 30px;
+    font-size: 27px;
   }
 
   .sideAccountHeader small {
-    font-size: 14px;
-    margin-bottom: 5px;
+    font-size: 13px;
+    margin-bottom: 4px;
   }
 
   .sideAccountHeader strong {
-    font-size: 21px;
-    margin-bottom: 6px;
+    font-size: 18px;
+    margin-bottom: 5px;
   }
 
   .sideAccountHeader span {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .sideAccountSwitch {
-    height: 48px;
-    margin-top: 16px;
+    height: 44px;
+    margin-top: 14px;
   }
 
   .sideAccountSwitch button {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .menuSection {
-    padding: 12px 0;
+    padding: 10px 0;
   }
 
   .menuSection h4 {
-    font-size: 14px;
-    margin-bottom: 8px;
+    font-size: 12px;
+    margin-bottom: 6px;
   }
 
   .menuItem {
-    min-height: 48px;
-    grid-template-columns: 42px 1fr auto auto 18px;
-    gap: 8px;
-    padding: 0 10px;
-    border-radius: 11px;
+    min-height: 42px;
+    grid-template-columns: 36px 1fr auto auto 16px;
+    gap: 7px;
+    padding: 0 8px;
+    border-radius: 10px;
   }
 
   .menuItemIcon {
-    width: 34px;
-    height: 34px;
-    font-size: 21px;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
   }
 
   .menuItem strong {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .menuItem b {
-    font-size: 25px;
+    font-size: 22px;
   }
 
   .menuBadge {
-    font-size: 12px;
-    padding: 6px 10px;
+    font-size: 10px;
+    padding: 5px 8px;
   }
 
   .menuBubble {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
   }
 
   .sideLogout {
-    height: 58px;
-    font-size: 17px;
-  }
-
-  .screen {
-    height: calc(100dvh - 192px);
-    min-height: 0;
-    overflow: hidden;
-    padding: 7px;
-  }
-
-  .pageScroll {
-    height: 100%;
-    overflow-y: auto;
-    padding-bottom: 18px;
-  }
-
-  .homePage {
-    height: 100%;
-    display: grid;
-    grid-template-rows: 70px 54px 1fr 62px 118px;
-    gap: 6px;
+    height: 50px;
+    font-size: 15px;
   }
 
   .dashboardCard {
-    min-height: 70px;
-    height: 70px;
-    grid-template-columns: 1fr 1fr 92px;
-    gap: 8px;
-    padding: 8px 10px;
-    margin-bottom: 0;
+    min-height: 62px;
+    height: 62px;
+    grid-template-columns: 1fr 1fr 78px;
+    gap: 6px;
+    padding: 7px 8px;
+    margin-bottom: 6px;
     border-radius: 11px;
   }
 
   .dashboardCard small,
   .dashboardCard span {
-    font-size: 8px;
+    font-size: 7px;
     margin-bottom: 2px;
   }
 
   .dashboardCard strong {
-    font-size: 13px;
+    font-size: 11px;
   }
 
   .dashboardCard em {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .dashboardCard button {
-    height: 44px;
-    font-size: 12px;
+    height: 38px;
+    font-size: 10px;
+    border-radius: 9px;
   }
 
   .hubRow {
-    height: 54px;
-    min-height: 54px;
+    height: 47px;
+    min-height: 47px;
     border-radius: 10px;
-    margin-bottom: 0;
+    margin-bottom: 6px;
   }
 
   .hubRow button {
-    height: 54px;
+    height: 47px;
     gap: 2px;
   }
 
   .hubRow button span {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .hubRow button small {
-    font-size: 7px;
+    font-size: 6.4px;
+  }
+
+  .homePage {
+    display: grid;
+    grid-template-rows: 62px 47px 1fr 54px 104px;
+    gap: 6px;
+    overflow: hidden;
   }
 
   .homeGrid {
     grid-template-columns: repeat(2, 1fr);
     border-radius: 11px;
+    min-height: 0;
   }
 
   .homeGrid button {
-    min-height: 74px;
-    gap: 3px;
+    min-height: 66px;
+    gap: 2px;
   }
 
   .homeGrid span {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .homeGrid strong {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .homeGrid small {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .compactStats {
-    padding: 6px;
+    height: 54px;
+    padding: 5px;
     gap: 5px;
     border-radius: 11px;
   }
 
   .compactStats div {
-    min-height: 50px;
-    padding: 7px;
+    min-height: 42px;
+    padding: 5px;
   }
 
   .compactStats small {
-    font-size: 8px;
-    margin-bottom: 3px;
+    font-size: 7px;
+    margin-bottom: 2px;
   }
 
   .compactStats strong {
-    font-size: 12px;
+    font-size: 10px;
   }
 
   .compactMarket {
-    height: 118px;
+    height: 104px;
     overflow: hidden;
-    padding: 8px 10px;
+    padding: 7px 9px;
     border-radius: 11px;
   }
 
   .compactMarket .panelTitle {
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
 
   .compactMarket .panelTitle strong,
   .compactMarket .panelTitle a {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .compactMarket .marketRow {
-    grid-template-columns: 28px 1fr 72px 24px;
-    padding: 5px 0;
+    grid-template-columns: 26px 1fr 70px 22px;
+    padding: 4px 0;
     gap: 4px;
   }
 
   .compactMarket .marketRow > span {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .compactMarket .marketRow strong {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .compactMarket .marketRow small {
-    font-size: 8px;
+    font-size: 7px;
   }
 
   .compactMarket .miniSpark {
@@ -2868,14 +2787,14 @@ button {
 
   .forexPage {
     display: grid;
-    gap: 7px;
+    gap: 6px;
   }
 
   .forexSymbol {
-    min-height: 76px;
-    grid-template-columns: 24px 32px 1fr 72px 48px;
-    gap: 6px;
-    padding: 8px;
+    min-height: 70px;
+    grid-template-columns: 22px 28px 1fr 70px;
+    gap: 5px;
+    padding: 7px;
     border-radius: 11px;
   }
 
@@ -2886,39 +2805,44 @@ button {
   }
 
   .forexSymbol button {
-    height: 36px;
-    font-size: 18px;
+    height: 32px;
+    font-size: 17px;
   }
 
   .pairFlag {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .forexSymbol strong {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .forexSymbol small {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .forexToolbar {
-    grid-template-columns: repeat(6, 44px) 42px 42px 1fr;
-    height: 46px;
+    grid-template-columns: repeat(6, 40px) 36px 36px 44px;
+    height: 42px;
     border-radius: 11px;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .forexToolbar::-webkit-scrollbar {
+    display: none;
   }
 
   .forexToolbar button {
-    height: 46px;
-    font-size: 11px;
+    height: 42px;
+    font-size: 10px;
     min-width: max-content;
-    padding: 0 8px;
+    padding: 0 6px;
   }
 
   .forexToolbar button.active {
-    height: 30px;
-    margin: 8px;
+    height: 28px;
+    margin: 7px;
   }
 
   .forexToolbar button:nth-last-child(-n + 3) {
@@ -2926,19 +2850,19 @@ button {
   }
 
   .forexChartPanel {
-    height: 210px;
-    grid-template-columns: 36px 1fr;
+    height: 185px;
+    grid-template-columns: 34px 1fr;
     border-radius: 11px;
   }
 
   .toolStrip {
     padding: 4px;
-    gap: 2px;
+    gap: 1px;
   }
 
   .toolStrip button {
-    height: 20px;
-    font-size: 11px;
+    height: 18px;
+    font-size: 10px;
   }
 
   .candleChart span {
@@ -2959,19 +2883,19 @@ button {
   }
 
   .orderTabs {
-    height: 38px;
+    height: 36px;
   }
 
   .orderTabs button {
-    height: 38px;
-    width: 120px;
-    font-size: 12px;
+    height: 36px;
+    width: 110px;
+    font-size: 11px;
   }
 
   .forexOrderGrid {
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 8px;
+    gap: 7px;
+    padding: 7px;
   }
 
   .spreadBox {
@@ -2979,41 +2903,37 @@ button {
   }
 
   .forexInputs {
-    gap: 5px;
+    gap: 4px;
   }
 
   .forexInput > span {
-    font-size: 9px;
+    font-size: 8px;
     margin-bottom: 2px;
   }
 
   .forexInput div {
-    height: 30px;
-    grid-template-columns: 1fr 28px 28px;
+    height: 28px;
+    grid-template-columns: 1fr 26px 26px;
   }
 
   .forexInput strong {
-    font-size: 10px;
-    padding-left: 7px;
+    font-size: 9px;
+    padding-left: 6px;
   }
 
   .forexInput button {
-    font-size: 14px;
-  }
-
-  .orderSmallText {
-    font-size: 8px;
+    font-size: 13px;
   }
 
   .buySellStack {
-    gap: 8px;
+    gap: 7px;
   }
 
   .forexBuy,
   .forexSell {
-    height: 70px;
-    font-size: 16px;
-    gap: 6px;
+    height: 64px;
+    font-size: 15px;
+    gap: 4px;
   }
 
   .forexTrades {
@@ -3021,125 +2941,111 @@ button {
   }
 
   .tradeTabs {
-    height: 40px;
-    gap: 12px;
-    padding: 0 8px;
+    height: 38px;
+    gap: 10px;
+    padding: 0 7px;
   }
 
   .tradeTabs button {
-    font-size: 10px;
-  }
-
-  .tradeTabs button.active {
-    height: 40px;
-  }
-
-  .tradeTabs .closeAll {
-    height: 30px;
-    padding: 0 9px;
-  }
-
-  .forexTradeRow {
-    grid-template-columns: 1fr 42px 54px 60px 54px;
-    min-height: 40px;
-    padding: 0 8px;
-    gap: 4px;
     font-size: 9px;
   }
 
-  .forexTradeRow.head {
-    min-height: 28px;
+  .tradeTabs button.active {
+    height: 38px;
+  }
+
+  .forexTradeRow {
+    grid-template-columns: 1fr 36px 38px 48px 42px;
+    min-height: 36px;
+    padding: 0 7px;
+    gap: 4px;
     font-size: 8px;
   }
 
-  .forexTradeRow span:nth-child(4),
+  .forexTradeRow.head {
+    min-height: 24px;
+    font-size: 7px;
+  }
+
   .forexTradeRow button {
-    display: none;
+    height: 26px;
+    font-size: 8px;
   }
 
   .equityBar {
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
-    padding: 8px;
+    padding: 7px;
     border-radius: 11px;
   }
 
   .equityBar small {
-    font-size: 8px;
+    font-size: 7px;
     margin-bottom: 2px;
   }
 
   .equityBar strong {
-    font-size: 10px;
-  }
-
-  .equityBar button {
-    display: none;
+    font-size: 9px;
   }
 
   .tradePage {
-    height: 100%;
     display: grid;
-    grid-template-rows: 54px 40px minmax(0, 1fr) 120px 30px;
-    gap: 6px;
+    grid-template-rows: 47px 38px 1fr 112px 28px;
+    gap: 5px;
+    overflow: hidden;
   }
 
   .typeRow {
-    height: 40px;
+    height: 38px;
     padding: 5px;
     gap: 5px;
     border-radius: 10px;
-    scrollbar-width: none;
-  }
-
-  .typeRow::-webkit-scrollbar {
-    display: none;
   }
 
   .typeRow span {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .typeRow button {
-    height: 29px;
-    font-size: 9px;
-    padding: 0 8px;
+    height: 28px;
+    font-size: 8px;
+    padding: 0 7px;
   }
 
   .binaryChartCard {
     min-height: 0;
     height: 100%;
-    padding: 7px;
+    padding: 6px;
     overflow: hidden;
     border-radius: 12px;
   }
 
   .chartHeader {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   }
 
   .chartHeader strong {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .chartHeader span {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .chartHeader button {
-    width: 50px;
-    height: 30px;
-    font-size: 11px;
+    width: 46px;
+    height: 28px;
+    font-size: 10px;
   }
 
   .chartBox {
-    height: 105px;
+    height: 92px;
     margin-bottom: 4px;
     border-radius: 10px;
   }
 
   .lastDigitsTitle {
-    font-size: 11px;
+    font-size: 10px;
     margin-bottom: 3px;
   }
 
@@ -3149,55 +3055,55 @@ button {
   }
 
   .darkDigit {
-    width: 39px;
-    height: 39px;
+    width: 36px;
+    height: 36px;
     border-width: 4px;
   }
 
   .darkDigit strong {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .darkDigit span {
-    font-size: 7px;
+    font-size: 6px;
   }
 
   .orderBox {
-    height: 120px;
-    min-height: 120px;
-    padding: 7px;
+    height: 112px;
+    min-height: 112px;
+    padding: 6px;
     overflow: hidden;
     border-radius: 12px;
   }
 
   .orderInputs {
     gap: 5px;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 
   .orderBox label {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .orderBox select {
-    height: 29px;
-    font-size: 10px;
+    height: 27px;
+    font-size: 9px;
     margin-top: 2px;
-    padding: 0 7px;
+    padding: 0 6px;
   }
 
   .stakeControl {
-    height: 29px;
+    height: 27px;
     margin-top: 2px;
-    grid-template-columns: 26px 1fr 26px;
+    grid-template-columns: 24px 1fr 24px;
   }
 
   .stakeControl button {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .stakeControl strong {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .actionGrid {
@@ -3206,80 +3112,87 @@ button {
 
   .buyButton,
   .sellButton {
-    height: 56px;
+    height: 50px;
     border-radius: 8px;
   }
 
   .buyButton div,
   .sellButton div {
-    height: 32px;
-    gap: 7px;
+    height: 30px;
+    gap: 6px;
   }
 
   .buyButton div span,
   .sellButton div span {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .buyButton div strong,
   .sellButton div strong {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .buyButton small,
   .sellButton small {
-    height: 24px;
-    padding: 0 9px;
-    font-size: 9px;
+    height: 20px;
+    padding: 0 8px;
+    font-size: 7px;
   }
 
   .miniTradeStatus {
-    height: 30px;
+    height: 28px;
     padding: 5px;
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .botsPage {
-    height: 100%;
-    grid-template-rows: 54px 42px 58px 44px minmax(0, 1fr);
-    gap: 6px;
+    display: grid;
+    grid-template-rows: 50px 38px 52px 40px 1fr;
+    gap: 5px;
+    overflow: hidden;
   }
 
   .botsHead {
-    min-height: 54px;
-    height: 54px;
-    padding: 8px 10px;
+    min-height: 50px;
+    height: 50px;
+    padding: 7px 9px;
   }
 
   .botsHead h2 {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .botsHead p {
-    font-size: 9px;
-    margin-top: 2px;
+    font-size: 8px;
+    margin-top: 1px;
   }
 
   .botsHead button {
-    height: 34px;
-    font-size: 11px;
-    padding: 0 10px;
+    height: 32px;
+    font-size: 10px;
+    padding: 0 9px;
   }
 
   .botTabsTop {
-    height: 42px;
-    padding: 6px;
+    height: 38px;
+    padding: 5px;
     gap: 8px;
     border-radius: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .botTabsTop::-webkit-scrollbar {
+    display: none;
   }
 
   .botTabsTop button {
-    font-size: 11px;
-    padding-bottom: 6px;
+    font-size: 10px;
+    padding-bottom: 5px;
   }
 
   .botStatsCards {
-    height: 58px;
+    height: 52px;
     padding: 5px;
     gap: 5px;
     grid-template-columns: repeat(4, 1fr);
@@ -3287,131 +3200,139 @@ button {
   }
 
   .botStat {
-    padding: 5px;
+    padding: 4px;
   }
 
   .botStat span,
   .botStat small {
-    font-size: 7px;
+    font-size: 6px;
   }
 
   .botStat strong {
-    font-size: 13px;
+    font-size: 12px;
     margin: 2px 0;
   }
 
   .botSearchRow {
-    height: 44px;
+    height: 40px;
     padding: 5px;
-    grid-template-columns: 1fr 100px;
+    grid-template-columns: 1fr 94px;
     gap: 5px;
     border-radius: 10px;
   }
 
   .botSearchRow input,
   .botSearchRow select {
-    height: 34px;
-    font-size: 11px;
+    height: 30px;
+    font-size: 10px;
+    padding: 0 8px;
   }
 
   .botList {
     overflow-y: auto;
     gap: 6px;
+    min-height: 0;
+    scrollbar-width: none;
+  }
+
+  .botList::-webkit-scrollbar {
+    display: none;
   }
 
   .botCard {
-    padding: 8px;
+    padding: 7px;
     border-radius: 10px;
   }
 
   .botTop {
-    grid-template-columns: 42px 1fr auto;
-    gap: 8px;
-    margin-bottom: 8px;
+    grid-template-columns: 40px 1fr auto;
+    gap: 7px;
+    margin-bottom: 7px;
   }
 
   .botIcon {
-    width: 38px;
-    height: 38px;
-    font-size: 13px;
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
   }
 
   .botTop strong {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .botTop span,
   .botTop small {
-    font-size: 8px;
+    font-size: 7px;
     margin-top: 2px;
   }
 
   .botTop em {
-    font-size: 8px;
-    padding: 4px 6px;
+    font-size: 7px;
+    padding: 3px 5px;
   }
 
   .botMetrics {
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
-    padding-top: 6px;
+    padding-top: 5px;
   }
 
   .botMetrics span {
-    font-size: 7px;
+    font-size: 6px;
     margin-bottom: 2px;
   }
 
   .botMetrics strong {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .outlineBlue {
-    height: 28px;
-    width: 96px;
-    font-size: 10px;
-    margin-top: 7px;
+    height: 26px;
+    width: 88px;
+    font-size: 9px;
+    margin-top: 6px;
   }
 
   .profilePage {
-    height: 100%;
-    grid-template-rows: 100px 58px 88px minmax(0, 1fr) 54px;
-    gap: 6px;
+    display: grid;
+    grid-template-rows: 88px 52px 78px 1fr 48px;
+    gap: 5px;
+    overflow: hidden;
   }
 
   .profileMainCard {
-    grid-template-columns: 62px 1fr;
-    gap: 8px;
-    padding: 8px;
+    grid-template-columns: 56px 1fr;
+    gap: 7px;
+    padding: 7px;
     border-radius: 10px;
     overflow: hidden;
   }
 
   .profileAvatar {
-    width: 58px;
-    height: 58px;
-    font-size: 20px;
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
   }
 
   .profileAvatar span {
-    width: 22px;
-    height: 22px;
-    font-size: 10px;
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
   }
 
   .profileIdentity h2 {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .profileIdentity p,
   .profileIdentity small {
-    font-size: 9px;
+    font-size: 8px;
     margin-top: 2px;
   }
 
   .profileIdentity em {
-    font-size: 9px;
-    margin-top: 4px;
+    font-size: 8px;
+    margin-top: 3px;
     padding: 3px 6px;
   }
 
@@ -3425,16 +3346,16 @@ button {
   }
 
   .profileStats .statBox {
-    min-height: 58px;
-    padding: 6px;
+    min-height: 52px;
+    padding: 5px;
   }
 
   .profileStats .statBox strong {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .profileStats .statBox span {
-    font-size: 7px;
+    font-size: 6px;
   }
 
   .profileActionGrid {
@@ -3445,72 +3366,77 @@ button {
   }
 
   .profileActionGrid button {
-    min-height: 76px;
+    min-height: 66px;
     padding: 4px;
   }
 
   .profileActionGrid span {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .profileActionGrid strong {
-    font-size: 9px;
+    font-size: 8px;
     text-align: center;
   }
 
   .profileActionGrid small {
-    font-size: 7px;
+    font-size: 6px;
     text-align: center;
   }
 
   .profileCompactList {
     overflow-y: auto;
     border-radius: 10px;
+    scrollbar-width: none;
+  }
+
+  .profileCompactList::-webkit-scrollbar {
+    display: none;
   }
 
   .settingRow {
-    min-height: 52px;
-    grid-template-columns: 38px 1fr auto 16px;
-    gap: 6px;
-    padding: 7px;
+    min-height: 46px;
+    grid-template-columns: 34px 1fr auto 14px;
+    gap: 5px;
+    padding: 6px;
   }
 
   .settingIcon {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-  }
-
-  .settingRow strong {
+    width: 28px;
+    height: 28px;
     font-size: 11px;
   }
 
+  .settingRow strong {
+    font-size: 10px;
+  }
+
   .settingRow span {
-    font-size: 8px;
-    margin-top: 2px;
+    font-size: 7px;
+    margin-top: 1px;
   }
 
   .settingRow em {
-    font-size: 8px;
-    padding: 4px 6px;
+    font-size: 7px;
+    padding: 3px 5px;
   }
 
   .settingRow b {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .logoutCard {
-    padding: 9px 12px;
+    padding: 8px 10px;
     border-radius: 10px;
   }
 
   .logoutCard strong {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .logoutCard span {
-    font-size: 9px;
-    margin-top: 2px;
+    font-size: 8px;
+    margin-top: 1px;
   }
 
   .marketTiles,
@@ -3519,7 +3445,7 @@ button {
   }
 
   .marketRow {
-    grid-template-columns: 40px 1fr 76px 34px;
+    grid-template-columns: 36px 1fr 70px 28px;
   }
 
   .miniSpark {
@@ -3527,33 +3453,30 @@ button {
   }
 
   .settingsHero {
-    padding: 18px 16px;
-    border-radius: 14px;
-    margin-bottom: 10px;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 8px;
   }
 
   .settingsHero h1 {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   .settingsHero p {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .settingsLayout {
     display: block;
-    border: none;
-    background: transparent;
-    padding: 0;
   }
 
   .settingsSidebar {
     display: flex;
     overflow-x: auto;
-    gap: 8px;
+    gap: 6px;
     border: none;
     background: transparent;
-    padding: 0 0 8px;
+    padding: 0 0 7px;
     scrollbar-width: none;
   }
 
@@ -3562,74 +3485,75 @@ button {
   }
 
   .settingsSidebar button {
-    min-width: 145px;
-    min-height: 66px;
-    grid-template-columns: 28px 1fr;
+    min-width: 110px;
+    min-height: 54px;
+    grid-template-columns: 24px 1fr;
     border: 1px solid rgba(255, 255, 255, 0.09);
     border-left: none;
     border-bottom: none;
-    border-radius: 12px;
-    padding: 0 12px;
+    border-radius: 10px;
+    padding: 0 8px;
   }
 
   .settingsSidebar button span {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   .settingsSidebar button strong {
-    font-size: 12px;
-  }
-
-  .settingsSidebar button small {
     font-size: 10px;
   }
 
-  .settingsContent {
-    padding: 0;
+  .settingsSidebar button small {
+    font-size: 8px;
   }
 
   .settingsCard {
-    padding: 16px;
-    margin-top: 10px;
-    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 12px;
   }
 
   .settingsCardTitle {
-    gap: 12px;
-    padding-bottom: 12px;
+    gap: 10px;
+    padding-bottom: 10px;
   }
 
   .settingsCardTitle span {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    font-size: 22px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 18px;
   }
 
   .settingsCardTitle strong {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   .settingLine {
-    min-height: 76px;
+    min-height: 58px;
     grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 12px 0;
+    gap: 6px;
+    padding: 9px 0;
   }
 
   .settingLine strong {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .settingLine small {
-    font-size: 12px;
+    font-size: 10px;
   }
 
   .settingLine select,
   .themeSwitch,
   .settingsStake {
     width: 100%;
-    height: 44px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .settingsStake {
+    grid-template-columns: 38px 1fr 38px;
   }
 
   .switchBtn {
@@ -3649,9 +3573,9 @@ button {
   }
 
   .toastWrap {
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 8px;
+    left: 8px;
+    right: 8px;
   }
 
   .toast {
@@ -3659,87 +3583,148 @@ button {
   }
 
   .bottomNav {
-    left: 7px;
-    right: 7px;
+    left: 6px;
+    right: 6px;
     bottom: 5px;
-    height: 64px;
+    height: 62px;
     border-radius: 16px;
   }
 
   .bottomNav button span {
-    font-size: 22px;
+    font-size: 21px;
   }
 
   .bottomNav button small {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .bottomNav button:nth-child(3) {
-    transform: translateY(-24px);
+    transform: translateY(-22px);
   }
 
   .bottomNav button:nth-child(3) span {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .botRunner {
+    height: 100dvh;
+  }
+
+  .runnerTop {
+    height: 44px;
+  }
+
+  .runnerStatus {
+    height: 38px;
+  }
+
+  .runnerTabs {
+    height: 48px;
+  }
+
+  .runnerTabs button {
+    font-size: 13px;
+  }
+
+  .contractLive,
+  .closedWin,
+  .closedLoss,
+  .emptyRunner {
+    min-height: 190px;
+  }
+
+  .runnerStats {
+    height: 112px;
+    padding: 10px 6px;
+  }
+
+  .runnerStats strong {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .runnerStats span {
+    font-size: 11px;
+  }
+
+  .runnerBottom {
+    height: 68px;
+    grid-template-columns: 105px 1fr;
+    padding: 8px 10px;
+  }
+
+  .startRun,
+  .stopRun {
+    height: 52px;
+    font-size: 18px;
+  }
+
+  .runnerBottom > div {
+    height: 52px;
   }
 }
 
 @media (max-width: 390px) {
   .appHeader {
-    height: 112px;
+    height: 106px;
   }
 
   .screen {
-    height: calc(100dvh - 184px);
+    height: calc(100dvh - 106px);
+  }
+
+  .walletLine {
+    height: 42px;
   }
 
   .homePage {
-    grid-template-rows: 64px 50px 1fr 56px 102px;
+    grid-template-rows: 58px 44px 1fr 50px 96px;
   }
 
   .dashboardCard {
-    height: 64px;
-    min-height: 64px;
+    height: 58px;
+    min-height: 58px;
   }
 
   .hubRow {
-    height: 50px;
-    min-height: 50px;
+    height: 44px;
+    min-height: 44px;
   }
 
   .hubRow button {
-    height: 50px;
+    height: 44px;
   }
 
   .hubRow button span {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .hubRow button small {
-    font-size: 6.8px;
+    font-size: 6px;
   }
 
   .forexChartPanel {
-    height: 188px;
+    height: 170px;
   }
 
   .tradePage {
-    grid-template-rows: 50px 38px minmax(0, 1fr) 112px 28px;
+    grid-template-rows: 44px 36px 1fr 108px 26px;
     gap: 5px;
   }
 
   .chartBox {
-    height: 88px;
+    height: 80px;
   }
 
   .darkDigit {
-    width: 35px;
-    height: 35px;
+    width: 33px;
+    height: 33px;
     border-width: 4px;
   }
 
   .darkDigit strong {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .darkDigit span {
@@ -3747,45 +3732,28 @@ button {
   }
 
   .orderBox {
-    height: 112px;
-    min-height: 112px;
+    height: 108px;
+    min-height: 108px;
   }
 
   .buyButton,
   .sellButton {
-    height: 51px;
+    height: 48px;
   }
 
   .buyButton div,
   .sellButton div {
-    height: 30px;
+    height: 29px;
   }
 
   .buyButton small,
   .sellButton small {
-    height: 21px;
-    font-size: 8px;
+    height: 19px;
+    font-size: 7px;
   }
 
   .sideMenuPanel {
     width: 84vw;
     max-width: 84vw;
-    padding: 18px 14px 105px;
-  }
-
-  .sideMenuTop .brandLogo strong {
-    font-size: 22px;
-  }
-
-  .sideAccountHeader strong {
-    font-size: 18px;
-  }
-
-  .menuItem {
-    min-height: 45px;
-  }
-
-  .menuItem strong {
-    font-size: 15px;
   }
 }
