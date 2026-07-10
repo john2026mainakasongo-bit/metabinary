@@ -3,80 +3,143 @@ import "./App.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-const BOT_TEMPLATES = [
-  ["Neon Eclipse", "EO", "Even/Odd", "Even", "Volatility 100 (1s)", 10, 5, 72.5, "Running"],
-  ["Quantum Surge", "QS", "Rise/Fall", "Rise", "Volatility 75", 15, 5, 68.0, "Stopped"],
-  ["Alpha Over", "AO", "Over/Under", "Over", "Volatility 100", 10, 5, 45.0, "Stopped"],
-  ["Matrix Differ", "MD", "Matches/Differs", "Differs", "Volatility 50", 20, 5, 40.0, "Stopped"],
-  ["Turbo Touch", "TT", "Touch/No Touch", "Touch", "Volatility 100", 10, 5, 77.5, "Completed"],
-  ["Binary Striker", "BS", "Even/Odd", "Odd", "Volatility 25", 25, 10, 75.2, "Running"],
-].map(([name, code, contract, choice, market, stake, duration, winRate, status], i) => ({
-  id: i + 1,
-  name,
-  code,
-  contract,
-  choice,
-  market,
-  stake,
-  duration,
-  winRate,
-  status,
-  profit: [250.75, 180.4, -45, -120, 310.5, 375.6][i],
-}));
+const STORAGE = {
+  user: "mb_user",
+  balances: "mb_balances",
+  account: "mb_account",
+  positions: "mb_positions",
+  closedForex: "mb_closed_forex",
+  transactions: "mb_transactions",
+};
 
-function storage(key, fallback) {
+const MARKETS = ["XAU/USD", "EUR/USD", "GBP/USD", "USD/JPY", "BTC/USD"];
+
+const BOTS = [
+  {
+    id: 1,
+    code: "EO",
+    name: "Neon Eclipse",
+    type: "Even/Odd",
+    market: "Volatility 100 (1s)",
+    stake: 10,
+    duration: 5,
+    status: "Running",
+    profit: 250.75,
+    winRate: 72.5,
+  },
+  {
+    id: 2,
+    code: "RF",
+    name: "Quantum Surge",
+    type: "Rise/Fall",
+    market: "Volatility 75 Index",
+    stake: 15,
+    duration: 5,
+    status: "Stopped",
+    profit: 180.4,
+    winRate: 68,
+  },
+  {
+    id: 3,
+    code: "OU",
+    name: "Alpha OverUnder",
+    type: "Over/Under",
+    market: "Volatility 100 Index",
+    stake: 10,
+    duration: 5,
+    status: "Stopped",
+    profit: -45,
+    winRate: 45,
+  },
+  {
+    id: 4,
+    code: "MD",
+    name: "Matrix Differ",
+    type: "Matches/Differs",
+    market: "Volatility 50 Index",
+    stake: 20,
+    duration: 5,
+    status: "Stopped",
+    profit: -120,
+    winRate: 40,
+  },
+];
+
+function readStore(key, fallback) {
   try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
   } catch {
     return fallback;
   }
 }
 
-function save(key, value) {
+function saveStore(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-function money(v) {
-  return Number(v || 0).toLocaleString(undefined, {
+function money(value) {
+  return Number(value || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
 function id() {
-  return Date.now() + Math.random();
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function userInitials(value) {
-  return String(value || "JM")
-    .replace("@gmail.com", "")
-    .split(/[ ._-]/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((x) => x[0]?.toUpperCase())
-    .join("") || "JM";
+function getInitials(value) {
+  return (
+    String(value || "JM")
+      .replace("@gmail.com", "")
+      .split(/[ ._-]/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((x) => x[0]?.toUpperCase())
+      .join("") || "JM"
+  );
 }
 
-function buildPrices() {
-  let start = 1.0856;
-  return Array.from({ length: 90 }, (_, i) => {
-    start += (Math.random() - 0.48) * 0.00032 + Math.sin(i / 8) * 0.00006;
-    return Number(start.toFixed(5));
+function createPrices(start = 1.0868) {
+  let price = start;
+
+  return Array.from({ length: 120 }, (_, index) => {
+    price += (Math.random() - 0.49) * 0.00055 + Math.sin(index / 9) * 0.00005;
+    return Number(price.toFixed(5));
   });
 }
 
 export default function App() {
-  const [user, setUser] = useState(() => storage("mb_user", null));
+  const [user, setUser] = useState(() => readStore(STORAGE.user, null));
   const [authMode, setAuthMode] = useState("login");
 
   const [activePage, setActivePage] = useState("forex");
-  const [account, setAccount] = useState(() => storage("mb_account", "demo"));
-  const [balances, setBalances] = useState(() =>
-    storage("mb_balances", { demo: 10000, real: 0 })
+  const [account, setAccount] = useState(() =>
+    readStore(STORAGE.account, "demo")
   );
 
-  const [prices, setPrices] = useState(buildPrices);
+  const [balances, setBalances] = useState(() =>
+    readStore(STORAGE.balances, { demo: 10000, real: 0 })
+  );
+
+  const [prices, setPrices] = useState(() => createPrices());
+  const [positions, setPositions] = useState(() =>
+    readStore(STORAGE.positions, [])
+  );
+  const [closedForex, setClosedForex] = useState(() =>
+    readStore(STORAGE.closedForex, [])
+  );
+  const [transactions, setTransactions] = useState(() =>
+    readStore(STORAGE.transactions, [])
+  );
+
+  const [openBinary, setOpenBinary] = useState([]);
+  const [closedBinary, setClosedBinary] = useState([]);
+  const [tradeType, setTradeType] = useState("Even/Odd");
+  const [stake, setStake] = useState(10);
+  const [duration, setDuration] = useState(5);
+  const [prediction, setPrediction] = useState(2);
   const [lastDigit, setLastDigit] = useState(0);
   const [digitStats, setDigitStats] = useState(() =>
     Array.from({ length: 10 }, () => 7 + Math.random() * 6)
@@ -85,114 +148,122 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-
-  const [tradeType, setTradeType] = useState("Even/Odd");
-  const [stake, setStake] = useState(10);
-  const [duration, setDuration] = useState(5);
-  const [prediction, setPrediction] = useState(2);
-
-  const [openTrades, setOpenTrades] = useState([]);
-  const [closedTrades, setClosedTrades] = useState(() => storage("mb_closed", []));
-  const [transactions, setTransactions] = useState(() => storage("mb_transactions", []));
-  const [positions, setPositions] = useState(() => storage("mb_positions", []));
   const [toast, setToast] = useState(null);
 
+  const [selectedBot, setSelectedBot] = useState(null);
   const [botRunning, setBotRunning] = useState(false);
-  const [runningBot, setRunningBot] = useState(null);
   const [botTab, setBotTab] = useState("summary");
 
-  const live = prices[prices.length - 1] || 1.08668;
-  const balance = balances[account] || 0;
+  const livePrice = prices[prices.length - 1] || 1.0868;
+  const currentBalance = balances[account] || 0;
 
-  useEffect(() => save("mb_user", user), [user]);
-  useEffect(() => save("mb_account", account), [account]);
-  useEffect(() => save("mb_balances", balances), [balances]);
-  useEffect(() => save("mb_closed", closedTrades), [closedTrades]);
-  useEffect(() => save("mb_transactions", transactions), [transactions]);
-  useEffect(() => save("mb_positions", positions), [positions]);
+  useEffect(() => saveStore(STORAGE.user, user), [user]);
+  useEffect(() => saveStore(STORAGE.account, account), [account]);
+  useEffect(() => saveStore(STORAGE.balances, balances), [balances]);
+  useEffect(() => saveStore(STORAGE.positions, positions), [positions]);
+  useEffect(() => saveStore(STORAGE.closedForex, closedForex), [closedForex]);
+  useEffect(() => saveStore(STORAGE.transactions, transactions), [transactions]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setPrices((old) => {
-        const last = old[old.length - 1] || 1.08668;
+        const last = old[old.length - 1] || 1.0868;
         const next = Number(
-          (last + (Math.random() - 0.48) * 0.0005 + Math.sin(Date.now() / 9000) * 0.00005).toFixed(5)
+          (
+            last +
+            (Math.random() - 0.5) * 0.00062 +
+            Math.sin(Date.now() / 9000) * 0.00005
+          ).toFixed(5)
         );
-        return [...old.slice(-89), next];
+
+        return [...old.slice(-119), next];
       });
 
       setLastDigit(Math.floor(Math.random() * 10));
       setDigitStats(Array.from({ length: 10 }, () => 7 + Math.random() * 6));
-    }, 850);
+    }, 900);
 
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
     setPositions((old) =>
-      old.map((p) => {
+      old.map((position) => {
         const pl =
-          p.side === "Buy"
-            ? (live - p.entry) * 100000 * p.lot
-            : (p.entry - live) * 100000 * p.lot;
+          position.side === "Buy"
+            ? (livePrice - position.openPrice) * 100000 * position.volume
+            : (position.openPrice - livePrice) * 100000 * position.volume;
 
-        return { ...p, current: live, pl: Number(pl.toFixed(2)) };
+        return {
+          ...position,
+          currentPrice: livePrice,
+          pl: Number(pl.toFixed(2)),
+          plPercent: Number(((pl / 1000) * 100).toFixed(2)),
+        };
       })
     );
-  }, [live]);
+  }, [livePrice]);
 
   useEffect(() => {
     if (!user?.email) return;
 
     refreshUser();
-    const timer = setInterval(refreshUser, 7000);
+    const timer = setInterval(refreshUser, 8000);
+
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.email]);
 
   useEffect(() => {
-    if (!botRunning || !runningBot) return;
+    if (!botRunning || !selectedBot) return;
 
     const timer = setInterval(() => {
-      buyBinary(runningBot.choice, runningBot);
-    }, (runningBot.duration + 2) * 1000);
+      const action = selectedBot.type === "Rise/Fall" ? "Rise" : "Even";
+      runBinaryTrade(selectedBot.type, action, selectedBot);
+    }, 7000);
 
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [botRunning, runningBot]);
+  }, [botRunning, selectedBot, balances, account]);
 
   function notify(type, title, message) {
     setToast({ type, title, message });
-    setTimeout(() => setToast(null), 3200);
+    setTimeout(() => setToast(null), 3000);
   }
 
-  async function refreshUser() {
-    try {
-      const res = await fetch(`${API_URL}/api/user/${encodeURIComponent(user.email)}`);
-      if (!res.ok) return;
-
-      const data = await res.json();
-      setBalances((old) => ({
-        demo: Number(data.demoBalance ?? old.demo ?? 10000),
-        real: Number(data.realBalance ?? old.real ?? 0),
-      }));
-    } catch {
-      // Backend offline: app still works for demo UI.
-    }
+  function addTransaction(tx) {
+    setTransactions((old) => [
+      {
+        id: id(),
+        time: new Date().toLocaleString(),
+        ...tx,
+      },
+      ...old,
+    ]);
   }
 
-  function addMoney(target, amount) {
+  function updateBalance(target, amount) {
     setBalances((old) => ({
       ...old,
       [target]: Number((Number(old[target] || 0) + Number(amount)).toFixed(2)),
     }));
   }
 
-  function addTransaction(tx) {
-    setTransactions((old) => [
-      { id: id(), time: new Date().toLocaleString(), ...tx },
-      ...old,
-    ]);
+  async function refreshUser() {
+    try {
+      const res = await fetch(
+        `${API_URL}/api/user/${encodeURIComponent(user.email)}`
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      setBalances((old) => ({
+        demo: Number(data.demoBalance ?? old.demo ?? 10000),
+        real: Number(data.realBalance ?? old.real ?? 0),
+      }));
+    } catch {
+      // Keep frontend running if backend is offline.
+    }
   }
 
   function login(data) {
@@ -201,14 +272,15 @@ export default function App() {
       return;
     }
 
-    setUser({
+    const logged = {
       name: data.email.split("@")[0],
       email: data.email,
-      initials: userInitials(data.email),
+      initials: getInitials(data.email),
       brokerId: "MB" + Math.floor(100000 + Math.random() * 900000),
       verified: true,
-    });
+    };
 
+    setUser(logged);
     setActivePage("forex");
     notify("win", "Welcome back", "Login successful.");
   }
@@ -224,28 +296,122 @@ export default function App() {
       return;
     }
 
-    setUser({
+    const created = {
       name: `${data.firstName} ${data.lastName}`,
       email: data.email,
       phone: data.phone,
-      initials: userInitials(`${data.firstName} ${data.lastName}`),
+      initials: getInitials(`${data.firstName} ${data.lastName}`),
       brokerId: "MB" + Math.floor(100000 + Math.random() * 900000),
       verified: true,
-    });
+    };
 
+    setUser(created);
     setBalances({ demo: 10000, real: 0 });
     setActivePage("forex");
-    notify("win", "Account created", "Your demo balance is ready.");
+    notify("win", "Account created", "Your demo account is ready.");
   }
 
   function logout() {
-    localStorage.removeItem("mb_user");
+    localStorage.removeItem(STORAGE.user);
     setUser(null);
     setMenuOpen(false);
     setAuthMode("login");
   }
 
-  function contractActions(type) {
+  function placeForexOrder(order) {
+    const openPrice =
+      order.side === "Buy"
+        ? Number((livePrice + 0.00002).toFixed(5))
+        : Number((livePrice - 0.00002).toFixed(5));
+
+    const position = {
+      id: id(),
+      instrument: order.symbol,
+      name:
+        order.symbol === "XAU/USD"
+          ? "Gold / US Dollar"
+          : order.symbol === "EUR/USD"
+          ? "Euro / U.S. Dollar"
+          : "Live market",
+      account,
+      side: order.side,
+      volume: Number(order.volume || 0.01),
+      leverage: order.leverage || "1:100",
+      openPrice,
+      currentPrice: livePrice,
+      stopLoss: Number(
+        order.stopLoss || (order.side === "Buy" ? 1.0855 : 1.0885)
+      ),
+      takeProfit: Number(
+        order.takeProfit || (order.side === "Buy" ? 1.0875 : 1.0845)
+      ),
+      pl: 0,
+      plPercent: 0,
+      openedAt: new Date().toLocaleTimeString(),
+    };
+
+    setPositions((old) => [position, ...old].slice(0, 20));
+
+    addTransaction({
+      type: `${order.side} ${order.symbol}`,
+      method: "Forex",
+      account,
+      amount: 0,
+      status: "Open",
+      details: `${position.volume} lot · SL ${position.stopLoss} · TP ${position.takeProfit}`,
+    });
+
+    notify(
+      "open",
+      `${order.side} order placed`,
+      `${order.symbol} · ${position.volume} lot · SL/TP lines added`
+    );
+  }
+
+  function updatePosition(positionId, patch) {
+    setPositions((old) =>
+      old.map((position) =>
+        position.id === positionId ? { ...position, ...patch } : position
+      )
+    );
+  }
+
+  function closePosition(positionId) {
+    const position = positions.find((item) => item.id === positionId);
+    if (!position) return;
+
+    updateBalance(position.account || account, position.pl);
+
+    const closed = {
+      ...position,
+      closedAt: new Date().toLocaleTimeString(),
+      status: "Closed",
+    };
+
+    setClosedForex((old) => [closed, ...old].slice(0, 50));
+    setPositions((old) => old.filter((item) => item.id !== positionId));
+
+    addTransaction({
+      type: `Closed ${position.side} ${position.instrument}`,
+      method: "Forex",
+      account: position.account || account,
+      amount: position.pl,
+      status: "Closed",
+      details: `${position.volume} lot`,
+    });
+
+    notify(
+      position.pl >= 0 ? "win" : "loss",
+      "Trade closed",
+      `${position.pl >= 0 ? "+" : ""}${money(position.pl)} USD`
+    );
+  }
+
+  function closeAllPositions() {
+    positions.forEach((position) => closePosition(position.id));
+  }
+
+  function actionsFor(type) {
     if (type === "Even/Odd") return ["Even", "Odd"];
     if (type === "Matches/Differs") return ["Matches", "Differs"];
     if (type === "Over/Under") return ["Over", "Under"];
@@ -257,167 +423,100 @@ export default function App() {
     if (type === "Matches/Differs" && action === "Matches") return 8.333;
     if (type === "Matches/Differs" && action === "Differs") return 1.087;
     if (type === "Even/Odd") return 1.818;
-    if (type === "Over/Under") return 1.85;
     return 1.9;
   }
 
-  function settle(type, action, pred, entry, exit) {
-    const digit = Math.floor(Math.random() * 10);
-
-    if (type === "Even/Odd") {
-      return { digit, won: action === "Even" ? digit % 2 === 0 : digit % 2 !== 0 };
-    }
-
-    if (type === "Matches/Differs") {
-      return { digit, won: action === "Matches" ? digit === pred : digit !== pred };
-    }
-
-    if (type === "Over/Under") {
-      return { digit, won: action === "Over" ? digit > pred : digit < pred };
-    }
-
-    if (type === "Rise/Fall") {
-      return { digit, won: action === "Rise" ? exit > entry : exit < entry };
-    }
-
-    const touched = Math.random() > 0.5;
-    return { digit, won: action === "Touch" ? touched : !touched };
-  }
-
-  function buyBinary(action, bot = null) {
-    const usedType = bot?.contract || tradeType;
+  function runBinaryTrade(type, action, bot = null) {
     const usedStake = Number(bot?.stake || stake);
     const usedDuration = Number(bot?.duration || duration);
-    const pred = Number(prediction);
 
     if (usedStake < 0.3) {
       notify("loss", "Minimum stake", "Minimum stake is $0.30.");
       return;
     }
 
-    if (balances[account] < usedStake) {
-      notify("loss", "Low balance", `Your ${account} account has insufficient balance.`);
+    if (currentBalance < usedStake) {
+      notify("loss", "Low balance", `Your ${account} balance is low.`);
       return;
     }
 
-    const rate = payoutRate(usedType, action);
-    const payout = Number((usedStake * rate).toFixed(2));
-    const profit = Number((payout - usedStake).toFixed(2));
-
+    const payout = Number((usedStake * payoutRate(type, action)).toFixed(2));
     const trade = {
       id: id(),
       account,
       botName: bot?.name || "",
-      contract: usedType,
+      type,
       action,
-      prediction: pred,
       stake: usedStake,
       payout,
-      profit,
-      entry: live,
+      profit: Number((payout - usedStake).toFixed(2)),
+      prediction,
       status: "RUNNING",
       openedAt: new Date().toLocaleTimeString(),
     };
 
-    addMoney(account, -usedStake);
-    setOpenTrades((old) => [trade, ...old]);
+    updateBalance(account, -usedStake);
+    setOpenBinary((old) => [trade, ...old]);
 
-    addTransaction({
-      type: bot ? `${bot.name} bought contract` : "Manual contract bought",
-      method: bot ? "Bot" : "Manual",
-      account,
-      amount: -usedStake,
-      status: "Running",
-      details: `${usedType} · ${action}`,
-    });
-
-    notify("open", "Contract bought", `${usedType} · ${action} · $${money(usedStake)}`);
+    notify("open", "Contract bought", `${type} · ${action}`);
 
     setTimeout(() => {
-      const exit = Number((trade.entry + (Math.random() - 0.5) * 0.0012).toFixed(5));
-      const result = settle(usedType, action, pred, trade.entry, exit);
+      const digit = Math.floor(Math.random() * 10);
 
-      const done = {
+      let won = false;
+
+      if (type === "Even/Odd") {
+        won = action === "Even" ? digit % 2 === 0 : digit % 2 !== 0;
+      } else if (type === "Matches/Differs") {
+        won = action === "Matches" ? digit === prediction : digit !== prediction;
+      } else if (type === "Over/Under") {
+        won = action === "Over" ? digit > prediction : digit < prediction;
+      } else {
+        won = Math.random() > 0.54;
+      }
+
+      const closed = {
         ...trade,
-        exit,
-        resultDigit: result.digit,
-        won: result.won,
-        status: result.won ? "WON" : "LOST",
+        resultDigit: digit,
+        won,
+        status: won ? "WON" : "LOST",
         closedAt: new Date().toLocaleTimeString(),
       };
 
-      setOpenTrades((old) => old.filter((x) => x.id !== trade.id));
-      setClosedTrades((old) => [done, ...old].slice(0, 100));
+      setOpenBinary((old) => old.filter((item) => item.id !== trade.id));
+      setClosedBinary((old) => [closed, ...old].slice(0, 100));
 
-      if (done.won) addMoney(done.account, done.payout);
+      if (won) updateBalance(trade.account, payout);
 
       addTransaction({
-        type: done.won ? "Profit amount" : "Loss amount",
+        type: won ? "Profit amount" : "Loss amount",
         method: bot ? "Bot" : "Manual",
-        account: done.account,
-        amount: done.won ? done.profit : -done.stake,
-        status: done.status,
-        details: `${done.contract} · digit ${done.resultDigit}`,
+        account: trade.account,
+        amount: won ? trade.profit : -trade.stake,
+        status: closed.status,
+        details: `${type} · digit ${digit}`,
       });
 
       notify(
-        done.won ? "win" : "loss",
-        done.won ? "Trade won" : "Trade lost",
-        `${done.action} · digit ${done.resultDigit} · ${
-          done.won ? "+" : "-"
-        }$${money(done.won ? done.profit : done.stake)}`
+        won ? "win" : "loss",
+        won ? "Trade won" : "Trade lost",
+        `${won ? "+" : "-"}${money(won ? trade.profit : trade.stake)} USD`
       );
     }, usedDuration * 1000);
   }
 
-  function forexOrder(side, symbol = "EUR/USD") {
-    const lot = 0.01;
-    const entry = Number((side === "Buy" ? live + 0.00006 : live - 0.00006).toFixed(5));
-
-    const position = {
-      id: id(),
-      instrument: symbol,
-      side,
-      lot,
-      entry,
-      current: live,
-      pl: 0,
-      time: new Date().toLocaleTimeString(),
-    };
-
-    setPositions((old) => [position, ...old].slice(0, 8));
-    notify("open", `${side} order placed`, `${symbol} · ${lot} lot`);
-  }
-
-  function closePosition(pid) {
-    const p = positions.find((x) => x.id === pid);
-    if (!p) return;
-
-    addTransaction({
-      type: `${p.side} ${p.instrument} closed`,
-      method: "Forex",
-      account,
-      amount: p.pl,
-      status: "Closed",
-      details: `${p.lot} lot`,
-    });
-
-    addMoney(account, p.pl);
-    setPositions((old) => old.filter((x) => x.id !== pid));
-    notify(p.pl >= 0 ? "win" : "loss", "Position closed", `${p.pl >= 0 ? "+" : ""}${money(p.pl)} USD`);
-  }
-
   function startBot(bot) {
-    setRunningBot(bot);
+    setSelectedBot(bot);
     setBotRunning(true);
     setBotTab("summary");
     setActivePage("botLive");
-    buyBinary(bot.choice, bot);
+
+    runBinaryTrade(bot.type, bot.type === "Rise/Fall" ? "Rise" : "Even", bot);
   }
 
   function stopBot() {
     setBotRunning(false);
-    notify("open", "Bot stopped", "No new bot contracts will be bought.");
+    notify("open", "Bot stopped", "No new contracts will be bought.");
   }
 
   async function submitDeposit(data) {
@@ -434,8 +533,8 @@ export default function App() {
         throw new Error(json.message || "Deposit failed.");
       }
 
-      setAccount("real");
       setDepositOpen(false);
+      setAccount("real");
 
       addTransaction({
         type: "Deposit pending",
@@ -446,10 +545,10 @@ export default function App() {
         details: data.phone || data.method,
       });
 
-      notify("open", "Deposit started", data.method === "mpesa" ? "Check your phone for STK Push." : "Continue payment.");
+      notify("open", "Deposit started", "Check phone or continue payment.");
       setTimeout(refreshUser, 5000);
-    } catch (e) {
-      notify("loss", "Deposit error", e.message || "Backend not connected.");
+    } catch (error) {
+      notify("loss", "Deposit error", error.message || "Backend not connected.");
     }
   }
 
@@ -470,7 +569,7 @@ export default function App() {
       const res = await fetch(`${API_URL}/api/withdraw`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, ...data }),
+        body: JSON.stringify({ ...data, email: user.email }),
       });
 
       const json = await res.json();
@@ -479,7 +578,7 @@ export default function App() {
         throw new Error(json.message || "Withdrawal failed.");
       }
 
-      addMoney("real", -amount);
+      updateBalance("real", -amount);
       setWithdrawOpen(false);
 
       addTransaction({
@@ -491,16 +590,21 @@ export default function App() {
         details: data.phone,
       });
 
-      notify("open", "Withdrawal requested", "Your request is processing.");
-    } catch (e) {
-      notify("loss", "Withdrawal error", e.message || "Backend not connected.");
+      notify("open", "Withdrawal requested", "Your withdrawal is processing.");
+    } catch (error) {
+      notify("loss", "Withdrawal error", error.message || "Backend not connected.");
     }
   }
 
   if (!user) {
     return (
       <>
-        <AuthScreen mode={authMode} setMode={setAuthMode} login={login} register={register} />
+        <AuthScreen
+          mode={authMode}
+          setMode={setAuthMode}
+          login={login}
+          register={register}
+        />
         {toast && <Toast toast={toast} />}
       </>
     );
@@ -512,24 +616,32 @@ export default function App() {
         user={user}
         account={account}
         setAccount={setAccount}
-        balance={balance}
-        setMenuOpen={setMenuOpen}
-        setActivePage={setActivePage}
+        balance={currentBalance}
+        openMenu={() => setMenuOpen(true)}
         openDeposit={() => setDepositOpen(true)}
+        setActivePage={setActivePage}
       />
 
       <main className="mainScreen">
         {activePage === "home" && (
-          <HomePage setActivePage={setActivePage} openDeposit={() => setDepositOpen(true)} />
+          <HomePage
+            livePrice={livePrice}
+            prices={prices}
+            setActivePage={setActivePage}
+            openDeposit={() => setDepositOpen(true)}
+          />
         )}
 
         {activePage === "forex" && (
           <ForexPage
-            live={live}
+            livePrice={livePrice}
             prices={prices}
             positions={positions}
-            forexOrder={forexOrder}
+            closedForex={closedForex}
+            placeForexOrder={placeForexOrder}
+            updatePosition={updatePosition}
             closePosition={closePosition}
+            closeAllPositions={closeAllPositions}
             setActivePage={setActivePage}
             openDeposit={() => setDepositOpen(true)}
           />
@@ -538,9 +650,7 @@ export default function App() {
         {activePage === "trade" && (
           <TradePage
             prices={prices}
-            live={live}
-            lastDigit={lastDigit}
-            digitStats={digitStats}
+            livePrice={livePrice}
             tradeType={tradeType}
             setTradeType={setTradeType}
             stake={stake}
@@ -549,25 +659,27 @@ export default function App() {
             setDuration={setDuration}
             prediction={prediction}
             setPrediction={setPrediction}
-            contractActions={contractActions}
+            lastDigit={lastDigit}
+            digitStats={digitStats}
+            actionsFor={actionsFor}
             payoutRate={payoutRate}
-            buyBinary={buyBinary}
+            runBinaryTrade={runBinaryTrade}
           />
         )}
 
-        {activePage === "bots" && <BotsPage bots={BOT_TEMPLATES} startBot={startBot} />}
+        {activePage === "bots" && <BotsPage bots={BOTS} startBot={startBot} />}
 
         {activePage === "botLive" && (
           <BotLivePage
-            bot={runningBot}
+            bot={selectedBot}
             botRunning={botRunning}
             startBot={startBot}
             stopBot={stopBot}
             botTab={botTab}
             setBotTab={setBotTab}
-            openTrades={openTrades.filter((t) => t.botName)}
-            closedTrades={closedTrades.filter((t) => t.botName)}
-            transactions={transactions.filter((t) => t.method === "Bot")}
+            openTrades={openBinary.filter((trade) => trade.botName)}
+            closedTrades={closedBinary.filter((trade) => trade.botName)}
+            transactions={transactions.filter((tx) => tx.method === "Bot")}
             back={() => setActivePage("bots")}
           />
         )}
@@ -593,12 +705,14 @@ export default function App() {
           />
         )}
 
-        {activePage === "history" && (
-          <HistoryPage transactions={transactions} closedTrades={closedTrades} />
-        )}
+        {activePage === "history" && <HistoryPage transactions={transactions} />}
 
         {activePage === "reports" && (
-          <ReportsPage transactions={transactions} closedTrades={closedTrades} />
+          <ReportsPage
+            transactions={transactions}
+            closedForex={closedForex}
+            closedBinary={closedBinary}
+          />
         )}
       </main>
 
@@ -609,7 +723,7 @@ export default function App() {
           user={user}
           account={account}
           setAccount={setAccount}
-          balance={balance}
+          balance={currentBalance}
           close={() => setMenuOpen(false)}
           setActivePage={setActivePage}
           openDeposit={() => setDepositOpen(true)}
@@ -618,8 +732,14 @@ export default function App() {
         />
       )}
 
-      {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
-      {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
+      {depositOpen && (
+        <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />
+      )}
+
+      {withdrawOpen && (
+        <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />
+      )}
+
       {toast && <Toast toast={toast} />}
     </div>
   );
@@ -637,15 +757,15 @@ function Logo() {
 }
 
 function AuthScreen({ mode, setMode, login, register }) {
-  const [l, setL] = useState({ email: "", password: "" });
-  const [r, setR] = useState({
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+
+  const [regData, setRegData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
-    terms: false,
   });
 
   return (
@@ -657,15 +777,27 @@ function AuthScreen({ mode, setMode, login, register }) {
           <p>Login to your account and continue trading.</p>
 
           <label>Email Address</label>
-          <input value={l.email} onChange={(e) => setL({ ...l, email: e.target.value })} placeholder="Enter your email" />
+          <input
+            value={loginData.email}
+            onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+            placeholder="Enter your email"
+          />
 
           <label>Password</label>
-          <input type="password" value={l.password} onChange={(e) => setL({ ...l, password: e.target.value })} placeholder="Enter your password" />
+          <input
+            type="password"
+            value={loginData.password}
+            onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+            placeholder="Enter your password"
+          />
 
-          <button className="primary" onClick={() => login(l)}>Login →</button>
+          <button className="primaryBtn" onClick={() => login(loginData)}>
+            Login →
+          </button>
 
           <small>
-            Don’t have an account? <button onClick={() => setMode("register")}>Create Account</button>
+            Don’t have an account?{" "}
+            <button onClick={() => setMode("register")}>Create Account</button>
           </small>
         </section>
       ) : (
@@ -674,24 +806,50 @@ function AuthScreen({ mode, setMode, login, register }) {
           <h1>Create Your Account</h1>
           <p>Join MetaBinary and start your trading journey.</p>
 
-          <div className="regGrid">
-            <input placeholder="First name" value={r.firstName} onChange={(e) => setR({ ...r, firstName: e.target.value })} />
-            <input placeholder="Last name" value={r.lastName} onChange={(e) => setR({ ...r, lastName: e.target.value })} />
-            <input placeholder="Email address" value={r.email} onChange={(e) => setR({ ...r, email: e.target.value })} />
-            <input placeholder="+254 phone number" value={r.phone} onChange={(e) => setR({ ...r, phone: e.target.value })} />
-            <input type="password" placeholder="Password" value={r.password} onChange={(e) => setR({ ...r, password: e.target.value })} />
-            <input type="password" placeholder="Confirm password" value={r.confirmPassword} onChange={(e) => setR({ ...r, confirmPassword: e.target.value })} />
+          <div className="registerGrid">
+            <input
+              placeholder="First name"
+              value={regData.firstName}
+              onChange={(e) => setRegData({ ...regData, firstName: e.target.value })}
+            />
+            <input
+              placeholder="Last name"
+              value={regData.lastName}
+              onChange={(e) => setRegData({ ...regData, lastName: e.target.value })}
+            />
+            <input
+              placeholder="Email address"
+              value={regData.email}
+              onChange={(e) => setRegData({ ...regData, email: e.target.value })}
+            />
+            <input
+              placeholder="+254 phone number"
+              value={regData.phone}
+              onChange={(e) => setRegData({ ...regData, phone: e.target.value })}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={regData.password}
+              onChange={(e) => setRegData({ ...regData, password: e.target.value })}
+            />
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={regData.confirmPassword}
+              onChange={(e) =>
+                setRegData({ ...regData, confirmPassword: e.target.value })
+              }
+            />
           </div>
 
-          <label className="check">
-            <input type="checkbox" checked={r.terms} onChange={(e) => setR({ ...r, terms: e.target.checked })} />
-            I agree to the terms and confirm I am over 18.
-          </label>
-
-          <button className="primary" onClick={() => register(r)}>Create Account</button>
+          <button className="primaryBtn" onClick={() => register(regData)}>
+            Create Account
+          </button>
 
           <small>
-            Already have an account? <button onClick={() => setMode("login")}>Login</button>
+            Already have an account?{" "}
+            <button onClick={() => setMode("login")}>Login</button>
           </small>
         </section>
       )}
@@ -699,28 +857,54 @@ function AuthScreen({ mode, setMode, login, register }) {
   );
 }
 
-function Header({ user, account, setAccount, balance, setMenuOpen, setActivePage, openDeposit }) {
+function Header({
+  user,
+  account,
+  setAccount,
+  balance,
+  openMenu,
+  openDeposit,
+  setActivePage,
+}) {
   return (
-    <header className="header">
-      <button className="hamb" onClick={() => setMenuOpen(true)}>☰</button>
+    <header className="topHeader">
+      <button className="menuBtn" onClick={openMenu}>
+        ☰
+      </button>
+
       <Logo />
 
-      <button className="wallet" onClick={() => setActivePage("profile")}>
+      <button className="walletBox" onClick={() => setActivePage("profile")}>
         <small>{account === "demo" ? "DEMO ACCOUNT" : "REAL ACCOUNT"}</small>
         <strong>{money(balance)} USD</strong>
         <span>⌄</span>
       </button>
 
-      <div className="switch">
-        <button className={account === "demo" ? "active" : ""} onClick={() => setAccount("demo")}>Demo</button>
-        <button className={account === "real" ? "active" : ""} onClick={() => setAccount("real")}>Real</button>
+      <div className="accountSwitch">
+        <button
+          className={account === "demo" ? "active" : ""}
+          onClick={() => setAccount("demo")}
+        >
+          Demo
+        </button>
+        <button
+          className={account === "real" ? "active" : ""}
+          onClick={() => setAccount("real")}
+        >
+          Real
+        </button>
       </div>
 
-      <button className="depositBtn" onClick={openDeposit}>Deposit</button>
+      <button className="depositTop" onClick={openDeposit}>
+        Deposit
+      </button>
 
-      <button className="bell">🔔<b>3</b></button>
+      <button className="bellBtn">
+        🔔
+        <b>3</b>
+      </button>
 
-      <button className="avatar" onClick={() => setActivePage("profile")}>
+      <button className="avatarBtn" onClick={() => setActivePage("profile")}>
         {user.initials}
         <i></i>
       </button>
@@ -730,283 +914,623 @@ function Header({ user, account, setAccount, balance, setMenuOpen, setActivePage
 
 function HubNav({ active, setActivePage, openDeposit }) {
   const links = [
-    ["Trader’s Hub", "▣", "home"],
+    ["Trader’s Hub", "⌂", "home"],
     ["Reports", "▤", "reports"],
     ["History", "↺", "history"],
     ["Forex", "▥", "forex"],
     ["Settings", "⚙", "settings"],
+    ["Cashier", "▱", "deposit"],
   ];
 
   return (
-    <nav className="hub">
-      {links.map(([name, icon, page]) => (
-        <button key={name} className={active === name ? "active" : ""} onClick={() => setActivePage(page)}>
+    <nav className="hubNav">
+      {links.map(([label, icon, page]) => (
+        <button
+          key={label}
+          className={active === label ? "active" : ""}
+          onClick={() => {
+            if (page === "deposit") openDeposit();
+            else setActivePage(page);
+          }}
+        >
           <span>{icon}</span>
-          <small>{name}</small>
+          <small>{label}</small>
         </button>
       ))}
-      <button onClick={openDeposit}>
-        <span>▱</span>
-        <small>Cashier</small>
-      </button>
     </nav>
   );
 }
 
-function HomePage({ setActivePage, openDeposit }) {
+function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
   return (
     <div className="page homePage">
-      <HubNav active="Trader’s Hub" setActivePage={setActivePage} openDeposit={openDeposit} />
+      <HubNav
+        active="Trader’s Hub"
+        setActivePage={setActivePage}
+        openDeposit={openDeposit}
+      />
 
-      <section className="hero">
+      <section className="homeHero">
         <div>
-          <h1>Trade Smarter. Earn Consistently.</h1>
-          <p>AI-powered trading, binary options, forex and bots in one platform.</p>
+          <h1>
+            Trade Smarter.
+            <span>Earn Consistently.</span>
+          </h1>
+          <p>
+            AI-powered trading, binary options, forex and bots in one professional
+            MetaBinary platform.
+          </p>
           <button onClick={() => setActivePage("trade")}>Start Trading →</button>
         </div>
 
-        <div className="heroCard">
-          <span>EUR/USD</span>
-          <strong>1.08564</strong>
-          <button>CALL</button>
-          <button>PUT</button>
+        <div className="homeCard">
+          <strong>EUR/USD</strong>
+          <h2>{livePrice.toFixed(5)}</h2>
+          <LineMini prices={prices} />
+          <button onClick={() => setActivePage("trade")}>CALL</button>
+          <button onClick={() => setActivePage("trade")}>PUT</button>
         </div>
       </section>
 
-      <section className="stats">
-        <Stat title="$2,456,789" text="Total Trades" />
-        <Stat title="15,342" text="Active Traders" />
-        <Stat title="$892,456" text="Payouts" />
-        <Stat title="98.62%" text="Success" />
+      <section className="statGrid">
+        <Stat value="$2,456,789" label="Total Trades" />
+        <Stat value="15,342" label="Active Traders" />
+        <Stat value="$892,456" label="Payouts" />
+        <Stat value="98.62%" label="Success" />
       </section>
 
       <section className="marketStrip">
-        <p><b>EUR/USD</b><span className="green">+0.24%</span></p>
-        <p><b>GBP/USD</b><span className="red">-0.11%</span></p>
-        <p><b>XAU/USD</b><span className="green">+0.24%</span></p>
-        <p><b>BTC/USD</b><span className="green">+0.24%</span></p>
+        <p>
+          <b>EUR/USD</b>
+          <span className="green">+0.24%</span>
+        </p>
+        <p>
+          <b>GBP/USD</b>
+          <span className="red">-0.11%</span>
+        </p>
+        <p>
+          <b>XAU/USD</b>
+          <span className="green">+0.24%</span>
+        </p>
+        <p>
+          <b>BTC/USD</b>
+          <span className="green">+0.24%</span>
+        </p>
       </section>
     </div>
   );
 }
 
-function ForexPage({ live, prices, positions, forexOrder, closePosition, setActivePage, openDeposit }) {
-  const [symbol, setSymbol] = useState("EUR/USD");
+function ForexPage({
+  livePrice,
+  prices,
+  positions,
+  closedForex,
+  placeForexOrder,
+  updatePosition,
+  closePosition,
+  closeAllPositions,
+  setActivePage,
+  openDeposit,
+}) {
+  const [symbol, setSymbol] = useState("XAU/USD");
+  const [volume, setVolume] = useState(0.01);
+  const [leverage, setLeverage] = useState("1:100");
+  const [stopLoss, setStopLoss] = useState(1.08312);
+  const [takeProfit, setTakeProfit] = useState(1.092);
+  const [tradeTab, setTradeTab] = useState("open");
+  const [showOnChart, setShowOnChart] = useState(true);
+
+  const visiblePositions = positions.filter((position) => position.instrument === symbol);
+
+  const filteredRows =
+    tradeTab === "profit"
+      ? visiblePositions.filter((x) => x.pl >= 0)
+      : tradeTab === "loss"
+      ? visiblePositions.filter((x) => x.pl < 0)
+      : tradeTab === "closed"
+      ? closedForex.filter((x) => x.instrument === symbol)
+      : visiblePositions;
+
+  function order(side) {
+    placeForexOrder({
+      side,
+      symbol,
+      volume,
+      leverage,
+      stopLoss,
+      takeProfit,
+    });
+  }
 
   return (
     <div className="page forexPage">
       <HubNav active="Forex" setActivePage={setActivePage} openDeposit={openDeposit} />
 
-      <section className="symbolBar">
+      <section className="forexSymbolBar">
         <button>‹</button>
-        <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
-          <option>EUR/USD</option>
-          <option>GBP/USD</option>
-          <option>USD/JPY</option>
-          <option>XAU/USD</option>
-          <option>BTC/USD</option>
-        </select>
 
-        <div>
+        <div className="symbolSelect">
+          <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
+            {MARKETS.map((market) => (
+              <option key={market}>{market}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="symbolName">
           <strong>{symbol}</strong>
-          <small>Live TradingView market</small>
+          <small>
+            {symbol === "XAU/USD"
+              ? "Gold / US Dollar"
+              : symbol === "EUR/USD"
+              ? "Euro / U.S. Dollar"
+              : "Live TradingView market"}
+          </small>
         </div>
 
-        <div>
-          <strong className="green">{live.toFixed(5)}</strong>
-          <small className="green">+0.00231 ▲</small>
+        <div className="marketMetric">
+          <small>Last Price</small>
+          <strong className="green">{livePrice.toFixed(5)}</strong>
+          <span className="green">+0.00231 ▲</span>
         </div>
 
-        <div>
+        <div className="marketMetric">
           <small>24H High</small>
           <strong>1.08789</strong>
         </div>
 
-        <div>
+        <div className="marketMetric">
           <small>24H Low</small>
           <strong className="red">1.08312</strong>
+        </div>
+
+        <div className="marketMetric hideSmall">
+          <small>24H Volume</small>
+          <strong>125.42K</strong>
         </div>
 
         <button>☆</button>
         <button>⋮</button>
       </section>
 
-      <section className="toolbar">
-        {["1m", "5m", "15m", "1h", "4h", "1D"].map((x, i) => (
-          <button key={x} className={i === 0 ? "active" : ""}>{x}</button>
+      <section className="forexToolbar">
+        {["1m", "5m", "15m", "1h", "4h", "1D"].map((item, index) => (
+          <button className={index === 0 ? "active" : ""} key={item}>
+            {item}
+          </button>
         ))}
         <button>⌄</button>
-        <button>ƒx</button>
-        <button>Indicators</button>
+        <button>ƒx Indicators</button>
+        <button>Templates</button>
+        <span></span>
         <button>↶</button>
         <button>↷</button>
         <button>⛶</button>
+        <button>📷</button>
+        <button>⚙</button>
       </section>
 
-      <section className="tvBox">
-        <Candles prices={prices} live={live} symbol={symbol} />
+      <section className="proChartPanel">
+        <CandleChart
+          symbol={symbol}
+          prices={prices}
+          livePrice={livePrice}
+          positions={visiblePositions}
+          showOnChart={showOnChart}
+        />
       </section>
 
-      <section className="orderBox">
-        <div className="orderInputs">
+      <section className="proOrderPanel">
+        <div className="orderForm">
           <div className="orderTabs">
             <button className="active">Market Order</button>
             <button>Pending Order</button>
           </div>
 
-          <div className="inputsGrid">
-            <MtInput label="Volume (Lots)" value="0.01" />
-            <MtInput label="Leverage" value="1:100" />
-            <MtInput label="Stop Loss" value="0.00000" />
-            <MtInput label="Take Profit" value="0.00000" />
+          <div className="orderInputs">
+            <OrderInput
+              label="Volume (Lots)"
+              value={volume}
+              setValue={setVolume}
+              step={0.01}
+              min={0.01}
+            />
+
+            <label className="orderInput">
+              <span>Leverage</span>
+              <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
+                <option>1:100</option>
+                <option>1:200</option>
+                <option>1:500</option>
+              </select>
+            </label>
+
+            <OrderInput
+              label="Stop Loss"
+              value={stopLoss}
+              setValue={setStopLoss}
+              step={0.0001}
+              min={0}
+            />
+
+            <OrderInput
+              label="Take Profit"
+              value={takeProfit}
+              setValue={setTakeProfit}
+              step={0.0001}
+              min={0}
+            />
           </div>
         </div>
 
-        <div className="buySell">
-          <button className="buy" onClick={() => forexOrder("Buy", symbol)}>
-            <strong>Buy ↗</strong>
-            <span>{live.toFixed(5)}</span>
+        <div className="buySellBox">
+          <button className="buyLarge" onClick={() => order("Buy")}>
+            <b>Buy ↑</b>
+            <strong>{livePrice.toFixed(5)}</strong>
           </button>
-          <button className="sell" onClick={() => forexOrder("Sell", symbol)}>
-            <strong>Sell ↓</strong>
-            <span>{(live - 0.00012).toFixed(5)}</span>
+
+          <button className="sellLarge" onClick={() => order("Sell")}>
+            <b>Sell ↓</b>
+            <strong>{(livePrice - 0.00012).toFixed(5)}</strong>
           </button>
         </div>
 
-        <div className="spread">
-          <p><span>Spread</span><b>1.2 Pips</b></p>
-          <p><span>High</span><b className="green">1.08789</b></p>
-          <p><span>Low</span><b className="red">1.08312</b></p>
-          <p><span>Change</span><b className="green">+0.01%</b></p>
+        <div className="spreadStats">
+          <p>
+            <span>Spread</span>
+            <b>1.2 Pips</b>
+          </p>
+          <p>
+            <span>High</span>
+            <b className="green">1.08789</b>
+          </p>
+          <p>
+            <span>Low</span>
+            <b className="red">1.08312</b>
+          </p>
+          <p>
+            <span>Change</span>
+            <b className="green">+0.02%</b>
+          </p>
         </div>
       </section>
 
-      <section className="positions">
-        <div className="posTabs">
-          <button className="active">Open Trades <b>{Math.max(positions.length, 2)}</b></button>
-          <button>Profit <b>1</b></button>
-          <button>Loss <b>1</b></button>
-          <button>History</button>
-          <button>Close All</button>
+      <section className="tradeManager">
+        <div className="managerTabs">
+          <button
+            className={tradeTab === "open" ? "active" : ""}
+            onClick={() => setTradeTab("open")}
+          >
+            Open Trades <b>{visiblePositions.length}</b>
+          </button>
+
+          <button
+            className={tradeTab === "profit" ? "active" : ""}
+            onClick={() => setTradeTab("profit")}
+          >
+            Profit <b>{visiblePositions.filter((x) => x.pl >= 0).length}</b>
+          </button>
+
+          <button
+            className={tradeTab === "loss" ? "active" : ""}
+            onClick={() => setTradeTab("loss")}
+          >
+            Loss <b>{visiblePositions.filter((x) => x.pl < 0).length}</b>
+          </button>
+
+          <button
+            className={tradeTab === "closed" ? "active" : ""}
+            onClick={() => setTradeTab("closed")}
+          >
+            Closed Trades
+          </button>
+
+          <label className="showChartToggle">
+            <input
+              type="checkbox"
+              checked={showOnChart}
+              onChange={(e) => setShowOnChart(e.target.checked)}
+            />
+            Show on Chart
+          </label>
+
+          <button className="closeAll" onClick={closeAllPositions}>
+            Close All
+          </button>
         </div>
 
-        <div className="posHead">
-          <span>Instrument</span><span>Type</span><span>Volume</span><span>Open Price</span><span>P/L</span><span>Action</span>
-        </div>
-
-        {(positions.length ? positions : [
-          { id: "x1", instrument: symbol, side: "Buy", lot: 0.01, entry: 1.0854, pl: 1.28 },
-          { id: "x2", instrument: symbol, side: "Sell", lot: 0.02, entry: 1.0881, pl: 2.12 },
-        ]).slice(0, 3).map((p) => (
-          <div className="posRow" key={p.id}>
-            <strong>{p.instrument}</strong>
-            <b className={p.side === "Buy" ? "green" : "red"}>{p.side}</b>
-            <span>{p.lot}</span>
-            <span>{Number(p.entry).toFixed(5)}</span>
-            <em className={p.pl >= 0 ? "green" : "red"}>{p.pl >= 0 ? "+" : ""}{money(p.pl)} USD</em>
-            <button onClick={() => closePosition(p.id)}>Close</button>
+        <div className="tradeTable">
+          <div className="tradeHead">
+            <span>Instrument</span>
+            <span>Type</span>
+            <span>Volume</span>
+            <span>Open Price</span>
+            <span>Current Price</span>
+            <span>Stop Loss</span>
+            <span>Take Profit</span>
+            <span>P/L</span>
+            <span>P/L (%)</span>
+            <span>Action</span>
           </div>
-        ))}
+
+          {filteredRows.length === 0 && (
+            <div className="emptyTradeRow">No trades yet. Place Buy or Sell order.</div>
+          )}
+
+          {filteredRows.map((position) => (
+            <div className="tradeRow" key={position.id}>
+              <strong>
+                {position.instrument}
+                <small>{position.name}</small>
+              </strong>
+
+              <b className={position.side === "Buy" ? "buyTag" : "sellTag"}>
+                {position.side}
+              </b>
+
+              <span>{position.volume}</span>
+              <span>{Number(position.openPrice).toFixed(5)}</span>
+              <span>{Number(position.currentPrice || position.openPrice).toFixed(5)}</span>
+
+              {tradeTab === "closed" ? (
+                <>
+                  <span>{Number(position.stopLoss).toFixed(5)}</span>
+                  <span>{Number(position.takeProfit).toFixed(5)}</span>
+                </>
+              ) : (
+                <>
+                  <label className="editPrice">
+                    <input
+                      value={position.stopLoss}
+                      onChange={(e) =>
+                        updatePosition(position.id, {
+                          stopLoss: Number(e.target.value),
+                        })
+                      }
+                    />
+                    <i>✎</i>
+                  </label>
+
+                  <label className="editPrice">
+                    <input
+                      value={position.takeProfit}
+                      onChange={(e) =>
+                        updatePosition(position.id, {
+                          takeProfit: Number(e.target.value),
+                        })
+                      }
+                    />
+                    <i>✎</i>
+                  </label>
+                </>
+              )}
+
+              <em className={position.pl >= 0 ? "green" : "red"}>
+                {position.pl >= 0 ? "+" : ""}
+                {money(position.pl)} USD
+              </em>
+
+              <em className={position.pl >= 0 ? "green" : "red"}>
+                {position.plPercent >= 0 ? "+" : ""}
+                {position.plPercent || 0}%
+              </em>
+
+              {tradeTab === "closed" ? (
+                <span>Closed</span>
+              ) : (
+                <div className="rowActions">
+                  <button onClick={() => updatePosition(position.id, {})}>
+                    Modify
+                  </button>
+                  <button onClick={() => closePosition(position.id)}>Close</button>
+                  <span>⋮</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
 }
 
-function Candles({ prices, live, symbol }) {
+function OrderInput({ label, value, setValue, step, min }) {
+  function minus() {
+    const next = Number(value) - Number(step);
+    setValue(Number(Math.max(min, next).toFixed(5)));
+  }
+
+  function plus() {
+    const next = Number(value) + Number(step);
+    setValue(Number(next.toFixed(5)));
+  }
+
+  return (
+    <label className="orderInput">
+      <span>{label}</span>
+      <div>
+        <input value={value} onChange={(e) => setValue(Number(e.target.value))} />
+        <button type="button" onClick={minus}>
+          −
+        </button>
+        <button type="button" onClick={plus}>
+          +
+        </button>
+      </div>
+    </label>
+  );
+}
+
+function CandleChart({ symbol, prices, livePrice, positions, showOnChart }) {
   const candles = useMemo(() => {
-    return prices.slice(-70).map((p, i, arr) => {
-      const open = arr[i - 1] || p;
-      const close = p;
-      const high = Math.max(open, close) + Math.random() * 0.00042;
-      const low = Math.min(open, close) - Math.random() * 0.00042;
+    return prices.slice(-90).map((close, index, arr) => {
+      const open = arr[index - 1] || close;
+      const high = Math.max(open, close) + Math.random() * 0.00045;
+      const low = Math.min(open, close) - Math.random() * 0.00045;
+
       return { open, close, high, low };
     });
   }, [prices]);
 
-  const min = Math.min(...candles.map((c) => c.low));
-  const max = Math.max(...candles.map((c) => c.high));
+  const levels = [
+    livePrice,
+    ...positions.flatMap((position) => [position.stopLoss, position.takeProfit, position.openPrice]),
+  ].filter(Boolean);
+
+  const min = Math.min(...candles.map((c) => c.low), ...levels) - 0.00025;
+  const max = Math.max(...candles.map((c) => c.high), ...levels) + 0.00025;
   const range = max - min || 1;
 
-  const y = (v) => 220 - ((v - min) / range) * 180;
-  const cw = 100 / candles.length;
+  function y(value) {
+    return 246 - ((value - min) / range) * 210;
+  }
+
+  const widthStep = 100 / candles.length;
+  const mainPosition = positions[0];
 
   return (
-    <div className="chartInner">
-      <div className="chartTop">
-        <strong>🔎 {symbol.replace("/", "")}</strong>
-        <button>＋</button>
-        <button>1m</button>
-        <button>30m</button>
-        <button>1h</button>
-        <button>Indicators</button>
+    <div className="chartShell">
+      <div className="chartTopStrip">
+        <strong>{symbol} · 1m</strong>
+        <span className="green">●</span>
+        <small>
+          O {candles.at(-1)?.open.toFixed(5)} H {candles.at(-1)?.high.toFixed(5)} L{" "}
+          {candles.at(-1)?.low.toFixed(5)} C {livePrice.toFixed(5)} +0.00023
+        </small>
       </div>
 
-      <div className="leftTools">
-        {["＋", "⌁", "☰", "⌘", "T", "☺", "▱", "⌕", "👁", "🗑"].map((x) => <button key={x}>{x}</button>)}
+      <div className="chartTools">
+        {["＋", "⌁", "☰", "⌘", "T", "◎", "▱", "⌕", "◉", "🗑"].map((tool) => (
+          <button key={tool}>{tool}</button>
+        ))}
       </div>
 
-      <svg viewBox="0 0 100 235" preserveAspectRatio="none">
+      <svg viewBox="0 0 100 260" preserveAspectRatio="none">
         <defs>
-          <pattern id="grid" width="8" height="26" patternUnits="userSpaceOnUse">
-            <path d="M 8 0 L 0 0 0 26" fill="none" stroke="rgba(255,255,255,.055)" strokeWidth=".12" />
+          <pattern id="chartGrid" width="7.5" height="32" patternUnits="userSpaceOnUse">
+            <path
+              d="M 7.5 0 L 0 0 0 32"
+              fill="none"
+              stroke="rgba(255,255,255,.055)"
+              strokeWidth=".12"
+            />
           </pattern>
         </defs>
 
-        <rect width="100" height="235" fill="url(#grid)" />
+        <rect width="100" height="260" fill="url(#chartGrid)" />
 
-        <line x1="0" x2="100" y1={y(live)} y2={y(live)} stroke="#00c987" strokeDasharray="1 1" strokeWidth=".15" />
+        <line
+          x1="0"
+          x2="100"
+          y1={y(livePrice)}
+          y2={y(livePrice)}
+          stroke="#00c987"
+          strokeDasharray="1.2 1.5"
+          strokeWidth=".16"
+        />
 
-        {candles.map((c, i) => {
-          const x = i * cw + cw / 2;
-          const up = c.close >= c.open;
-          const top = y(Math.max(c.open, c.close));
-          const bottom = y(Math.min(c.open, c.close));
-          return (
-            <g key={i}>
-              <line x1={x} x2={x} y1={y(c.high)} y2={y(c.low)} stroke={up ? "#00d3a0" : "#ff4057"} strokeWidth=".16" />
-              <rect
-                x={x - cw * 0.24}
-                y={top}
-                width={cw * 0.48}
-                height={Math.max(1.2, bottom - top)}
-                fill={up ? "#00d3a0" : "#ff4057"}
+        {showOnChart &&
+          positions.map((position) => (
+            <g key={position.id}>
+              <line
+                x1="66"
+                x2="96"
+                y1={y(position.takeProfit)}
+                y2={y(position.takeProfit)}
+                stroke="#00e884"
+                strokeDasharray="1.2 1.2"
+                strokeWidth=".18"
               />
+
+              <line
+                x1="66"
+                x2="96"
+                y1={y(position.stopLoss)}
+                y2={y(position.stopLoss)}
+                stroke="#ff4057"
+                strokeDasharray="1.2 1.2"
+                strokeWidth=".18"
+              />
+
+              <line
+                x1="0"
+                x2="100"
+                y1={y(position.openPrice)}
+                y2={y(position.openPrice)}
+                stroke="rgba(0,232,132,.45)"
+                strokeDasharray=".8 1.5"
+                strokeWidth=".16"
+              />
+            </g>
+          ))}
+
+        {candles.map((candle, index) => {
+          const x = index * widthStep + widthStep / 2;
+          const isUp = candle.close >= candle.open;
+          const top = y(Math.max(candle.open, candle.close));
+          const bottom = y(Math.min(candle.open, candle.close));
+          const color = isUp ? "#00d3a0" : "#ff4057";
+
+          return (
+            <g key={index}>
+              <line
+                x1={x}
+                x2={x}
+                y1={y(candle.high)}
+                y2={y(candle.low)}
+                stroke={color}
+                strokeWidth=".17"
+              />
+
               <rect
-                x={x - cw * 0.35}
-                y={210 - Math.random() * 35}
-                width={cw * 0.2}
-                height={20 + Math.random() * 20}
-                fill={up ? "rgba(0,211,160,.45)" : "rgba(255,64,87,.45)"}
+                x={x - widthStep * 0.23}
+                y={top}
+                width={widthStep * 0.46}
+                height={Math.max(1.3, bottom - top)}
+                fill={color}
+              />
+
+              <rect
+                x={x - widthStep * 0.18}
+                y={224 + Math.random() * 10}
+                width={widthStep * 0.36}
+                height={14 + Math.random() * 24}
+                fill={isUp ? "rgba(0,211,160,.42)" : "rgba(255,64,87,.42)"}
               />
             </g>
           );
         })}
       </svg>
 
-      <div className="priceTag">{live.toFixed(5)}</div>
+      {showOnChart && mainPosition && (
+        <>
+          <div className="chartOrderTag" style={{ top: `${(y(mainPosition.openPrice) / 260) * 100}%` }}>
+            {mainPosition.side === "Buy" ? "↟" : "↡"} {mainPosition.side} {mainPosition.volume}
+          </div>
+
+          <div className="tpLabel" style={{ top: `${(y(mainPosition.takeProfit) / 260) * 100}%` }}>
+            TP {Number(mainPosition.takeProfit).toFixed(5)}
+          </div>
+
+          <div className="slLabel" style={{ top: `${(y(mainPosition.stopLoss) / 260) * 100}%` }}>
+            SL {Number(mainPosition.stopLoss).toFixed(5)}
+          </div>
+        </>
+      )}
+
+      <div className="priceTag" style={{ top: `${(y(livePrice) / 260) * 100}%` }}>
+        {livePrice.toFixed(5)}
+      </div>
+
       <div className="volumeTag">126</div>
     </div>
   );
 }
 
-function MtInput({ label, value }) {
-  return (
-    <label className="mtInput">
-      <span>{label}</span>
-      <div>
-        <strong>{value}</strong>
-        <button>−</button>
-        <button>+</button>
-      </div>
-    </label>
-  );
-}
-
 function TradePage({
   prices,
-  live,
-  lastDigit,
-  digitStats,
+  livePrice,
   tradeType,
   setTradeType,
   stake,
@@ -1015,49 +1539,61 @@ function TradePage({
   setDuration,
   prediction,
   setPrediction,
-  contractActions,
+  lastDigit,
+  digitStats,
+  actionsFor,
   payoutRate,
-  buyBinary,
+  runBinaryTrade,
 }) {
-  const actions = contractActions(tradeType);
+  const actions = actionsFor(tradeType);
 
   return (
     <div className="page tradePage">
-      <section className="tradeTypes">
+      <section className="tradeTypeRow">
         <span>Trade Type</span>
-        {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((x) => (
-          <button key={x} className={tradeType === x ? "active" : ""} onClick={() => setTradeType(x)}>{x}</button>
-        ))}
+        {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map(
+          (item) => (
+            <button
+              key={item}
+              className={tradeType === item ? "active" : ""}
+              onClick={() => setTradeType(item)}
+            >
+              {item}
+            </button>
+          )
+        )}
       </section>
 
-      <section className="binaryPanel">
-        <div className="binaryHeader">
+      <section className="binaryBox">
+        <div className="binaryTop">
           <div>
             <strong>Volatility 100 (1s) Index</strong>
-            <small>{(live * 800).toFixed(2)} · LIVE</small>
+            <small>{(livePrice * 800).toFixed(2)} · LIVE</small>
           </div>
           <button>1s⌄</button>
         </div>
 
-        <LineChart data={prices.map((x) => x * 800)} />
+        <LineChart data={prices.map((price) => price * 800)} />
 
         <h3>Last Digits</h3>
 
-        <div className="digits">
-          {digitStats.map((p, d) => (
+        <div className="digitGrid">
+          {digitStats.map((percentage, digit) => (
             <button
-              key={d}
-              className={`${d === lastDigit ? "hot" : ""} ${d === prediction ? "picked" : ""}`}
-              onClick={() => setPrediction(d)}
+              key={digit}
+              className={`${digit === lastDigit ? "hot" : ""} ${
+                digit === prediction ? "picked" : ""
+              }`}
+              onClick={() => setPrediction(digit)}
             >
-              <strong>{d}</strong>
-              <span>{p.toFixed(1)}%</span>
+              <strong>{digit}</strong>
+              <span>{percentage.toFixed(1)}%</span>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="binaryOrder">
+      <section className="binaryOrderPanel">
         <label>
           Ticks
           <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
@@ -1076,11 +1612,15 @@ function TradePage({
           </div>
         </label>
 
-        <div className="binaryButtons">
-          {actions.map((a, i) => (
-            <button key={a} className={i === 0 ? "greenButton" : "redButton"} onClick={() => buyBinary(a)}>
-              <strong>{a}</strong>
-              <span>Payout {money(stake * payoutRate(tradeType, a))} USD</span>
+        <div className="tradeButtons">
+          {actions.map((action, index) => (
+            <button
+              key={action}
+              className={index === 0 ? "greenTrade" : "redTrade"}
+              onClick={() => runBinaryTrade(tradeType, action)}
+            >
+              <strong>{action}</strong>
+              <span>Payout {money(stake * payoutRate(tradeType, action))} USD</span>
             </button>
           ))}
         </div>
@@ -1096,10 +1636,10 @@ function LineChart({ data }) {
     const range = max - min || 1;
 
     return data
-      .map((v, i) => {
-        const x = (i / (data.length - 1)) * 100;
-        const y = 62 - ((v - min) / range) * 55;
-        return `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
+      .map((value, index) => {
+        const x = (index / (data.length - 1)) * 100;
+        const y = 62 - ((value - min) / range) * 55;
+        return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
       })
       .join(" ");
   }, [data]);
@@ -1107,59 +1647,266 @@ function LineChart({ data }) {
   return (
     <div className="lineChart">
       <svg viewBox="0 0 100 65" preserveAspectRatio="none">
-        <path d={`${path} L100,65 L0,65 Z`} className="area" />
-        <path d={path} className="line" />
+        <path d={`${path} L100,65 L0,65 Z`} className="areaPath" />
+        <path d={path} className="linePath" />
       </svg>
     </div>
   );
 }
 
-function BotsPage({ bots, startBot }) {
+function LineMini({ prices }) {
+  const data = prices.slice(-28);
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+
+  const path = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * 100;
+      const y = 34 - ((value - min) / range) * 30;
+      return `${index === 0 ? "M" : "L"}${x},${y}`;
+    })
+    .join(" ");
+
   return (
-    <div className="page botsPage">
-      <section className="botsTop">
-        <div>
-          <h2>My Bots</h2>
-          <p>Create, manage and monitor your trading bots.</p>
-        </div>
-        <button>+ New Bot</button>
-      </section>
+    <svg className="lineMini" viewBox="0 0 100 36" preserveAspectRatio="none">
+      <path d={path} />
+    </svg>
+  );
+}
 
-      <section className="botStats">
-        <Stat title="12" text="Total Bots" />
-        <Stat title="5" text="Running" />
-        <Stat title="3" text="Stopped" />
-        <Stat title="4" text="Completed" />
-      </section>
+function BotsPage({ bots, startBot }) {
+  const running = bots.filter((bot) => bot.status === "Running").length;
+  const stopped = bots.filter((bot) => bot.status === "Stopped").length;
+  const completed = bots.filter((bot) => bot.status === "Completed").length || 4;
 
-      <section className="botList">
-        {bots.map((b) => (
-          <div className="botCard" key={b.id}>
-            <div className="botMain">
-              <div>{b.code}</div>
-              <section>
-                <strong>{b.name}</strong>
-                <span>{b.contract} · {b.market}</span>
-                <small>Stake: {money(b.stake)} USD · Duration: {b.duration}s</small>
-              </section>
-              <em className={b.status === "Running" ? "greenBg" : b.status === "Completed" ? "blueBg" : "orangeBg"}>{b.status}</em>
-            </div>
+  return (
+    <div className="page botsPage proBotsPage">
+      <aside className="botsSideRail">
+        <button>▦<span>Dashboard</span></button>
+        <button className="active">🤖<span>Bots</span></button>
+        <button>▥<span>Strategies</span></button>
+        <button>↺<span>History</span></button>
+        <button>▣<span>Reports</span></button>
+        <button>⚙<span>Settings</span></button>
+      </aside>
 
-            <div className="botData">
-              <p><span>Total Profit</span><b className={b.profit >= 0 ? "green" : "red"}>{b.profit >= 0 ? "+" : ""}{money(b.profit)}</b></p>
-              <p><span>Win Rate</span><b>{b.winRate}%</b></p>
-              <p><span>Trades</span><b>{Math.round(b.winRate / 2)}</b></p>
-              <button onClick={() => startBot(b)}>{b.status === "Running" ? "View Details" : "Start Bot"}</button>
+      <section className="botsMain">
+        <div className="botsTitleRow">
+          <div className="botsTitleLeft">
+            <div className="botsTitleIcon">🤖</div>
+            <div>
+              <h1>My Bots</h1>
+              <p>Create, manage and monitor your trading bots.</p>
             </div>
           </div>
-        ))}
+
+          <button className="newBotBtn">+ New Bot</button>
+        </div>
+
+        <div className="proBotStats">
+          <div className="proBotStat blue">
+            <div className="statIcon">🤖</div>
+            <div>
+              <strong>{bots.length}</strong>
+              <span>Total Bots</span>
+            </div>
+            <MiniSpark type="blue" />
+          </div>
+
+          <div className="proBotStat green">
+            <div className="statIcon">▶</div>
+            <div>
+              <strong>{running}</strong>
+              <span>Running</span>
+            </div>
+            <MiniSpark type="green" />
+          </div>
+
+          <div className="proBotStat yellow">
+            <div className="statIcon">Ⅱ</div>
+            <div>
+              <strong>{stopped}</strong>
+              <span>Stopped</span>
+            </div>
+            <MiniSpark type="yellow" />
+          </div>
+
+          <div className="proBotStat purple">
+            <div className="statIcon">✓</div>
+            <div>
+              <strong>{completed}</strong>
+              <span>Completed</span>
+            </div>
+            <MiniSpark type="purple" />
+          </div>
+        </div>
+
+        <div className="botFilterBar">
+          <label className="botSearch">
+            🔍
+            <input placeholder="Search bots..." />
+          </label>
+
+          <button className="active">▦ All Bots</button>
+          <button>▶ Active</button>
+          <button>Ⅱ Stopped</button>
+          <button>✓ Completed</button>
+
+          <select>
+            <option>Performance</option>
+            <option>Profit</option>
+            <option>Win Rate</option>
+          </select>
+
+          <select>
+            <option>Strategy Type</option>
+            <option>Even/Odd</option>
+            <option>Rise/Fall</option>
+            <option>Over/Under</option>
+          </select>
+
+          <select>
+            <option>Newest First</option>
+            <option>Oldest First</option>
+          </select>
+        </div>
+
+        <div className="proBotGrid">
+          {bots.map((bot, index) => {
+            const positive = bot.profit >= 0;
+            const isRunning = bot.status === "Running";
+
+            return (
+              <article className="proBotCard" key={bot.id}>
+                <div className="proBotCardTop">
+                  <div className={`botAvatar botColor${index + 1}`}>
+                    {bot.code}
+                  </div>
+
+                  <div className="botNameBlock">
+                    <div>
+                      <h2>{bot.name}</h2>
+                      <span className={isRunning ? "botStatus running" : "botStatus stopped"}>
+                        ● {bot.status}
+                      </span>
+                    </div>
+
+                    <p>
+                      {bot.type} <b>•</b> {bot.market}
+                    </p>
+
+                    <small>
+                      Stake: {money(bot.stake)} USD <b>•</b> Duration: {bot.duration}s
+                    </small>
+                  </div>
+
+                  <button className="botDots">⋮</button>
+                </div>
+
+                <div className="botPerformanceRow">
+                  <div>
+                    <span>Total Profit</span>
+                    <strong className={positive ? "green" : "red"}>
+                      {positive ? "+" : ""}
+                      {money(bot.profit)} USD
+                    </strong>
+                  </div>
+
+                  <div className="sparkArea">
+                    <BotPerformanceLine positive={positive} index={index} />
+                  </div>
+
+                  <div className="botCardActions">
+                    <button className="detailsBtn" onClick={() => startBot(bot)}>
+                      ◉ View Details
+                    </button>
+
+                    <button
+                      className={isRunning ? "stopBotBtn" : "startBotBtn"}
+                      onClick={() => startBot(bot)}
+                    >
+                      {isRunning ? "■ Run Bot" : "▶ Start Bot"}
+                    </button>
+
+                    <button className="settingsBotBtn">⚙ Settings</button>
+                  </div>
+                </div>
+
+                <div className="botMiniStats">
+                  <p>
+                    <span>Win Rate</span>
+                    <b>{bot.winRate}%</b>
+                  </p>
+
+                  <p>
+                    <span>Trades</span>
+                    <b>{Math.round(bot.winRate / 2)}</b>
+                  </p>
+
+                  <p>
+                    <span>Balance</span>
+                    <b>{money(10000 + bot.profit)} USD</b>
+                  </p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </section>
     </div>
   );
 }
 
-function BotLivePage({ bot, botRunning, startBot, stopBot, botTab, setBotTab, openTrades, closedTrades, transactions, back }) {
-  const pl = closedTrades.reduce((s, t) => s + (t.won ? t.profit : -t.stake), 0);
+function MiniSpark({ type }) {
+  const points =
+    type === "green"
+      ? "5,42 22,39 38,34 56,28 76,31 96,22 116,31 138,25 160,18"
+      : type === "yellow"
+      ? "5,45 22,41 38,35 56,28 76,22 96,26 116,20 138,25 160,14"
+      : type === "purple"
+      ? "5,44 22,39 38,36 56,29 76,25 96,20 116,24 138,18 160,10"
+      : "5,44 22,40 38,34 56,29 76,18 96,12 116,19 138,21 160,12";
+
+  return (
+    <svg className={`miniSpark ${type}`} viewBox="0 0 165 52">
+      <polyline points={points} />
+    </svg>
+  );
+}
+
+function BotPerformanceLine({ positive, index }) {
+  const lines = [
+    "4,58 20,54 36,44 52,38 68,30 86,20 104,25 122,36 140,31 160,26 178,18",
+    "4,54 20,48 36,50 52,42 68,39 86,31 104,16 122,31 140,38 160,27 178,22",
+    "4,20 20,24 36,22 52,30 68,27 86,36 104,41 122,48 140,45 160,52 178,58",
+    "4,24 20,26 36,24 52,35 68,39 86,37 104,46 122,50 140,49 160,56 178,60",
+  ];
+
+  return (
+    <svg className={positive ? "botLine positive" : "botLine negative"} viewBox="0 0 185 75">
+      <polyline points={lines[index % lines.length]} />
+    </svg>
+  );
+}
+
+function BotLivePage({
+  bot,
+  botRunning,
+  startBot,
+  stopBot,
+  botTab,
+  setBotTab,
+  openTrades,
+  closedTrades,
+  transactions,
+  back,
+}) {
+  const profitLoss = closedTrades.reduce(
+    (sum, trade) => sum + (trade.won ? trade.profit : -trade.stake),
+    0
+  );
+
   const last = closedTrades[0];
 
   if (!bot) {
@@ -1172,45 +1919,75 @@ function BotLivePage({ bot, botRunning, startBot, stopBot, botTab, setBotTab, op
   }
 
   return (
-    <div className="page botLive">
+    <div className="page botLivePage">
       <div className="botLiveTop">
         <button onClick={back}>‹ Back to Bot</button>
         <strong>{bot.name}</strong>
       </div>
 
-      <section className="runner">
-        <button className={botRunning ? "stopRun" : "startRun"} onClick={botRunning ? stopBot : () => startBot(bot)}>
+      <section className="runnerBox">
+        <button
+          className={botRunning ? "stopRunner" : "startRunner"}
+          onClick={botRunning ? stopBot : () => startBot(bot)}
+        >
           {botRunning ? "■ Stop" : "▶ Run"}
         </button>
+
         <div>
           <strong>{botRunning ? "Contract bought" : "Bot is not running"}</strong>
-          <span><i></i></span>
+          <span>
+            <i></i>
+          </span>
         </div>
       </section>
 
       <section className="runnerTabs">
-        {["summary", "transactions", "journal"].map((x) => (
-          <button key={x} className={botTab === x ? "active" : ""} onClick={() => setBotTab(x)}>{x}</button>
+        {["summary", "transactions", "journal"].map((tab) => (
+          <button
+            key={tab}
+            className={botTab === tab ? "active" : ""}
+            onClick={() => setBotTab(tab)}
+          >
+            {tab}
+          </button>
         ))}
       </section>
 
       <section className="runnerBody">
         {botTab === "summary" && (
-          <div className={last?.won ? "result won" : last ? "result lost" : "result"}>
+          <div
+            className={
+              last?.won
+                ? "runnerResult won"
+                : last
+                ? "runnerResult lost"
+                : "runnerResult"
+            }
+          >
             <strong>{openTrades[0] ? "Contract bought" : last ? "Closed" : "Ready"}</strong>
             <h2>
-              {last ? `${last.won ? "+" : "-"}${money(last.won ? last.profit : last.stake)} USD` : "Hit Run"}
+              {last
+                ? `${last.won ? "+" : "-"}${money(
+                    last.won ? last.profit : last.stake
+                  )} USD`
+                : "Hit Run"}
             </h2>
           </div>
         )}
 
         {botTab === "transactions" && (
-          <div className="runnerTable">
-            {[...openTrades, ...closedTrades].slice(0, 6).map((t) => (
-              <p key={t.id}>
-                <span>{t.contract} · {t.action}</span>
-                <b className={t.won ? "green" : t.status === "RUNNING" ? "" : "red"}>
-                  {t.status === "RUNNING" ? "Running" : `${t.won ? "+" : "-"}${money(t.won ? t.profit : t.stake)}`}
+          <div className="runnerList">
+            {[...openTrades, ...closedTrades].slice(0, 7).map((trade) => (
+              <p key={trade.id}>
+                <span>
+                  {trade.type} · {trade.action}
+                </span>
+                <b className={trade.won ? "green" : trade.status === "RUNNING" ? "" : "red"}>
+                  {trade.status === "RUNNING"
+                    ? "Running"
+                    : `${trade.won ? "+" : "-"}${money(
+                        trade.won ? trade.profit : trade.stake
+                      )}`}
                 </b>
               </p>
             ))}
@@ -1218,22 +1995,22 @@ function BotLivePage({ bot, botRunning, startBot, stopBot, botTab, setBotTab, op
         )}
 
         {botTab === "journal" && (
-          <div className="runnerTable">
-            {transactions.slice(0, 6).map((t) => (
-              <p key={t.id}>
-                <span>{t.type}</span>
-                <small>{t.time}</small>
+          <div className="runnerList">
+            {transactions.slice(0, 7).map((tx) => (
+              <p key={tx.id}>
+                <span>{tx.type}</span>
+                <small>{tx.time}</small>
               </p>
             ))}
           </div>
         )}
       </section>
 
-      <section className="botLiveStats">
-        <Stat title={closedTrades.length} text="Runs" />
-        <Stat title={closedTrades.filter((x) => x.won).length} text="Won" />
-        <Stat title={closedTrades.filter((x) => !x.won).length} text="Lost" />
-        <Stat title={`${pl >= 0 ? "+" : ""}${money(pl)}`} text="P/L" />
+      <section className="runnerStats">
+        <Stat value={closedTrades.length} label="Runs" />
+        <Stat value={closedTrades.filter((x) => x.won).length} label="Won" />
+        <Stat value={closedTrades.filter((x) => !x.won).length} label="Lost" />
+        <Stat value={`${profitLoss >= 0 ? "+" : ""}${money(profitLoss)}`} label="P/L" />
       </section>
     </div>
   );
@@ -1245,7 +2022,9 @@ function ProfilePage({ user, balances, transactions, logout, setActivePage }) {
       <section className="profileTop">
         <div className="bigAvatar">{user.initials}</div>
         <div>
-          <h2>{user.name} <span>✓</span></h2>
+          <h2>
+            {user.name} <span>✓</span>
+          </h2>
           <p>{user.email}</p>
           <b>Verified</b>
           <small>Account ID: {user.brokerId}</small>
@@ -1253,20 +2032,34 @@ function ProfilePage({ user, balances, transactions, logout, setActivePage }) {
       </section>
 
       <section className="profileStats">
-        <Stat title={`${money(balances.real)} USD`} text="Real Balance" />
-        <Stat title={`${money(balances.demo)} USD`} text="Demo Balance" />
-        <Stat title="+2,450.75" text="Total Profit" />
-        <Stat title="63.25%" text="Win Rate" />
+        <Stat value={`${money(balances.real)} USD`} label="Real Balance" />
+        <Stat value={`${money(balances.demo)} USD`} label="Demo Balance" />
+        <Stat value="+2,450.75" label="Total Profit" />
+        <Stat value="63.25%" label="Win Rate" />
       </section>
 
       <section className="profileGrid">
-        <button onClick={() => setActivePage("settings")}>⚙<b>Settings</b><span>Preferences</span></button>
-        <button onClick={() => setActivePage("history")}>↺<b>History</b><span>{transactions.length} records</span></button>
-        <button>🛡<b>KYC</b><span>Verified</span></button>
-        <button>👥<b>Referral</b><span>Earn 30%</span></button>
+        <button onClick={() => setActivePage("settings")}>
+          ⚙<b>Settings</b>
+          <span>Preferences</span>
+        </button>
+        <button onClick={() => setActivePage("history")}>
+          ↺<b>History</b>
+          <span>{transactions.length} records</span>
+        </button>
+        <button>
+          🛡<b>KYC</b>
+          <span>Verified</span>
+        </button>
+        <button>
+          👥<b>Referral</b>
+          <span>Earn 30%</span>
+        </button>
       </section>
 
-      <button className="logoutWide" onClick={logout}>⇥ Logout</button>
+      <button className="logoutWide" onClick={logout}>
+        ⇥ Logout
+      </button>
     </div>
   );
 }
@@ -1279,11 +2072,11 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
         <p>Manage your account preferences and platform settings.</p>
       </section>
 
-      <section className="settingsCard">
+      <section className="settingsPanel">
         <h2>Platform Preferences</h2>
 
         <label>
-          Default Account
+          <span>Default Account</span>
           <select value={account} onChange={(e) => setAccount(e.target.value)}>
             <option value="demo">Demo Account</option>
             <option value="real">Real Account</option>
@@ -1291,7 +2084,7 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
         </label>
 
         <label>
-          Default Trade Type
+          <span>Default Trade Type</span>
           <select value={tradeType} onChange={(e) => setTradeType(e.target.value)}>
             <option>Even/Odd</option>
             <option>Matches/Differs</option>
@@ -1302,7 +2095,7 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
         </label>
 
         <label>
-          Default Stake
+          <span>Default Stake</span>
           <div className="stakeBox">
             <button onClick={() => setStake((x) => Math.max(0.3, Number(x) - 1))}>−</button>
             <strong>{money(stake)}</strong>
@@ -1310,10 +2103,15 @@ function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, set
           </div>
         </label>
 
-        <div className="toggles">
-          {["Confirm before trading", "Quick Trade", "Sound Alerts", "Compact Mode"].map((x) => (
-            <p key={x}><span>{x}</span><b></b></p>
-          ))}
+        <div className="toggleGrid">
+          {["Confirm before trading", "Quick Trade", "Sound Alerts", "Compact Mode"].map(
+            (item) => (
+              <p key={item}>
+                <span>{item}</span>
+                <b></b>
+              </p>
+            )
+          )}
         </div>
       </section>
     </div>
@@ -1326,10 +2124,17 @@ function HistoryPage({ transactions }) {
       <h1>History</h1>
       <section className="listPanel">
         {transactions.length === 0 && <p>No history yet.</p>}
-        {transactions.slice(0, 12).map((t) => (
-          <div key={t.id}>
-            <span><strong>{t.type}</strong><small>{t.time}</small></span>
-            <b className={t.amount >= 0 ? "green" : "red"}>{t.amount >= 0 ? "+" : ""}{money(t.amount)} USD</b>
+
+        {transactions.slice(0, 12).map((tx) => (
+          <div key={tx.id}>
+            <span>
+              <strong>{tx.type}</strong>
+              <small>{tx.time}</small>
+            </span>
+            <b className={tx.amount >= 0 ? "green" : "red"}>
+              {tx.amount >= 0 ? "+" : ""}
+              {money(tx.amount)} USD
+            </b>
           </div>
         ))}
       </section>
@@ -1337,28 +2142,28 @@ function HistoryPage({ transactions }) {
   );
 }
 
-function ReportsPage({ transactions, closedTrades }) {
-  const wins = closedTrades.filter((x) => x.won).length;
-  const losses = closedTrades.filter((x) => !x.won).length;
+function ReportsPage({ transactions, closedForex, closedBinary }) {
+  const wins = closedBinary.filter((x) => x.won).length;
+  const losses = closedBinary.filter((x) => !x.won).length;
 
   return (
     <div className="page listPage">
       <h1>Reports</h1>
-      <section className="stats">
-        <Stat title={transactions.length} text="Transactions" />
-        <Stat title={wins} text="Wins" />
-        <Stat title={losses} text="Losses" />
-        <Stat title={wins + losses ? `${Math.round((wins / (wins + losses)) * 100)}%` : "0%"} text="Win Rate" />
+      <section className="statGrid">
+        <Stat value={transactions.length} label="Transactions" />
+        <Stat value={closedForex.length} label="Forex Closed" />
+        <Stat value={wins} label="Wins" />
+        <Stat value={losses} label="Losses" />
       </section>
     </div>
   );
 }
 
-function Stat({ title, text }) {
+function Stat({ value, label }) {
   return (
-    <div className="stat">
-      <strong>{title}</strong>
-      <span>{text}</span>
+    <div className="statCard">
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
   );
 }
@@ -1374,17 +2179,35 @@ function BottomNav({ activePage, setActivePage }) {
 
   return (
     <nav className="bottomNav">
-      {items.map(([key, name, icon]) => (
-        <button key={key} className={activePage === key ? "active" : ""} onClick={() => setActivePage(key)}>
+      {items.map(([key, label, icon]) => (
+        <button
+          key={key}
+          className={
+            activePage === key || (key === "bots" && activePage === "botLive")
+              ? "active"
+              : ""
+          }
+          onClick={() => setActivePage(key)}
+        >
           <span>{icon}</span>
-          <small>{name}</small>
+          <small>{label}</small>
         </button>
       ))}
     </nav>
   );
 }
 
-function SideMenu({ user, account, setAccount, balance, close, setActivePage, openDeposit, openWithdraw, logout }) {
+function SideMenu({
+  user,
+  account,
+  setAccount,
+  balance,
+  close,
+  setActivePage,
+  openDeposit,
+  openWithdraw,
+  logout,
+}) {
   function go(page) {
     setActivePage(page);
     close();
@@ -1392,9 +2215,9 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
 
   return (
     <div className="menuLayer">
-      <button className="shade" onClick={close}></button>
+      <button className="menuShade" onClick={close}></button>
 
-      <aside className="drawer">
+      <aside className="sideDrawer">
         <div className="drawerTop">
           <Logo />
           <button onClick={close}>×</button>
@@ -1411,38 +2234,64 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
           </div>
 
           <div className="drawerSwitch">
-            <button className={account === "demo" ? "active" : ""} onClick={() => setAccount("demo")}>Demo</button>
-            <button className={account === "real" ? "active" : ""} onClick={() => setAccount("real")}>Real</button>
+            <button
+              className={account === "demo" ? "active" : ""}
+              onClick={() => setAccount("demo")}
+            >
+              Demo
+            </button>
+            <button
+              className={account === "real" ? "active" : ""}
+              onClick={() => setAccount("real")}
+            >
+              Real
+            </button>
           </div>
         </section>
 
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
-            <DrawerBtn icon="⌂" label="Trader’s Hub" onClick={() => go("home")} />
-            <DrawerBtn icon="▥" label="Markets" onClick={() => go("forex")} />
-            <DrawerBtn icon="↕" label="Trade" onClick={() => go("trade")} />
+            <DrawerButton icon="⌂" label="Trader’s Hub" onClick={() => go("home")} />
+            <DrawerButton icon="▥" label="Markets" onClick={() => go("forex")} />
+            <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
           </DrawerBlock>
 
           <DrawerBlock title="FUNDS">
-            <DrawerBtn icon="▱" label="Cashier / Deposit" onClick={() => { openDeposit(); close(); }} />
-            <DrawerBtn icon="⇧" label="Withdraw" onClick={() => { openWithdraw(); close(); }} />
-            <DrawerBtn icon="↺" label="History" onClick={() => go("history")} />
+            <DrawerButton
+              icon="▱"
+              label="Cashier / Deposit"
+              onClick={() => {
+                openDeposit();
+                close();
+              }}
+            />
+            <DrawerButton
+              icon="⇧"
+              label="Withdraw"
+              onClick={() => {
+                openWithdraw();
+                close();
+              }}
+            />
+            <DrawerButton icon="↺" label="History" onClick={() => go("history")} />
           </DrawerBlock>
 
           <DrawerBlock title="AUTOMATION">
-            <DrawerBtn icon="🤖" label="My Bots" onClick={() => go("bots")} />
-            <DrawerBtn icon="▶" label="Running Bots" onClick={() => go("botLive")} />
-            <DrawerBtn icon="▣" label="Reports" onClick={() => go("reports")} />
+            <DrawerButton icon="🤖" label="My Bots" onClick={() => go("bots")} />
+            <DrawerButton icon="▶" label="Running Bots" onClick={() => go("botLive")} />
+            <DrawerButton icon="▣" label="Reports" onClick={() => go("reports")} />
           </DrawerBlock>
 
           <DrawerBlock title="ACCOUNT">
-            <DrawerBtn icon="♙" label="Profile" onClick={() => go("profile")} />
-            <DrawerBtn icon="⚙" label="Settings" onClick={() => go("settings")} />
-            <DrawerBtn icon="🔔" label="Notifications" badge="3" onClick={() => go("settings")} />
+            <DrawerButton icon="♙" label="Profile" onClick={() => go("profile")} />
+            <DrawerButton icon="⚙" label="Settings" onClick={() => go("settings")} />
+            <DrawerButton icon="🔔" label="Notifications" badge="3" onClick={() => go("settings")} />
           </DrawerBlock>
         </div>
 
-        <button className="drawerLogout" onClick={logout}>⇥ Logout</button>
+        <button className="drawerLogout" onClick={logout}>
+          ⇥ Logout
+        </button>
       </aside>
     </div>
   );
@@ -1457,9 +2306,9 @@ function DrawerBlock({ title, children }) {
   );
 }
 
-function DrawerBtn({ icon, label, badge, onClick }) {
+function DrawerButton({ icon, label, badge, onClick }) {
   return (
-    <button className="drawerBtn" onClick={onClick}>
+    <button className="drawerButton" onClick={onClick}>
       <span>{icon}</span>
       <strong>{label}</strong>
       {badge && <b>{badge}</b>}
@@ -1476,33 +2325,75 @@ function DepositModal({ close, submit }) {
   return (
     <div className="modalLayer">
       <div className="depositModal">
-        <button className="x" onClick={close}>×</button>
+        <button className="closeModal" onClick={close}>
+          ×
+        </button>
 
         {!method ? (
           <>
             <h2>Deposit Funds</h2>
             <p>Choose payment method</p>
-            <PayBtn icon="📱" title="M-Pesa" text="Instant mobile money" onClick={() => setMethod("mpesa")} />
-            <PayBtn icon="💳" title="Credit/Debit Card" text="Visa, Mastercard" onClick={() => setMethod("card")} />
-            <PayBtn icon="₿" title="USDT (TRC20)" text="Cryptocurrency" onClick={() => setMethod("usdt")} />
+
+            <PaymentButton
+              icon="📱"
+              title="M-Pesa"
+              text="Instant mobile money"
+              onClick={() => setMethod("mpesa")}
+            />
+
+            <PaymentButton
+              icon="💳"
+              title="Credit/Debit Card"
+              text="Visa, Mastercard"
+              onClick={() => setMethod("card")}
+            />
+
+            <PaymentButton
+              icon="₿"
+              title="USDT (TRC20)"
+              text="Cryptocurrency"
+              onClick={() => setMethod("usdt")}
+            />
           </>
         ) : (
           <>
-            <button className="back" onClick={() => setMethod("")}>‹ Back</button>
-            <h2>{method === "mpesa" ? "M-Pesa Deposit" : method === "card" ? "Card Deposit" : "USDT Deposit"}</h2>
+            <button className="modalBack" onClick={() => setMethod("")}>
+              ‹ Back
+            </button>
+
+            <h2>
+              {method === "mpesa"
+                ? "M-Pesa Deposit"
+                : method === "card"
+                ? "Card Deposit"
+                : "USDT Deposit"}
+            </h2>
+
             <p>Funds go to your real account.</p>
 
             <label>Amount USD</label>
-            <input type="number" min="1" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} />
+            <input
+              type="number"
+              min="1"
+              value={amountUsd}
+              onChange={(e) => setAmountUsd(e.target.value)}
+            />
 
             {method !== "usdt" && (
               <>
                 <label>Phone Number</label>
-                <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <input
+                  placeholder="07XXXXXXXX or 2547XXXXXXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </>
             )}
 
-            <button className="modalPrimary" onClick={() => submit({ method, amountUsd, phone })}>
+            <button
+              className="modalPrimary"
+              onClick={() => submit({ method, amountUsd, phone })}
+            >
               {method === "mpesa" ? "Send STK Push" : "Continue"}
             </button>
           </>
@@ -1512,9 +2403,9 @@ function DepositModal({ close, submit }) {
   );
 }
 
-function PayBtn({ icon, title, text, onClick }) {
+function PaymentButton({ icon, title, text, onClick }) {
   return (
-    <button className="payBtn" onClick={onClick}>
+    <button className="paymentButton" onClick={onClick}>
       <span>{icon}</span>
       <div>
         <strong>{title}</strong>
@@ -1532,17 +2423,31 @@ function WithdrawModal({ close, submit }) {
   return (
     <div className="modalLayer">
       <div className="depositModal">
-        <button className="x" onClick={close}>×</button>
+        <button className="closeModal" onClick={close}>
+          ×
+        </button>
+
         <h2>Withdraw Funds</h2>
         <p>Minimum withdrawal is $5.</p>
 
         <label>Amount USD</label>
-        <input type="number" min="5" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} />
+        <input
+          type="number"
+          min="5"
+          value={amountUsd}
+          onChange={(e) => setAmountUsd(e.target.value)}
+        />
 
         <label>M-Pesa Phone</label>
-        <input placeholder="07XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <input
+          placeholder="07XXXXXXXX"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
 
-        <button className="modalPrimary" onClick={() => submit({ amountUsd, phone })}>Request Withdrawal</button>
+        <button className="modalPrimary" onClick={() => submit({ amountUsd, phone })}>
+          Request Withdrawal
+        </button>
       </div>
     </div>
   );

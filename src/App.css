@@ -22,8 +22,8 @@ select {
 }
 
 button {
-  cursor: pointer;
   border: none;
+  cursor: pointer;
 }
 
 input,
@@ -44,10 +44,10 @@ select {
   height: 100dvh;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 74px 1fr 76px;
+  grid-template-rows: 58px 1fr 56px;
   background:
-    radial-gradient(circle at top left, rgba(0, 102, 255, 0.15), transparent 30%),
-    linear-gradient(180deg, #020913, #02070d);
+    radial-gradient(circle at top left, rgba(0, 128, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, #020712, #01050b);
 }
 
 /* AUTH */
@@ -65,16 +65,16 @@ select {
 }
 
 .authCard {
-  width: min(560px, 100%);
-  border-radius: 20px;
-  background: rgba(5, 17, 29, 0.92);
+  width: min(540px, 100%);
+  border-radius: 22px;
+  background: rgba(5, 17, 29, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 32px;
+  padding: 34px;
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
 }
 
 .registerCard {
-  width: min(920px, 100%);
+  width: min(900px, 100%);
 }
 
 .authCard .logo {
@@ -85,7 +85,7 @@ select {
 .authCard h1 {
   text-align: center;
   font-size: 34px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .authCard p {
@@ -98,44 +98,31 @@ select {
   display: block;
   margin-bottom: 8px;
   color: #dbe7ff;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .authCard input {
   width: 100%;
   height: 52px;
-  border-radius: 11px;
+  border-radius: 12px;
   background: rgba(2, 9, 18, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: white;
   padding: 0 14px;
-  margin-bottom: 16px;
+  margin-bottom: 15px;
+  font-size: 15px;
 }
 
-.regGrid {
+.registerGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
 
-.check {
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  margin: 8px 0 18px;
-}
-
-.check input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: #006bff;
-}
-
-.primary {
+.primaryBtn {
   width: 100%;
   height: 54px;
-  border-radius: 11px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #087cff, #0048ff);
   color: white;
   font-size: 18px;
@@ -157,44 +144,44 @@ select {
 
 /* HEADER */
 
-.header {
+.topHeader {
   min-height: 0;
   display: grid;
-  grid-template-columns: 44px 250px 1fr 180px 150px 46px 58px;
-  gap: 14px;
+  grid-template-columns: 34px 220px minmax(260px, 1fr) 126px 120px 38px 44px;
+  gap: 12px;
   align-items: center;
-  padding: 10px 18px;
+  padding: 7px 14px;
   background: rgba(4, 12, 24, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.hamb {
+.menuBtn {
   background: transparent;
   color: white;
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logo div {
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #00eaff, #065dff);
   color: #02070d;
   font-weight: 1000;
-  font-size: 23px;
-  box-shadow: 0 0 24px rgba(0, 119, 255, 0.35);
+  font-size: 20px;
+  box-shadow: 0 0 22px rgba(0, 119, 255, 0.35);
 }
 
 .logo strong {
-  font-size: 30px;
+  font-size: 25px;
   line-height: 1;
   white-space: nowrap;
 }
@@ -203,105 +190,105 @@ select {
   color: #0077ff;
 }
 
-.wallet {
-  height: 54px;
-  border-radius: 12px;
-  background: rgba(2, 9, 18, 0.9);
+.walletBox {
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(2, 9, 18, 0.92);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.17);
   text-align: left;
-  padding: 0 16px;
+  padding: 0 14px;
   position: relative;
 }
 
-.wallet small {
+.walletBox small {
   display: block;
   color: #00e884;
   font-weight: 1000;
-  font-size: 12px;
+  font-size: 10px;
 }
 
-.wallet strong {
+.walletBox strong {
   display: block;
-  font-size: 21px;
-  margin-top: 4px;
+  font-size: 17px;
+  margin-top: 2px;
 }
 
-.wallet span {
+.walletBox span {
   position: absolute;
-  right: 14px;
-  top: 21px;
+  right: 12px;
+  top: 13px;
 }
 
-.switch {
-  height: 48px;
+.accountSwitch {
+  height: 40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding: 4px;
-  border-radius: 11px;
+  border-radius: 10px;
   background: #060b17;
 }
 
-.switch button {
+.accountSwitch button {
   background: transparent;
   color: #c5d1e6;
-  border-radius: 9px;
+  border-radius: 8px;
   font-weight: 1000;
-  font-size: 15px;
+  font-size: 13px;
 }
 
-.switch .active {
+.accountSwitch .active {
   color: white;
   background: #00c76f;
 }
 
-.depositBtn {
-  height: 50px;
-  border-radius: 11px;
+.depositTop {
+  height: 40px;
+  border-radius: 10px;
   background: #065dff;
   color: white;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 1000;
 }
 
-.bell,
-.avatar {
-  width: 46px;
-  height: 46px;
+.bellBtn,
+.avatarBtn {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: transparent;
   color: white;
-  font-size: 22px;
+  font-size: 18px;
   position: relative;
 }
 
-.bell b {
+.bellBtn b {
   position: absolute;
-  top: 2px;
-  right: 1px;
-  width: 21px;
-  height: 21px;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #ff003b;
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 10px;
 }
 
-.avatar {
-  width: 56px;
-  height: 56px;
+.avatarBtn {
+  width: 42px;
+  height: 42px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   font-weight: 1000;
-  font-size: 18px;
+  font-size: 16px;
 }
 
-.avatar i {
+.avatarBtn i {
   position: absolute;
-  right: 3px;
-  bottom: 5px;
-  width: 14px;
-  height: 14px;
+  right: 2px;
+  bottom: 4px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: #00e884;
 }
@@ -311,7 +298,7 @@ select {
 .mainScreen {
   min-height: 0;
   overflow: hidden;
-  padding: 8px 10px 0;
+  padding: 6px 8px 0;
 }
 
 .page {
@@ -319,145 +306,158 @@ select {
   height: 100%;
   overflow: hidden;
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
-.hub,
-.hero,
-.stats,
+.hubNav,
+.homeHero,
+.statGrid,
 .marketStrip,
-.symbolBar,
-.toolbar,
-.tvBox,
-.orderBox,
-.positions,
-.tradeTypes,
-.binaryPanel,
-.binaryOrder,
-.botsTop,
-.botStats,
+.forexSymbolBar,
+.forexToolbar,
+.proChartPanel,
+.proOrderPanel,
+.tradeManager,
+.tradeTypeRow,
+.binaryBox,
+.binaryOrderPanel,
+.botsHeader,
+.botStatGrid,
 .botCard,
 .profileTop,
 .profileStats,
 .profileGrid,
 .settingsHero,
-.settingsCard,
+.settingsPanel,
 .listPanel {
-  background: rgba(5, 17, 29, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 14px;
-  box-shadow: inset 0 0 42px rgba(0, 119, 255, 0.04);
+  background:
+    linear-gradient(135deg, rgba(7, 25, 45, 0.95), rgba(3, 12, 24, 0.94)),
+    rgba(5, 17, 29, 0.94);
+  border: 1px solid rgba(70, 145, 255, 0.18);
+  border-radius: 13px;
+  box-shadow:
+    inset 0 0 42px rgba(0, 119, 255, 0.05),
+    0 18px 50px rgba(0, 0, 0, 0.16);
 }
 
-/* HUB */
+/* TOP NAV */
 
-.hub {
-  height: 58px;
+.hubNav {
+  height: 40px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   overflow: hidden;
 }
 
-.hub button {
+.hubNav button {
   background: transparent;
   color: #aab6ca;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 4px;
+  gap: 2px;
   border-bottom: 3px solid transparent;
 }
 
-.hub button span {
-  font-size: 19px;
+.hubNav button span {
+  font-size: 15px;
 }
 
-.hub button small {
-  font-size: 12px;
+.hubNav button small {
+  font-size: 10px;
 }
 
-.hub .active {
+.hubNav .active {
   color: #008cff;
   border-bottom-color: #008cff;
+  background: linear-gradient(180deg, rgba(0, 119, 255, 0.09), transparent);
 }
 
 /* HOME */
 
 .homePage {
-  grid-template-rows: 58px 1fr 86px 56px;
+  grid-template-rows: 40px 1fr 58px 42px;
 }
 
-.hero {
+.homeHero {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 270px;
   gap: 20px;
   align-items: center;
-  padding: 28px;
+  padding: 26px;
+  min-height: 0;
 }
 
-.hero h1 {
-  font-size: 42px;
-  max-width: 700px;
+.homeHero h1 {
+  font-size: clamp(36px, 4vw, 58px);
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
-.hero p {
-  color: #b7c1d4;
-  margin: 12px 0 20px;
-  font-size: 17px;
+.homeHero h1 span {
+  display: block;
+  color: #008cff;
 }
 
-.hero button {
-  width: 170px;
-  height: 48px;
+.homeHero p {
+  color: #b8c4d8;
+  max-width: 520px;
+  margin: 12px 0 18px;
+}
+
+.homeHero button {
+  height: 38px;
+  padding: 0 18px;
   border-radius: 10px;
   background: #065dff;
   color: white;
-  font-weight: 1000;
-  font-size: 15px;
+  font-weight: 900;
 }
 
-.heroCard {
-  height: 180px;
+.homeCard {
   border-radius: 18px;
-  padding: 20px;
-  background:
-    radial-gradient(circle at top, rgba(0, 119, 255, 0.28), transparent 60%),
-    rgba(2, 10, 22, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  padding: 16px;
+  background: rgba(0, 119, 255, 0.12);
+  border: 1px solid rgba(0, 140, 255, 0.3);
 }
 
-.heroCard span,
-.heroCard strong {
-  display: block;
-}
-
-.heroCard strong {
+.homeCard h2 {
   color: #00e884;
-  font-size: 28px;
-  margin: 5px 0 12px;
+  margin: 6px 0;
 }
 
-.heroCard button {
-  width: 120px;
-  height: 38px;
+.homeCard button {
+  width: 90px;
   display: block;
-  margin-bottom: 8px;
+  margin: 7px 0;
 }
 
-.heroCard button:last-child {
+.homeCard button:last-child {
   background: #c00822;
 }
 
-.stats,
-.botStats,
+.lineMini {
+  width: 100%;
+  height: 70px;
+}
+
+.lineMini path {
+  fill: none;
+  stroke: #00e884;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.statGrid,
+.botStatGrid,
 .profileStats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  padding: 10px;
+  gap: 6px;
+  padding: 6px;
 }
 
-.stat {
+.statCard {
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -467,13 +467,14 @@ select {
   text-align: center;
 }
 
-.stat strong {
-  font-size: 19px;
+.statCard strong {
+  font-size: 16px;
 }
 
-.stat span {
+.statCard span {
   color: #aab6ca;
-  margin-top: 5px;
+  margin-top: 3px;
+  font-size: 11px;
 }
 
 .marketStrip {
@@ -483,171 +484,223 @@ select {
 }
 
 .marketStrip p {
-  padding: 12px 18px;
+  padding: 9px 14px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .marketStrip b,
 .marketStrip span {
   display: block;
+  font-size: 12px;
 }
 
-/* FOREX */
+/* FOREX PAGE */
 
 .forexPage {
-  grid-template-rows: 58px 62px 46px minmax(250px, 1fr) 132px 104px;
+  grid-template-rows: 40px 54px 38px minmax(210px, 1fr) 116px 94px;
 }
 
-.symbolBar {
+.forexSymbolBar {
   display: grid;
-  grid-template-columns: 42px 150px 1fr 170px 150px 150px 50px 50px;
-  gap: 10px;
+  grid-template-columns: 40px 154px 1fr 140px 120px 120px 120px 42px 42px;
   align-items: center;
-  padding: 10px 16px;
+  gap: 9px;
+  padding: 7px 10px;
+  min-height: 0;
 }
 
-.symbolBar button {
-  height: 40px;
+.forexSymbolBar button {
+  height: 36px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.045);
   color: white;
-  font-size: 21px;
+  font-size: 18px;
 }
 
-.symbolBar select {
+.symbolSelect select {
   width: 100%;
-  height: 40px;
+  height: 36px;
   border-radius: 9px;
   padding: 0 12px;
   background: #030a13;
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  font-weight: 1000;
+  font-weight: 900;
 }
 
-.symbolBar strong,
-.symbolBar small {
+.symbolName strong,
+.symbolName small,
+.marketMetric strong,
+.marketMetric small,
+.marketMetric span {
   display: block;
 }
 
-.symbolBar small {
+.symbolName small,
+.marketMetric small {
   color: #aab6ca;
-  margin-top: 3px;
+  font-size: 12px;
 }
 
-.toolbar {
+.marketMetric strong {
+  font-size: 15px;
+}
+
+.marketMetric span {
+  font-size: 11px;
+}
+
+.forexToolbar {
   display: grid;
-  grid-template-columns: repeat(6, 90px) 50px 70px 1fr 70px 70px 70px;
+  grid-template-columns: repeat(6, 64px) 38px 120px 120px 1fr 42px 42px 42px 42px 42px;
   overflow: hidden;
 }
 
-.toolbar button {
+.forexToolbar button {
   background: transparent;
   color: white;
+  font-size: 12px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.toolbar .active {
-  margin: 8px;
+.forexToolbar .active {
+  margin: 5px;
   border-radius: 8px;
   border: 1px solid #008cff;
   color: #008cff;
 }
 
-.tvBox {
+.proChartPanel {
   overflow: hidden;
   background: #02070d;
 }
 
-.chartInner {
+.chartShell {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 230px;
+  min-height: 190px;
   overflow: hidden;
-  background: #02070d;
+  background:
+    radial-gradient(circle at center, rgba(0, 119, 255, 0.04), transparent 50%),
+    #02070d;
 }
 
-.chartTop {
-  height: 38px;
+.chartTopStrip {
+  height: 30px;
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 0 14px;
-  background: #0d0d0d;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 70px;
+  background: rgba(12, 12, 12, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.chartTop button {
-  background: transparent;
-  color: white;
-  font-weight: 900;
+.chartTopStrip strong,
+.chartTopStrip small {
+  font-size: 12px;
 }
 
-.leftTools {
+.chartTopStrip small {
+  color: #00d3a0;
+}
+
+.chartTools {
   position: absolute;
-  left: 10px;
-  top: 48px;
-  bottom: 10px;
-  width: 42px;
-  z-index: 3;
+  left: 8px;
+  top: 38px;
+  bottom: 8px;
+  width: 40px;
+  z-index: 5;
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
-.leftTools button {
+.chartTools button {
   background: transparent;
   color: #dbe7ff;
-  font-size: 17px;
+  font-size: 14px;
 }
 
-.chartInner svg {
+.chartShell svg {
   position: absolute;
   left: 58px;
-  right: 0;
-  top: 38px;
+  top: 30px;
   width: calc(100% - 58px);
-  height: calc(100% - 38px);
+  height: calc(100% - 30px);
 }
 
 .priceTag,
-.volumeTag {
+.volumeTag,
+.tpLabel,
+.slLabel,
+.chartOrderTag {
   position: absolute;
-  right: 16px;
-  padding: 3px 8px;
-  border-radius: 3px;
-  background: #00c987;
-  font-size: 12px;
+  z-index: 10;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 11px;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .priceTag {
-  top: 45%;
+  right: 12px;
+  background: #00c987;
+  transform: translateY(-50%);
 }
 
 .volumeTag {
-  bottom: 30px;
+  right: 12px;
+  bottom: 18px;
+  background: #00c987;
 }
 
-.orderBox {
+.chartOrderTag {
+  right: 24%;
+  background: rgba(0, 201, 137, 0.78);
+  color: white;
+  transform: translateY(-50%);
+}
+
+.tpLabel {
+  right: 7%;
+  background: rgba(0, 201, 137, 0.85);
+  color: white;
+  transform: translateY(-50%);
+}
+
+.slLabel {
+  right: 7%;
+  background: rgba(255, 64, 87, 0.85);
+  color: white;
+  transform: translateY(-50%);
+}
+
+/* ORDER PANEL */
+
+.proOrderPanel {
   display: grid;
-  grid-template-columns: 1fr 380px 320px;
-  gap: 14px;
-  padding: 12px;
+  grid-template-columns: 1fr 500px 220px;
+  gap: 12px;
+  padding: 10px 16px;
   min-height: 0;
+  overflow: hidden;
 }
 
 .orderTabs {
-  height: 30px;
+  height: 26px;
   display: flex;
-  gap: 18px;
-  margin-bottom: 8px;
+  gap: 20px;
+  align-items: center;
 }
 
 .orderTabs button {
   background: transparent;
   color: #aab6ca;
+  height: 26px;
   border-bottom: 3px solid transparent;
+  font-size: 13px;
 }
 
 .orderTabs .active {
@@ -655,225 +708,359 @@ select {
   border-bottom-color: #008cff;
 }
 
-.inputsGrid {
+.orderInputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 14px;
+  gap: 7px 12px;
 }
 
-.mtInput span {
+.orderInput span {
   display: block;
   color: #aab6ca;
-  margin-bottom: 4px;
-  font-size: 13px;
+  margin-bottom: 3px;
+  font-size: 11px;
 }
 
-.mtInput div {
-  height: 36px;
-  display: grid;
-  grid-template-columns: 1fr 44px 44px;
-  border-radius: 8px;
-  overflow: hidden;
+.orderInput div,
+.orderInput select {
+  width: 100%;
+  height: 32px;
+  border-radius: 7px;
   background: #030a13;
+  color: white;
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.mtInput strong {
+.orderInput div {
   display: grid;
-  align-items: center;
-  padding-left: 12px;
+  grid-template-columns: 1fr 36px 36px;
+  overflow: hidden;
 }
 
-.mtInput button {
+.orderInput input {
+  min-width: 0;
   background: transparent;
   color: white;
-  border-left: 1px solid rgba(255, 255, 255, 0.09);
-  font-size: 20px;
+  border: none;
+  padding: 0 12px;
+  font-weight: 800;
 }
 
-.buySell {
-  display: grid;
-  gap: 8px;
-}
-
-.buySell button {
-  border-radius: 10px;
-  color: white;
+.orderInput button {
   background: transparent;
+  color: white;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 17px;
+}
+
+.orderInput select {
+  padding: 0 12px;
+  font-weight: 800;
+}
+
+.buySellBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-content: center;
+}
+
+.buySellBox button {
+  height: 74px;
+  border-radius: 11px;
+  color: white;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 5px;
+  gap: 6px;
+}
+
+.buySellBox b {
   font-size: 18px;
-  font-weight: 1000;
 }
 
-.buy {
+.buySellBox strong {
+  font-size: 22px;
+}
+
+.buyLarge {
+  background: rgba(0, 201, 137, 0.2);
   border: 1px solid #00c987;
-  background: rgba(0, 201, 137, 0.17) !important;
 }
 
-.sell {
-  border: 1px solid #ff224c;
-  background: rgba(255, 34, 76, 0.17) !important;
-}
-
-.buy strong {
+.buyLarge b {
   color: #00e884;
 }
 
-.sell strong {
-  color: #ff4057;
-}
-
-.spread {
-  padding: 16px 22px;
-  border-radius: 11px;
-  background: rgba(2, 10, 22, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.spread p {
-  display: flex;
-  justify-content: space-between;
-  padding: 7px 0;
-}
-
-.spread span {
-  color: #aab6ca;
-}
-
-.positions {
-  overflow: hidden;
-}
-
-.posTabs {
-  height: 38px;
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  padding: 0 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.posTabs button {
-  background: transparent;
-  color: #aab6ca;
-}
-
-.posTabs .active {
-  color: white;
-  border-bottom: 3px solid #008cff;
-  height: 38px;
-}
-
-.posTabs b {
-  background: #065dff;
-  padding: 2px 7px;
-  border-radius: 999px;
-}
-
-.posHead,
-.posRow {
-  min-height: 30px;
-  display: grid;
-  grid-template-columns: 1.2fr 0.7fr 0.7fr 1fr 1fr 90px;
-  align-items: center;
-  padding: 0 16px;
-  gap: 8px;
-}
-
-.posHead {
-  color: #aab6ca;
-  font-size: 13px;
-}
-
-.posRow {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.posRow em {
-  font-style: normal;
-}
-
-.posRow button {
-  height: 26px;
-  border-radius: 7px;
-  background: rgba(255, 0, 59, 0.08);
-  color: #ff4057;
+.sellLarge {
+  background: rgba(255, 64, 87, 0.16);
   border: 1px solid #ff4057;
 }
 
-/* TRADE */
-
-.tradePage {
-  grid-template-rows: 44px minmax(250px, 1fr) 108px;
+.sellLarge b {
+  color: #ff4057;
 }
 
-.tradeTypes {
-  display: flex;
-  align-items: center;
+.spreadStats {
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
+  padding-left: 18px;
+  display: grid;
+  align-content: center;
   gap: 9px;
-  padding: 6px 12px;
-  overflow: hidden;
 }
 
-.tradeTypes span {
+.spreadStats p {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  font-size: 13px;
+}
+
+.spreadStats span {
   color: #aab6ca;
 }
 
-.tradeTypes button {
-  height: 32px;
-  min-width: 120px;
-  border-radius: 8px;
+/* TRADE MANAGER */
+
+.tradeManager {
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 34px 1fr;
+}
+
+.managerTabs {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.managerTabs button {
+  background: transparent;
+  color: #aab6ca;
+  height: 34px;
+  border-bottom: 3px solid transparent;
+  font-size: 13px;
+}
+
+.managerTabs button.active {
+  color: white;
+  border-bottom-color: #008cff;
+}
+
+.managerTabs b {
+  background: #065dff;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 4px;
+}
+
+.showChartToggle {
+  margin-left: auto;
+  color: #c4d0e4;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.showChartToggle input {
+  accent-color: #008cff;
+}
+
+.closeAll {
+  color: #ff4057 !important;
+  border: 1px solid #ff4057 !important;
+  border-radius: 7px;
+  padding: 0 14px;
+  height: 26px !important;
+}
+
+.tradeTable {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.tradeHead,
+.tradeRow {
+  display: grid;
+  grid-template-columns: 1.2fr 0.55fr 0.6fr 0.9fr 0.9fr 0.9fr 0.9fr 0.8fr 0.7fr 1.25fr;
+  gap: 10px;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.tradeHead {
+  height: 28px;
+  color: #aab6ca;
+  font-size: 12px;
+}
+
+.tradeRow {
+  min-height: 44px;
+  font-size: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.tradeRow strong small {
+  display: block;
+  color: #aab6ca;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.buyTag,
+.sellTag {
+  width: 42px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+}
+
+.buyTag {
+  color: #00e884;
+  background: rgba(0, 232, 132, 0.12);
+}
+
+.sellTag {
+  color: #ff4057;
+  background: rgba(255, 64, 87, 0.12);
+}
+
+.editPrice {
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(2, 9, 18, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  grid-template-columns: 1fr 22px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.editPrice input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  color: white;
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-weight: 800;
+}
+
+.editPrice i {
+  color: #008cff;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.rowActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 22px;
+  align-items: center;
+  gap: 7px;
+}
+
+.rowActions button {
+  height: 28px;
+  border-radius: 7px;
+  background: transparent;
+  font-weight: 800;
+}
+
+.rowActions button:first-child {
+  border: 1px solid #008cff;
+  color: #008cff;
+}
+
+.rowActions button:nth-child(2) {
+  border: 1px solid #ff4057;
+  color: #ff4057;
+}
+
+.emptyTradeRow {
+  height: 54px;
+  display: grid;
+  place-items: center;
+  color: #aab6ca;
+}
+
+/* BINARY */
+
+.tradePage {
+  grid-template-rows: 38px minmax(220px, 1fr) 98px;
+}
+
+.tradeTypeRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  overflow: hidden;
+}
+
+.tradeTypeRow span {
+  color: #aab6ca;
+  font-size: 14px;
+}
+
+.tradeTypeRow button {
+  height: 28px;
+  min-width: 118px;
+  border-radius: 9px;
   background: rgba(255, 255, 255, 0.04);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.11);
+  font-size: 12px;
 }
 
-.tradeTypes .active {
+.tradeTypeRow .active {
   color: #008cff;
   border-color: #008cff;
 }
 
-.binaryPanel {
-  padding: 12px;
+.binaryBox {
+  padding: 10px;
   overflow: hidden;
 }
 
-.binaryHeader {
+.binaryTop {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
 }
 
-.binaryHeader strong,
-.binaryHeader small {
+.binaryTop strong,
+.binaryTop small {
   display: block;
 }
 
-.binaryHeader small {
+.binaryTop small {
   color: #aab6ca;
 }
 
-.binaryHeader button {
-  width: 70px;
-  height: 34px;
+.binaryTop button {
+  width: 64px;
+  height: 30px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   color: white;
 }
 
 .lineChart {
-  height: 44%;
-  min-height: 140px;
+  height: 42%;
+  min-height: 120px;
   border-radius: 12px;
   overflow: hidden;
   background:
     linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
     #06111d;
-  background-size: 90px 50px;
+  background-size: 90px 45px;
 }
 
 .lineChart svg {
@@ -881,31 +1068,32 @@ select {
   height: 100%;
 }
 
-.lineChart .area {
+.areaPath {
   fill: rgba(0, 232, 132, 0.22);
 }
 
-.lineChart .line {
+.linePath {
   fill: none;
   stroke: #00e884;
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
 
-.binaryPanel h3 {
+.binaryBox h3 {
   text-align: center;
   margin: 7px 0;
+  font-size: 15px;
 }
 
-.digits {
+.digitGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
-.digits button {
-  width: 66px;
-  height: 66px;
+.digitGrid button {
+  width: 56px;
+  height: 56px;
   justify-self: center;
   border-radius: 50%;
   background: transparent;
@@ -916,214 +1104,554 @@ select {
   align-content: center;
 }
 
-.digits strong {
-  font-size: 23px;
+.digitGrid strong {
+  font-size: 18px;
 }
 
-.digits span {
-  font-size: 11px;
+.digitGrid span {
+  font-size: 9px;
   color: #aab6ca;
 }
 
-.digits .hot {
+.digitGrid .hot {
   border-color: #00e884;
 }
 
-.digits .picked {
+.digitGrid .picked {
   border-bottom-color: #ff4057;
 }
 
-.binaryOrder {
+.binaryOrderPanel {
   display: grid;
-  grid-template-columns: 170px 210px 1fr;
+  grid-template-columns: 150px 180px 1fr;
   gap: 10px;
   padding: 10px;
 }
 
-.binaryOrder label {
+.binaryOrderPanel label {
   color: #aab6ca;
+  font-size: 13px;
 }
 
-.binaryOrder select,
+.binaryOrderPanel select,
 .stakeBox {
   width: 100%;
-  height: 43px;
-  margin-top: 6px;
-  border-radius: 8px;
+  height: 38px;
+  margin-top: 5px;
+  border-radius: 9px;
   background: #030a13;
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.13);
 }
 
-.binaryOrder select {
+.binaryOrderPanel select {
   padding: 0 12px;
 }
 
 .stakeBox {
   display: grid;
-  grid-template-columns: 46px 1fr 46px;
+  grid-template-columns: 38px 1fr 38px;
   overflow: hidden;
 }
 
 .stakeBox button {
   background: transparent;
   color: white;
-  font-size: 21px;
+  font-size: 18px;
 }
 
 .stakeBox strong {
   display: grid;
   place-items: center;
-  color: white;
 }
 
-.binaryButtons {
+.tradeButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.greenButton,
-.redButton {
+.greenTrade,
+.redTrade {
   color: white;
   border-radius: 11px;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 5px;
+  gap: 4px;
   font-weight: 900;
 }
 
-.greenButton {
+.greenTrade {
   background: #008f6a;
 }
 
-.redButton {
+.redTrade {
   background: #b6081c;
 }
 
-/* BOTS */
-
-.botsPage {
-  grid-template-rows: 58px 76px 1fr;
+.greenTrade span,
+.redTrade span {
+  font-size: 12px;
 }
 
-.botsTop {
-  padding: 10px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* PROFESSIONAL BOTS PAGE */
 
-.botsTop p {
-  color: #aab6ca;
-}
-
-.botsTop button {
-  height: 38px;
-  border-radius: 9px;
-  background: #065dff;
-  color: white;
-  padding: 0 16px;
-  font-weight: 900;
-}
-
-.botList {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.proBotsPage {
+  grid-template-columns: 78px 1fr;
+  grid-template-rows: 1fr;
+  gap: 0;
+  padding: 0;
   overflow: hidden;
 }
 
-.botCard {
-  padding: 12px;
-}
-
-.botMain {
+.botsSideRail {
+  min-height: 0;
+  background: rgba(4, 13, 26, 0.98);
+  border-right: 1px solid rgba(70, 145, 255, 0.18);
   display: grid;
-  grid-template-columns: 50px 1fr auto;
-  gap: 10px;
-  align-items: center;
+  grid-template-rows: repeat(6, 78px);
+  align-content: start;
+  padding-top: 12px;
 }
 
-.botMain > div {
-  width: 46px;
-  height: 46px;
-  border-radius: 10px;
+.botsSideRail button {
+  background: transparent;
+  color: #aab6ca;
   display: grid;
   place-items: center;
-  background: rgba(0, 119, 255, 0.15);
-  color: #00d9ff;
+  align-content: center;
+  gap: 6px;
+  border-left: 3px solid transparent;
+  font-size: 23px;
+}
+
+.botsSideRail button span {
+  font-size: 12px;
+}
+
+.botsSideRail button.active {
+  color: #008cff;
+  background: linear-gradient(90deg, rgba(0, 119, 255, 0.18), transparent);
+  border-left-color: #008cff;
+}
+
+.botsMain {
+  min-height: 0;
+  overflow: hidden;
+  padding: 18px 26px 70px;
+  display: grid;
+  grid-template-rows: 64px 88px 44px 1fr;
+  gap: 16px;
+}
+
+.botsTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.botsTitleLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.botsTitleIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(0, 234, 255, 0.35), transparent 45%),
+    rgba(0, 119, 255, 0.15);
+  border: 1px solid rgba(0, 140, 255, 0.25);
+  font-size: 28px;
+  box-shadow: 0 0 28px rgba(0, 119, 255, 0.2);
+}
+
+.botsTitleRow h1 {
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.botsTitleRow p {
+  color: #b8c4d8;
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+.newBotBtn {
+  height: 48px;
+  min-width: 130px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #087cff, #0048ff);
+  color: white;
+  font-size: 16px;
+  font-weight: 1000;
+  box-shadow: 0 12px 28px rgba(0, 89, 255, 0.28);
+}
+
+.proBotStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.proBotStat {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 54px 1fr 160px;
+  align-items: center;
+  gap: 14px;
+  background:
+    linear-gradient(135deg, rgba(9, 33, 62, 0.96), rgba(3, 12, 24, 0.94)),
+    rgba(5, 17, 29, 0.94);
+  border: 1px solid rgba(70, 145, 255, 0.2);
+}
+
+.proBotStat .statIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
   font-weight: 1000;
 }
 
-.botMain strong,
-.botMain span,
-.botMain small {
+.proBotStat.blue .statIcon {
+  color: #008cff;
+  background: rgba(0, 119, 255, 0.16);
+}
+
+.proBotStat.green .statIcon {
+  color: #00e884;
+  background: rgba(0, 232, 132, 0.16);
+}
+
+.proBotStat.yellow .statIcon {
+  color: #ffaa00;
+  background: rgba(255, 170, 0, 0.16);
+}
+
+.proBotStat.purple .statIcon {
+  color: #b54cff;
+  background: rgba(181, 76, 255, 0.16);
+}
+
+.proBotStat strong {
   display: block;
+  font-size: 27px;
+  line-height: 1;
 }
 
-.botMain span,
-.botMain small {
-  color: #aab6ca;
-  margin-top: 3px;
-  font-size: 12px;
+.proBotStat span {
+  display: block;
+  color: #b8c4d8;
+  margin-top: 6px;
+  font-size: 14px;
 }
 
-.botMain em {
-  font-style: normal;
-  padding: 5px 8px;
+.miniSpark {
+  width: 150px;
+  height: 48px;
+}
+
+.miniSpark polyline {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.miniSpark.blue polyline {
+  stroke: #087cff;
+}
+
+.miniSpark.green polyline {
+  stroke: #00e884;
+}
+
+.miniSpark.yellow polyline {
+  stroke: #ffaa00;
+}
+
+.miniSpark.purple polyline {
+  stroke: #b54cff;
+}
+
+.botFilterBar {
+  display: grid;
+  grid-template-columns: 260px repeat(4, 118px) 150px 170px 150px;
+  gap: 12px;
+  min-height: 0;
+}
+
+.botSearch {
+  height: 42px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  padding: 0 12px;
+  background: rgba(5, 17, 29, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  color: #8ea0bb;
+}
+
+.botSearch input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 14px;
+}
+
+.botFilterBar button,
+.botFilterBar select {
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(5, 17, 29, 0.9);
+  color: #c4d0e4;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  font-size: 14px;
+  padding: 0 12px;
+}
+
+.botFilterBar button.active {
+  color: white;
+  background: linear-gradient(135deg, #087cff, #0048ff);
+  border-color: #087cff;
+}
+
+.proBotGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.proBotCard {
+  min-height: 0;
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at top left, rgba(0, 119, 255, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(7, 25, 45, 0.97), rgba(3, 12, 24, 0.96));
+  border: 1px solid rgba(0, 140, 255, 0.28);
+  box-shadow:
+    inset 0 0 42px rgba(0, 119, 255, 0.055),
+    0 18px 50px rgba(0, 0, 0, 0.2);
+  padding: 18px;
+  display: grid;
+  grid-template-rows: 74px 1fr 54px;
+  overflow: hidden;
+}
+
+.proBotCardTop {
+  display: grid;
+  grid-template-columns: 64px 1fr 26px;
+  gap: 16px;
+  align-items: start;
+}
+
+.botAvatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 1000;
+  font-size: 24px;
+  box-shadow: 0 0 32px rgba(0, 119, 255, 0.25);
+}
+
+.botColor1 {
+  background: linear-gradient(135deg, #087cff, #0048ff);
+}
+
+.botColor2 {
+  background: linear-gradient(135deg, #00d9ff, #065dff);
+}
+
+.botColor3 {
+  background: linear-gradient(135deg, #b54cff, #5a12ff);
+}
+
+.botColor4 {
+  background: linear-gradient(135deg, #ff9b00, #c56800);
+}
+
+.botNameBlock h2 {
+  display: inline-block;
+  font-size: 21px;
+  margin-right: 10px;
+}
+
+.botStatus {
+  display: inline-block;
+  padding: 5px 10px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 900;
 }
 
-.greenBg {
+.botStatus.running {
   color: #00e884;
   background: rgba(0, 232, 132, 0.14);
+  border: 1px solid rgba(0, 232, 132, 0.25);
 }
 
-.orangeBg {
+.botStatus.stopped {
   color: #ffaa00;
-  background: rgba(255, 166, 0, 0.14);
+  background: rgba(255, 170, 0, 0.14);
+  border: 1px solid rgba(255, 170, 0, 0.25);
 }
 
-.blueBg {
-  color: #008cff;
-  background: rgba(0, 140, 255, 0.14);
+.botNameBlock p {
+  color: #c4d0e4;
+  margin-top: 8px;
+  font-size: 14px;
 }
 
-.botData {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: end;
-  gap: 8px;
-  margin-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 10px;
-}
-
-.botData span,
-.botData b {
+.botNameBlock small {
   display: block;
+  color: #aab6ca;
+  margin-top: 5px;
+  font-size: 13px;
 }
 
-.botData span {
+.botDots {
+  background: transparent;
+  color: #8ea0bb;
+  font-size: 24px;
+}
+
+.botPerformanceRow {
+  display: grid;
+  grid-template-columns: 150px 1fr 150px;
+  gap: 18px;
+  align-items: center;
+  min-height: 0;
+}
+
+.botPerformanceRow span {
+  display: block;
+  color: #aab6ca;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.botPerformanceRow strong {
+  display: block;
+  font-size: 24px;
+}
+
+.sparkArea {
+  height: 95px;
+  display: grid;
+  align-items: end;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.botLine {
+  width: 100%;
+  height: 80px;
+}
+
+.botLine polyline {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.botLine.positive polyline {
+  stroke: #00e884;
+  filter: drop-shadow(0 0 8px rgba(0, 232, 132, 0.35));
+}
+
+.botLine.negative polyline {
+  stroke: #ff4057;
+  filter: drop-shadow(0 0 8px rgba(255, 64, 87, 0.35));
+}
+
+.botCardActions {
+  display: grid;
+  gap: 8px;
+}
+
+.botCardActions button {
+  height: 36px;
+  border-radius: 9px;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.detailsBtn {
+  color: #008cff;
+  background: rgba(0, 119, 255, 0.11);
+  border: 1px solid #008cff;
+}
+
+.startBotBtn {
+  color: #00e884;
+  background: rgba(0, 232, 132, 0.1);
+  border: 1px solid #00e884;
+}
+
+.stopBotBtn {
+  color: #ff4057;
+  background: rgba(255, 64, 87, 0.1);
+  border: 1px solid #ff4057;
+}
+
+.settingsBotBtn {
+  color: #c4d0e4;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.17);
+}
+
+.botMiniStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.botMiniStats p {
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.botMiniStats p:last-child {
+  border-right: none;
+}
+
+.botMiniStats span {
+  display: block;
   color: #aab6ca;
   font-size: 12px;
 }
 
-.botData button {
-  height: 34px;
-  border-radius: 8px;
-  background: transparent;
-  color: #008cff;
-  border: 1px solid #008cff;
+.botMiniStats b {
+  display: block;
+  font-size: 17px;
+  margin-top: 4px;
 }
 
 /* BOT LIVE */
 
-.botLive {
-  grid-template-rows: 44px 62px 44px 1fr 80px;
+.botLivePage {
+  grid-template-rows: 40px 58px 38px 1fr 68px;
   background: #f7f8fb;
   color: #20242b;
 }
@@ -1137,21 +1665,21 @@ select {
 }
 
 .botLiveTop button {
-  height: 32px;
+  height: 30px;
   border-radius: 999px;
   padding: 0 14px;
   font-weight: 900;
 }
 
-.runner {
+.runnerBox {
   display: grid;
   grid-template-columns: 140px 1fr;
   padding: 8px 14px;
   background: white;
 }
 
-.startRun,
-.stopRun {
+.startRunner,
+.stopRunner {
   color: white;
   font-size: 17px;
   font-weight: 900;
@@ -1159,20 +1687,20 @@ select {
   border-radius: 12px 0 0 12px;
 }
 
-.runner > div {
+.runnerBox > div {
   border: 1px solid #d7deed;
   display: grid;
   place-items: center;
 }
 
-.runner span {
+.runnerBox span {
   width: 80%;
   height: 6px;
   border-radius: 999px;
   background: #d7deed;
 }
 
-.runner i {
+.runnerBox i {
   display: block;
   width: 70%;
   height: 100%;
@@ -1188,6 +1716,7 @@ select {
 .runnerTabs button {
   background: white;
   font-weight: 900;
+  text-transform: capitalize;
   border-bottom: 3px solid transparent;
 }
 
@@ -1200,7 +1729,7 @@ select {
   overflow: hidden;
 }
 
-.result {
+.runnerResult {
   height: 100%;
   display: grid;
   place-items: center;
@@ -1210,24 +1739,24 @@ select {
   border-radius: 10px;
 }
 
-.result.won {
+.runnerResult.won {
   background: rgba(0, 200, 150, 0.13);
   color: #35b7b4;
 }
 
-.result.lost {
+.runnerResult.lost {
   background: rgba(255, 64, 87, 0.13);
   color: #ff4057;
 }
 
-.runnerTable {
+.runnerList {
   height: 100%;
   overflow: hidden;
   background: white;
 }
 
-.runnerTable p {
-  min-height: 44px;
+.runnerList p {
+  min-height: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1235,7 +1764,7 @@ select {
   border-bottom: 1px solid #edf1f8;
 }
 
-.botLiveStats {
+.runnerStats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: #edf1f8;
@@ -1243,27 +1772,27 @@ select {
   padding: 8px;
 }
 
-/* PROFILE SETTINGS LIST */
+/* PROFILE / SETTINGS / LIST */
 
 .profilePage {
-  grid-template-rows: 100px 80px 1fr 52px;
+  grid-template-rows: 90px 64px 1fr 48px;
 }
 
 .profileTop {
   display: grid;
-  grid-template-columns: 82px 1fr;
-  gap: 15px;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
   align-items: center;
-  padding: 12px;
+  padding: 10px;
 }
 
 .bigAvatar {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 26px;
+  font-size: 23px;
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
@@ -1271,7 +1800,8 @@ select {
 .profileTop small {
   display: block;
   color: #aab6ca;
-  margin-top: 4px;
+  margin-top: 3px;
+  font-size: 13px;
 }
 
 .profileTop b {
@@ -1280,14 +1810,15 @@ select {
   background: rgba(0, 232, 132, 0.12);
   padding: 4px 8px;
   border-radius: 8px;
-  margin-top: 5px;
+  margin-top: 4px;
+  font-size: 11px;
 }
 
 .profileGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 8px;
+  gap: 6px;
+  padding: 6px;
 }
 
 .profileGrid button {
@@ -1298,75 +1829,80 @@ select {
   place-items: center;
   align-content: center;
   gap: 5px;
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .profileGrid b,
 .profileGrid span {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .profileGrid span {
   color: #aab6ca;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .logoutWide {
-  border-radius: 13px;
+  border-radius: 12px;
   background: rgba(255, 0, 59, 0.08);
   border: 1px solid #ff003b;
   color: #ff4057;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .settingsPage {
-  grid-template-rows: 90px 1fr;
+  grid-template-rows: 78px 1fr;
 }
 
 .settingsHero {
-  padding: 18px;
+  padding: 16px;
+}
+
+.settingsHero h1 {
+  font-size: 28px;
 }
 
 .settingsHero p {
   color: #aab6ca;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
-.settingsCard {
-  padding: 22px;
+.settingsPanel {
+  padding: 18px;
 }
 
-.settingsCard h2 {
-  margin-bottom: 16px;
+.settingsPanel h2 {
+  margin-bottom: 12px;
+  font-size: 22px;
 }
 
-.settingsCard label {
-  min-height: 60px;
+.settingsPanel label {
+  min-height: 54px;
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 260px;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.settingsCard select {
-  height: 42px;
-  border-radius: 8px;
+.settingsPanel select {
+  height: 38px;
+  border-radius: 9px;
   background: #030a13;
   color: white;
   padding: 0 12px;
   border: 1px solid rgba(255, 255, 255, 0.13);
 }
 
-.toggles {
+.toggleGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
-.toggles p {
+.toggleGrid p {
   display: flex;
   justify-content: space-between;
   padding: 12px;
@@ -1374,7 +1910,7 @@ select {
   background: rgba(255, 255, 255, 0.035);
 }
 
-.toggles b {
+.toggleGrid b {
   width: 40px;
   height: 22px;
   border-radius: 999px;
@@ -1382,7 +1918,7 @@ select {
   position: relative;
 }
 
-.toggles b::after {
+.toggleGrid b::after {
   content: "";
   position: absolute;
   width: 16px;
@@ -1397,13 +1933,18 @@ select {
   grid-template-rows: 50px 1fr;
 }
 
+.listPage h1 {
+  font-size: 26px;
+  padding: 8px 4px;
+}
+
 .listPanel {
   padding: 12px;
   overflow: hidden;
 }
 
 .listPanel div {
-  min-height: 52px;
+  min-height: 44px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1419,7 +1960,7 @@ select {
 
 .bottomNav {
   min-height: 0;
-  margin: 0 10px 8px;
+  margin: 0 8px 7px;
   border-radius: 14px;
   background: rgba(5, 17, 29, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.11);
@@ -1434,15 +1975,15 @@ select {
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .bottomNav span {
-  font-size: 25px;
+  font-size: 22px;
 }
 
 .bottomNav small {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .bottomNav .active {
@@ -1450,12 +1991,12 @@ select {
 }
 
 .bottomNav button:nth-child(3) {
-  transform: translateY(-18px);
+  transform: translateY(-16px);
 }
 
 .bottomNav button:nth-child(3) span {
-  width: 58px;
-  height: 58px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: #065dff;
   color: white;
@@ -1473,14 +2014,14 @@ select {
   background: rgba(0, 0, 0, 0.5);
 }
 
-.shade {
+.menuShade {
   position: fixed;
   inset: 0;
   background: transparent;
 }
 
-.drawer {
-  width: 430px;
+.sideDrawer {
+  width: 450px;
   max-width: 88vw;
   height: 100dvh;
   z-index: 2;
@@ -1488,9 +2029,9 @@ select {
     radial-gradient(circle at top left, rgba(0, 119, 255, 0.2), transparent 35%),
     #04101d;
   border-right: 1px solid rgba(255, 255, 255, 0.13);
-  padding: 18px;
+  padding: 16px;
   display: grid;
-  grid-template-rows: 54px 135px 1fr 54px;
+  grid-template-rows: 54px 134px 1fr 54px;
   gap: 10px;
 }
 
@@ -1515,14 +2056,14 @@ select {
 
 .drawerUser {
   display: grid;
-  grid-template-columns: 52px 1fr;
+  grid-template-columns: 54px 1fr;
   gap: 10px;
   align-items: center;
 }
 
 .drawerUser > div {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: 13px;
   display: grid;
   place-items: center;
@@ -1536,6 +2077,7 @@ select {
 .drawerUser span {
   display: block;
   color: #aab6ca;
+  font-size: 12px;
 }
 
 .drawerUser small {
@@ -1592,7 +2134,7 @@ select {
   margin-bottom: 6px;
 }
 
-.drawerBtn {
+.drawerButton {
   width: 100%;
   height: 35px;
   background: transparent;
@@ -1606,19 +2148,19 @@ select {
   padding: 0 5px;
 }
 
-.drawerBtn:hover {
+.drawerButton:hover {
   background: rgba(0, 119, 255, 0.12);
 }
 
-.drawerBtn span {
+.drawerButton span {
   color: #008cff;
 }
 
-.drawerBtn strong {
+.drawerButton strong {
   font-size: 12px;
 }
 
-.drawerBtn b {
+.drawerButton b {
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -1628,7 +2170,7 @@ select {
   font-size: 10px;
 }
 
-.drawerBtn em {
+.drawerButton em {
   font-style: normal;
   color: #aab6ca;
 }
@@ -1665,17 +2207,17 @@ select {
   position: relative;
 }
 
-.x {
+.closeModal {
   position: absolute;
   right: 16px;
-  top: 12px;
+  top: 10px;
   background: transparent;
   color: #aab6ca;
   font-size: 38px;
 }
 
 .depositModal h2 {
-  font-size: 30px;
+  font-size: 32px;
   margin-bottom: 8px;
 }
 
@@ -1684,11 +2226,11 @@ select {
   margin-bottom: 20px;
 }
 
-.payBtn {
+.paymentButton {
   width: 100%;
   min-height: 88px;
   display: grid;
-  grid-template-columns: 62px 1fr 30px;
+  grid-template-columns: 64px 1fr 32px;
   gap: 16px;
   align-items: center;
   padding: 15px;
@@ -1700,9 +2242,9 @@ select {
   text-align: left;
 }
 
-.payBtn > span {
-  width: 58px;
-  height: 58px;
+.paymentButton > span {
+  width: 60px;
+  height: 60px;
   border-radius: 14px;
   display: grid;
   place-items: center;
@@ -1710,25 +2252,25 @@ select {
   font-size: 26px;
 }
 
-.payBtn strong,
-.payBtn small {
+.paymentButton strong,
+.paymentButton small {
   display: block;
 }
 
-.payBtn small {
+.paymentButton small {
   color: #aab6ca;
   margin-top: 5px;
 }
 
-.payBtn b {
-  font-size: 32px;
+.paymentButton b {
+  font-size: 34px;
   color: #aab6ca;
 }
 
-.back {
-  height: 32px;
+.modalBack {
+  height: 34px;
   border-radius: 999px;
-  padding: 0 12px;
+  padding: 0 14px;
   background: #2b3548;
   color: white;
   margin-bottom: 12px;
@@ -1798,633 +2340,832 @@ select {
 
 @media (max-width: 760px) {
   .app {
-    grid-template-rows: 118px 1fr 64px;
+    grid-template-rows: 108px 1fr 58px;
   }
 
-  .header {
-    grid-template-columns: 34px 1fr 34px 38px;
-    grid-template-rows: 44px 54px;
-    gap: 6px;
-    padding: 8px 10px;
+  .topHeader {
+    grid-template-columns: 32px 1fr 32px 38px;
+    grid-template-rows: 42px 48px;
+    gap: 5px;
+    padding: 7px 9px;
   }
 
-  .hamb {
+  .menuBtn {
     grid-column: 1;
-    font-size: 24px;
+    font-size: 23px;
   }
 
-  .header .logo {
+  .topHeader .logo {
     grid-column: 2;
   }
 
-  .header .logo div {
-    width: 34px;
-    height: 34px;
-    font-size: 17px;
-  }
-
-  .header .logo strong {
-    font-size: 24px;
-  }
-
-  .bell {
-    grid-column: 3;
-  }
-
-  .avatar {
-    grid-column: 4;
-  }
-
-  .bell,
-  .avatar {
-    width: 34px;
-    height: 34px;
-    font-size: 14px;
-  }
-
-  .wallet {
-    grid-column: 1 / 3;
-    grid-row: 2;
-    height: 46px;
-  }
-
-  .wallet small {
-    font-size: 8px;
-  }
-
-  .wallet strong {
-    font-size: 13px;
-  }
-
-  .switch {
-    grid-column: 3;
-    grid-row: 2;
-    height: 46px;
-    width: 74px;
-  }
-
-  .switch button {
-    font-size: 9px;
-  }
-
-  .depositBtn {
-    grid-column: 4;
-    grid-row: 2;
-    width: 86px;
-    height: 46px;
-    font-size: 12px;
-    transform: translateX(-50px);
-  }
-
-  .mainScreen {
-    padding: 5px;
-  }
-
-  .page {
-    gap: 5px;
-  }
-
-  .hub {
-    height: 42px;
-    border-radius: 10px;
-  }
-
-  .hub button span {
-    font-size: 12px;
-  }
-
-  .hub button small {
-    font-size: 6px;
-  }
-
-  .homePage {
-    grid-template-rows: 42px 1fr 50px 42px;
-  }
-
-  .hero {
-    grid-template-columns: 1fr 105px;
-    padding: 10px;
-    border-radius: 10px;
-  }
-
-  .hero h1 {
-    font-size: 21px;
-  }
-
-  .hero p {
-    font-size: 10px;
-    margin: 6px 0 10px;
-  }
-
-  .hero button {
-    width: 102px;
-    height: 33px;
-    font-size: 10px;
-  }
-
-  .heroCard {
-    height: 120px;
-    padding: 10px;
-  }
-
-  .heroCard strong {
+  .topHeader .logo div {
+    width: 32px;
+    height: 32px;
     font-size: 16px;
   }
 
-  .heroCard button {
-    width: 62px;
-    height: 24px;
+  .topHeader .logo strong {
+    font-size: 22px;
+  }
+
+  .bellBtn {
+    grid-column: 3;
+  }
+
+  .avatarBtn {
+    grid-column: 4;
+  }
+
+  .bellBtn,
+  .avatarBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .walletBox {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    height: 42px;
+  }
+
+  .walletBox small {
     font-size: 8px;
   }
 
-  .stats,
-  .botStats,
-  .profileStats {
-    padding: 5px;
-    gap: 5px;
+  .walletBox strong {
+    font-size: 13px;
   }
 
-  .stat strong {
+  .accountSwitch {
+    grid-column: 3;
+    grid-row: 2;
+    height: 42px;
+    width: 70px;
+  }
+
+  .accountSwitch button {
+    font-size: 8px;
+  }
+
+  .depositTop {
+    grid-column: 4;
+    grid-row: 2;
+    width: 82px;
+    height: 42px;
     font-size: 10px;
+    transform: translateX(-46px);
   }
 
-  .stat span {
-    font-size: 6px;
+  .mainScreen {
+    padding: 4px;
   }
 
-  .marketStrip p {
-    padding: 8px;
+  .page {
+    gap: 4px;
   }
 
-  .marketStrip b,
-  .marketStrip span {
-    font-size: 8px;
+  .hubNav {
+    height: 34px;
+    border-radius: 9px;
+  }
+
+  .hubNav button span {
+    font-size: 11px;
+  }
+
+  .hubNav button small {
+    font-size: 5.5px;
   }
 
   .forexPage {
-    grid-template-rows: 42px 48px 34px minmax(190px, 1fr) 96px 70px;
+    grid-template-rows: 34px 42px 30px minmax(168px, 1fr) 82px 74px;
   }
 
-  .symbolBar {
-    grid-template-columns: 26px 88px 1fr 75px;
-    padding: 6px;
-    gap: 5px;
-    border-radius: 10px;
+  .forexSymbolBar {
+    grid-template-columns: 28px 82px 1fr 62px;
+    gap: 4px;
+    padding: 5px;
+    border-radius: 9px;
   }
 
-  .symbolBar > div:nth-of-type(3),
-  .symbolBar > div:nth-of-type(4),
-  .symbolBar button:nth-last-child(-n + 2) {
-    display: none;
+  .forexSymbolBar button {
+    height: 28px;
+    font-size: 13px;
   }
 
-  .symbolBar button {
-    height: 30px;
-    font-size: 15px;
+  .symbolSelect select {
+    height: 28px;
+    font-size: 8px;
+    padding: 0 5px;
   }
 
-  .symbolBar select {
-    height: 32px;
-    font-size: 10px;
-    padding: 0 6px;
-  }
-
-  .symbolBar strong {
-    font-size: 10px;
-  }
-
-  .symbolBar small {
-    font-size: 7px;
-  }
-
-  .toolbar {
-    grid-template-columns: repeat(6, 42px) 24px 32px 70px;
-    border-radius: 10px;
-  }
-
-  .toolbar button {
+  .symbolName strong,
+  .marketMetric strong {
     font-size: 8px;
   }
 
-  .toolbar button:nth-last-child(-n + 3) {
+  .symbolName small,
+  .marketMetric small,
+  .marketMetric span {
+    font-size: 5.5px;
+  }
+
+  .forexSymbolBar .marketMetric:nth-of-type(n + 2),
+  .forexSymbolBar .hideSmall,
+  .forexSymbolBar button:nth-last-child(-n + 2) {
     display: none;
   }
 
-  .toolbar .active {
-    margin: 6px;
+  .forexToolbar {
+    grid-template-columns: repeat(6, 35px) 22px 58px 1fr;
+    border-radius: 9px;
   }
 
-  .chartTop {
-    height: 28px;
-    font-size: 9px;
+  .forexToolbar button {
+    font-size: 6px;
   }
 
-  .chartInner svg {
-    top: 28px;
-    height: calc(100% - 28px);
+  .forexToolbar button:nth-last-child(-n + 5) {
+    display: none;
   }
 
-  .leftTools {
-    top: 36px;
-    left: 5px;
-    width: 28px;
+  .chartTopStrip {
+    height: 22px;
+    padding-left: 38px;
+    gap: 5px;
   }
 
-  .leftTools button {
-    font-size: 10px;
+  .chartTopStrip strong,
+  .chartTopStrip small {
+    font-size: 6px;
   }
 
-  .chartInner svg {
-    left: 38px;
-    width: calc(100% - 38px);
+  .chartShell svg {
+    left: 30px;
+    top: 22px;
+    width: calc(100% - 30px);
+    height: calc(100% - 22px);
   }
 
-  .orderBox {
-    grid-template-columns: 1fr 1fr;
-    padding: 6px;
-    gap: 6px;
-    border-radius: 10px;
+  .chartTools {
+    left: 3px;
+    top: 26px;
+    width: 22px;
   }
 
-  .spread {
+  .chartTools button {
+    font-size: 8px;
+  }
+
+  .priceTag,
+  .volumeTag,
+  .tpLabel,
+  .slLabel,
+  .chartOrderTag {
+    font-size: 6px;
+    padding: 2px 4px;
+  }
+
+  .chartOrderTag {
+    right: 22%;
+  }
+
+  .proOrderPanel {
+    grid-template-columns: 1fr 120px;
+    gap: 4px;
+    padding: 5px;
+    border-radius: 9px;
+  }
+
+  .spreadStats {
     display: none;
   }
 
   .orderTabs {
-    height: 20px;
-    gap: 8px;
-    margin-bottom: 4px;
+    height: 16px;
+    gap: 6px;
   }
 
   .orderTabs button {
-    font-size: 7px;
+    height: 16px;
+    font-size: 5.5px;
   }
 
-  .inputsGrid {
+  .orderInputs {
     gap: 3px;
   }
 
-  .mtInput span {
-    font-size: 6px;
+  .orderInput span {
+    font-size: 5px;
   }
 
-  .mtInput div {
-    height: 20px;
-    grid-template-columns: 1fr 20px 20px;
+  .orderInput div,
+  .orderInput select {
+    height: 18px;
+    border-radius: 5px;
   }
 
-  .mtInput strong {
-    font-size: 7px;
-    padding-left: 5px;
+  .orderInput div {
+    grid-template-columns: 1fr 18px 18px;
   }
 
-  .mtInput button {
+  .orderInput input,
+  .orderInput select {
+    font-size: 5.5px;
+    padding: 0 4px;
+  }
+
+  .orderInput button {
+    font-size: 8px;
+  }
+
+  .buySellBox {
+    gap: 4px;
+  }
+
+  .buySellBox button {
+    height: 34px;
+    border-radius: 7px;
+  }
+
+  .buySellBox b {
+    font-size: 8px;
+  }
+
+  .buySellBox strong {
     font-size: 9px;
   }
 
-  .buySell button {
-    font-size: 10px;
+  .tradeManager {
+    border-radius: 9px;
+    grid-template-rows: 22px 1fr;
   }
 
-  .positions {
-    border-radius: 10px;
-  }
-
-  .posTabs {
-    height: 24px;
-    gap: 6px;
+  .managerTabs {
+    gap: 5px;
     padding: 0 5px;
   }
 
-  .posTabs button {
+  .managerTabs button,
+  .showChartToggle {
+    font-size: 5.5px;
+  }
+
+  .showChartToggle {
+    display: none;
+  }
+
+  .closeAll {
+    height: 16px !important;
+    padding: 0 6px;
+    font-size: 5px !important;
+  }
+
+  .tradeHead,
+  .tradeRow {
+    grid-template-columns: 1fr 28px 28px 44px 44px 44px 44px 40px 34px 52px;
+    gap: 2px;
+    padding: 0 4px;
+  }
+
+  .tradeHead {
+    height: 18px;
+    font-size: 4.8px;
+  }
+
+  .tradeRow {
+    min-height: 24px;
+    font-size: 5px;
+  }
+
+  .tradeRow strong small {
+    display: none;
+  }
+
+  .buyTag,
+  .sellTag {
+    width: 24px;
+    height: 14px;
+    font-size: 5px;
+  }
+
+  .editPrice {
+    height: 16px;
+    grid-template-columns: 1fr 10px;
+  }
+
+  .editPrice input {
+    font-size: 5px;
+  }
+
+  .editPrice i {
+    font-size: 5px;
+  }
+
+  .rowActions {
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .rowActions button {
+    height: 15px;
+    font-size: 4.8px;
+  }
+
+  .rowActions span {
+    display: none;
+  }
+
+  .bottomNav {
+    margin: 0 4px 4px;
+    border-radius: 12px;
+  }
+
+  .bottomNav span {
+    font-size: 16px;
+  }
+
+  .bottomNav small {
     font-size: 7px;
   }
 
-  .posTabs .active {
-    height: 24px;
+  .bottomNav button:nth-child(3) span {
+    width: 42px;
+    height: 42px;
   }
 
-  .posHead,
-  .posRow {
-    min-height: 20px;
-    grid-template-columns: 1fr 34px 30px 45px 45px 35px;
-    padding: 0 5px;
-    gap: 3px;
-    font-size: 6px;
+  .homePage {
+    grid-template-rows: 34px 1fr 42px 32px;
   }
 
-  .posRow button {
-    height: 15px;
+  .homeHero {
+    grid-template-columns: 1fr 120px;
+    padding: 10px;
+  }
+
+  .homeHero h1 {
+    font-size: 22px;
+  }
+
+  .homeHero p {
+    font-size: 8px;
+    margin: 5px 0 8px;
+  }
+
+  .homeHero button {
+    height: 28px;
+    font-size: 8px;
+  }
+
+  .homeCard {
+    padding: 7px;
+  }
+
+  .homeCard h2 {
+    font-size: 15px;
+  }
+
+  .homeCard button {
+    width: 58px;
+    height: 22px;
+    font-size: 7px;
+  }
+
+  .statGrid,
+  .botStatGrid,
+  .profileStats {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .statCard strong {
+    font-size: 8px;
+  }
+
+  .statCard span {
+    font-size: 5.5px;
+  }
+
+  .marketStrip p {
+    padding: 5px;
+  }
+
+  .marketStrip b,
+  .marketStrip span {
     font-size: 6px;
   }
 
   .tradePage {
-    grid-template-rows: 36px minmax(220px, 1fr) 98px;
+    grid-template-rows: 30px minmax(190px, 1fr) 82px;
   }
 
-  .tradeTypes {
+  .tradeTypeRow {
     padding: 4px;
     overflow-x: auto;
   }
 
-  .tradeTypes span,
-  .tradeTypes button {
-    font-size: 8px;
+  .tradeTypeRow span,
+  .tradeTypeRow button {
+    font-size: 7px;
   }
 
-  .tradeTypes button {
-    min-width: 78px;
-    height: 27px;
+  .tradeTypeRow button {
+    min-width: 74px;
+    height: 23px;
   }
 
-  .binaryPanel {
-    padding: 6px;
+  .binaryBox {
+    padding: 5px;
   }
 
   .lineChart {
     height: 38%;
-    min-height: 80px;
+    min-height: 78px;
   }
 
-  .binaryHeader strong {
-    font-size: 11px;
+  .binaryTop strong {
+    font-size: 10px;
   }
 
-  .binaryHeader small {
+  .binaryTop small {
+    font-size: 7px;
+  }
+
+  .binaryTop button {
+    width: 44px;
+    height: 24px;
     font-size: 8px;
   }
 
-  .binaryHeader button {
-    width: 46px;
-    height: 26px;
+  .binaryBox h3 {
     font-size: 9px;
+    margin: 3px 0;
   }
 
-  .binaryPanel h3 {
-    font-size: 10px;
-    margin: 4px 0;
+  .digitGrid {
+    gap: 4px;
   }
 
-  .digits {
-    gap: 5px;
-  }
-
-  .digits button {
-    width: 34px;
-    height: 34px;
+  .digitGrid button {
+    width: 32px;
+    height: 32px;
     border-width: 4px;
   }
 
-  .digits strong {
-    font-size: 11px;
+  .digitGrid strong {
+    font-size: 10px;
   }
 
-  .digits span {
-    font-size: 6px;
+  .digitGrid span {
+    font-size: 5.5px;
   }
 
-  .binaryOrder {
-    grid-template-columns: 70px 92px 1fr;
-    padding: 6px;
-    gap: 5px;
+  .binaryOrderPanel {
+    grid-template-columns: 68px 88px 1fr;
+    padding: 5px;
+    gap: 4px;
   }
 
-  .binaryOrder label {
-    font-size: 8px;
-  }
-
-  .binaryOrder select,
-  .stakeBox {
-    height: 28px;
-    margin-top: 3px;
-    font-size: 8px;
-  }
-
-  .stakeBox {
-    grid-template-columns: 24px 1fr 24px;
-  }
-
-  .binaryButtons {
-    gap: 5px;
-  }
-
-  .greenButton,
-  .redButton {
-    font-size: 9px;
-  }
-
-  .greenButton span,
-  .redButton span {
-    font-size: 6px;
-  }
-
-  .botsPage {
-    grid-template-rows: 44px 44px 1fr;
-  }
-
-  .botsTop {
-    padding: 6px;
-  }
-
-  .botsTop h2 {
-    font-size: 14px;
-  }
-
-  .botsTop p {
+  .binaryOrderPanel label {
     font-size: 7px;
   }
 
-  .botsTop button {
-    height: 28px;
-    font-size: 9px;
+  .binaryOrderPanel select,
+  .stakeBox {
+    height: 26px;
+    margin-top: 2px;
+    font-size: 7px;
   }
 
-  .botList {
+  .stakeBox {
+    grid-template-columns: 22px 1fr 22px;
+  }
+
+  .tradeButtons {
+    gap: 4px;
+  }
+
+  .greenTrade,
+  .redTrade {
+    font-size: 8px;
+  }
+
+  .greenTrade span,
+  .redTrade span {
+    font-size: 5.5px;
+  }
+
+  .proBotsPage {
     grid-template-columns: 1fr;
+  }
+
+  .botsSideRail {
+    display: none;
+  }
+
+  .botsMain {
+    padding: 8px 8px 64px;
+    grid-template-rows: 46px 58px 34px 1fr;
+    gap: 7px;
+  }
+
+  .botsTitleIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    font-size: 18px;
+  }
+
+  .botsTitleLeft {
+    gap: 9px;
+  }
+
+  .botsTitleRow h1 {
+    font-size: 19px;
+  }
+
+  .botsTitleRow p {
+    font-size: 9px;
+    margin-top: 3px;
+  }
+
+  .newBotBtn {
+    height: 34px;
+    min-width: 86px;
+    border-radius: 9px;
+    font-size: 10px;
+  }
+
+  .proBotStats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .proBotStat {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 7px 4px;
+    text-align: center;
+    place-items: center;
+  }
+
+  .proBotStat .statIcon {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .proBotStat strong {
+    font-size: 13px;
+  }
+
+  .proBotStat span {
+    font-size: 6px;
+    margin-top: 2px;
+  }
+
+  .miniSpark {
+    display: none;
+  }
+
+  .botFilterBar {
+    grid-template-columns: 1fr repeat(2, 58px);
     gap: 5px;
   }
 
-  .botCard {
-    padding: 6px;
+  .botSearch {
+    height: 30px;
+    grid-template-columns: 20px 1fr;
+    padding: 0 7px;
   }
 
-  .botMain {
-    grid-template-columns: 34px 1fr auto;
+  .botSearch input {
+    font-size: 9px;
+  }
+
+  .botFilterBar button,
+  .botFilterBar select {
+    height: 30px;
+    font-size: 7px;
+    padding: 0 5px;
+  }
+
+  .botFilterBar button:nth-of-type(n + 3),
+  .botFilterBar select:nth-of-type(n + 2) {
+    display: none;
+  }
+
+  .proBotGrid {
+    grid-template-columns: 1fr;
     gap: 6px;
   }
 
-  .botMain > div {
-    width: 30px;
-    height: 30px;
-    font-size: 10px;
+  .proBotCard {
+    border-radius: 12px;
+    padding: 8px;
+    grid-template-rows: 46px 62px 34px;
   }
 
-  .botMain strong {
-    font-size: 10px;
+  .proBotCardTop {
+    grid-template-columns: 38px 1fr 18px;
+    gap: 8px;
   }
 
-  .botMain span,
-  .botMain small {
+  .botAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .botNameBlock h2 {
+    font-size: 12px;
+    margin-right: 5px;
+  }
+
+  .botStatus {
+    padding: 3px 6px;
     font-size: 6px;
   }
 
-  .botMain em {
+  .botNameBlock p,
+  .botNameBlock small {
+    font-size: 7px;
+    margin-top: 2px;
+  }
+
+  .botDots {
+    font-size: 14px;
+  }
+
+  .botPerformanceRow {
+    grid-template-columns: 72px 1fr 82px;
+    gap: 6px;
+  }
+
+  .botPerformanceRow span {
+    font-size: 6px;
+    margin-bottom: 3px;
+  }
+
+  .botPerformanceRow strong {
+    font-size: 11px;
+  }
+
+  .sparkArea {
+    height: 44px;
+  }
+
+  .botLine {
+    height: 44px;
+  }
+
+  .botLine polyline {
+    stroke-width: 2;
+  }
+
+  .botCardActions {
+    gap: 3px;
+  }
+
+  .botCardActions button {
+    height: 18px;
+    border-radius: 5px;
     font-size: 6px;
   }
 
-  .botData {
-    margin-top: 5px;
+  .botMiniStats {
     padding-top: 5px;
   }
 
-  .botData span {
-    font-size: 5px;
-  }
-
-  .botData b {
-    font-size: 7px;
-  }
-
-  .botData button {
-    height: 21px;
+  .botMiniStats span {
     font-size: 6px;
   }
 
+  .botMiniStats b {
+    font-size: 8px;
+    margin-top: 2px;
+  }
+
   .profilePage {
-    grid-template-rows: 74px 46px 1fr 42px;
+    grid-template-rows: 68px 40px 1fr 36px;
   }
 
   .profileTop {
-    grid-template-columns: 48px 1fr;
-    padding: 6px;
+    grid-template-columns: 44px 1fr;
+    padding: 5px;
   }
 
   .bigAvatar {
-    width: 44px;
-    height: 44px;
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
   }
 
   .profileTop h2 {
-    font-size: 13px;
+    font-size: 11px;
   }
 
   .profileTop p,
   .profileTop b,
   .profileTop small {
-    font-size: 7px;
+    font-size: 6px;
     margin-top: 1px;
   }
 
   .profileGrid {
-    gap: 5px;
-    padding: 5px;
+    gap: 4px;
+    padding: 4px;
   }
 
   .profileGrid button {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .profileGrid b {
-    font-size: 8px;
-  }
-
-  .profileGrid span {
-    font-size: 6px;
-  }
-
-  .drawer {
-    width: 84vw;
-    padding: 12px;
-    grid-template-rows: 44px 112px 1fr 46px;
-  }
-
-  .drawer .logo div {
-    width: 34px;
-    height: 34px;
-  }
-
-  .drawer .logo strong {
-    font-size: 20px;
-  }
-
-  .drawerTop button {
-    font-size: 32px;
-  }
-
-  .drawerUser {
-    grid-template-columns: 42px 1fr;
-  }
-
-  .drawerUser > div {
-    width: 42px;
-    height: 42px;
-  }
-
-  .drawerUser small {
-    font-size: 8px;
-  }
-
-  .drawerUser strong {
-    font-size: 13px;
-  }
-
-  .drawerUser span {
     font-size: 7px;
   }
 
-  .drawerSwitch {
-    height: 30px;
+  .profileGrid span {
+    font-size: 5.5px;
   }
 
-  .drawerSwitch button {
-    font-size: 9px;
+  .sideDrawer {
+    width: 84vw;
+    padding: 10px;
+    grid-template-rows: 40px 104px 1fr 42px;
   }
 
-  .drawerGrid {
-    gap: 5px;
+  .sideDrawer .logo div {
+    width: 32px;
+    height: 32px;
   }
 
-  .drawerBlock {
-    padding: 6px;
-  }
-
-  .drawerBlock h4 {
-    font-size: 8px;
-  }
-
-  .drawerBtn {
-    height: 28px;
-  }
-
-  .drawerBtn strong {
-    font-size: 8px;
-  }
-
-  .drawerBtn span {
-    font-size: 11px;
-  }
-
-  .drawerLogout {
-    font-size: 12px;
-  }
-
-  .bottomNav {
-    margin: 0 5px 5px;
-    border-radius: 14px;
-  }
-
-  .bottomNav span {
+  .sideDrawer .logo strong {
     font-size: 19px;
   }
 
-  .bottomNav small {
+  .drawerTop button {
+    font-size: 30px;
+  }
+
+  .drawerUser {
+    grid-template-columns: 38px 1fr;
+  }
+
+  .drawerUser > div {
+    width: 38px;
+    height: 38px;
+  }
+
+  .drawerUser small {
+    font-size: 7px;
+  }
+
+  .drawerUser strong {
+    font-size: 12px;
+  }
+
+  .drawerUser span {
+    font-size: 6px;
+  }
+
+  .drawerSwitch {
+    height: 28px;
+  }
+
+  .drawerSwitch button {
     font-size: 8px;
   }
 
-  .bottomNav button:nth-child(3) span {
-    width: 50px;
-    height: 50px;
+  .drawerGrid {
+    gap: 4px;
+  }
+
+  .drawerBlock {
+    padding: 5px;
+  }
+
+  .drawerBlock h4 {
+    font-size: 7px;
+  }
+
+  .drawerButton {
+    height: 25px;
+  }
+
+  .drawerButton strong {
+    font-size: 7px;
+  }
+
+  .drawerButton span {
+    font-size: 10px;
+  }
+
+  .drawerLogout {
+    font-size: 11px;
   }
 
   .modalLayer {
