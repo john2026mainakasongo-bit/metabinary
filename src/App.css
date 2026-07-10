@@ -29,9 +29,9 @@ button {
   width: 100%;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at top right, rgba(0, 102, 255, 0.2), transparent 30%),
+    radial-gradient(circle at top right, rgba(0, 102, 255, 0.2), transparent 32%),
     linear-gradient(180deg, #020710, #02070d);
-  padding-bottom: 94px;
+  padding-bottom: 90px;
 }
 
 /* LOGO */
@@ -65,185 +65,13 @@ button {
   color: #0077ff;
 }
 
-/* LANDING */
-
-.landing {
-  min-height: 100dvh;
-  padding-bottom: 70px;
-  background:
-    radial-gradient(circle at top right, rgba(0, 102, 255, 0.26), transparent 34%),
-    radial-gradient(circle at center, rgba(0, 255, 255, 0.08), transparent 35%),
-    #02070d;
-}
-
-.landingTop {
-  height: 74px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  padding: 0 22px;
-  gap: 16px;
-}
-
-.hamb {
-  background: transparent;
-  color: white;
-  font-size: 28px;
-}
-
-.landingAuth {
-  margin-left: auto;
-  display: flex;
-  gap: 10px;
-}
-
-.ghostBtn,
-.blueBtn {
-  height: 52px;
-  padding: 0 26px;
-  border-radius: 10px;
-  color: white;
-  font-size: 16px;
-}
-
-.ghostBtn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.blueBtn {
-  background: #065dff;
-}
-
-.hero {
-  position: relative;
-  min-height: 420px;
-  padding: 60px 44px 30px;
-  overflow: hidden;
-}
-
-.heroText {
-  max-width: 420px;
-  position: relative;
-  z-index: 2;
-}
-
-.hero h1,
-.homeHero h1 {
-  font-size: 42px;
-  line-height: 1.18;
-  color: white;
-  margin-bottom: 18px;
-}
-
-.hero h1 span,
-.homeHero h1 span {
-  display: block;
-  color: #0077ff;
-}
-
-.hero p,
-.homeHero p {
-  color: #aab6ca;
-  font-size: 21px;
-  line-height: 1.55;
-  margin-bottom: 26px;
-}
-
-.hero button,
-.homeHero button,
-.widePrimary {
-  height: 64px;
-  border-radius: 12px;
-  background: #065dff;
-  color: white;
-  padding: 0 30px;
-  font-size: 19px;
-  font-weight: 900;
-  box-shadow: 0 0 32px rgba(0, 102, 255, 0.45);
-}
-
-.hero a {
-  display: block;
-  margin-top: 22px;
-  color: #096cff;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.heroPhone {
-  position: absolute;
-  right: 38px;
-  top: 40px;
-  width: 240px;
-  height: 360px;
-  border-radius: 30px;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(180deg, #071323, #030811);
-  background-size: 40px 40px;
-  border: 1px solid rgba(0, 119, 255, 0.45);
-  box-shadow: 0 0 48px rgba(0, 119, 255, 0.35);
-  padding: 28px;
-}
-
-.miniChart {
-  height: 210px;
-  border-radius: 18px;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 18px;
-}
-
-.miniChart span {
-  display: block;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.miniChart strong {
-  color: #00ff88;
-  display: block;
-  text-align: right;
-}
-
-.miniChart i {
-  display: block;
-  height: 115px;
-  margin-top: 20px;
-  background: linear-gradient(135deg, transparent 30%, #00ff88 32%, transparent 34%);
-}
-
-.callPut {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.callPut button {
-  height: 76px;
-  border-radius: 10px;
-  color: white;
-  font-weight: 900;
-  font-size: 15px;
-}
-
-.callPut button:first-child {
-  background: #00b76f;
-}
-
-.callPut button:last-child {
-  background: #d73032;
-}
-
 /* HEADER */
 
 .appHeader {
   position: sticky;
   top: 0;
   z-index: 900;
-  background: rgba(5, 12, 25, 0.96);
+  background: rgba(5, 12, 25, 0.97);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 14px 14px 10px;
@@ -395,14 +223,10 @@ button {
   font-weight: 800;
 }
 
-.drawerMenu button:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* SCREEN */
+/* MAIN */
 
 .screen {
-  min-height: calc(100dvh - 94px);
+  min-height: calc(100dvh - 90px);
   padding: 12px;
 }
 
@@ -415,17 +239,12 @@ button {
   margin: 0 auto;
 }
 
-.homeHero {
-  border-radius: 18px;
-  padding: 28px 22px;
-  background:
-    radial-gradient(circle at top right, rgba(0, 102, 255, 0.28), transparent 35%),
-    #07111d;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 12px;
+.pageScroll {
+  overflow-y: auto;
+  padding-bottom: 20px;
 }
 
-/* PANELS */
+/* COMMON PANELS */
 
 .ticker,
 .featureGrid,
@@ -436,7 +255,6 @@ button {
 .hubRow,
 .typeRow,
 .chartCard,
-.oddsStats,
 .orderBox,
 .openTable,
 .profileHero,
@@ -448,11 +266,99 @@ button {
 .botSearchRow,
 .botCard,
 .botTabsTop {
-  background: rgba(5, 17, 29, 0.86);
+  background: rgba(5, 17, 29, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
   box-shadow: inset 0 0 40px rgba(0, 102, 255, 0.03);
 }
+
+.green {
+  color: #00e884 !important;
+}
+
+.red {
+  color: #ff4057 !important;
+}
+
+/* HOME */
+
+.homeHero,
+.landingHero {
+  border-radius: 18px;
+  padding: 28px 22px;
+  background:
+    radial-gradient(circle at top right, rgba(0, 102, 255, 0.28), transparent 35%),
+    #07111d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+.homeHero h1,
+.landingHero h1 {
+  font-size: 38px;
+  line-height: 1.15;
+}
+
+.homeHero h1 span,
+.landingHero h1 span {
+  display: block;
+  color: #0077ff;
+}
+
+.homeHero p,
+.landingHero p {
+  color: #aab6ca;
+  margin: 14px 0 22px;
+  line-height: 1.5;
+  font-size: 18px;
+}
+
+.homeHero button,
+.landingHero button,
+.widePrimary {
+  height: 56px;
+  border-radius: 12px;
+  background: #065dff;
+  color: white;
+  padding: 0 22px;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.landing {
+  min-height: 100dvh;
+  padding: 14px;
+  background: #02070d;
+}
+
+.landingTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.landingAuth {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.landingAuth button {
+  height: 44px;
+  border-radius: 10px;
+  background: #065dff;
+  color: white;
+  padding: 0 16px;
+  font-weight: 800;
+}
+
+.landingAuth button:first-child {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* TICKER */
 
 .ticker {
   display: grid;
@@ -472,10 +378,6 @@ button {
   display: block;
 }
 
-.ticker strong {
-  font-size: 14px;
-}
-
 .ticker span {
   color: #c7d2e5;
   margin-top: 6px;
@@ -484,16 +386,9 @@ button {
 .ticker em {
   font-style: normal;
   margin-top: 4px;
-  font-size: 13px;
 }
 
-.green {
-  color: #00e884 !important;
-}
-
-.red {
-  color: #ff4057 !important;
-}
+/* FEATURES */
 
 .featureGrid {
   display: grid;
@@ -512,12 +407,13 @@ button {
 
 .feature span {
   font-size: 30px;
-  color: #0077ff;
 }
+
+/* CARDS */
 
 .aiCard {
   display: grid;
-  grid-template-columns: 96px 1fr 160px;
+  grid-template-columns: 90px 1fr 140px;
   align-items: center;
   gap: 16px;
   padding: 18px;
@@ -525,7 +421,7 @@ button {
 }
 
 .aiFace {
-  height: 80px;
+  height: 74px;
   border-radius: 16px;
   display: grid;
   place-items: center;
@@ -538,7 +434,7 @@ button {
 .aiCard strong {
   display: block;
   color: #0077ff;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .aiCard span {
@@ -548,7 +444,7 @@ button {
 }
 
 .aiCard button {
-  height: 54px;
+  height: 50px;
   border-radius: 12px;
   background: transparent;
   color: #0077ff;
@@ -559,8 +455,7 @@ button {
 .panelTitle {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .panelTitle strong {
@@ -575,7 +470,7 @@ button {
 
 .statPanel,
 .marketPanel {
-  padding: 20px;
+  padding: 18px;
   margin-bottom: 12px;
 }
 
@@ -584,12 +479,12 @@ button {
 .botStatsCards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .statBox,
 .botStat {
-  padding: 18px;
+  padding: 16px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -610,9 +505,11 @@ button {
   font-size: 13px;
 }
 
+/* MARKETS */
+
 .marketRow {
   display: grid;
-  grid-template-columns: 52px 1fr 140px 110px 42px;
+  grid-template-columns: 52px 1fr 130px 105px 38px;
   gap: 10px;
   align-items: center;
   padding: 14px 0;
@@ -630,8 +527,8 @@ button {
 }
 
 .miniSpark {
-  width: 120px;
-  height: 46px;
+  width: 110px;
+  height: 42px;
 }
 
 .miniSpark path {
@@ -649,17 +546,21 @@ button {
 .marketRow button {
   background: transparent;
   color: #8090aa;
-  font-size: 28px;
+  font-size: 26px;
 }
 
 /* TRADE PAGE */
+
+.tradePage {
+  display: grid;
+  gap: 10px;
+}
 
 .accountSummary {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 150px;
   gap: 12px;
-  padding: 16px;
-  margin-bottom: 10px;
+  padding: 14px;
 }
 
 .accountSummary small,
@@ -670,42 +571,50 @@ button {
 }
 
 .accountSummary strong {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .accountSummary button {
   border-radius: 10px;
   background: #065dff;
   color: white;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
 }
+
+/* REQUIRED HUB MENU */
 
 .hubRow {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  margin-bottom: 10px;
   overflow: hidden;
 }
 
 .hubRow button {
-  height: 82px;
-  background: transparent;
-  color: #aab6ca;
-  font-size: 13px;
+  height: 74px;
+  background: rgba(9, 31, 59, 0.45);
+  color: #8ea0bc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border-bottom: 3px solid transparent;
 }
 
 .hubRow button span {
-  display: block;
-  color: #0077ff;
-  font-size: 24px;
-  margin-bottom: 6px;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.hubRow button small {
+  font-size: 11px;
 }
 
 .hubRow button.active {
   color: #0077ff;
   border-bottom-color: #0077ff;
+  background: rgba(0, 119, 255, 0.08);
 }
 
 .typeRow {
@@ -713,7 +622,6 @@ button {
   gap: 10px;
   align-items: center;
   padding: 12px;
-  margin-bottom: 10px;
   overflow-x: auto;
 }
 
@@ -734,20 +642,18 @@ button {
 
 .typeRow button.active {
   border-color: #065dff;
-  color: #ffffff;
   box-shadow: 0 0 18px rgba(0, 102, 255, 0.25);
 }
 
 .chartCard {
   padding: 14px;
-  margin-bottom: 10px;
 }
 
 .chartHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 11px;
 }
 
 .chartHeader strong {
@@ -763,7 +669,7 @@ button {
 
 .chartHeader button {
   width: 76px;
-  height: 44px;
+  height: 42px;
   border-radius: 9px;
   background: #07111d;
   color: white;
@@ -771,7 +677,7 @@ button {
 }
 
 .chartBox {
-  height: 260px;
+  height: 245px;
   border-radius: 12px;
   background:
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
@@ -779,7 +685,7 @@ button {
     #06111d;
   background-size: 80px 55px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .chartBox svg {
@@ -794,7 +700,7 @@ button {
 .linePath {
   fill: none;
   stroke: #00e884;
-  stroke-width: 1.4;
+  stroke-width: 1.45;
   vector-effect: non-scaling-stroke;
 }
 
@@ -802,19 +708,19 @@ button {
   text-align: center;
   color: #d7deee;
   font-weight: 900;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .darkDigits {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 14px 20px;
-  padding: 0 22px 10px;
+  gap: 13px 18px;
+  padding: 0 18px 10px;
 }
 
 .darkDigit {
-  width: 82px;
-  height: 82px;
+  width: 78px;
+  height: 78px;
   justify-self: center;
   border-radius: 50%;
   border: 8px solid rgba(255, 255, 255, 0.12);
@@ -823,10 +729,11 @@ button {
   align-content: center;
   position: relative;
   color: white;
+  background: transparent;
 }
 
 .darkDigit strong {
-  font-size: 29px;
+  font-size: 28px;
 }
 
 .darkDigit span {
@@ -846,61 +753,21 @@ button {
 .darkDigit.selected::after {
   content: "";
   position: absolute;
-  bottom: -26px;
+  bottom: -25px;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
   border-bottom: 14px solid #ff4057;
 }
 
-.oddsStats {
-  display: grid;
-  grid-template-columns: 1fr 120px 1fr;
-  gap: 12px;
-  align-items: center;
-  padding: 16px;
-  margin-bottom: 10px;
-}
-
-.oddsStats strong,
-.oddsStats span,
-.oddsStats small {
-  display: block;
-}
-
-.oddsStats span {
-  font-size: 28px;
-  font-weight: 900;
-  margin: 7px 0;
-}
-
-.donut {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  border: 12px solid #ff4057;
-  border-left-color: #70c6e2;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  font-size: 22px;
-  font-weight: 900;
-}
-
-.donut small {
-  font-size: 12px;
-  color: #aab6ca;
-}
-
 .orderBox {
-  padding: 16px;
-  margin-bottom: 10px;
+  padding: 14px;
 }
 
 .orderInputs {
   display: grid;
   grid-template-columns: 1fr 1.4fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .orderBox label {
@@ -912,7 +779,7 @@ button {
 .predictionSelect select {
   margin-top: 6px;
   width: 100%;
-  height: 46px;
+  height: 44px;
   border-radius: 8px;
   background: #07111d;
   color: white;
@@ -922,9 +789,9 @@ button {
 
 .stakeControl {
   margin-top: 6px;
-  height: 46px;
+  height: 44px;
   display: grid;
-  grid-template-columns: 42px 1fr 42px;
+  grid-template-columns: 40px 1fr 40px;
   border-radius: 8px;
   overflow: hidden;
   background: #07111d;
@@ -945,18 +812,18 @@ button {
 
 .predictionSelect {
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .actionGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 
 .buyButton,
 .sellButton {
-  height: 98px;
+  height: 92px;
   border-radius: 10px;
   overflow: hidden;
   color: white;
@@ -973,16 +840,16 @@ button {
 
 .buyButton div,
 .sellButton div {
-  height: 58px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .buyButton div span,
 .sellButton div span {
-  font-size: 26px;
+  font-size: 25px;
 }
 
 .buyButton div strong,
@@ -995,22 +862,21 @@ button {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
+  height: 38px;
+  padding: 0 14px;
   background: rgba(0, 0, 0, 0.15);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .openTable {
   padding: 14px;
-  margin-bottom: 10px;
 }
 
 .tableTabs {
   display: flex;
   gap: 18px;
   overflow-x: auto;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .tableTabs strong {
@@ -1046,7 +912,7 @@ button {
 /* BOTS */
 
 .pageHead {
-  margin: 18px 6px;
+  margin: 16px 6px;
 }
 
 .pageHead h2 {
@@ -1125,7 +991,6 @@ button {
 
 .botCard {
   padding: 16px;
-  position: relative;
 }
 
 .botTop {
@@ -1181,7 +1046,7 @@ button {
 .botMetrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 14px;
 }
@@ -1193,14 +1058,10 @@ button {
   margin-bottom: 5px;
 }
 
-.botMetrics strong {
-  font-size: 16px;
-}
-
 .outlineBlue {
   margin-top: 14px;
   width: 190px;
-  height: 46px;
+  height: 44px;
   border-radius: 8px;
   background: transparent;
   color: #0077ff;
@@ -1214,21 +1075,21 @@ button {
 
 .profileHero {
   display: grid;
-  grid-template-columns: 130px 1fr 220px;
-  gap: 20px;
+  grid-template-columns: 120px 1fr 220px;
+  gap: 18px;
   align-items: center;
-  padding: 22px;
+  padding: 20px;
   margin-bottom: 12px;
 }
 
 .profileAvatar {
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.13);
-  font-size: 42px;
+  font-size: 38px;
   position: relative;
 }
 
@@ -1236,8 +1097,8 @@ button {
   position: absolute;
   right: 0;
   bottom: 6px;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #00c76f;
   display: grid;
@@ -1246,7 +1107,7 @@ button {
 }
 
 .profileHero h2 {
-  font-size: 28px;
+  font-size: 27px;
 }
 
 .profileHero h2 b {
@@ -1272,7 +1133,7 @@ button {
 
 .levelCard {
   border-radius: 12px;
-  padding: 18px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -1310,21 +1171,21 @@ button {
 
 .settingRow {
   width: 100%;
-  min-height: 88px;
+  min-height: 82px;
   background: transparent;
   color: white;
   display: grid;
-  grid-template-columns: 58px 1fr auto 24px;
+  grid-template-columns: 56px 1fr auto 22px;
   gap: 14px;
   align-items: center;
-  padding: 14px 20px;
+  padding: 14px 18px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .settingIcon {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -1333,7 +1194,7 @@ button {
 
 .settingRow strong {
   display: block;
-  font-size: 19px;
+  font-size: 18px;
 }
 
 .settingRow span {
@@ -1352,7 +1213,7 @@ button {
 }
 
 .settingRow b {
-  font-size: 30px;
+  font-size: 28px;
   color: #c7d2e5;
 }
 
@@ -1360,7 +1221,7 @@ button {
 .logoutCard {
   display: block;
   width: 100%;
-  padding: 22px;
+  padding: 20px;
   margin-bottom: 12px;
   text-align: left;
   color: white;
@@ -1874,56 +1735,347 @@ button {
   box-shadow: 0 0 30px rgba(0, 102, 255, 0.55);
 }
 
-/* MOBILE */
+/* MOBILE FIT */
 
 @media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
   .app {
-    padding-bottom: 90px;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    padding-bottom: 74px;
   }
 
-  .screen {
-    padding: 10px;
+  .appHeader {
+    height: 104px;
+    min-height: 104px;
+    padding: 7px 10px;
   }
 
-  .brandLogo strong {
-    font-size: 22px;
-  }
-
-  .mark {
-    width: 38px;
+  .headerLine {
     height: 38px;
   }
 
-  .walletLine {
+  .brandLogo {
     gap: 8px;
   }
 
+  .brandLogo strong {
+    font-size: 19px;
+  }
+
+  .mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    font-size: 18px;
+  }
+
+  .menuBtn {
+    font-size: 23px;
+  }
+
+  .bell,
+  .avatar {
+    width: 35px;
+    height: 35px;
+  }
+
+  .bell {
+    font-size: 18px;
+  }
+
+  .walletLine {
+    margin-top: 6px;
+    display: grid;
+    grid-template-columns: auto 1fr 92px;
+    gap: 7px;
+    height: 42px;
+  }
+
   .accountToggle {
-    height: 44px;
+    height: 40px;
+    border-radius: 12px;
   }
 
   .accountToggle button {
-    min-width: 58px;
-    font-size: 13px;
+    min-width: 50px;
+    font-size: 12px;
+    border-radius: 9px;
   }
 
   .walletBox {
-    min-width: 120px;
-    padding: 6px 10px;
+    height: 40px;
+    min-width: 0;
+    padding: 5px 8px;
+    overflow: hidden;
   }
 
   .walletBox small {
-    font-size: 10px;
+    font-size: 9px;
+    margin-bottom: 2px;
   }
 
   .walletBox strong {
-    font-size: 15px;
+    font-size: 13px;
+    white-space: nowrap;
   }
 
   .depositBig {
-    min-width: 116px;
+    height: 40px;
+    min-width: 92px;
+    font-size: 13px;
+    border-radius: 11px;
+  }
+
+  .screen {
+    height: calc(100dvh - 178px);
+    min-height: 0;
+    overflow: hidden;
+    padding: 7px;
+  }
+
+  .tradePage {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 48px 54px 40px minmax(0, 1fr) 124px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .accountSummary {
+    grid-template-columns: 1fr 1fr 76px;
+    gap: 6px;
+    padding: 7px;
     height: 48px;
+  }
+
+  .accountSummary > div {
+    overflow: hidden;
+  }
+
+  .accountSummary > div:nth-child(3) {
+    display: none;
+  }
+
+  .accountSummary small,
+  .accountSummary span {
+    font-size: 8px;
+    margin-bottom: 2px;
+  }
+
+  .accountSummary strong {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .accountSummary button {
+    height: 34px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .hubRow {
+    height: 54px;
+    min-height: 54px;
+    border-radius: 10px;
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .hubRow button {
+    height: 54px;
+    gap: 2px;
+    padding: 2px 0;
+  }
+
+  .hubRow button span {
+    font-size: 16px;
+  }
+
+  .hubRow button small {
+    font-size: 7px;
+  }
+
+  .typeRow {
+    height: 40px;
+    padding: 5px;
+    gap: 5px;
+    border-radius: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .typeRow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .typeRow span {
+    font-size: 10px;
+  }
+
+  .typeRow button {
+    height: 29px;
+    font-size: 9px;
+    padding: 0 8px;
+  }
+
+  .chartCard {
+    min-height: 0;
+    height: 100%;
+    padding: 7px;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .chartHeader {
+    margin-bottom: 5px;
+  }
+
+  .chartHeader strong {
+    font-size: 13px;
+  }
+
+  .chartHeader span {
+    font-size: 9px;
+  }
+
+  .chartHeader button {
+    width: 50px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .chartBox {
+    height: 105px;
+    margin-bottom: 4px;
+    border-radius: 10px;
+  }
+
+  .lastDigitsTitle {
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+
+  .darkDigits {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    padding: 0 3px;
+  }
+
+  .darkDigit {
+    width: 39px;
+    height: 39px;
+    border-width: 4px;
+  }
+
+  .darkDigit strong {
+    font-size: 14px;
+  }
+
+  .darkDigit span {
+    font-size: 7px;
+  }
+
+  .darkDigit.selected::after {
+    bottom: -14px;
+    border-left-width: 6px;
+    border-right-width: 6px;
+    border-bottom-width: 8px;
+  }
+
+  .orderBox {
+    height: 124px;
+    min-height: 124px;
+    padding: 7px;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .orderInputs {
+    grid-template-columns: 1fr 1.25fr 1fr;
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+
+  .orderBox label {
+    font-size: 9px;
+  }
+
+  .orderBox select,
+  .predictionSelect select {
+    height: 29px;
+    font-size: 10px;
+    margin-top: 2px;
+    padding: 0 7px;
+  }
+
+  .stakeControl {
+    height: 29px;
+    margin-top: 2px;
+    grid-template-columns: 26px 1fr 26px;
+  }
+
+  .stakeControl button {
+    font-size: 16px;
+  }
+
+  .stakeControl strong {
+    font-size: 10px;
+  }
+
+  .predictionSelect {
+    display: none;
+  }
+
+  .actionGrid {
+    gap: 6px;
+  }
+
+  .buyButton,
+  .sellButton {
+    height: 58px;
+    border-radius: 8px;
+  }
+
+  .buyButton div,
+  .sellButton div {
+    height: 34px;
+    gap: 7px;
+  }
+
+  .buyButton div span,
+  .sellButton div span {
+    font-size: 16px;
+  }
+
+  .buyButton div strong,
+  .sellButton div strong {
     font-size: 15px;
+  }
+
+  .buyButton small,
+  .sellButton small {
+    height: 24px;
+    padding: 0 9px;
+    font-size: 9px;
+  }
+
+  .openTable {
+    display: none;
+  }
+
+  .pageScroll {
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 18px;
   }
 
   .ticker {
@@ -1943,67 +2095,6 @@ button {
 
   .aiCard button {
     grid-column: 1 / -1;
-  }
-
-  .accountSummary {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .accountSummary button {
-    grid-column: 1 / -1;
-    height: 52px;
-  }
-
-  .hubRow {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .typeRow {
-    padding: 10px;
-  }
-
-  .chartBox {
-    height: 220px;
-  }
-
-  .darkDigit {
-    width: 62px;
-    height: 62px;
-    border-width: 6px;
-  }
-
-  .darkDigit strong {
-    font-size: 22px;
-  }
-
-  .darkDigits {
-    gap: 12px 10px;
-    padding: 0 8px 10px;
-  }
-
-  .oddsStats {
-    grid-template-columns: 1fr 90px 1fr;
-  }
-
-  .donut {
-    width: 86px;
-    height: 86px;
-    font-size: 18px;
-    border-width: 9px;
-  }
-
-  .orderInputs {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-
-  .actionGrid {
-    gap: 10px;
-  }
-
-  .buyButton,
-  .sellButton {
-    height: 90px;
   }
 
   .botSearchRow {
@@ -2029,18 +2120,18 @@ button {
   }
 
   .profileHero {
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 82px 1fr;
   }
 
   .profileAvatar {
-    width: 84px;
-    height: 84px;
-    font-size: 30px;
+    width: 78px;
+    height: 78px;
+    font-size: 28px;
   }
 
   .profileAvatar span {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
 
   .levelCard {
@@ -2048,7 +2139,7 @@ button {
   }
 
   .marketRow {
-    grid-template-columns: 42px 1fr 70px 42px;
+    grid-template-columns: 42px 1fr 74px 38px;
   }
 
   .miniSpark {
@@ -2056,128 +2147,143 @@ button {
   }
 
   .toastWrap {
-    top: 12px;
-    left: 12px;
-    right: 12px;
+    top: 10px;
+    left: 10px;
+    right: 10px;
   }
 
   .toast {
     width: 100%;
   }
 
-  .landingTop {
-    padding: 0 18px;
+  .modalOverlay {
+    align-items: flex-end;
+    padding: 0;
   }
 
-  .landingAuth button {
-    height: 44px;
-    padding: 0 16px;
-  }
-
-  .hero {
-    padding: 46px 24px 28px;
-  }
-
-  .hero h1 {
-    font-size: 37px;
-  }
-
-  .hero p {
-    font-size: 18px;
-  }
-
-  .heroPhone {
-    opacity: 0.55;
-    right: -50px;
-    top: 90px;
-    transform: scale(0.82);
-  }
-}
-
-@media (max-width: 420px) {
-  .appHeader {
-    padding: 10px 10px 8px;
-  }
-
-  .brandLogo strong {
-    font-size: 20px;
-  }
-
-  .mark {
-    width: 34px;
-    height: 34px;
-    font-size: 18px;
-  }
-
-  .walletLine {
-    display: grid;
-    grid-template-columns: auto 1fr 100px;
-  }
-
-  .walletBox {
-    min-width: 0;
-  }
-
-  .depositBig {
-    min-width: 94px;
-    font-size: 14px;
-  }
-
-  .chartCard,
-  .orderBox,
-  .oddsStats {
-    padding: 10px;
-  }
-
-  .chartHeader strong {
-    font-size: 16px;
-  }
-
-  .chartBox {
-    height: 185px;
-  }
-
-  .darkDigits {
-    gap: 9px 6px;
-  }
-
-  .darkDigit {
-    width: 54px;
-    height: 54px;
-  }
-
-  .darkDigit strong {
-    font-size: 18px;
-  }
-
-  .darkDigit span {
-    font-size: 11px;
-  }
-
-  .orderInputs {
-    font-size: 12px;
-  }
-
-  .orderBox select,
-  .stakeControl {
-    height: 40px;
-  }
-
-  .buyButton div strong,
-  .sellButton div strong {
-    font-size: 18px;
+  .darkModal {
+    width: 100%;
+    max-height: 92dvh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
   }
 
   .bottomNav {
-    height: 70px;
+    left: 7px;
+    right: 7px;
+    bottom: 5px;
+    height: 64px;
+    border-radius: 16px;
   }
 
   .bottomNav button span {
-    font-size: 25px;
+    font-size: 22px;
+  }
+
+  .bottomNav button small {
+    font-size: 10px;
+  }
+
+  .bottomNav button:nth-child(3) {
+    transform: translateY(-24px);
   }
 
   .bottomNav button:nth-child(3) span {
-    width: 68px;
-    height: 68px;
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 390px) {
+  .appHeader {
+    height: 98px;
+    min-height: 98px;
+  }
+
+  .screen {
+    height: calc(100dvh - 166px);
+  }
+
+  .tradePage {
+    grid-template-rows: 45px 50px 38px minmax(0, 1fr) 116px;
+    gap: 5px;
+  }
+
+  .hubRow {
+    height: 50px;
+    min-height: 50px;
+  }
+
+  .hubRow button {
+    height: 50px;
+  }
+
+  .hubRow button span {
+    font-size: 15px;
+  }
+
+  .hubRow button small {
+    font-size: 6.8px;
+  }
+
+  .chartBox {
+    height: 92px;
+  }
+
+  .darkDigit {
+    width: 35px;
+    height: 35px;
+    border-width: 4px;
+  }
+
+  .darkDigit strong {
+    font-size: 12px;
+  }
+
+  .darkDigit span {
+    font-size: 6px;
+  }
+
+  .orderBox {
+    height: 116px;
+    min-height: 116px;
+  }
+
+  .buyButton,
+  .sellButton {
+    height: 53px;
+  }
+
+  .buyButton div,
+  .sellButton div {
+    height: 31px;
+  }
+
+  .buyButton small,
+  .sellButton small {
+    height: 22px;
+    font-size: 8px;
+  }
+}
+/* REMOVE BALANCE / PROFIT / DEPOSIT ROW FROM TRADE PAGE */
+
+.accountSummary {
+  display: none !important;
+}
+
+/* Fix spacing after removing that row */
+.tradePage {
+  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+}
+
+@media (max-width: 760px) {
+  .tradePage {
+    grid-template-rows: 54px 40px minmax(0, 1fr) 124px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .tradePage {
+    grid-template-rows: 50px 38px minmax(0, 1fr) 116px !important;
   }
 }
