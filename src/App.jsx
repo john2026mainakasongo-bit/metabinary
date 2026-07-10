@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
@@ -910,8 +911,6 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
           {isReal && <span className="usdFlag">USD</span>}
           {money(balance)} <em>USD</em>
         </strong>
-
-        <span>⌄</span>
       </button>
 
       <div className="accountSwitch brokerAccountSwitch">
@@ -930,10 +929,6 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
         </button>
       </div>
 
-      <button className="depositTop brokerDepositBtn" onClick={openDeposit}>
-        <span>Deposit</span>
-        <b>⇩</b>
-      </button>
 
       <button className="bellBtn brokerBellBtn">
         ♡
@@ -1734,20 +1729,6 @@ function TradePage({
         </div>
       </section>
 
-      <section className="marketInfoGrid">
-        {marketStats.map((item) => (
-          <article key={item.title} className={item.className}>
-            <div>
-              <h4>{item.title}</h4>
-              <strong>{item.value}</strong>
-              <p>{item.text}</p>
-            </div>
-
-            <span>{item.icon}</span>
-          </article>
-        ))}
-      </section>
-
       <section className="proBinaryOrderCard">
         <div className="orderInputsTop">
           <label>
@@ -1825,14 +1806,6 @@ function BotsPage({ bots, startBot }) {
 
   return (
     <div className="page botsPage">
-      <div className="botsTitleRow">
-        <div>
-          <h1>My Bots</h1>
-          <p>Create, manage and monitor your trading bots.</p>
-        </div>
-
-        <button>+ New Bot</button>
-      </div>
 
       <section className="botStats">
         <Stat icon="🤖" value={bots.length} label="Total Bots" spark="blue" />
