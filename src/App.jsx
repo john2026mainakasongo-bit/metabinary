@@ -107,6 +107,7 @@ function initials(name = "JM") {
 
 function makePrices(start = 1.08564) {
   let value = start;
+
   return Array.from({ length: 110 }, (_, i) => {
     value += (Math.random() - 0.48) * 0.00045 + Math.sin(i / 8) * 0.00005;
     return Number(value.toFixed(5));
@@ -164,6 +165,7 @@ export default function App() {
         const next = Number(
           (last + (Math.random() - 0.5) * 0.0006 + Math.sin(Date.now() / 7000) * 0.00006).toFixed(5)
         );
+
         return [...old.slice(-109), next];
       });
 
@@ -194,6 +196,7 @@ export default function App() {
 
   useEffect(() => {
     if (!user?.email) return;
+
     refreshUser();
 
     const timer = setInterval(refreshUser, 8000);
@@ -724,8 +727,10 @@ export default function App() {
 
 function Logo() {
   return (
-    <div className="logo">
-      <div>M</div>
+    <div className="logo brokerLogo">
+      <div className="brokerLogoMark">
+        <span>M</span>
+      </div>
       <strong>
         Meta<span>Binary</span>
       </strong>
@@ -834,41 +839,61 @@ function AuthScreen({ mode, setMode, login, register }) {
 }
 
 function Header({ user, account, setAccount, balance, setActivePage, openMenu, openDeposit }) {
+  const isReal = account === "real";
+
   return (
-    <header className="topHeader">
-      <button className="menuBtn" onClick={openMenu}>
-        ☰
+    <header className="topHeader brokerTopHeader">
+      <button className="menuBtn brokerMenuBtn" onClick={openMenu} aria-label="Open menu">
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
 
       <Logo />
 
-      <button className="walletBox" onClick={() => setActivePage("profile")}>
-        <small>{account === "demo" ? "DEMO ACCOUNT" : "REAL ACCOUNT"}</small>
-        <strong>{money(balance)} USD</strong>
+      <div className="brokerHeaderDivider"></div>
+
+      <button className="walletBox brokerWallet" onClick={() => setActivePage("profile")}>
+        <small>
+          {isReal ? "LIVE ACCOUNT" : "DEMO ACCOUNT"}
+          <i></i>
+        </small>
+        <strong>
+          {money(balance)} <em>USD</em>
+        </strong>
         <span>⌄</span>
       </button>
 
-      <div className="accountSwitch">
-        <button className={account === "demo" ? "active" : ""} onClick={() => setAccount("demo")}>
+      <div className="accountSwitch brokerAccountSwitch">
+        <button
+          className={account === "demo" ? "active demoActive" : ""}
+          onClick={() => setAccount("demo")}
+        >
           Demo
         </button>
-        <button className={account === "real" ? "active" : ""} onClick={() => setAccount("real")}>
-          Real
+        <button
+          className={account === "real" ? "active realActive" : ""}
+          onClick={() => setAccount("real")}
+        >
+          <span>🛡</span> Real
         </button>
       </div>
 
-      <button className="depositTop" onClick={openDeposit}>
-        Deposit
+      <button className="depositTop brokerDepositBtn" onClick={openDeposit}>
+        <span>Deposit</span>
+        <b>⇩</b>
       </button>
 
-      <button className="bellBtn">
-        🔔
+      <button className="bellBtn brokerBellBtn">
+        ♡
+        <i>🔔</i>
         <b>3</b>
       </button>
 
-      <button className="avatarBtn" onClick={() => setActivePage("profile")}>
+      <button className="avatarBtn brokerAvatarBtn" onClick={() => setActivePage("profile")}>
         {user.initials}
         <i></i>
+        <span>⌄</span>
       </button>
     </header>
   );
@@ -977,7 +1002,7 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
             <h3>
               AI-Powered Trading <b>NEW</b>
             </h3>
-            <p>Advanced algorithms analyze market patterns in real-time to deliver smarter trade signals and higher accuracy.</p>
+            <p>Advanced algorithms analyze market patterns in real-time to deliver smarter trade signals.</p>
             <button onClick={() => setActivePage("bots")}>Explore AI Tools →</button>
           </div>
         </div>
@@ -988,8 +1013,8 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
           <div>
             <button onClick={() => setActivePage("trade")}>📉<span>New Trade</span></button>
             <button onClick={() => setActivePage("bots")}>🧠<span>AI Signals</span></button>
-            <button onClick={() => setActivePage("reports")}>📄<span>Market News</span></button>
-            <button onClick={() => setActivePage("history")}>🗓<span>Calendar</span></button>
+            <button onClick={() => setActivePage("reports")}>📄<span>Reports</span></button>
+            <button onClick={() => setActivePage("history")}>🗓<span>History</span></button>
           </div>
         </div>
 
@@ -1787,35 +1812,207 @@ function BotLivePage({ bot, running, stopBot, startBot, trades, botTab, setBotTa
 }
 
 function ProfilePage({ user, balances, transactions, logout, setActivePage }) {
-  return (
-    <div className="page profilePage">
-      <section className="profileHero">
-        <div className="profileAvatar">{user.initials}</div>
+  const realBalance = balances?.real || 0;
+  const demoBalance = balances?.demo || 10000;
+  const accountId = user?.brokerId || "MB168844";
+  const userName = user?.name || user?.email?.split("@")[0] || "captionfitness";
+  const userEmail = user?.email || "captionfitness@gmail.com";
+  const userInitial = user?.initials || initials(userName);
 
-        <div>
-          <h2>{user.name} ✓</h2>
-          <p>{user.email}</p>
-          <b>Verified</b>
-          <small>Account ID: {user.brokerId}</small>
+  const profileCards = [
+    {
+      icon: "⚙",
+      title: "Settings",
+      text: "Manage your preferences and platform settings",
+      button: "Customize",
+      color: "blue",
+      action: () => setActivePage("settings"),
+    },
+    {
+      icon: "↺",
+      title: "Transaction History",
+      text: "View deposits, withdrawals and trading history",
+      button: "View History",
+      color: "purple",
+      action: () => setActivePage("history"),
+    },
+    {
+      icon: "🛡",
+      title: "KYC Verification",
+      text: "Verify your identity to unlock all platform features",
+      button: "Verified ✓",
+      color: "green",
+      action: () => {},
+    },
+    {
+      icon: "💳",
+      title: "Payment Methods",
+      text: "Manage your deposit and withdrawal methods",
+      button: "Manage Methods",
+      color: "blue",
+      action: () => setActivePage("history"),
+    },
+    {
+      icon: "🔒",
+      title: "Security",
+      text: "Password, 2FA and account security settings",
+      button: "Security Center",
+      color: "green",
+      action: () => setActivePage("settings"),
+    },
+    {
+      icon: "🔔",
+      title: "Notifications",
+      text: "Manage email, SMS and push notifications",
+      button: "Manage Alerts",
+      color: "yellow",
+      action: () => setActivePage("settings"),
+    },
+  ];
+
+  return (
+    <div className="page profilePage proProfilePage">
+      <section className="proProfileHero">
+        <div className="proProfileAvatarWrap">
+          <div className="proProfileAvatar">{userInitial}</div>
+          <span className="profileOnlineBadge">✓</span>
+        </div>
+
+        <div className="proProfileIdentity">
+          <h1>
+            {userName}
+            <span>✓</span>
+          </h1>
+
+          <p>{userEmail}</p>
+
+          <div className="profileVerifiedRow">
+            <b>Verified</b>
+          </div>
+
+          <div className="profileMetaRow">
+            <span>
+              Account ID
+              <strong>{accountId}</strong>
+            </span>
+
+            <i></i>
+
+            <span>
+              Status
+              <strong className="activeStatus">● Active — Demo Account</strong>
+            </span>
+          </div>
+        </div>
+
+        <div className="profileHeroArt">
+          <div className="profileArtLine"></div>
+          <div className="profileArtBadge">MB</div>
         </div>
       </section>
 
-      <section className="profileStats">
-        <Stat value={`${money(balances.real)} USD`} label="Real Balance" />
-        <Stat value={`${money(balances.demo)} USD`} label="Demo Balance" />
-        <Stat value="+2,450.75" label="Total Profit" />
-        <Stat value="63.25%" label="Win Rate" />
+      <section className="proProfileStats">
+        <ProfileBalanceCard icon="💼" label="REAL BALANCE" value={`${money(realBalance)} USD`} color="blue" />
+        <ProfileBalanceCard icon="▮▮▮" label="DEMO BALANCE" value={`${money(demoBalance)} USD`} color="purple" />
+        <ProfileBalanceCard icon="📈" label="TOTAL PROFIT" value="+2,450.75 USD" color="green" />
+        <ProfileBalanceCard icon="◎" label="WIN RATE" value="63.25%" color="yellow" />
       </section>
 
-      <section className="profileActions">
-        <button onClick={() => setActivePage("settings")}>⚙<b>Settings</b><span>Preferences</span></button>
-        <button onClick={() => setActivePage("history")}>↺<b>History</b><span>{transactions.length} records</span></button>
-        <button>🛡<b>KYC</b><span>Verified</span></button>
-        <button>👥<b>Referral</b><span>Earn 30%</span></button>
+      <section className="proProfileMain">
+        <div className="profileCardsGrid">
+          {profileCards.map((card) => (
+            <button className="profileActionCard" key={card.title} onClick={card.action}>
+              <div className={`profileActionIcon ${card.color}`}>{card.icon}</div>
+
+              <div>
+                <h3>{card.title}</h3>
+                <p>{card.text}</p>
+
+                <span className={card.title === "KYC Verification" ? "verifiedMiniBtn" : ""}>
+                  {card.button} <em>›</em>
+                </span>
+              </div>
+            </button>
+          ))}
+
+          <div className="supportWideCard">
+            <div className="profileActionIcon blue">🎧</div>
+
+            <div>
+              <h3>Support Center</h3>
+              <p>Get help from our support team 24/7</p>
+            </div>
+
+            <div className="responseTime">
+              <small>Average Response Time</small>
+              <strong>● 2m 30s</strong>
+            </div>
+
+            <button>Contact Support ›</button>
+          </div>
+        </div>
+
+        <aside className="referralPanel">
+          <div className="profileActionIcon purple">👥</div>
+
+          <h2>Referral Program</h2>
+          <p>Invite friends and earn up to 30% commissions</p>
+
+          <label>YOUR REFERRAL LINK</label>
+
+          <div className="referralLinkBox">
+            <span>https://metabinary.com/ref/{userName.toLowerCase().replaceAll(" ", "")}</span>
+            <button
+              onClick={() =>
+                navigator.clipboard?.writeText(
+                  `https://metabinary.com/ref/${userName.toLowerCase().replaceAll(" ", "")}`
+                )
+              }
+            >
+              ⧉
+            </button>
+          </div>
+
+          <div className="referralStatsBox">
+            <div>
+              <small>TOTAL EARNED</small>
+              <strong>1,245.00 USD</strong>
+            </div>
+
+            <div>
+              <small>TOTAL REFERRALS</small>
+              <strong>17</strong>
+            </div>
+          </div>
+
+          <button className="referralDashboardBtn">View Referral Dashboard ›</button>
+        </aside>
       </section>
 
-      <button className="logoutWide" onClick={logout}>⇥ Logout</button>
+      <button className="proLogoutButton" onClick={logout}>
+        <span>⇥</span>
+        <div>
+          <strong>Logout</strong>
+          <small>Sign out of your account</small>
+        </div>
+        <em>›</em>
+      </button>
     </div>
+  );
+}
+
+function ProfileBalanceCard({ icon, label, value, color }) {
+  return (
+    <button className="profileBalanceCard">
+      <div className={`profileBalanceIcon ${color}`}>{icon}</div>
+
+      <div>
+        <span>{label}</span>
+        <strong className={color === "green" ? "green" : ""}>{value}</strong>
+      </div>
+
+      <em>›</em>
+    </button>
   );
 }
 

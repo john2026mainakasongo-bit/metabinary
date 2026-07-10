@@ -44,7 +44,7 @@ select {
   height: 100dvh;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 62px 1fr 58px;
+  grid-template-rows: 86px 1fr 58px;
   background:
     radial-gradient(circle at top left, rgba(0, 119, 255, 0.14), transparent 35%),
     linear-gradient(180deg, #030914, #01050b);
@@ -143,155 +143,312 @@ select {
   font-weight: 800;
 }
 
-/* HEADER */
+/* BROKER TOP HEADER */
 
-.topHeader {
+.topHeader,
+.brokerTopHeader {
   display: grid;
-  grid-template-columns: 34px 230px minmax(250px, 1fr) 126px 132px 42px 46px;
-  gap: 12px;
+  grid-template-columns: 54px 310px 1px minmax(270px, 1fr) 170px 270px 58px 74px;
+  gap: 18px;
   align-items: center;
-  padding: 8px 16px;
-  background: rgba(4, 12, 24, 0.98);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+  padding: 0 34px;
+  background:
+    radial-gradient(circle at 78% 50%, rgba(0, 87, 255, 0.28), transparent 22%),
+    linear-gradient(90deg, #02070d 0%, #071423 50%, #02070d 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 119, 255, 0.12),
+    0 18px 60px rgba(0, 0, 0, 0.28);
 }
 
-.menuBtn {
+.brokerMenuBtn {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  background: transparent;
+}
+
+.brokerMenuBtn span {
+  display: block;
+  width: 31px;
+  height: 3px;
+  border-radius: 999px;
+  background: #aab6ca;
+  box-shadow: 0 0 10px rgba(170, 182, 202, 0.15);
+}
+
+.logo,
+.brokerLogo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brokerLogoMark {
+  width: 54px;
+  height: 54px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brokerLogoMark::before,
+.brokerLogoMark::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #04d8ff 0%, #006dff 45%, #082cff 100%);
+  transform: skewY(-18deg) rotate(45deg);
+  box-shadow:
+    0 0 28px rgba(0, 119, 255, 0.35),
+    inset 0 0 18px rgba(255, 255, 255, 0.18);
+}
+
+.brokerLogoMark::after {
+  inset: 14px;
+  background: #071423;
+  transform: skewY(-18deg) rotate(45deg);
+}
+
+.brokerLogoMark span {
+  position: relative;
+  z-index: 2;
+  color: #008cff;
+  font-size: 18px;
+  font-weight: 1000;
+  transform: skewY(-8deg);
+}
+
+.logo strong,
+.brokerLogo strong {
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -1px;
+  white-space: nowrap;
+  color: white;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.logo span,
+.brokerLogo span {
+  color: #8d98aa;
+}
+
+.brokerLogo strong span {
+  color: #8d98aa;
+}
+
+.brokerHeaderDivider {
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+}
+
+.walletBox,
+.brokerWallet {
+  height: 66px;
+  border-radius: 0;
   background: transparent;
   color: white;
-  font-size: 27px;
+  border: none;
+  text-align: left;
+  padding: 0 42px 0 0;
+  position: relative;
 }
 
-.logo {
+.brokerWallet small {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.logo div {
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #00eaff, #065dff);
-  color: #02070d;
-  font-weight: 1000;
-  font-size: 20px;
-  box-shadow: 0 0 22px rgba(0, 119, 255, 0.35);
-}
-
-.logo strong {
-  font-size: 26px;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.logo span {
   color: #008cff;
-}
-
-.walletBox {
-  height: 44px;
-  border-radius: 11px;
-  background: rgba(2, 9, 18, 0.92);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.17);
-  text-align: left;
-  padding: 0 14px;
-  position: relative;
-}
-
-.walletBox small {
-  display: block;
-  color: #00e884;
   font-weight: 1000;
-  font-size: 10px;
-}
-
-.walletBox strong {
-  display: block;
   font-size: 18px;
-  margin-top: 2px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
-.walletBox span {
+.brokerWallet small i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00e884;
+  box-shadow: 0 0 18px rgba(0, 232, 132, 0.8);
+}
+
+.brokerWallet strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 31px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: white;
+}
+
+.brokerWallet strong em {
+  font-style: normal;
+  color: #8d98aa;
+  font-size: 17px;
+  margin-left: 6px;
+}
+
+.brokerWallet > span {
   position: absolute;
-  right: 12px;
-  top: 14px;
+  right: 5px;
+  top: 35px;
+  color: white;
+  font-size: 24px;
 }
 
-.accountSwitch {
-  height: 42px;
+.accountSwitch,
+.brokerAccountSwitch {
+  height: 54px;
+  padding: 0;
+  border-radius: 13px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 4px;
-  border-radius: 11px;
-  background: #060b17;
-}
-
-.accountSwitch button {
+  gap: 8px;
   background: transparent;
-  color: #c5d1e6;
-  border-radius: 9px;
-  font-weight: 1000;
-  font-size: 13px;
 }
 
-.accountSwitch .active {
-  color: white;
-  background: #00c76f;
+.brokerAccountSwitch button {
+  height: 54px;
+  border-radius: 13px;
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #b8c4d8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 18px;
+  font-weight: 900;
 }
 
-.depositTop {
-  height: 42px;
-  border-radius: 11px;
-  background: #065dff;
+.brokerAccountSwitch .active {
   color: white;
-  font-size: 15px;
-  font-weight: 1000;
+  background:
+    linear-gradient(135deg, rgba(0, 232, 132, 0.18), rgba(0, 232, 132, 0.05));
+  border-color: rgba(0, 232, 132, 0.6);
+  box-shadow:
+    0 0 28px rgba(0, 232, 132, 0.16),
+    inset 0 0 18px rgba(0, 232, 132, 0.12);
+}
+
+.brokerAccountSwitch .realActive {
+  color: white;
+  font-size: 21px;
+}
+
+.brokerAccountSwitch .realActive span {
+  margin-right: 7px;
+  color: #00e884;
+}
+
+.depositTop,
+.brokerDepositBtn {
+  height: 62px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #087cff 0%, #065dff 55%, #0048ff 100%);
+  color: white;
+  font-size: 24px;
+  font-weight: 500;
+  display: grid;
+  grid-template-columns: 1fr 78px;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+  box-shadow:
+    0 0 32px rgba(0, 119, 255, 0.42),
+    inset 0 0 28px rgba(255, 255, 255, 0.08);
+}
+
+.brokerDepositBtn span {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+
+.brokerDepositBtn b {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 400;
+  background: rgba(255, 255, 255, 0.09);
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .bellBtn,
-.avatarBtn {
-  width: 42px;
-  height: 42px;
+.brokerBellBtn {
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: transparent;
+  color: #aab6ca;
+  position: relative;
+  font-size: 0;
+}
+
+.brokerBellBtn i {
+  font-style: normal;
+  font-size: 29px;
+  filter: grayscale(1);
+  opacity: 0.9;
+}
+
+.brokerBellBtn b {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: #126dff;
+  display: grid;
+  place-items: center;
   color: white;
-  font-size: 20px;
+  font-size: 15px;
+  font-weight: 1000;
+  box-shadow: 0 0 20px rgba(18, 109, 255, 0.6);
+}
+
+.avatarBtn,
+.brokerAvatarBtn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 60%),
+    rgba(5, 17, 29, 0.75);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  font-size: 26px;
+  font-weight: 800;
   position: relative;
 }
 
-.bellBtn b {
+.brokerAvatarBtn i {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #ff003b;
-  display: grid;
-  place-items: center;
-  font-size: 10px;
-}
-
-.avatarBtn {
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  font-weight: 1000;
-  font-size: 16px;
-}
-
-.avatarBtn i {
-  position: absolute;
-  right: 2px;
-  bottom: 4px;
+  right: 7px;
+  bottom: 6px;
   width: 11px;
   height: 11px;
   border-radius: 50%;
   background: #00e884;
+  box-shadow: 0 0 16px rgba(0, 232, 132, 0.8);
 }
 
-/* GLOBAL */
+.brokerAvatarBtn span {
+  position: absolute;
+  right: -22px;
+  top: 22px;
+  color: #8d98aa;
+  font-size: 20px;
+}
+
+/* MAIN LAYOUT */
 
 .mainScreen {
   min-height: 0;
@@ -325,9 +482,6 @@ select {
 .botStats,
 .botFilters,
 .botCard,
-.profileHero,
-.profileStats,
-.profileActions,
 .settingsHero,
 .settingsPanel,
 .listPanel {
@@ -340,8 +494,6 @@ select {
     inset 0 0 42px rgba(0, 119, 255, 0.05),
     0 18px 50px rgba(0, 0, 0, 0.16);
 }
-
-/* HUB NAV */
 
 .hubNav {
   height: 48px;
@@ -1177,7 +1329,7 @@ select {
   color: #aab6ca;
 }
 
-/* BINARY TRADE */
+/* MANUAL TRADE */
 
 .tradePage {
   grid-template-rows: 40px minmax(220px, 1fr) 108px;
@@ -1656,84 +1808,500 @@ select {
 
 /* PROFILE */
 
-.profilePage {
-  grid-template-rows: 84px 68px 1fr 48px;
+.proProfilePage {
+  grid-template-rows: 182px 98px 1fr 70px;
+  gap: 10px;
+  overflow: hidden;
 }
 
-.profileHero {
+.proProfileHero {
   display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 14px;
+  grid-template-columns: 150px 1fr 430px;
+  gap: 24px;
   align-items: center;
-  padding: 10px 18px;
+  padding: 26px 46px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 88% 45%, rgba(0, 119, 255, 0.35), transparent 26%),
+    linear-gradient(135deg, rgba(6, 21, 40, 0.98), rgba(3, 12, 24, 0.98));
+  border: 1px solid rgba(0, 119, 255, 0.65);
+  box-shadow:
+    inset 0 0 60px rgba(0, 119, 255, 0.12),
+    0 20px 70px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  position: relative;
 }
 
-.profileAvatar {
+.proProfileAvatarWrap {
+  position: relative;
+  width: 128px;
+  height: 128px;
+}
+
+.proProfileAvatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 58px;
+  font-weight: 900;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at center, #0b1422 55%, #07111d),
+    linear-gradient(135deg, #8938ff, #008cff);
+  border: 4px solid transparent;
+  box-shadow:
+    0 0 0 3px rgba(137, 56, 255, 0.9),
+    0 0 0 6px rgba(0, 140, 255, 0.75),
+    0 0 40px rgba(0, 140, 255, 0.4);
+}
+
+.profileOnlineBadge {
+  position: absolute;
+  right: 0;
+  bottom: 12px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #00d878;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 22px;
+  font-weight: 1000;
+  border: 4px solid #07111d;
+}
+
+.proProfileIdentity h1 {
+  font-size: 31px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.proProfileIdentity h1 span {
+  color: #168cff;
+  margin-left: 9px;
+  font-size: 22px;
+}
+
+.proProfileIdentity p {
+  color: #c2ccdd;
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.profileVerifiedRow b {
+  display: inline-flex;
+  height: 28px;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 8px;
+  background: rgba(0, 232, 132, 0.12);
+  color: #00e884;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.profileMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.profileMetaRow span {
+  color: #aab6ca;
+  font-size: 14px;
+}
+
+.profileMetaRow strong {
+  display: block;
+  color: white;
+  margin-top: 7px;
+  font-size: 15px;
+}
+
+.profileMetaRow i {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.activeStatus {
+  color: #dce8ff !important;
+}
+
+.profileHeroArt {
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0.95;
+}
+
+.profileArtLine {
+  position: absolute;
+  inset: 12px 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(0, 119, 255, 0.18), transparent),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 34px,
+      rgba(0, 119, 255, 0.25) 35px 36px
+    );
+  filter: drop-shadow(0 0 18px rgba(0, 119, 255, 0.55));
+}
+
+.profileArtLine::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 28px;
+  top: 52px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #008cff, #00eaff);
+  transform: rotate(-12deg);
+  box-shadow: 0 0 30px rgba(0, 119, 255, 0.8);
+}
+
+.profileArtBadge {
+  position: absolute;
+  right: 80px;
+  top: 35px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #065dff;
+  font-size: 30px;
+  font-weight: 1000;
+  background: rgba(0, 119, 255, 0.16);
+  border: 2px solid rgba(0, 119, 255, 0.75);
+  box-shadow:
+    0 0 0 9px rgba(0, 119, 255, 0.08),
+    0 0 45px rgba(0, 119, 255, 0.8);
+}
+
+.proProfileStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.profileBalanceCard {
+  display: grid;
+  grid-template-columns: 72px 1fr 24px;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 26px;
+  border-radius: 13px;
+  text-align: left;
+  color: white;
+  background:
+    linear-gradient(135deg, rgba(8, 28, 49, 0.96), rgba(4, 14, 27, 0.96));
+  border: 1px solid rgba(70, 145, 255, 0.22);
+  box-shadow:
+    inset 0 0 40px rgba(0, 119, 255, 0.06),
+    0 16px 45px rgba(0, 0, 0, 0.18);
+}
+
+.profileBalanceIcon,
+.profileActionIcon {
   width: 58px;
   height: 58px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255,255,255,.18);
-  font-size: 22px;
+  font-size: 26px;
+  font-weight: 900;
 }
 
-.profileHero p,
-.profileHero small {
-  display: block;
-  color: #aab6ca;
+.profileBalanceIcon.blue,
+.profileActionIcon.blue {
+  color: #168cff;
+  background: rgba(0, 119, 255, 0.12);
+  border: 1px solid #168cff;
+  box-shadow: 0 0 30px rgba(0, 119, 255, 0.2);
 }
 
-.profileHero b {
+.profileBalanceIcon.purple,
+.profileActionIcon.purple {
+  color: #9b4dff;
+  background: rgba(155, 77, 255, 0.12);
+  border: 1px solid #9b4dff;
+  box-shadow: 0 0 30px rgba(155, 77, 255, 0.2);
+}
+
+.profileBalanceIcon.green,
+.profileActionIcon.green {
   color: #00e884;
-  font-size: 12px;
+  background: rgba(0, 232, 132, 0.12);
+  border: 1px solid #00e884;
+  box-shadow: 0 0 30px rgba(0, 232, 132, 0.18);
 }
 
-.profileStats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+.profileBalanceIcon.yellow,
+.profileActionIcon.yellow {
+  color: #ffb400;
+  background: rgba(255, 180, 0, 0.12);
+  border: 1px solid #ffb400;
+  box-shadow: 0 0 30px rgba(255, 180, 0, 0.2);
 }
 
-.profileActions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 8px;
-}
-
-.profileActions button {
-  border-radius: 12px;
-  background: rgba(255,255,255,.035);
-  color: white;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 6px;
-  font-size: 25px;
-}
-
-.profileActions b,
-.profileActions span {
-  display: block;
+.profileBalanceCard span {
+  color: #aab6ca;
   font-size: 13px;
 }
 
-.profileActions span {
-  color: #aab6ca;
-  font-size: 11px;
-}
-
-.logoutWide {
-  border-radius: 12px;
-  background: rgba(255, 0, 59, 0.08);
-  border: 1px solid #ff003b;
-  color: #ff4057;
+.profileBalanceCard strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 25px;
   font-weight: 900;
-  font-size: 16px;
 }
 
-/* SETTINGS / HISTORY */
+.profileBalanceCard em {
+  color: #aab6ca;
+  font-size: 34px;
+  font-style: normal;
+}
+
+.proProfileMain {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+
+.profileCardsGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr 0.65fr;
+  gap: 10px;
+}
+
+.profileActionCard,
+.supportWideCard,
+.referralPanel {
+  border-radius: 13px;
+  background:
+    linear-gradient(135deg, rgba(8, 28, 49, 0.96), rgba(4, 14, 27, 0.96));
+  border: 1px solid rgba(70, 145, 255, 0.22);
+  box-shadow:
+    inset 0 0 45px rgba(0, 119, 255, 0.06),
+    0 16px 45px rgba(0, 0, 0, 0.16);
+}
+
+.profileActionCard {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  text-align: left;
+  color: white;
+}
+
+.profileActionCard h3,
+.supportWideCard h3,
+.referralPanel h2 {
+  font-size: 19px;
+  margin-bottom: 7px;
+}
+
+.profileActionCard p,
+.supportWideCard p,
+.referralPanel p {
+  color: #aab6ca;
+  line-height: 1.42;
+  font-size: 14px;
+}
+
+.profileActionCard span {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.profileActionCard span em {
+  font-style: normal;
+  color: #d5e2f5;
+  font-size: 18px;
+}
+
+.profileActionCard .verifiedMiniBtn {
+  color: #00e884;
+  background: rgba(0, 232, 132, 0.12);
+  border-color: rgba(0, 232, 132, 0.25);
+}
+
+.supportWideCard {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 76px 1fr 280px 190px;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 22px;
+}
+
+.responseTime {
+  padding-left: 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.responseTime small {
+  display: block;
+  color: #aab6ca;
+  margin-bottom: 8px;
+}
+
+.responseTime strong {
+  color: #aab6ca;
+  font-size: 14px;
+}
+
+.supportWideCard button {
+  height: 48px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.referralPanel {
+  padding: 28px 32px;
+  display: grid;
+  grid-template-rows: auto auto auto auto auto 1fr auto;
+  align-content: start;
+}
+
+.referralPanel .profileActionIcon {
+  margin-bottom: 18px;
+}
+
+.referralPanel label {
+  margin-top: 35px;
+  margin-bottom: 10px;
+  color: #aab6ca;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.referralLinkBox {
+  height: 54px;
+  display: grid;
+  grid-template-columns: 1fr 42px;
+  align-items: center;
+  padding: 0 10px 0 18px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.referralLinkBox span {
+  color: #b8c4d8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.referralLinkBox button {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.045);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.referralStatsBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 22px;
+  padding: 26px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.referralStatsBox div + div {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 28px;
+}
+
+.referralStatsBox small {
+  display: block;
+  color: #aab6ca;
+  margin-bottom: 9px;
+}
+
+.referralStatsBox strong {
+  color: #a646ff;
+  font-size: 25px;
+}
+
+.referralDashboardBtn {
+  height: 52px;
+  border-radius: 10px;
+  color: white;
+  font-size: 15px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #8d28ff, #b52dff);
+}
+
+.proLogoutButton {
+  display: grid;
+  grid-template-columns: 58px 1fr 30px;
+  align-items: center;
+  text-align: left;
+  padding: 0 34px;
+  border-radius: 10px;
+  background:
+    linear-gradient(90deg, rgba(255, 0, 59, 0.13), rgba(255, 0, 59, 0.04));
+  border: 1px solid #ff003b;
+  color: white;
+}
+
+.proLogoutButton > span {
+  color: #ff4057;
+  font-size: 32px;
+}
+
+.proLogoutButton strong {
+  display: block;
+  color: #ff4057;
+  font-size: 18px;
+}
+
+.proLogoutButton small {
+  display: block;
+  color: #aab6ca;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.proLogoutButton em {
+  justify-self: end;
+  font-size: 34px;
+  font-style: normal;
+  color: #b8c4d8;
+}
+
+/* SETTINGS / HISTORY / REPORTS */
 
 .settingsPage,
 .listPage,
@@ -1868,7 +2436,7 @@ select {
   place-items: center;
 }
 
-/* MENU */
+/* SIDE MENU */
 
 .menuLayer {
   position: fixed;
@@ -2166,6 +2734,8 @@ select {
   font-size: 16px;
 }
 
+/* TOAST */
+
 .toast {
   position: fixed;
   right: 16px;
@@ -2202,82 +2772,156 @@ select {
 
 @media (max-width: 760px) {
   .app {
-    grid-template-rows: 108px 1fr 58px;
+    grid-template-rows: 118px 1fr 58px;
   }
 
-  .topHeader {
+  .topHeader,
+  .brokerTopHeader {
     grid-template-columns: 32px 1fr 32px 38px;
-    grid-template-rows: 42px 48px;
-    gap: 5px;
-    padding: 7px 9px;
+    grid-template-rows: 48px 58px;
+    gap: 6px;
+    padding: 7px 10px;
+    background:
+      radial-gradient(circle at 72% 40%, rgba(0, 87, 255, 0.25), transparent 28%),
+      linear-gradient(90deg, #02070d, #071423 54%, #02070d);
   }
 
-  .menuBtn {
-    grid-column: 1;
-    font-size: 23px;
-  }
-
-  .topHeader .logo {
-    grid-column: 2;
-  }
-
-  .topHeader .logo div {
+  .brokerMenuBtn {
     width: 32px;
     height: 32px;
-    font-size: 16px;
+    gap: 5px;
   }
 
-  .topHeader .logo strong {
+  .brokerMenuBtn span {
+    width: 23px;
+    height: 2px;
+  }
+
+  .brokerLogo {
+    gap: 8px;
+  }
+
+  .brokerLogoMark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brokerLogoMark span {
+    font-size: 12px;
+  }
+
+  .brokerLogo strong {
     font-size: 22px;
   }
 
-  .bellBtn {
-    grid-column: 3;
+  .brokerHeaderDivider {
+    display: none;
   }
 
-  .avatarBtn {
-    grid-column: 4;
-  }
-
-  .bellBtn,
-  .avatarBtn {
+  .brokerBellBtn,
+  .brokerAvatarBtn {
     width: 32px;
     height: 32px;
+  }
+
+  .brokerBellBtn i {
+    font-size: 18px;
+  }
+
+  .brokerBellBtn b {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+    top: -4px;
+    right: -5px;
+  }
+
+  .brokerAvatarBtn {
     font-size: 13px;
   }
 
-  .walletBox {
+  .brokerAvatarBtn i {
+    width: 8px;
+    height: 8px;
+    right: 1px;
+    bottom: 2px;
+  }
+
+  .brokerAvatarBtn span {
+    display: none;
+  }
+
+  .brokerWallet {
     grid-column: 1 / 3;
     grid-row: 2;
-    height: 42px;
+    height: 48px;
+    padding: 0 22px 0 10px;
+    border-radius: 11px;
+    background: rgba(2, 9, 18, 0.8);
+    border: 1px solid rgba(255,255,255,.12);
   }
 
-  .walletBox small {
+  .brokerWallet small {
     font-size: 8px;
+    gap: 5px;
   }
 
-  .walletBox strong {
+  .brokerWallet small i {
+    width: 6px;
+    height: 6px;
+  }
+
+  .brokerWallet strong {
+    font-size: 14px;
+    margin-top: 3px;
+  }
+
+  .brokerWallet strong em {
+    font-size: 9px;
+  }
+
+  .brokerWallet > span {
+    top: 18px;
+    right: 8px;
     font-size: 13px;
   }
 
-  .accountSwitch {
+  .brokerAccountSwitch {
     grid-column: 3;
     grid-row: 2;
-    height: 42px;
-    width: 70px;
+    width: 72px;
+    height: 48px;
+    gap: 3px;
   }
 
-  .accountSwitch button {
+  .brokerAccountSwitch button {
+    height: 48px;
+    padding: 0;
+    font-size: 8px;
+    border-radius: 10px;
+  }
+
+  .brokerAccountSwitch .realActive {
     font-size: 8px;
   }
 
-  .depositTop {
+  .brokerAccountSwitch .realActive span {
+    display: none;
+  }
+
+  .brokerDepositBtn {
     grid-column: 4;
     grid-row: 2;
-    width: 82px;
-    height: 42px;
-    font-size: 10px;
-    transform: translateX(-46px);
+    width: 92px;
+    height: 48px;
+    transform: translateX(-54px);
+    grid-template-columns: 1fr 28px;
+    border-radius: 11px;
+    font-size: 12px;
+  }
+
+  .brokerDepositBtn b {
+    font-size: 16px;
   }
 
   .mainScreen {
@@ -2897,46 +3541,210 @@ select {
     font-size: 6px;
   }
 
-  .profilePage {
-    grid-template-rows: 68px 40px 1fr 36px;
+  .proProfilePage {
+    grid-template-rows: 92px 48px 1fr 42px;
+    gap: 5px;
   }
 
-  .profileHero {
-    grid-template-columns: 44px 1fr;
-    padding: 5px;
+  .proProfileHero {
+    grid-template-columns: 54px 1fr;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
   }
 
-  .profileAvatar {
-    width: 40px;
-    height: 40px;
+  .proProfileAvatarWrap {
+    width: 48px;
+    height: 48px;
+  }
+
+  .proProfileAvatar {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+    border-width: 2px;
+    box-shadow:
+      0 0 0 2px rgba(137, 56, 255, 0.9),
+      0 0 0 4px rgba(0, 140, 255, 0.55);
+  }
+
+  .profileOnlineBadge {
+    width: 17px;
+    height: 17px;
+    right: -1px;
+    bottom: 2px;
+    font-size: 10px;
+    border-width: 2px;
+  }
+
+  .proProfileIdentity h1 {
     font-size: 14px;
+    margin-bottom: 3px;
   }
 
-  .profileHero h2 {
-    font-size: 11px;
+  .proProfileIdentity h1 span {
+    font-size: 10px;
   }
 
-  .profileHero p,
-  .profileHero b,
-  .profileHero small {
+  .proProfileIdentity p {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .profileVerifiedRow b {
+    height: 16px;
+    padding: 0 8px;
     font-size: 6px;
   }
 
-  .profileActions {
-    gap: 4px;
-    padding: 4px;
+  .profileMetaRow {
+    gap: 10px;
+    margin-top: 5px;
   }
 
-  .profileActions button {
-    font-size: 15px;
+  .profileMetaRow span,
+  .profileMetaRow strong {
+    font-size: 6px;
+    margin-top: 2px;
   }
 
-  .profileActions b {
+  .profileMetaRow i {
+    height: 20px;
+  }
+
+  .profileHeroArt {
+    display: none;
+  }
+
+  .proProfileStats {
+    gap: 5px;
+  }
+
+  .profileBalanceCard {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 9px;
+  }
+
+  .profileBalanceIcon {
+    display: none;
+  }
+
+  .profileBalanceCard span {
+    font-size: 5px;
+  }
+
+  .profileBalanceCard strong {
+    font-size: 8px;
+    margin-top: 2px;
+  }
+
+  .profileBalanceCard em {
+    display: none;
+  }
+
+  .proProfileMain {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .profileCardsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr 0.55fr;
+    gap: 5px;
+  }
+
+  .profileActionCard {
+    grid-template-columns: 26px 1fr;
+    gap: 5px;
+    padding: 6px;
+    border-radius: 9px;
+  }
+
+  .profileActionIcon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .profileActionCard h3,
+  .supportWideCard h3 {
     font-size: 7px;
+    margin-bottom: 2px;
   }
 
-  .profileActions span {
-    font-size: 5.5px;
+  .profileActionCard p,
+  .supportWideCard p {
+    font-size: 5px;
+    line-height: 1.25;
+  }
+
+  .profileActionCard span {
+    height: 16px;
+    margin-top: 4px;
+    padding: 0 6px;
+    font-size: 5px;
+    gap: 4px;
+    border-radius: 5px;
+  }
+
+  .profileActionCard span em {
+    font-size: 8px;
+  }
+
+  .supportWideCard {
+    grid-template-columns: 26px 1fr 85px 78px;
+    gap: 5px;
+    padding: 6px;
+    border-radius: 9px;
+  }
+
+  .responseTime {
+    padding-left: 6px;
+  }
+
+  .responseTime small,
+  .responseTime strong {
+    font-size: 5px;
+  }
+
+  .responseTime small {
+    margin-bottom: 2px;
+  }
+
+  .supportWideCard button {
+    height: 20px;
+    border-radius: 6px;
+    font-size: 5px;
+  }
+
+  .referralPanel {
+    display: none;
+  }
+
+  .proLogoutButton {
+    grid-template-columns: 28px 1fr 16px;
+    padding: 0 12px;
+    border-radius: 9px;
+  }
+
+  .proLogoutButton > span {
+    font-size: 16px;
+  }
+
+  .proLogoutButton strong {
+    font-size: 8px;
+  }
+
+  .proLogoutButton small {
+    font-size: 5px;
+    margin-top: 1px;
+  }
+
+  .proLogoutButton em {
+    font-size: 14px;
   }
 
   .settingsHero,
@@ -2989,7 +3797,7 @@ select {
     grid-template-rows: 40px 104px 1fr 42px;
   }
 
-  .sideDrawer .logo div {
+  .sideDrawer .brokerLogoMark {
     width: 32px;
     height: 32px;
   }
@@ -3073,5 +3881,490 @@ select {
     width: calc(100% - 16px);
     right: 8px;
     top: 8px;
+  }
+}/* ===============================
+   FINAL BROKER TOP HEADER FIX
+   Paste at the VERY BOTTOM of App.css
+================================ */
+
+.topHeader.brokerTopHeader {
+  height: 86px !important;
+  display: grid !important;
+  grid-template-columns: 54px 255px 1px minmax(260px, 1fr) 138px 210px 54px 70px !important;
+  gap: 18px !important;
+  align-items: center !important;
+  padding: 0 34px !important;
+  overflow: hidden !important;
+
+  background:
+    radial-gradient(circle at 76% 50%, rgba(0, 87, 255, 0.28), transparent 22%),
+    linear-gradient(90deg, #02070d 0%, #071423 50%, #02070d 100%) !important;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 119, 255, 0.12),
+    0 18px 60px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* menu */
+.brokerTopHeader .brokerMenuBtn {
+  width: 48px !important;
+  height: 48px !important;
+  display: grid !important;
+  align-content: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+.brokerTopHeader .brokerMenuBtn span {
+  display: block !important;
+  width: 31px !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: #aab6ca !important;
+}
+
+/* logo */
+.brokerTopHeader .brokerLogo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+.brokerTopHeader .brokerLogoMark {
+  width: 54px !important;
+  height: 54px !important;
+  flex: 0 0 54px !important;
+  display: grid !important;
+  place-items: center !important;
+  position: relative !important;
+}
+
+.brokerTopHeader .brokerLogoMark::before,
+.brokerTopHeader .brokerLogoMark::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 6px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #04d8ff 0%, #006dff 45%, #082cff 100%) !important;
+  transform: skewY(-18deg) rotate(45deg) !important;
+  box-shadow:
+    0 0 28px rgba(0, 119, 255, 0.35),
+    inset 0 0 18px rgba(255, 255, 255, 0.18) !important;
+}
+
+.brokerTopHeader .brokerLogoMark::after {
+  inset: 15px !important;
+  background: #071423 !important;
+}
+
+.brokerTopHeader .brokerLogoMark span {
+  position: relative !important;
+  z-index: 2 !important;
+  color: #008cff !important;
+  font-size: 18px !important;
+  font-weight: 1000 !important;
+}
+
+.brokerTopHeader .brokerLogo strong {
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  letter-spacing: -1px !important;
+  color: #ffffff !important;
+  white-space: nowrap !important;
+}
+
+.brokerTopHeader .brokerLogo strong span {
+  color: #8d98aa !important;
+}
+
+/* divider */
+.brokerTopHeader .brokerHeaderDivider {
+  width: 1px !important;
+  height: 56px !important;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(255, 255, 255, 0.16),
+    transparent
+  ) !important;
+}
+
+/* wallet */
+.brokerTopHeader .brokerWallet {
+  height: 66px !important;
+  min-width: 250px !important;
+  max-width: 420px !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: white !important;
+  text-align: left !important;
+  padding: 0 38px 0 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.brokerTopHeader .brokerWallet small {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: #008cff !important;
+  font-weight: 1000 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+.brokerTopHeader .brokerWallet small i {
+  width: 11px !important;
+  height: 11px !important;
+  border-radius: 50% !important;
+  background: #00e884 !important;
+  box-shadow: 0 0 18px rgba(0, 232, 132, 0.85) !important;
+}
+
+.brokerTopHeader .brokerWallet strong {
+  display: block !important;
+  margin-top: 7px !important;
+  font-size: 31px !important;
+  line-height: 1 !important;
+  font-weight: 500 !important;
+  color: white !important;
+  white-space: nowrap !important;
+}
+
+.brokerTopHeader .brokerWallet strong em {
+  font-style: normal !important;
+  color: #8d98aa !important;
+  font-size: 17px !important;
+  margin-left: 6px !important;
+}
+
+.brokerTopHeader .brokerWallet > span {
+  position: absolute !important;
+  right: 6px !important;
+  top: 37px !important;
+  color: white !important;
+  font-size: 22px !important;
+}
+
+/* FIX DEMO / REAL */
+.brokerTopHeader .brokerAccountSwitch {
+  width: 138px !important;
+  height: 54px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  padding: 4px !important;
+  border-radius: 14px !important;
+  background: rgba(3, 8, 17, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden !important;
+}
+
+.brokerTopHeader .brokerAccountSwitch button {
+  width: 100% !important;
+  height: 46px !important;
+  min-width: 0 !important;
+  border-radius: 11px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: #b8c4d8 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  box-shadow: none !important;
+}
+
+.brokerTopHeader .brokerAccountSwitch button.active {
+  background: linear-gradient(135deg, #00c978, #00a86c) !important;
+  color: white !important;
+  box-shadow: 0 0 24px rgba(0, 232, 132, 0.24) !important;
+}
+
+.brokerTopHeader .brokerAccountSwitch button span {
+  display: none !important;
+}
+
+/* deposit */
+.brokerTopHeader .brokerDepositBtn {
+  width: 210px !important;
+  height: 62px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 62px !important;
+  align-items: center !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  color: white !important;
+  background: linear-gradient(135deg, #087cff 0%, #065dff 55%, #0048ff 100%) !important;
+  box-shadow:
+    0 0 32px rgba(0, 119, 255, 0.42),
+    inset 0 0 28px rgba(255, 255, 255, 0.08) !important;
+}
+
+.brokerTopHeader .brokerDepositBtn span {
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+.brokerTopHeader .brokerDepositBtn b {
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 26px !important;
+  font-weight: 400 !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* bell */
+.brokerTopHeader .brokerBellBtn {
+  width: 52px !important;
+  height: 52px !important;
+  position: relative !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  border: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 0 !important;
+}
+
+.brokerTopHeader .brokerBellBtn i {
+  font-style: normal !important;
+  font-size: 27px !important;
+  filter: grayscale(1) brightness(1.8) !important;
+  opacity: 0.9 !important;
+}
+
+.brokerTopHeader .brokerBellBtn b {
+  position: absolute !important;
+  top: -5px !important;
+  right: -4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: #126dff !important;
+  color: white !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+}
+
+/* avatar */
+.brokerTopHeader .brokerAvatarBtn {
+  width: 62px !important;
+  height: 62px !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 60%),
+    rgba(5, 17, 29, 0.75) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.17) !important;
+  font-size: 25px !important;
+  font-weight: 900 !important;
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.brokerTopHeader .brokerAvatarBtn i {
+  position: absolute !important;
+  right: 7px !important;
+  bottom: 6px !important;
+  width: 11px !important;
+  height: 11px !important;
+  border-radius: 50% !important;
+  background: #00e884 !important;
+  box-shadow: 0 0 16px rgba(0, 232, 132, 0.8) !important;
+}
+
+.brokerTopHeader .brokerAvatarBtn span {
+  display: none !important;
+}
+
+/* make sure browser default white buttons never return */
+.brokerTopHeader button {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* tablet */
+@media (max-width: 1100px) {
+  .topHeader.brokerTopHeader {
+    grid-template-columns: 44px 210px minmax(190px, 1fr) 118px 170px 42px 52px !important;
+    gap: 10px !important;
+    padding: 0 14px !important;
+  }
+
+  .brokerTopHeader .brokerHeaderDivider {
+    display: none !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 27px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 44px !important;
+    height: 44px !important;
+    flex-basis: 44px !important;
+  }
+
+  .brokerTopHeader .brokerWallet small {
+    font-size: 11px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    font-size: 22px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn {
+    width: 170px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn span {
+    font-size: 18px !important;
+  }
+}
+
+/* phone */
+@media (max-width: 760px) {
+  .topHeader.brokerTopHeader {
+    height: 118px !important;
+    grid-template-columns: 34px 1fr 36px 38px !important;
+    grid-template-rows: 48px 56px !important;
+    gap: 6px !important;
+    padding: 7px 10px !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn {
+    width: 32px !important;
+    height: 32px !important;
+    gap: 5px !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn span {
+    width: 23px !important;
+    height: 2px !important;
+  }
+
+  .brokerTopHeader .brokerLogo {
+    gap: 8px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    flex-basis: 34px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark span {
+    font-size: 11px !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 22px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn,
+  .brokerTopHeader .brokerAvatarBtn {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn i {
+    font-size: 18px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn b {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 9px !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn {
+    font-size: 13px !important;
+  }
+
+  .brokerTopHeader .brokerWallet {
+    grid-column: 1 / 3 !important;
+    grid-row: 2 !important;
+    height: 48px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 8px 22px 8px 10px !important;
+    border-radius: 11px !important;
+    background: rgba(2, 9, 18, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .brokerTopHeader .brokerWallet small {
+    font-size: 8px !important;
+  }
+
+  .brokerTopHeader .brokerWallet small i {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    font-size: 14px !important;
+    margin-top: 3px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong em {
+    font-size: 9px !important;
+  }
+
+  .brokerTopHeader .brokerWallet > span {
+    top: 18px !important;
+    right: 8px !important;
+    font-size: 13px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    width: 70px !important;
+    height: 48px !important;
+    gap: 3px !important;
+    padding: 3px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button {
+    height: 42px !important;
+    font-size: 8px !important;
+    border-radius: 8px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn {
+    grid-column: 4 !important;
+    grid-row: 2 !important;
+    width: 92px !important;
+    height: 48px !important;
+    transform: translateX(-54px) !important;
+    grid-template-columns: 1fr 26px !important;
+    border-radius: 11px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn span {
+    font-size: 12px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn b {
+    font-size: 15px !important;
   }
 }
