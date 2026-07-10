@@ -5603,3 +5603,1188 @@ select {
     height: calc(100dvh - 120px - 86px) !important;
   }
 }
+
+/* =====================================================
+   FINAL COMPLETE OVERRIDES — SMALL TOP HEADER + REFERRAL
+   Added for MetaBinary full replacement
+===================================================== */
+
+.usdFlag {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border-radius: 50% !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  background:
+    radial-gradient(circle at 35% 28%, #ffffff 0 20%, transparent 21%),
+    linear-gradient(135deg, #1667ff 0 36%, #ffffff 37% 45%, #e5263f 46% 100%) !important;
+  color: #ffffff !important;
+  font-size: 7px !important;
+  font-weight: 1000 !important;
+  letter-spacing: -0.4px !important;
+  border: 1px solid rgba(255,255,255,.65) !important;
+  box-shadow: 0 0 14px rgba(0, 119, 255, 0.45) !important;
+}
+
+.referralStatus {
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 14px 0 18px;
+  display: grid;
+  gap: 5px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.referralStatus b,
+.referralStatus span {
+  display: block;
+}
+
+.referralStatus b {
+  font-size: 15px;
+}
+
+.referralStatus span {
+  color: #aab6ca;
+  font-size: 13px;
+}
+
+.referralStatus.approved {
+  background: rgba(0, 232, 132, 0.1);
+  border-color: rgba(0, 232, 132, 0.35);
+}
+
+.referralStatus.approved b {
+  color: #00e884;
+}
+
+.referralStatus.pending {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.referralApplyBtn {
+  width: 100%;
+  height: 54px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #8d28ff, #0a7cff);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 1000;
+  box-shadow: 0 0 30px rgba(0, 119, 255, 0.25);
+}
+
+@media (min-width: 761px) {
+  .app {
+    grid-template-rows: 72px 1fr 58px !important;
+  }
+
+  .topHeader.brokerTopHeader,
+  .brokerTopHeader {
+    height: 72px !important;
+    grid-template-columns: 44px 260px minmax(220px, 1fr) 138px 190px 48px 60px !important;
+    gap: 14px !important;
+    padding: 0 24px !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .brokerTopHeader .brokerHeaderDivider {
+    display: none !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn {
+    width: 42px !important;
+    height: 42px !important;
+    gap: 6px !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn span {
+    width: 28px !important;
+    height: 3px !important;
+  }
+
+  .brokerTopHeader .brokerLogo {
+    gap: 12px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 46px !important;
+    height: 46px !important;
+    flex: 0 0 46px !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 30px !important;
+  }
+
+  .brokerTopHeader .brokerWallet {
+    height: 52px !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 8px 30px 8px 14px !important;
+    border-radius: 14px !important;
+    background:
+      radial-gradient(circle at 90% 50%, rgba(0, 119, 255, 0.18), transparent 40%),
+      rgba(2, 9, 18, 0.9) !important;
+    border: 1px solid rgba(70,145,255,.2) !important;
+  }
+
+  .brokerTopHeader .brokerWallet small {
+    font-size: 10px !important;
+    gap: 7px !important;
+  }
+
+  .brokerTopHeader .brokerWallet small i {
+    width: 7px !important;
+    height: 7px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong em {
+    font-size: 12px !important;
+  }
+
+  .brokerTopHeader .brokerWallet > span:not(.usdFlag) {
+    top: 18px !important;
+    right: 10px !important;
+    font-size: 16px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch {
+    width: 138px !important;
+    height: 48px !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px !important;
+    padding: 4px !important;
+    border-radius: 14px !important;
+    background: rgba(2,8,18,.95) !important;
+    border: 1px solid rgba(255,255,255,.09) !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button {
+    height: 40px !important;
+    border-radius: 11px !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button.active {
+    background: linear-gradient(135deg, #00d27a, #009d63) !important;
+    color: white !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn {
+    width: 190px !important;
+    height: 52px !important;
+    grid-template-columns: 1fr 42px !important;
+    border-radius: 14px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn span {
+    font-size: 18px !important;
+    font-weight: 1000 !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn b {
+    font-size: 18px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn {
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 17px !important;
+  }
+}
+
+/* PHONE — small top only, no half-screen header */
+@media (max-width: 760px) {
+  .app {
+    grid-template-rows: 92px 1fr 70px !important;
+  }
+
+  .topHeader.brokerTopHeader,
+  .brokerTopHeader {
+    height: 92px !important;
+    display: grid !important;
+    grid-template-columns: 30px 1fr 30px 36px !important;
+    grid-template-rows: 38px 42px !important;
+    gap: 6px !important;
+    padding: 6px 8px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 70 !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 30px !important;
+    height: 30px !important;
+    gap: 4px !important;
+    padding: 0 !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn span {
+    width: 22px !important;
+    height: 2px !important;
+  }
+
+  .brokerTopHeader .brokerLogo {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark span {
+    font-size: 10px !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 20px !important;
+    line-height: 1 !important;
+    letter-spacing: -0.7px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn i {
+    font-size: 16px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn b {
+    width: 16px !important;
+    height: 16px !important;
+    top: -4px !important;
+    right: -3px !important;
+    font-size: 8px !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 12px !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn i {
+    width: 8px !important;
+    height: 8px !important;
+    right: 3px !important;
+    bottom: 3px !important;
+  }
+
+  .brokerTopHeader .brokerWallet {
+    grid-column: 1 / 3 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    padding: 6px 20px 5px 9px !important;
+    border-radius: 12px !important;
+    background:
+      radial-gradient(circle at 90% 50%, rgba(0, 119, 255, 0.16), transparent 40%),
+      rgba(2, 9, 18, 0.94) !important;
+    border: 1px solid rgba(70,145,255,.18) !important;
+  }
+
+  .brokerTopHeader .brokerWallet small {
+    font-size: 7px !important;
+    gap: 4px !important;
+    line-height: 1 !important;
+  }
+
+  .brokerTopHeader .brokerWallet small i {
+    width: 5px !important;
+    height: 5px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-top: 3px !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong em {
+    font-size: 8px !important;
+    margin-left: 1px !important;
+  }
+
+  .brokerTopHeader .brokerWallet > span:not(.usdFlag) {
+    right: 7px !important;
+    top: 14px !important;
+    font-size: 11px !important;
+  }
+
+  .brokerTopHeader .usdFlag {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    font-size: 5px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    width: 62px !important;
+    height: 42px !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 2px !important;
+    padding: 3px !important;
+    border-radius: 12px !important;
+    background: rgba(2,8,18,.98) !important;
+    border: 1px solid rgba(255,255,255,.09) !important;
+    transform: none !important;
+    z-index: 30 !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button {
+    width: 100% !important;
+    height: 16px !important;
+    min-width: 0 !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    color: #c9d6e8 !important;
+    font-size: 8.5px !important;
+    font-weight: 1000 !important;
+    display: grid !important;
+    place-items: center !important;
+    pointer-events: auto !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button.active,
+  .brokerTopHeader .brokerAccountSwitch button.demoActive,
+  .brokerTopHeader .brokerAccountSwitch button.realActive {
+    background: linear-gradient(135deg, #00d27a, #009d63) !important;
+    color: #fff !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn {
+    grid-column: 4 !important;
+    grid-row: 2 !important;
+    width: 54px !important;
+    height: 42px !important;
+    grid-template-columns: 1fr 16px !important;
+    border-radius: 12px !important;
+    transform: none !important;
+    z-index: 20 !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn span {
+    font-size: 8.5px !important;
+    font-weight: 1000 !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn b {
+    font-size: 10px !important;
+  }
+
+  .mainScreen {
+    height: auto !important;
+    min-height: 0 !important;
+    padding-top: 4px !important;
+  }
+
+  .hubNav {
+    margin-top: 0 !important;
+  }
+
+  .referralStatus {
+    padding: 10px 12px !important;
+    margin: 10px 0 !important;
+  }
+
+  .referralApplyBtn {
+    height: 44px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .topHeader.brokerTopHeader,
+  .brokerTopHeader {
+    height: 86px !important;
+    grid-template-columns: 28px 1fr 28px 32px !important;
+    grid-template-rows: 34px 40px !important;
+    gap: 5px !important;
+    padding: 5px 6px !important;
+  }
+
+  .app {
+    grid-template-rows: 86px 1fr 68px !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 18px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 28px !important;
+    height: 28px !important;
+    flex-basis: 28px !important;
+  }
+
+  .brokerTopHeader .brokerWallet {
+    height: 40px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    font-size: 13px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch {
+    width: 58px !important;
+    height: 40px !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn {
+    width: 50px !important;
+    height: 40px !important;
+  }
+}
+
+/* =========================================================
+   PUBLISH READY MOBILE FOREX + COMPACT BROKER HEADER
+   This final block overrides earlier styles and keeps every page fitting.
+========================================================= */
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    overflow: hidden !important;
+  }
+
+  .app {
+    grid-template-rows: 56px 1fr 70px !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .topHeader.brokerTopHeader,
+  .brokerTopHeader {
+    height: 56px !important;
+    min-height: 56px !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(92px, 1fr) 118px 62px 28px 34px !important;
+    grid-template-rows: 1fr !important;
+    gap: 5px !important;
+    padding: 6px 7px !important;
+    align-items: center !important;
+    overflow: hidden !important;
+    background: linear-gradient(90deg, #020914, #06182b 52%, #020914) !important;
+    border-bottom: 1px solid rgba(58, 134, 255, 0.2) !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,.35) !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 28px !important;
+    height: 36px !important;
+    gap: 4px !important;
+    padding: 0 !important;
+  }
+
+  .brokerTopHeader .brokerMenuBtn span {
+    width: 22px !important;
+    height: 2px !important;
+  }
+
+  .brokerTopHeader .brokerLogo {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+    border-radius: 9px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark::before {
+    inset: 5px !important;
+    border-radius: 8px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark::after {
+    inset: 12px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark span {
+    font-size: 10px !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 18px !important;
+    max-width: 95px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .brokerTopHeader .brokerHeaderDivider {
+    display: none !important;
+  }
+
+  .brokerTopHeader .brokerWallet {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 118px !important;
+    min-width: 118px !important;
+    max-width: 118px !important;
+    height: 42px !important;
+    padding: 6px 20px 5px 9px !important;
+    border-radius: 13px !important;
+    background: rgba(4, 14, 28, 0.94) !important;
+    border: 1px solid rgba(90, 145, 225, 0.28) !important;
+    box-shadow: inset 0 0 22px rgba(0, 119, 255, 0.08) !important;
+    overflow: hidden !important;
+  }
+
+  .brokerTopHeader .brokerWallet small {
+    font-size: 7.5px !important;
+    gap: 4px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+  }
+
+  .brokerTopHeader .brokerWallet small i {
+    width: 5px !important;
+    height: 5px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-top: 4px !important;
+    font-size: 13.5px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong .usdFlag {
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    border-radius: 50% !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    font-size: 0 !important;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 0 42%, rgba(255,255,255,.88) 43% 47%, transparent 48%),
+      linear-gradient(180deg, #b22234 0 14%, #fff 14% 28%, #b22234 28% 42%, #fff 42% 56%, #b22234 56% 70%, #fff 70% 84%, #b22234 84% 100%) !important;
+    border: 1px solid rgba(255,255,255,.42) !important;
+    box-shadow: 0 0 10px rgba(0, 119, 255, .28) !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong .usdFlag::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2448a8;
+    justify-self: start;
+    margin-left: 2px;
+  }
+
+  .brokerTopHeader .brokerWallet strong em {
+    font-size: 8.5px !important;
+    color: #9aa6b9 !important;
+    margin-left: 0 !important;
+  }
+
+  .brokerTopHeader .brokerWallet > span {
+    top: 14px !important;
+    right: 7px !important;
+    font-size: 11px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: 62px !important;
+    min-width: 62px !important;
+    height: 42px !important;
+    padding: 3px !important;
+    border-radius: 13px !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 2px !important;
+    background: rgba(1, 8, 17, 0.96) !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button {
+    height: 17px !important;
+    min-height: 0 !important;
+    border-radius: 9px !important;
+    padding: 0 !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    background: transparent !important;
+    color: #aebbd2 !important;
+    border: none !important;
+    font-weight: 1000 !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch button.active,
+  .brokerTopHeader .brokerAccountSwitch button.demoActive,
+  .brokerTopHeader .brokerAccountSwitch button.realActive {
+    background: linear-gradient(135deg, #00d27a, #009c65) !important;
+    color: #fff !important;
+    box-shadow: 0 0 12px rgba(0, 232, 132, .25) !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn {
+    grid-column: 5 !important;
+    grid-row: 1 !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+    grid-template-columns: 1fr !important;
+    background: linear-gradient(135deg, #087cff, #004cff) !important;
+    box-shadow: 0 0 18px rgba(0, 119, 255, .35) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .brokerTopHeader .brokerDepositBtn b {
+    width: 100% !important;
+    height: 100% !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn {
+    position: absolute !important;
+    right: 45px !important;
+    top: 12px !important;
+    width: 24px !important;
+    height: 32px !important;
+    z-index: 12 !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn i {
+    font-size: 17px !important;
+  }
+
+  .brokerTopHeader .brokerBellBtn b {
+    width: 16px !important;
+    height: 16px !important;
+    top: -2px !important;
+    right: -5px !important;
+    font-size: 8px !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn {
+    grid-column: 6 !important;
+    grid-row: 1 !important;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 12px !important;
+    border-radius: 50% !important;
+    z-index: 10 !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn i {
+    width: 8px !important;
+    height: 8px !important;
+    right: 2px !important;
+    bottom: 3px !important;
+  }
+
+  .brokerTopHeader .brokerAvatarBtn span {
+    display: none !important;
+  }
+
+  /* MOBILE FOREX PUBLISH VIEW */
+  .forexPublishPage {
+    height: 100% !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    display: grid !important;
+    grid-template-rows: 48px 72px 50px minmax(430px, 1fr) 34px 190px auto !important;
+    gap: 8px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .forexPublishPage::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .forexPublishPage .hubNav {
+    height: 48px !important;
+    min-height: 48px !important;
+    border-radius: 14px !important;
+    grid-template-columns: repeat(6, 96px) !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+
+  .forexMarketCard {
+    height: 72px !important;
+    min-height: 72px !important;
+    display: grid !important;
+    grid-template-columns: 44px 112px 1fr 96px !important;
+    gap: 7px !important;
+    padding: 8px !important;
+    align-items: center !important;
+    border-radius: 15px !important;
+    background: rgba(5, 19, 34, .96) !important;
+    border: 1px solid rgba(70,145,255,.22) !important;
+  }
+
+  .forexMarketCard .marketBack {
+    height: 44px !important;
+    width: 44px !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,.05) !important;
+    color: white !important;
+    font-size: 18px !important;
+  }
+
+  .forexMarketCard .symbolPicker {
+    height: 44px !important;
+    display: grid !important;
+    grid-template-columns: 22px 1fr !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 8px !important;
+    border-radius: 12px !important;
+    background: #020914 !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .forexMarketCard .symbolPicker span {
+    color: #dce8ff !important;
+    font-size: 14px !important;
+  }
+
+  .forexMarketCard .symbolPicker select {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 40px !important;
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: 1000 !important;
+    padding: 0 !important;
+  }
+
+  .forexMarketCard .marketNameBlock {
+    min-width: 0 !important;
+  }
+
+  .forexMarketCard .marketNameBlock strong {
+    display: block !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .forexMarketCard .marketNameBlock small {
+    display: block !important;
+    font-size: 10px !important;
+    color: #94a7c1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .forexMarketCard .marketPriceBlock {
+    justify-self: end !important;
+    text-align: right !important;
+  }
+
+  .forexMarketCard .marketPriceBlock strong {
+    color: #00e884 !important;
+    font-size: 13px !important;
+  }
+
+  .forexMarketCard .marketPriceBlock small {
+    color: #00e884 !important;
+    font-size: 9px !important;
+  }
+
+  .forexMarketCard .marketHighLow,
+  .forexMarketCard .marketInfoBtn {
+    display: none !important;
+  }
+
+  .forexProToolbar {
+    height: 50px !important;
+    min-height: 50px !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, 52px) 34px 96px 42px 42px 42px 42px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    border-radius: 14px !important;
+  }
+
+  .forexProToolbar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .forexProToolbar button {
+    height: 100% !important;
+    min-width: 0 !important;
+    font-size: 12px !important;
+    background: transparent !important;
+    color: white !important;
+    border-right: 1px solid rgba(255,255,255,.08) !important;
+  }
+
+  .forexProToolbar button.active {
+    color: #008cff !important;
+    border: 1px solid #008cff !important;
+    margin: 6px !important;
+    height: calc(100% - 12px) !important;
+    border-radius: 10px !important;
+  }
+
+  .forexBigChart {
+    min-height: 430px !important;
+    height: auto !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .forexBigChart .chartTopStrip {
+    height: 34px !important;
+    padding-left: 70px !important;
+  }
+
+  .forexBigChart .chartTopStrip strong,
+  .forexBigChart .chartTopStrip small {
+    font-size: 11px !important;
+  }
+
+  .forexBigChart .chartTools {
+    top: 34px !important;
+    left: 0 !important;
+    width: 54px !important;
+    padding: 10px 0 !important;
+    background: rgba(255,255,255,.025) !important;
+  }
+
+  .forexBigChart .chartTools button {
+    font-size: 15px !important;
+  }
+
+  .forexBigChart .chartShell svg {
+    top: 34px !important;
+    left: 54px !important;
+    width: calc(100% - 54px) !important;
+    height: calc(100% - 34px) !important;
+  }
+
+  .openTradesFloatingBtn {
+    width: 170px !important;
+    height: 34px !important;
+    justify-self: center !important;
+    align-self: center !important;
+    margin-top: -10px !important;
+    margin-bottom: -8px !important;
+    border-radius: 18px 18px 6px 6px !important;
+    background: linear-gradient(180deg, rgba(14,35,58,.98), rgba(5,17,29,.98)) !important;
+    color: #dbe7ff !important;
+    border: 1px solid rgba(70,145,255,.18) !important;
+    box-shadow: 0 -10px 25px rgba(0,0,0,.25) !important;
+    display: grid !important;
+    grid-template-columns: 1fr 24px 24px !important;
+    place-items: center !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    position: relative !important;
+    z-index: 4 !important;
+  }
+
+  .openTradesFloatingBtn b {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    background: #086bff !important;
+    color: #fff !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 11px !important;
+  }
+
+  .openTradesFloatingBtn em {
+    font-style: normal !important;
+    color: #fff !important;
+  }
+
+  .forexOrderCard {
+    height: 190px !important;
+    min-height: 190px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 210px !important;
+    grid-template-rows: 1fr !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .forexOrderCard .orderForm {
+    min-width: 0 !important;
+  }
+
+  .forexOrderCard .orderTabs {
+    height: 24px !important;
+    gap: 14px !important;
+  }
+
+  .forexOrderCard .orderTabs button {
+    font-size: 11px !important;
+  }
+
+  .forexOrderCard .orderInputs {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .forexOrderCard .orderInput span {
+    font-size: 9px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .forexOrderCard .orderInput > div,
+  .forexOrderCard .orderInput select {
+    height: 35px !important;
+    grid-template-columns: 32px 1fr 32px !important;
+    border-radius: 9px !important;
+  }
+
+  .forexOrderCard .orderInput input {
+    font-size: 11px !important;
+    text-align: center !important;
+    padding: 0 4px !important;
+  }
+
+  .forexOrderCard .orderInput button {
+    font-size: 16px !important;
+  }
+
+  .buySellProBox {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    height: 100% !important;
+  }
+
+  .buySellProBox button {
+    height: 148px !important;
+    border-radius: 14px !important;
+    padding: 10px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .buySellProBox button .miniSpark {
+    display: block !important;
+    position: absolute !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    width: 60px !important;
+    height: 32px !important;
+    opacity: .65 !important;
+  }
+
+  .buySellProBox b {
+    font-size: 15px !important;
+  }
+
+  .buySellProBox strong {
+    font-size: 19px !important;
+  }
+
+  .forexOrderCard .compactSpreadStats {
+    display: none !important;
+  }
+
+  .openTradesPanel {
+    height: auto !important;
+    min-height: 118px !important;
+    max-height: 280px !important;
+    display: grid !important;
+    grid-template-rows: 42px 1fr !important;
+    overflow: hidden !important;
+    border-radius: 16px !important;
+  }
+
+  .openTradesPanel:not(.open) {
+    max-height: 84px !important;
+  }
+
+  .openTradesPanel:not(.open) .tradeTable {
+    display: none !important;
+  }
+
+  .openTradesPanel .managerTabs {
+    height: 42px !important;
+    display: flex !important;
+    gap: 11px !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    padding: 0 12px !important;
+    scrollbar-width: none !important;
+  }
+
+  .openTradesPanel .managerTabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .openTradesPanel .managerTabs button,
+  .openTradesPanel .managerTabs label {
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .openTradesPanel .managerTabs b {
+    padding: 2px 7px !important;
+    font-size: 10px !important;
+  }
+
+  .openTradesPanel .tradeTable {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+  }
+
+  .openTradesPanel .tradeHead,
+  .openTradesPanel .tradeRow {
+    min-width: 780px !important;
+    grid-template-columns: 110px 62px 70px 96px 100px 86px 86px 95px 70px !important;
+    gap: 8px !important;
+    padding: 0 12px !important;
+    font-size: 10px !important;
+  }
+
+  .openTradesPanel .tradeHead {
+    height: 34px !important;
+  }
+
+  .openTradesPanel .tradeRow {
+    min-height: 52px !important;
+  }
+
+  .openTradesPanel .tradeRow input {
+    height: 28px !important;
+    font-size: 10px !important;
+  }
+
+  .openTradesPanel .tradeRow button {
+    height: 30px !important;
+    font-size: 10px !important;
+  }
+
+  .openTradesPanel .emptyRow {
+    height: 80px !important;
+    min-width: 100% !important;
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .topHeader.brokerTopHeader,
+  .brokerTopHeader {
+    grid-template-columns: 27px minmax(82px, 1fr) 112px 58px 27px 32px !important;
+    gap: 4px !important;
+    padding: 6px 5px !important;
+  }
+
+  .brokerTopHeader .brokerLogo strong {
+    font-size: 16px !important;
+    max-width: 82px !important;
+  }
+
+  .brokerTopHeader .brokerLogoMark {
+    width: 28px !important;
+    height: 28px !important;
+    flex-basis: 28px !important;
+  }
+
+  .brokerTopHeader .brokerWallet {
+    width: 112px !important;
+    min-width: 112px !important;
+    max-width: 112px !important;
+  }
+
+  .brokerTopHeader .brokerWallet strong {
+    font-size: 12.5px !important;
+  }
+
+  .brokerTopHeader .brokerAccountSwitch {
+    width: 58px !important;
+    min-width: 58px !important;
+  }
+
+  .forexOrderCard {
+    grid-template-columns: 1fr 168px !important;
+  }
+
+  .buySellProBox strong {
+    font-size: 15px !important;
+  }
+
+  .buySellProBox b {
+    font-size: 13px !important;
+  }
+}

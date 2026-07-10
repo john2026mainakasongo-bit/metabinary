@@ -10,6 +10,7 @@ const STORE = {
   tx: "mb_transactions",
   positions: "mb_positions",
   closed: "mb_closed_positions",
+  referral: "mb_referral_profile",
 };
 
 const MARKETS = ["EUR/USD", "GBP/USD", "XAU/USD", "BTC/USD", "USD/JPY"];
@@ -147,6 +148,7 @@ export default function App() {
   const [botRunning, setBotRunning] = useState(false);
   const [botTab, setBotTab] = useState("summary");
   const [botTrades, setBotTrades] = useState([]);
+  const [referral, setReferral] = useState(() => readStore(STORE.referral, null));
 
   const livePrice = prices[prices.length - 1] || 1.08564;
   const balance = balances[account] || 0;
@@ -157,6 +159,7 @@ export default function App() {
   useEffect(() => saveStore(STORE.positions, positions), [positions]);
   useEffect(() => saveStore(STORE.closed, closedPositions), [closedPositions]);
   useEffect(() => saveStore(STORE.tx, transactions), [transactions]);
+  useEffect(() => saveStore(STORE.referral, referral), [referral]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -254,6 +257,38 @@ export default function App() {
       ...old,
       [targetAccount]: Number((Number(old[targetAccount] || 0) + Number(amount)).toFixed(2)),
     }));
+  }
+
+  function applyReferralProgram() {
+    const baseName = String(user?.name || user?.email || "metabinary")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+      .slice(0, 12);
+
+    const code = `MB-${baseName || "user"}-${String(user?.brokerId || "000000").slice(-4)}`.toUpperCase();
+
+    const profile = {
+      status: "approved",
+      code,
+      link: `https://metabinary.com/ref/${code}`,
+      commissionRate: 30,
+      totalEarned: referral?.totalEarned || 0,
+      totalReferrals: referral?.totalReferrals || 0,
+      appliedAt: new Date().toLocaleString(),
+    };
+
+    setReferral(profile);
+
+    addTx({
+      type: "Referral application approved",
+      method: "Referral",
+      account,
+      amount: 0,
+      status: "Approved",
+      details: code,
+    });
+
+    notify("win", "Referral link created", "You can now invite traders and earn commissions.");
   }
 
   function login(data) {
@@ -677,6 +712,8 @@ export default function App() {
             user={user}
             balances={balances}
             transactions={transactions}
+            referral={referral}
+            applyReferralProgram={applyReferralProgram}
             logout={logout}
             setActivePage={setActivePage}
           />
@@ -870,6 +907,7 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
         </small>
 
         <strong>
+          {isReal && <span className="usdFlag">USD</span>}
           {money(balance)} <em>USD</em>
         </strong>
 
@@ -1234,8 +1272,11 @@ function ForexPage({
   const [takeProfit, setTakeProfit] = useState(1.08789);
   const [tab, setTab] = useState("open");
   const [showLines, setShowLines] = useState(true);
+  const [tradesOpen, setTradesOpen] = useState(false);
 
   const visiblePositions = positions.filter((p) => p.instrument === symbol);
+  const profitCount = visiblePositions.filter((p) => p.pl >= 0).length;
+  const lossCount = visiblePositions.filter((p) => p.pl < 0).length;
 
   const rows =
     tab === "profit"
@@ -1255,61 +1296,56 @@ function ForexPage({
       stopLoss,
       takeProfit,
     });
+    setTradesOpen(true);
   }
 
   return (
-    <div className="page forexPage">
+    <div className="page forexPage forexPublishPage">
       <HubNav active="Forex" setActivePage={setActivePage} openDeposit={openDeposit} />
 
-      <section className="forexSymbolBar">
-        <button>‹</button>
+      <section className="forexSymbolBar forexMarketCard">
+        <button className="marketBack">‹</button>
 
-        <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
-          {MARKETS.map((market) => (
-            <option key={market}>{market}</option>
-          ))}
-        </select>
+        <label className="symbolPicker">
+          <span>★</span>
+          <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
+            {MARKETS.map((market) => (
+              <option key={market}>{market}</option>
+            ))}
+          </select>
+        </label>
 
-        <div>
+        <div className="marketNameBlock">
           <strong>{symbol}</strong>
           <small>Live TradingView market</small>
         </div>
 
-        <div>
-          <strong className="green">{livePrice.toFixed(5)}</strong>
-          <small className="green">+0.00231 ▲</small>
+        <div className="marketPriceBlock">
+          <strong>{livePrice.toFixed(5)}</strong>
+          <small>+0.00231 (+0.21%) ▲</small>
         </div>
 
-        <div>
-          <small>24H High</small>
-          <strong>1.08789</strong>
+        <div className="marketHighLow">
+          <p><span>High</span><b>1.09143</b></p>
+          <p><span>Low</span><b>1.08612</b></p>
         </div>
 
-        <div>
-          <small>24H Low</small>
-          <strong className="red">1.08312</strong>
-        </div>
-
-        <button>☆</button>
-        <button>⋮</button>
+        <button className="marketInfoBtn">ⓘ Market Info</button>
       </section>
 
-      <section className="forexToolbar">
-        {["1m", "5m", "15m", "1h", "4h", "1D"].map((item, index) => (
-          <button key={item} className={index === 0 ? "active" : ""}>
-            {item}
-          </button>
+      <section className="forexToolbar forexProToolbar">
+        {['1m', '5m', '15m', '1h', '4h', '1D'].map((item, index) => (
+          <button key={item} className={index === 0 ? 'active' : ''}>{item}</button>
         ))}
         <button>⌄</button>
+        <button>↗ Indicators</button>
+        <button>⌗</button>
+        <button>▥</button>
         <button>ƒx</button>
-        <button>Indicators</button>
-        <span></span>
-        <button>↶</button>
-        <button>↷</button>
         <button>⛶</button>
       </section>
 
-      <section className="proChartPanel">
+      <section className="proChartPanel forexBigChart">
         <CandleChart
           symbol={symbol}
           prices={prices}
@@ -1319,7 +1355,13 @@ function ForexPage({
         />
       </section>
 
-      <section className="proOrderPanel">
+      <button className="openTradesFloatingBtn" onClick={() => setTradesOpen((x) => !x)}>
+        <span>Open Trades</span>
+        <b>{visiblePositions.length}</b>
+        <em>{tradesOpen ? '⌄' : '⌃'}</em>
+      </button>
+
+      <section className="proOrderPanel forexOrderCard">
         <div className="orderForm">
           <div className="orderTabs">
             <button className="active">Market Order</button>
@@ -1343,67 +1385,50 @@ function ForexPage({
           </div>
         </div>
 
-        <div className="buySellBox">
-          <button className="buyLarge" onClick={() => order("Buy")}>
+        <div className="buySellBox buySellProBox">
+          <button className="buyLarge" onClick={() => order('Buy')}>
             <b>Buy ↗</b>
             <strong>{livePrice.toFixed(5)}</strong>
+            <MiniSpark type="green" />
           </button>
 
-          <button className="sellLarge" onClick={() => order("Sell")}>
+          <button className="sellLarge" onClick={() => order('Sell')}>
             <b>Sell ↘</b>
             <strong>{(livePrice - 0.00012).toFixed(5)}</strong>
+            <MiniSpark type="red" />
           </button>
         </div>
 
-        <div className="spreadStats">
-          <p>
-            <span>Spread</span>
-            <b>1.2 Pips</b>
-          </p>
-
-          <p>
-            <span>High</span>
-            <b className="green">1.08789</b>
-          </p>
-
-          <p>
-            <span>Low</span>
-            <b className="red">1.08312</b>
-          </p>
-
-          <p>
-            <span>Change</span>
-            <b className="green">+0.01%</b>
-          </p>
+        <div className="spreadStats compactSpreadStats">
+          <p><span>Spread</span><b>1.2</b></p>
+          <p><span>Change</span><b className="green">+0.21%</b></p>
         </div>
       </section>
 
-      <section className="tradeManager">
+      <section className={`tradeManager openTradesPanel ${tradesOpen ? 'open' : ''}`}>
         <div className="managerTabs">
-          <button className={tab === "open" ? "active" : ""} onClick={() => setTab("open")}>
+          <button className={tab === 'open' ? 'active' : ''} onClick={() => setTab('open')}>
             Open Trades <b>{visiblePositions.length}</b>
           </button>
 
-          <button className={tab === "profit" ? "active" : ""} onClick={() => setTab("profit")}>
-            Profit <b>{visiblePositions.filter((p) => p.pl >= 0).length}</b>
+          <button className={tab === 'profit' ? 'active' : ''} onClick={() => setTab('profit')}>
+            Profit <b>{profitCount}</b>
           </button>
 
-          <button className={tab === "loss" ? "active" : ""} onClick={() => setTab("loss")}>
-            Loss <b>{visiblePositions.filter((p) => p.pl < 0).length}</b>
+          <button className={tab === 'loss' ? 'active' : ''} onClick={() => setTab('loss')}>
+            Loss <b>{lossCount}</b>
           </button>
 
-          <button className={tab === "closed" ? "active" : ""} onClick={() => setTab("closed")}>
+          <button className={tab === 'closed' ? 'active' : ''} onClick={() => setTab('closed')}>
             History
           </button>
 
           <label>
             <input checked={showLines} onChange={(e) => setShowLines(e.target.checked)} type="checkbox" />
-            Show lines
+            Lines
           </label>
 
-          <button className="closeAll" onClick={closeAllPositions}>
-            Close All
-          </button>
+          <button className="closeAll" onClick={closeAllPositions}>Close All</button>
         </div>
 
         <div className="tradeTable">
@@ -1424,12 +1449,12 @@ function ForexPage({
           {rows.map((p) => (
             <div className="tradeRow" key={p.id}>
               <strong>{p.instrument}</strong>
-              <b className={p.side === "Buy" ? "buyTag" : "sellTag"}>{p.side}</b>
+              <b className={p.side === 'Buy' ? 'buyTag' : 'sellTag'}>{p.side}</b>
               <span>{p.volume}</span>
               <span>{Number(p.openPrice).toFixed(5)}</span>
               <span>{Number(p.currentPrice || p.openPrice).toFixed(5)}</span>
 
-              {tab === "closed" ? (
+              {tab === 'closed' ? (
                 <>
                   <span>{Number(p.stopLoss).toFixed(5)}</span>
                   <span>{Number(p.takeProfit).toFixed(5)}</span>
@@ -1441,12 +1466,11 @@ function ForexPage({
                 </>
               )}
 
-              <em className={p.pl >= 0 ? "green" : "red"}>
-                {p.pl >= 0 ? "+" : ""}
-                {money(p.pl)}
+              <em className={p.pl >= 0 ? 'green' : 'red'}>
+                {p.pl >= 0 ? '+' : ''}{money(p.pl)} USD
               </em>
 
-              {tab === "closed" ? <span>Closed</span> : <button onClick={() => closePosition(p.id)}>Close</button>}
+              {tab === 'closed' ? <span>Closed</span> : <button onClick={() => closePosition(p.id)}>Close</button>}
             </div>
           ))}
         </div>
@@ -1982,13 +2006,18 @@ function BotLivePage({ bot, running, stopBot, startBot, trades, botTab, setBotTa
   );
 }
 
-function ProfilePage({ user, balances, logout, setActivePage }) {
+function ProfilePage({ user, balances, referral, applyReferralProgram, logout, setActivePage }) {
   const realBalance = balances?.real || 0;
   const demoBalance = balances?.demo || 10000;
   const accountId = user?.brokerId || "MB168844";
   const userName = user?.name || user?.email?.split("@")[0] || "captionfitness";
   const userEmail = user?.email || "captionfitness@gmail.com";
   const userInitial = user?.initials || initials(userName);
+  const referralCode = referral?.code || "";
+  const referralLink = referral?.link || "";
+  const referralApproved = referral?.status === "approved";
+  const referralEarned = referral?.totalEarned || 0;
+  const referralCount = referral?.totalReferrals || 0;
 
   const profileCards = [
     {
@@ -2127,37 +2156,46 @@ function ProfilePage({ user, balances, logout, setActivePage }) {
           <div className="profileActionIcon purple">👥</div>
 
           <h2>Referral Program</h2>
-          <p>Invite friends and earn up to 30% commissions</p>
+          <p>
+            {referralApproved
+              ? "Your referral account is active. Invite traders and earn up to 30% commission from referred deposits."
+              : "Apply once to receive your personal referral link and start earning commissions."}
+          </p>
 
-          <label>YOUR REFERRAL LINK</label>
+          <div className={referralApproved ? "referralStatus approved" : "referralStatus pending"}>
+            <b>{referralApproved ? "Approved Partner" : "Not Applied Yet"}</b>
+            <span>{referralApproved ? `Code: ${referralCode}` : "Create your link in one click"}</span>
+          </div>
 
-          <div className="referralLinkBox">
-            <span>https://metabinary.com/ref/{userName.toLowerCase().replaceAll(" ", "")}</span>
+          {referralApproved ? (
+            <>
+              <label>YOUR REFERRAL LINK</label>
 
-            <button
-              onClick={() =>
-                navigator.clipboard?.writeText(
-                  `https://metabinary.com/ref/${userName.toLowerCase().replaceAll(" ", "")}`
-                )
-              }
-            >
-              ⧉
+              <div className="referralLinkBox">
+                <span>{referralLink}</span>
+
+                <button onClick={() => navigator.clipboard?.writeText(referralLink)}>⧉</button>
+              </div>
+
+              <div className="referralStatsBox">
+                <div>
+                  <small>TOTAL EARNED</small>
+                  <strong>{money(referralEarned)} USD</strong>
+                </div>
+
+                <div>
+                  <small>TOTAL REFERRALS</small>
+                  <strong>{referralCount}</strong>
+                </div>
+              </div>
+
+              <button className="referralDashboardBtn">View Referral Dashboard ›</button>
+            </>
+          ) : (
+            <button className="referralApplyBtn" onClick={applyReferralProgram}>
+              Apply & Get Referral Link →
             </button>
-          </div>
-
-          <div className="referralStatsBox">
-            <div>
-              <small>TOTAL EARNED</small>
-              <strong>1,245.00 USD</strong>
-            </div>
-
-            <div>
-              <small>TOTAL REFERRALS</small>
-              <strong>17</strong>
-            </div>
-          </div>
-
-          <button className="referralDashboardBtn">View Referral Dashboard ›</button>
+          )}
         </aside>
       </section>
 
