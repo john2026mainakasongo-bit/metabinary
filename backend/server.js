@@ -6,48 +6,72 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://www.metabinaryfx.com",
-    "https://metabinaryfx.com"
-  ],
-  credentials: true
-}));
+const PORT = process.env.PORT || 5000;
+const USD_RATE = Number(process.env.USD_RATE || 130);
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://www.metabinaryfx.com",
+      "https://metabinaryfx.com",
+    ],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
-
-const PORT = process.env.PORT || 5000;
 
 let users = {};
 
 function getUser(email) {
   if (!email) return null;
 
-  if (!users[email]) {
-    users[email] = {
-      email,
+  const cleanEmail = String(email).toLowerCase().trim();
+
+  if (!users[cleanEmail]) {
+    users[cleanEmail] = {
+      email: cleanEmail,
       demoBalance: 10000,
       realBalance: 0,
       transactions: [],
       referralCode: "",
       referralApproved: false,
-      referralCommission: 0
+      referralCommission: 0,
+      referrals: [],
+      createdAt: new Date().toISOString(),
     };
   }
 
-  return users[email];
+  return users[cleanEmail];
 }
 
 app.get("/", (req, res) => {
   res.json({
     ok: true,
-    message: "MetaBinary backend is running"
+    message: "MetaBinary backend is running",
+    time: new Date().toISOString(),
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    service: "MetaBinary Backend",
+    status: "online",
   });
 });
 
 app.get("/api/user/:email", (req, res) => {
   const user = getUser(req.params.email);
+
+  if (!user) {
+    return res.status(400).json({
+      ok: false,
+      message: "Email is required",
+    });
+  }
+
   res.json(user);
 });
 
@@ -55,27 +79,28 @@ app.post("/api/deposit", async (req, res) => {
   const { email, amountUsd, phone, method } = req.body;
 
   const amount = Number(amountUsd || 0);
+  const amountKes = Math.round(amount * USD_RATE);
 
   if (!email) {
     return res.status(400).json({
       ok: false,
-      message: "Email is required"
+      message: "Email is required",
     });
   }
 
   if (amount < 1) {
     return res.status(400).json({
       ok: false,
-      message: "Minimum deposit is 1 USD"
+      message: "Minimum deposit is 1 USD",
     });
   }
 
   const user = getUser(email);
 
   /*
-    TEMPORARY:
-    This adds money immediately so your live site works.
-    Later we connect confirmed IntaSend callback only.
+    TEMPORARY LIVE TEST MODE:
+    This adds the deposit immediately so your Render backend works.
+    Before real public money, connect IntaSend callback confirmation only.
   */
 
   user.realBalance = Number((user.realBalance + amount).toFixed(2));
@@ -85,15 +110,16 @@ app.post("/api/deposit", async (req, res) => {
     type: "Deposit",
     method: method || "M-Pesa",
     amount,
+    amountKes,
     phone: phone || "",
     status: "Completed",
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
   });
 
   res.json({
     ok: true,
     message: "Deposit added successfully",
-    user
+    user,
   });
 });
 
@@ -106,21 +132,28 @@ app.post("/api/withdraw", (req, res) => {
   if (!user) {
     return res.status(400).json({
       ok: false,
-      message: "User not found"
+      message: "User not found",
     });
   }
 
   if (amount < 5) {
     return res.status(400).json({
       ok: false,
-      message: "Minimum withdrawal is 5 USD"
+      message: "Minimum withdrawal is 5 USD",
+    });
+  }
+
+  if (amount > 150000) {
+    return res.status(400).json({
+      ok: false,
+      message: "Maximum withdrawal is 150,000 USD",
     });
   }
 
   if (amount > user.realBalance) {
     return res.status(400).json({
       ok: false,
-      message: "Insufficient real balance"
+      message: "Insufficient real balance",
     });
   }
 
@@ -131,15 +164,16 @@ app.post("/api/withdraw", (req, res) => {
     type: "Withdrawal",
     method: "M-Pesa",
     amount: -amount,
+    amountKes: Math.round(amount * USD_RATE),
     phone: phone || "",
     status: "Processing",
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
   });
 
   res.json({
     ok: true,
     message: "Withdrawal request received",
-    user
+    user,
   });
 });
 
@@ -151,7 +185,7 @@ app.post("/api/referral/apply", (req, res) => {
   if (!user) {
     return res.status(400).json({
       ok: false,
-      message: "User not found"
+      message: "User not found",
     });
   }
 
@@ -160,14 +194,75 @@ app.post("/api/referral/apply", (req, res) => {
     .replace(/[^a-zA-Z0-9]/g, "")
     .toLowerCase();
 
+  const code = `MB-${cleanName}-${Math.floor(1000 + Math.random() * 9000)}`.toUpperCase();
+
   user.referralApproved = true;
-  user.referralCode = `MB-${cleanName}-${Math.floor(1000 + Math.random() * 9000)}`;
+  user.referralCode = code;
+
+  user.transactions.unshift({
+    id: Date.now(),
+    type: "Referral application",
+    method: "Referral",
+    amount: 0,
+    status: "Approved",
+    details: code,
+    time: new Date().toISOString(),
+  });
 
   res.json({
     ok: true,
-    referralCode: user.referralCode,
-    referralLink: `https://www.metabinaryfx.com/register?ref=${user.referralCode}`,
-    commissionRate: "30%"
+    referralCode: code,
+    referralLink: `https://www.metabinaryfx.com/register?ref=${code}`,
+    commissionRate: 30,
+    message: "Referral account approved",
+  });
+});
+
+app.post("/api/referral/commission", (req, res) => {
+  const { email, amountUsd, referredEmail } = req.body;
+
+  const user = getUser(email);
+  const amount = Number(amountUsd || 0);
+
+  if (!user) {
+    return res.status(400).json({
+      ok: false,
+      message: "User not found",
+    });
+  }
+
+  if (!user.referralApproved) {
+    return res.status(400).json({
+      ok: false,
+      message: "Referral account is not approved",
+    });
+  }
+
+  const commission = Number((amount * 0.3).toFixed(2));
+
+  user.referralCommission = Number((user.referralCommission + commission).toFixed(2));
+
+  user.referrals.unshift({
+    email: referredEmail || "new trader",
+    commission,
+    time: new Date().toISOString(),
+  });
+
+  user.transactions.unshift({
+    id: Date.now(),
+    type: "Referral commission",
+    method: "Referral",
+    amount: commission,
+    status: "Completed",
+    details: referredEmail || "New referral deposit",
+    time: new Date().toISOString(),
+  });
+
+  res.json({
+    ok: true,
+    commission,
+    totalCommission: user.referralCommission,
+    user,
   });
 });
 
