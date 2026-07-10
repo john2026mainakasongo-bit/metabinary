@@ -10,9 +10,9 @@ body,
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: Inter, Arial, Helvetica, sans-serif;
   background: #02070d;
   color: white;
+  font-family: Inter, Arial, Helvetica, sans-serif;
 }
 
 button,
@@ -22,8 +22,8 @@ select {
 }
 
 button {
-  border: none;
   cursor: pointer;
+  border: none;
 }
 
 input,
@@ -42,500 +42,264 @@ select {
 .app {
   width: 100vw;
   height: 100dvh;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
+  display: grid;
+  grid-template-rows: 74px 1fr 76px;
   background:
-    radial-gradient(circle at top left, rgba(0, 119, 255, 0.17), transparent 28%),
+    radial-gradient(circle at top left, rgba(0, 102, 255, 0.15), transparent 30%),
     linear-gradient(180deg, #020913, #02070d);
 }
 
 /* AUTH */
 
-.authShell {
+.authPage {
   width: 100vw;
   height: 100dvh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 18px;
   background:
     radial-gradient(circle at top, rgba(0, 119, 255, 0.17), transparent 35%),
     linear-gradient(135deg, #02070d, #06101c);
-  padding: 12px;
-  overflow: hidden;
-}
-
-.authLoginPanel {
-  width: 100%;
-  max-width: 620px;
-  height: 100%;
-  margin: 0 auto;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  padding: 52px 42px;
-  display: grid;
-  justify-items: center;
-  align-content: start;
-  gap: 32px;
-  background: rgba(4, 14, 27, 0.72);
-}
-
-.logoBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logoMark {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #00eaff, #065dff);
-  color: #02070d;
-  font-size: 26px;
-  font-weight: 1000;
-  box-shadow: 0 0 28px rgba(0, 119, 255, 0.4);
-}
-
-.logoBox strong {
-  font-size: 34px;
-  font-weight: 1000;
-  color: white;
-  white-space: nowrap;
-}
-
-.logoBox span {
-  color: #0077ff;
 }
 
 .authCard {
-  width: 100%;
-  max-width: 530px;
-  border-radius: 18px;
-  padding: 44px 34px;
-  background: rgba(5, 17, 29, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: min(560px, 100%);
+  border-radius: 20px;
+  background: rgba(5, 17, 29, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 32px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
 }
 
-.authCard h1,
-.registerMain h1 {
-  text-align: center;
-  font-size: 40px;
-  margin-bottom: 14px;
+.registerCard {
+  width: min(920px, 100%);
 }
 
-.authCard p,
-.registerMain > p {
-  color: #b7c1d4;
-  text-align: center;
-  font-size: 17px;
-  margin-bottom: 32px;
-}
-
-.authCard label,
-.regField > span,
-.depositModal label {
-  display: block;
-  color: white;
-  margin-bottom: 9px;
-  font-size: 15px;
-}
-
-.authInput,
-.regField div {
-  height: 60px;
-  border-radius: 10px;
-  background: rgba(2, 10, 22, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.17);
-  display: grid;
-  grid-template-columns: 42px 1fr 36px;
-  align-items: center;
-  padding: 0 14px;
+.authCard .logo {
+  justify-content: center;
   margin-bottom: 24px;
 }
 
-.authInput span,
-.regField b {
-  color: #d7e0f2;
-  font-size: 21px;
-}
-
-.authInput input,
-.regField input,
-.regField select {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  color: white;
-  font-size: 17px;
-}
-
-.authInput input::placeholder,
-.regField input::placeholder {
-  color: #8792a8;
-}
-
-.authInput b {
-  color: white;
-  font-size: 20px;
-}
-
-.authOptions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
-}
-
-.authOptions label {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  color: #c7d1e2;
-  margin: 0;
-}
-
-.authOptions input,
-.checkLine input {
-  width: 22px;
-  height: 22px;
-  accent-color: #065dff;
-}
-
-.authOptions button,
-.authSwitch button {
-  background: transparent;
-  color: #0077ff;
-  font-size: 16px;
-}
-
-.authPrimary {
-  width: 100%;
-  height: 64px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #087cff, #0048ff);
-  color: white;
-  font-size: 20px;
-  font-weight: 900;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 18px;
-}
-
-.authOr {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 14px;
-  color: #9ca7bb;
-  margin: 28px 0;
-}
-
-.authOr span {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.googleBtn {
-  width: 100%;
-  height: 62px;
-  border-radius: 10px;
-  background: transparent;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.googleBtn b {
-  color: #00e884;
-  margin-right: 12px;
-}
-
-.authSwitch {
-  margin: 30px 0 0 !important;
-}
-
-.registerPanel {
-  width: 100%;
-  height: 100%;
-  max-width: 1260px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 310px;
-  gap: 22px;
-  border-radius: 18px;
-  padding: 28px;
-  background: rgba(4, 14, 27, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.registerMain {
-  min-width: 0;
-}
-
-.registerMain .logoBox {
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin: 24px 0;
-  position: relative;
-}
-
-.steps::before {
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 8%;
-  right: 8%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.steps div {
-  position: relative;
-  z-index: 2;
+.authCard h1 {
   text-align: center;
-  color: #9ca7bb;
+  font-size: 34px;
+  margin-bottom: 10px;
 }
 
-.steps span {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #202838;
-  display: grid;
-  place-items: center;
-  margin: 0 auto 8px;
-  font-weight: 900;
+.authCard p {
+  text-align: center;
+  color: #b7c1d4;
+  margin-bottom: 24px;
 }
 
-.steps .active span {
-  background: #065dff;
+.authCard label {
+  display: block;
+  margin-bottom: 8px;
+  color: #dbe7ff;
+  font-size: 14px;
+}
+
+.authCard input {
+  width: 100%;
+  height: 52px;
+  border-radius: 11px;
+  background: rgba(2, 9, 18, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: white;
-  box-shadow: 0 0 0 6px rgba(0, 119, 255, 0.18);
-}
-
-.registerMain h3 {
-  margin: 18px 0 14px;
-  font-size: 20px;
+  padding: 0 14px;
+  margin-bottom: 16px;
 }
 
 .regGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px 26px;
+  gap: 14px;
 }
 
-.regField {
-  display: block;
-}
-
-.regField div {
-  margin-bottom: 0;
-}
-
-.regField select {
-  height: 54px;
-  width: 100%;
-  border-radius: 10px;
-  padding: 0 14px;
-  background: rgba(2, 10, 22, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.17);
-  color: white;
-}
-
-.checkLine {
-  display: flex;
+.check {
+  display: flex !important;
   align-items: center;
   gap: 10px;
-  color: #c7d1e2;
-  margin: 12px 0;
+  margin: 8px 0 18px;
 }
 
-.whyJoin {
-  border-radius: 14px;
-  padding: 26px 20px;
-  background: rgba(5, 17, 29, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  align-self: center;
+.check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #006bff;
 }
 
-.whyJoin h3 {
-  margin-bottom: 22px;
-}
-
-.whyItem {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 22px;
-}
-
-.whyItem span {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 1px solid #065dff;
-  display: grid;
-  place-items: center;
-  color: #0077ff;
-}
-
-.whyItem strong {
-  display: block;
-}
-
-.whyItem small {
-  color: #aab6ca;
-  display: block;
-  margin-top: 5px;
-}
-
-.secureBox {
-  border-radius: 10px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.primary {
+  width: 100%;
+  height: 54px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #087cff, #0048ff);
   color: white;
+  font-size: 18px;
+  font-weight: 900;
 }
 
-.secureBox small {
-  color: #aab6ca;
+.authCard small {
   display: block;
-  margin-top: 7px;
+  text-align: center;
+  color: #b7c1d4;
+  margin-top: 18px;
 }
 
-.securityArt {
-  height: 150px;
-  display: grid;
-  place-items: center;
-  font-size: 90px;
+.authCard small button {
+  background: transparent;
+  color: #008cff;
+  font-weight: 800;
 }
 
 /* HEADER */
 
-.topHeader {
-  flex: 0 0 86px;
-  height: 86px;
-  padding: 14px 20px;
+.header {
+  min-height: 0;
   display: grid;
-  grid-template-columns: 42px auto 230px 150px 140px 42px 54px;
+  grid-template-columns: 44px 250px 1fr 180px 150px 46px 58px;
   gap: 14px;
   align-items: center;
-  background: rgba(5, 13, 27, 0.98);
+  padding: 10px 18px;
+  background: rgba(4, 12, 24, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
 }
 
-.hamburger {
+.hamb {
   background: transparent;
   color: white;
-  font-size: 30px;
+  font-size: 28px;
 }
 
-.walletBox {
-  height: 58px;
-  border-radius: 10px;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo div {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #00eaff, #065dff);
+  color: #02070d;
+  font-weight: 1000;
+  font-size: 23px;
+  box-shadow: 0 0 24px rgba(0, 119, 255, 0.35);
+}
+
+.logo strong {
+  font-size: 30px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.logo span {
+  color: #0077ff;
+}
+
+.wallet {
+  height: 54px;
+  border-radius: 12px;
   background: rgba(2, 9, 18, 0.9);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.17);
   text-align: left;
   padding: 0 16px;
   position: relative;
 }
 
-.walletBox small {
+.wallet small {
   display: block;
   color: #00e884;
+  font-weight: 1000;
   font-size: 12px;
-  font-weight: 900;
 }
 
-.walletBox strong {
+.wallet strong {
   display: block;
   font-size: 21px;
   margin-top: 4px;
 }
 
-.walletBox span {
+.wallet span {
   position: absolute;
   right: 14px;
-  top: 22px;
+  top: 21px;
 }
 
-.demoReal {
-  height: 50px;
-  border-radius: 10px;
-  background: #060b17;
-  padding: 4px;
+.switch {
+  height: 48px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  padding: 4px;
+  border-radius: 11px;
+  background: #060b17;
 }
 
-.demoReal button {
-  border-radius: 8px;
+.switch button {
   background: transparent;
-  color: #c4cee0;
-  font-weight: 900;
+  color: #c5d1e6;
+  border-radius: 9px;
+  font-weight: 1000;
+  font-size: 15px;
 }
 
-.demoReal button.active {
-  background: #00c76f;
+.switch .active {
   color: white;
+  background: #00c76f;
 }
 
-.depositTop {
-  height: 54px;
-  border-radius: 10px;
+.depositBtn {
+  height: 50px;
+  border-radius: 11px;
   background: #065dff;
   color: white;
-  font-weight: 900;
   font-size: 17px;
+  font-weight: 1000;
 }
 
-.bellBtn,
-.userAvatar {
-  width: 42px;
-  height: 42px;
+.bell,
+.avatar {
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: transparent;
   color: white;
-  font-size: 21px;
+  font-size: 22px;
   position: relative;
 }
 
-.bellBtn span {
+.bell b {
   position: absolute;
-  top: -2px;
-  right: -3px;
-  width: 20px;
-  height: 20px;
+  top: 2px;
+  right: 1px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
   background: #ff003b;
-  font-size: 11px;
   display: grid;
   place-items: center;
+  font-size: 11px;
 }
 
-.userAvatar {
-  width: 54px;
-  height: 54px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+.avatar {
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-weight: 1000;
   font-size: 18px;
-  font-weight: 900;
 }
 
-.userAvatar i {
+.avatar i {
   position: absolute;
-  right: 2px;
-  bottom: 4px;
+  right: 3px;
+  bottom: 5px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -545,250 +309,220 @@ select {
 /* MAIN */
 
 .mainScreen {
-  flex: 1;
   min-height: 0;
   overflow: hidden;
-  padding: 10px;
+  padding: 8px 10px 0;
 }
 
 .page {
   width: 100%;
-  max-width: 1180px;
   height: 100%;
-  margin: 0 auto;
   overflow: hidden;
   display: grid;
   gap: 8px;
-  padding-bottom: 82px;
 }
 
-.accountStrip,
-.hubNav,
-.homeHero,
-.statsLine,
-.marketsMini,
+.hub,
+.hero,
+.stats,
+.marketStrip,
 .symbolBar,
-.mt5Toolbar,
-.tvChartWrap,
-.mt5Order,
-.positionPanel,
+.toolbar,
+.tvBox,
+.orderBox,
+.positions,
 .tradeTypes,
-.binaryChart,
+.binaryPanel,
 .binaryOrder,
-.botsHeader,
-.botSummary,
-.botCards,
-.profileCard,
+.botsTop,
+.botStats,
+.botCard,
+.profileTop,
 .profileStats,
 .profileGrid,
 .settingsHero,
-.settingsGrid,
 .settingsCard,
 .listPanel {
-  background: rgba(5, 17, 29, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(5, 17, 29, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 14px;
   box-shadow: inset 0 0 42px rgba(0, 119, 255, 0.04);
 }
 
-.accountStrip {
-  height: 92px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 180px;
-  gap: 20px;
-  align-items: center;
-  padding: 14px 22px;
-}
+/* HUB */
 
-.accountStrip small,
-.accountStrip span {
-  display: block;
-  color: #aab6ca;
-  margin-bottom: 5px;
-}
-
-.accountStrip strong {
-  font-size: 23px;
-}
-
-.accountStrip em {
-  font-style: normal;
-  font-size: 13px;
-}
-
-.accountStrip button {
-  height: 56px;
-  border-radius: 10px;
-  background: #065dff;
-  color: white;
-  font-weight: 900;
-  font-size: 18px;
-}
-
-.hubNav {
-  height: 70px;
+.hub {
+  height: 58px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   overflow: hidden;
 }
 
-.hubNav button {
+.hub button {
   background: transparent;
   color: #aab6ca;
   display: grid;
   place-items: center;
   align-content: center;
   gap: 4px;
-  border-bottom: 4px solid transparent;
+  border-bottom: 3px solid transparent;
 }
 
-.hubNav button span {
-  font-size: 22px;
+.hub button span {
+  font-size: 19px;
 }
 
-.hubNav button small {
-  font-size: 13px;
+.hub button small {
+  font-size: 12px;
 }
 
-.hubNav button.active {
-  color: #0077ff;
-  border-bottom-color: #0077ff;
+.hub .active {
+  color: #008cff;
+  border-bottom-color: #008cff;
 }
 
 /* HOME */
 
 .homePage {
-  grid-template-rows: 92px 70px 1fr 92px 70px;
+  grid-template-rows: 58px 1fr 86px 56px;
 }
 
-.homeHero {
+.hero {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 26px;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
   align-items: center;
   padding: 28px;
 }
 
-.homeHero h1 {
+.hero h1 {
   font-size: 42px;
-  max-width: 520px;
+  max-width: 700px;
 }
 
-.homeHero p {
+.hero p {
   color: #b7c1d4;
-  margin: 14px 0 22px;
-  font-size: 18px;
-  max-width: 520px;
-}
-
-.homeHero button {
-  width: 190px;
-  height: 58px;
-  border-radius: 10px;
-  background: #065dff;
-  color: white;
-  font-weight: 900;
+  margin: 12px 0 20px;
   font-size: 17px;
 }
 
-.phoneArt {
-  height: 220px;
-  border-radius: 24px;
-  padding: 22px;
+.hero button {
+  width: 170px;
+  height: 48px;
+  border-radius: 10px;
+  background: #065dff;
+  color: white;
+  font-weight: 1000;
+  font-size: 15px;
+}
+
+.heroCard {
+  height: 180px;
+  border-radius: 18px;
+  padding: 20px;
   background:
-    radial-gradient(circle at top, rgba(0, 119, 255, 0.36), transparent 50%),
-    #06111d;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  display: grid;
-  align-content: center;
-  gap: 12px;
+    radial-gradient(circle at top, rgba(0, 119, 255, 0.28), transparent 60%),
+    rgba(2, 10, 22, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.13);
 }
 
-.phoneArt span {
-  color: #aab6ca;
+.heroCard span,
+.heroCard strong {
+  display: block;
 }
 
-.phoneArt strong {
+.heroCard strong {
   color: #00e884;
-  font-size: 30px;
+  font-size: 28px;
+  margin: 5px 0 12px;
 }
 
-.phoneArt button {
+.heroCard button {
   width: 120px;
-  height: 46px;
+  height: 38px;
+  display: block;
+  margin-bottom: 8px;
 }
 
-.phoneArt button:last-child {
-  background: #b6081c;
+.heroCard button:last-child {
+  background: #c00822;
 }
 
-.statsLine,
-.botSummary,
+.stats,
+.botStats,
 .profileStats {
-  padding: 10px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+  padding: 10px;
 }
 
 .stat {
-  border-radius: 12px;
-  padding: 14px;
-  text-align: center;
+  border-radius: 11px;
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
 }
 
 .stat strong {
-  display: block;
-  font-size: 20px;
+  font-size: 19px;
 }
 
 .stat span {
-  display: block;
   color: #aab6ca;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
-.marketsMini {
+.marketStrip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   overflow: hidden;
 }
 
-.marketsMini button {
-  background: transparent;
-  color: white;
-  text-align: left;
-  padding: 0 20px;
+.marketStrip p {
+  padding: 12px 18px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.marketsMini strong,
-.marketsMini span {
+.marketStrip b,
+.marketStrip span {
   display: block;
 }
 
 /* FOREX */
 
 .forexPage {
-  grid-template-rows: 92px 70px 82px 54px minmax(260px, 1fr) 172px 142px;
+  grid-template-rows: 58px 62px 46px minmax(250px, 1fr) 132px 104px;
 }
 
 .symbolBar {
   display: grid;
-  grid-template-columns: 34px 130px 1fr 120px 120px 120px 44px 44px;
+  grid-template-columns: 42px 150px 1fr 170px 150px 150px 50px 50px;
   gap: 10px;
   align-items: center;
-  padding: 12px 16px;
+  padding: 10px 16px;
 }
 
 .symbolBar button {
-  height: 42px;
+  height: 40px;
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.04);
   color: white;
-  font-size: 22px;
+  font-size: 21px;
+}
+
+.symbolBar select {
+  width: 100%;
+  height: 40px;
+  border-radius: 9px;
+  padding: 0 12px;
+  background: #030a13;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 1000;
 }
 
 .symbolBar strong,
@@ -798,75 +532,115 @@ select {
 
 .symbolBar small {
   color: #aab6ca;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
-.forexSymbolBar select {
-  height: 40px;
-  border-radius: 9px;
-  background: rgba(2, 9, 18, 0.95);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 0 10px;
-  font-weight: 900;
-}
-
-.mt5Toolbar {
+.toolbar {
   display: grid;
-  grid-template-columns: repeat(6, 58px) 50px 60px 1fr 50px 50px 50px;
+  grid-template-columns: repeat(6, 90px) 50px 70px 1fr 70px 70px 70px;
   overflow: hidden;
 }
 
-.mt5Toolbar button {
+.toolbar button {
   background: transparent;
   color: white;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.mt5Toolbar button.active {
-  color: #0077ff;
-  border: 1px solid #0077ff;
+.toolbar .active {
   margin: 8px;
   border-radius: 8px;
+  border: 1px solid #008cff;
+  color: #008cff;
 }
 
-.tvChartWrap {
-  padding: 0;
+.tvBox {
   overflow: hidden;
+  background: #02070d;
+}
+
+.chartInner {
   position: relative;
-  background: #020912;
-  min-height: 260px;
-}
-
-.tradingviewBox {
   width: 100%;
   height: 100%;
-  min-height: 260px;
-  background: #020912;
+  min-height: 230px;
+  overflow: hidden;
+  background: #02070d;
 }
 
-.tradingviewBox iframe {
-  width: 100% !important;
-  height: 100% !important;
-  border: none !important;
+.chartTop {
+  height: 38px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 14px;
+  background: #0d0d0d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tradingview-widget-container__widget {
-  width: 100%;
-  height: 100%;
+.chartTop button {
+  background: transparent;
+  color: white;
+  font-weight: 900;
 }
 
-.mt5Order {
+.leftTools {
+  position: absolute;
+  left: 10px;
+  top: 48px;
+  bottom: 10px;
+  width: 42px;
+  z-index: 3;
   display: grid;
-  grid-template-columns: 1fr 260px 220px;
-  gap: 16px;
+  gap: 4px;
+}
+
+.leftTools button {
+  background: transparent;
+  color: #dbe7ff;
+  font-size: 17px;
+}
+
+.chartInner svg {
+  position: absolute;
+  left: 58px;
+  right: 0;
+  top: 38px;
+  width: calc(100% - 58px);
+  height: calc(100% - 38px);
+}
+
+.priceTag,
+.volumeTag {
+  position: absolute;
+  right: 16px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: #00c987;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.priceTag {
+  top: 45%;
+}
+
+.volumeTag {
+  bottom: 30px;
+}
+
+.orderBox {
+  display: grid;
+  grid-template-columns: 1fr 380px 320px;
+  gap: 14px;
   padding: 12px;
+  min-height: 0;
 }
 
 .orderTabs {
-  height: 34px;
+  height: 30px;
   display: flex;
-  gap: 20px;
+  gap: 18px;
   margin-bottom: 8px;
 }
 
@@ -876,72 +650,72 @@ select {
   border-bottom: 3px solid transparent;
 }
 
-.orderTabs button.active {
+.orderTabs .active {
   color: white;
-  border-bottom-color: #0077ff;
+  border-bottom-color: #008cff;
 }
 
-.mt5Inputs {
+.inputsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 8px 14px;
 }
 
 .mtInput span {
   display: block;
   color: #aab6ca;
-  font-size: 12px;
   margin-bottom: 4px;
+  font-size: 13px;
 }
 
 .mtInput div {
   height: 36px;
   display: grid;
-  grid-template-columns: 1fr 34px 34px;
+  grid-template-columns: 1fr 44px 44px;
   border-radius: 8px;
   overflow: hidden;
-  background: rgba(2, 7, 13, 0.8);
+  background: #030a13;
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .mtInput strong {
   display: grid;
   align-items: center;
-  padding-left: 10px;
+  padding-left: 12px;
 }
 
 .mtInput button {
   background: transparent;
   color: white;
-  font-size: 18px;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
+  font-size: 20px;
 }
 
 .buySell {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
-.buy,
-.sell {
+.buySell button {
   border-radius: 10px;
   color: white;
+  background: transparent;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 6px;
+  gap: 5px;
   font-size: 18px;
-  border: 1px solid;
+  font-weight: 1000;
 }
 
 .buy {
-  background: rgba(0, 201, 137, 0.17);
-  border-color: #00c989;
+  border: 1px solid #00c987;
+  background: rgba(0, 201, 137, 0.17) !important;
 }
 
 .sell {
-  background: rgba(255, 31, 48, 0.17);
-  border-color: #ff1f30;
+  border: 1px solid #ff224c;
+  background: rgba(255, 34, 76, 0.17) !important;
 }
 
 .buy strong {
@@ -949,14 +723,14 @@ select {
 }
 
 .sell strong {
-  color: #ff1f30;
+  color: #ff4057;
 }
 
 .spread {
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(2, 7, 13, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 22px;
+  border-radius: 11px;
+  background: rgba(2, 10, 22, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .spread p {
@@ -969,140 +743,137 @@ select {
   color: #aab6ca;
 }
 
-.positionPanel {
+.positions {
   overflow: hidden;
 }
 
-.positionTabs {
-  height: 42px;
+.posTabs {
+  height: 38px;
   display: flex;
-  gap: 12px;
-  padding: 0 12px;
   align-items: center;
+  gap: 22px;
+  padding: 0 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.positionTabs button {
+.posTabs button {
   background: transparent;
   color: #aab6ca;
-  font-size: 13px;
 }
 
-.positionTabs .active {
+.posTabs .active {
   color: white;
-  border-bottom: 3px solid #0077ff;
-  height: 42px;
+  border-bottom: 3px solid #008cff;
+  height: 38px;
 }
 
-.positionTabs span {
+.posTabs b {
   background: #065dff;
-  border-radius: 999px;
   padding: 2px 7px;
+  border-radius: 999px;
 }
 
-.positionHead,
-.positionRow {
+.posHead,
+.posRow {
+  min-height: 30px;
   display: grid;
-  grid-template-columns: 1fr 0.7fr 0.7fr 1fr 0.8fr 70px;
-  gap: 8px;
+  grid-template-columns: 1.2fr 0.7fr 0.7fr 1fr 1fr 90px;
   align-items: center;
-  min-height: 32px;
-  padding: 0 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0 16px;
+  gap: 8px;
 }
 
-.positionHead {
+.posHead {
   color: #aab6ca;
-  font-size: 12px;
-}
-
-.positionRow {
   font-size: 13px;
 }
 
-.positionRow em {
+.posRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.posRow em {
   font-style: normal;
 }
 
-.positionRow button {
+.posRow button {
   height: 26px;
   border-radius: 7px;
-  background: rgba(255, 31, 48, 0.12);
+  background: rgba(255, 0, 59, 0.08);
   color: #ff4057;
   border: 1px solid #ff4057;
 }
 
-/* BINARY */
+/* TRADE */
 
-.binaryPage {
-  grid-template-rows: 46px 1fr 128px;
+.tradePage {
+  grid-template-rows: 44px minmax(250px, 1fr) 108px;
 }
 
 .tradeTypes {
   display: flex;
-  gap: 8px;
   align-items: center;
-  padding: 6px 10px;
-  overflow-x: auto;
+  gap: 9px;
+  padding: 6px 12px;
+  overflow: hidden;
 }
 
 .tradeTypes span {
   color: #aab6ca;
-  white-space: nowrap;
 }
 
 .tradeTypes button {
   height: 32px;
-  min-width: max-content;
-  padding: 0 12px;
+  min-width: 120px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.11);
 }
 
-.tradeTypes button.active {
-  border-color: #0077ff;
-  color: #0077ff;
+.tradeTypes .active {
+  color: #008cff;
+  border-color: #008cff;
 }
 
-.binaryChart {
+.binaryPanel {
   padding: 12px;
   overflow: hidden;
 }
 
-.binaryTop {
+.binaryHeader {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
 }
 
-.binaryTop strong,
-.binaryTop small {
+.binaryHeader strong,
+.binaryHeader small {
   display: block;
 }
 
-.binaryTop small {
+.binaryHeader small {
   color: #aab6ca;
 }
 
-.binaryTop button {
+.binaryHeader button {
   width: 70px;
-  height: 36px;
+  height: 34px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: white;
 }
 
 .lineChart {
-  height: 220px;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    #06111d;
-  background-size: 82px 55px;
+  height: 44%;
+  min-height: 140px;
   border-radius: 12px;
   overflow: hidden;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    #06111d;
+  background-size: 90px 50px;
 }
 
 .lineChart svg {
@@ -1111,62 +882,62 @@ select {
 }
 
 .lineChart .area {
-  fill: rgba(0, 232, 132, 0.18);
+  fill: rgba(0, 232, 132, 0.22);
 }
 
 .lineChart .line {
   fill: none;
   stroke: #00e884;
-  stroke-width: 1.6;
+  stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
 
-.binaryChart h4 {
+.binaryPanel h3 {
   text-align: center;
-  margin: 8px 0;
+  margin: 7px 0;
 }
 
-.digitGrid {
+.digits {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
 }
 
-.digitGrid button {
-  width: 68px;
-  height: 68px;
+.digits button {
+  width: 66px;
+  height: 66px;
   justify-self: center;
   border-radius: 50%;
-  border: 6px solid rgba(255, 255, 255, 0.14);
   background: transparent;
   color: white;
+  border: 6px solid rgba(255, 255, 255, 0.13);
   display: grid;
   place-items: center;
   align-content: center;
 }
 
-.digitGrid strong {
-  font-size: 24px;
+.digits strong {
+  font-size: 23px;
 }
 
-.digitGrid span {
+.digits span {
   font-size: 11px;
   color: #aab6ca;
 }
 
-.digitGrid .hot {
+.digits .hot {
   border-color: #00e884;
 }
 
-.digitGrid .picked {
+.digits .picked {
   border-bottom-color: #ff4057;
 }
 
 .binaryOrder {
-  padding: 10px;
   display: grid;
-  grid-template-columns: 130px 160px 1fr;
+  grid-template-columns: 170px 210px 1fr;
   gap: 10px;
+  padding: 10px;
 }
 
 .binaryOrder label {
@@ -1175,29 +946,29 @@ select {
 
 .binaryOrder select,
 .stakeBox {
+  width: 100%;
+  height: 43px;
   margin-top: 6px;
-  height: 42px;
   border-radius: 8px;
-  background: rgba(2, 7, 13, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #030a13;
   color: white;
+  border: 1px solid rgba(255, 255, 255, 0.13);
 }
 
 .binaryOrder select {
-  width: 100%;
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 .stakeBox {
   display: grid;
-  grid-template-columns: 38px 1fr 38px;
+  grid-template-columns: 46px 1fr 46px;
   overflow: hidden;
 }
 
 .stakeBox button {
   background: transparent;
   color: white;
-  font-size: 20px;
+  font-size: 21px;
 }
 
 .stakeBox strong {
@@ -1206,53 +977,50 @@ select {
   color: white;
 }
 
-.actionButtons {
+.binaryButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.greenBtn,
-.redBtn {
-  border-radius: 10px;
+.greenButton,
+.redButton {
   color: white;
+  border-radius: 11px;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 6px;
+  gap: 5px;
+  font-weight: 900;
 }
 
-.greenBtn {
+.greenButton {
   background: #008f6a;
 }
 
-.redBtn {
+.redButton {
   background: #b6081c;
 }
 
 /* BOTS */
 
 .botsPage {
-  grid-template-rows: 72px 78px 1fr;
+  grid-template-rows: 58px 76px 1fr;
 }
 
-.botsHeader {
-  padding: 14px;
+.botsTop {
+  padding: 10px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.botsHeader h2 {
-  font-size: 24px;
-}
-
-.botsHeader p {
+.botsTop p {
   color: #aab6ca;
 }
 
-.botsHeader button {
-  height: 42px;
+.botsTop button {
+  height: 38px;
   border-radius: 9px;
   background: #065dff;
   color: white;
@@ -1260,236 +1028,170 @@ select {
   font-weight: 900;
 }
 
-.botCards {
+.botList {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-.botCard {
-  border-radius: 14px;
-  padding: 12px;
-  background: rgba(5, 17, 29, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
-.botTop {
+.botCard {
+  padding: 12px;
+}
+
+.botMain {
   display: grid;
   grid-template-columns: 50px 1fr auto;
   gap: 10px;
   align-items: center;
 }
 
-.botIcon {
+.botMain > div {
   width: 46px;
   height: 46px;
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: rgba(0, 119, 255, 0.16);
+  background: rgba(0, 119, 255, 0.15);
   color: #00d9ff;
   font-weight: 1000;
 }
 
-.botTop strong,
-.botTop span,
-.botTop small {
+.botMain strong,
+.botMain span,
+.botMain small {
   display: block;
 }
 
-.botTop span,
-.botTop small {
+.botMain span,
+.botMain small {
   color: #aab6ca;
   margin-top: 3px;
   font-size: 12px;
 }
 
-.botTop em {
+.botMain em {
   font-style: normal;
   padding: 5px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
-.running {
-  background: rgba(0, 232, 132, 0.15);
+.greenBg {
   color: #00e884;
+  background: rgba(0, 232, 132, 0.14);
 }
 
-.stopped {
-  background: rgba(255, 166, 0, 0.14);
+.orangeBg {
   color: #ffaa00;
+  background: rgba(255, 166, 0, 0.14);
 }
 
-.botNums {
+.blueBg {
+  color: #008cff;
+  background: rgba(0, 140, 255, 0.14);
+}
+
+.botData {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin: 12px 0;
-  padding-top: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: end;
+  gap: 8px;
+  margin-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
 }
 
-.botNums span,
-.botNums b {
+.botData span,
+.botData b {
   display: block;
 }
 
-.botNums span {
+.botData span {
   color: #aab6ca;
   font-size: 12px;
 }
 
-.botAction {
-  width: 150px;
-  height: 36px;
+.botData button {
+  height: 34px;
   border-radius: 8px;
   background: transparent;
-  color: #0077ff;
-  border: 1px solid #0077ff;
-  float: right;
-  font-weight: 900;
+  color: #008cff;
+  border: 1px solid #008cff;
 }
 
 /* BOT LIVE */
 
 .botLive {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #fff;
-  color: #222;
-  display: grid;
-  grid-template-rows: 45px 64px 42px 54px 1fr 116px;
+  grid-template-rows: 44px 62px 44px 1fr 80px;
+  background: #f7f8fb;
+  color: #20242b;
 }
 
 .botLiveTop {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 0 12px;
-  border-bottom: 1px solid #e8e8e8;
+  padding: 0 14px;
+  background: white;
 }
 
-.botLiveTop button,
-.backBot {
+.botLiveTop button {
   height: 32px;
   border-radius: 999px;
   padding: 0 14px;
-  background: #f0f2f7;
   font-weight: 900;
 }
 
-.runnerBar {
+.runner {
   display: grid;
-  grid-template-columns: 130px 1fr;
-  padding: 8px 12px;
+  grid-template-columns: 140px 1fr;
+  padding: 8px 14px;
+  background: white;
 }
 
-.runBtn,
-.stopBtn {
-  border-radius: 12px 0 0 12px;
+.startRun,
+.stopRun {
   color: white;
+  font-size: 17px;
   font-weight: 900;
-  font-size: 18px;
-}
-
-.runBtn,
-.stopBtn {
   background: #6f5df6;
+  border-radius: 12px 0 0 12px;
 }
 
-.runnerBar > div {
-  border: 1px solid #dfe5f2;
-  border-left: none;
+.runner > div {
+  border: 1px solid #d7deed;
   display: grid;
   place-items: center;
 }
 
-.runnerBar > div span {
-  display: block;
-  width: 88%;
+.runner span {
+  width: 80%;
   height: 6px;
-  background: #d6dde0;
   border-radius: 999px;
+  background: #d7deed;
 }
 
-.runnerBar > div i {
+.runner i {
   display: block;
   width: 70%;
   height: 100%;
   background: #35b7b4;
 }
 
-.athenaLine {
-  display: grid;
-  grid-template-columns: 90px 1fr 70px;
-  gap: 8px;
-  padding: 5px 10px;
-  align-items: center;
-}
-
-.athenaLine button,
-.athenaLine div {
-  height: 31px;
-  border-radius: 999px;
-  border: 1px solid #dfe5f2;
-  background: white;
-}
-
-.athenaLine button {
-  font-size: 12px;
-}
-
-.athenaLine button span {
-  display: inline-block;
-  width: 22px;
-  height: 14px;
-  border-radius: 999px;
-  background: #dfe5f2;
-  vertical-align: middle;
-  margin-left: 6px;
-}
-
-.athenaLine button .on {
-  background: #35b7b4;
-}
-
-.athenaLine div {
-  border-radius: 8px;
-  padding: 3px 8px;
-}
-
-.athenaLine strong,
-.athenaLine small {
-  display: block;
-  font-size: 8px;
-  color: #8a94aa;
-}
-
-.athenaLine a {
-  color: #008f8f;
-  font-size: 11px;
-  text-decoration: underline;
-}
-
 .runnerTabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border-bottom: 1px solid #edf1f8;
+  background: white;
 }
 
 .runnerTabs button {
   background: white;
   font-weight: 900;
-  font-size: 16px;
   border-bottom: 3px solid transparent;
 }
 
-.runnerTabs button.active {
+.runnerTabs .active {
   border-bottom-color: #35b7b4;
 }
 
@@ -1498,112 +1200,94 @@ select {
   overflow: hidden;
 }
 
-.resultBox {
-  width: 100%;
+.result {
   height: 100%;
   display: grid;
   place-items: center;
-  text-align: center;
-  background: #f7f8fb;
-  border-radius: 8px;
+  align-content: center;
+  gap: 10px;
+  background: white;
+  border-radius: 10px;
 }
 
-.resultBox.won {
-  background: rgba(0, 200, 150, 0.12);
+.result.won {
+  background: rgba(0, 200, 150, 0.13);
   color: #35b7b4;
 }
 
-.resultBox.lost {
-  background: rgba(255, 64, 87, 0.12);
+.result.lost {
+  background: rgba(255, 64, 87, 0.13);
   color: #ff4057;
-}
-
-.resultBox h2 {
-  font-size: 34px;
 }
 
 .runnerTable {
   height: 100%;
   overflow: hidden;
+  background: white;
 }
 
-.runnerTable > div {
-  display: grid;
-  grid-template-columns: 60px 1fr 120px;
-  gap: 8px;
+.runnerTable p {
+  min-height: 44px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  min-height: 48px;
-  border-bottom: 1px solid #eee;
+  padding: 0 14px;
+  border-bottom: 1px solid #edf1f8;
 }
 
-.runnerTable small,
-.journalList span {
-  display: block;
-  color: #777;
-}
-
-.journalList p {
-  padding: 12px;
-  background: #f0f2f5;
-  margin-bottom: 8px;
-}
-
-.runnerStats {
+.botLiveStats {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  background: #f0f1f3;
-  padding: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  background: #edf1f8;
+  gap: 6px;
+  padding: 8px;
 }
 
-/* PROFILE / SETTINGS */
+/* PROFILE SETTINGS LIST */
 
 .profilePage {
-  grid-template-rows: 118px 84px 1fr 56px;
+  grid-template-rows: 100px 80px 1fr 52px;
 }
 
-.profileCard {
+.profileTop {
   display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 16px;
+  grid-template-columns: 82px 1fr;
+  gap: 15px;
   align-items: center;
-  padding: 14px;
+  padding: 12px;
 }
 
 .bigAvatar {
-  width: 78px;
-  height: 78px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
   display: grid;
   place-items: center;
-  font-size: 28px;
+  font-size: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.profileCard h2 span {
-  color: #00e884;
-}
-
-.profileCard p,
-.profileCard small {
-  color: #aab6ca;
+.profileTop p,
+.profileTop small {
   display: block;
+  color: #aab6ca;
   margin-top: 4px;
 }
 
-.profileCard b {
+.profileTop b {
   display: inline-block;
   color: #00e884;
   background: rgba(0, 232, 132, 0.12);
   padding: 4px 8px;
   border-radius: 8px;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .profileGrid {
-  padding: 10px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 8px;
+  padding: 8px;
 }
 
 .profileGrid button {
@@ -1613,21 +1297,23 @@ select {
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 6px;
-  min-height: 0;
+  gap: 5px;
+  font-size: 28px;
 }
 
-.profileGrid strong,
+.profileGrid b,
 .profileGrid span {
   display: block;
+  font-size: 14px;
 }
 
 .profileGrid span {
   color: #aab6ca;
+  font-size: 12px;
 }
 
 .logoutWide {
-  border-radius: 14px;
+  border-radius: 13px;
   background: rgba(255, 0, 59, 0.08);
   border: 1px solid #ff003b;
   color: #ff4057;
@@ -1636,15 +1322,11 @@ select {
 }
 
 .settingsPage {
-  grid-template-rows: 90px 70px 1fr;
+  grid-template-rows: 90px 1fr;
 }
 
 .settingsHero {
   padding: 18px;
-}
-
-.settingsHero h1 {
-  font-size: 30px;
 }
 
 .settingsHero p {
@@ -1652,111 +1334,76 @@ select {
   margin-top: 6px;
 }
 
-.settingsGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  overflow: hidden;
-}
-
-.settingsGrid button {
-  background: transparent;
-  color: #aab6ca;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 5px;
-  border-bottom: 3px solid transparent;
-}
-
-.settingsGrid .active {
-  color: #0077ff;
-  border-bottom-color: #0077ff;
-}
-
 .settingsCard {
-  padding: 20px;
-  overflow: hidden;
+  padding: 22px;
 }
 
 .settingsCard h2 {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .settingsCard label {
+  min-height: 60px;
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: 1fr 280px;
   align-items: center;
-  gap: 20px;
-  min-height: 58px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .settingsCard select {
   height: 42px;
   border-radius: 8px;
-  background: #07111d;
+  background: #030a13;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.14);
   padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
 }
 
-.settingToggles {
+.toggles {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
-.settingToggles p {
+.toggles p {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.035);
   padding: 12px;
   border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
 }
 
-.settingToggles b {
-  width: 42px;
-  height: 24px;
+.toggles b {
+  width: 40px;
+  height: 22px;
   border-radius: 999px;
-  background: #273345;
+  background: #065dff;
   position: relative;
 }
 
-.settingToggles b::after {
+.toggles b::after {
   content: "";
   position: absolute;
+  width: 16px;
+  height: 16px;
+  right: 3px;
   top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
   background: white;
+  border-radius: 50%;
 }
-
-.settingToggles b.on {
-  background: #065dff;
-}
-
-.settingToggles b.on::after {
-  left: 21px;
-}
-
-/* LISTS */
 
 .listPage {
-  padding: 20px 20px 90px;
   grid-template-rows: 50px 1fr;
 }
 
 .listPanel {
-  padding: 14px;
+  padding: 12px;
   overflow: hidden;
 }
 
 .listPanel div {
-  min-height: 54px;
+  min-height: 52px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1768,350 +1415,17 @@ select {
   color: #aab6ca;
 }
 
-/* MENU */
-
-.menuLayer {
-  position: fixed;
-  inset: 0;
-  z-index: 4000;
-  display: flex;
-  background: rgba(0, 0, 0, 0.52);
-}
-
-.menuShade {
-  position: fixed;
-  inset: 0;
-  background: transparent;
-}
-
-.menuPanel {
-  position: relative;
-  z-index: 2;
-  width: 440px;
-  height: 100dvh;
-  background:
-    radial-gradient(circle at top left, rgba(0, 119, 255, 0.18), transparent 35%),
-    #04101d;
-  border-right: 1px solid rgba(255, 255, 255, 0.13);
-  padding: 22px;
-  display: grid;
-  grid-template-rows: 58px 144px 1fr 58px;
-  gap: 12px;
-}
-
-.menuTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.menuTop button {
-  background: transparent;
-  color: white;
-  font-size: 42px;
-}
-
-.menuAccount {
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(5, 17, 29, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.menuAccountTop {
-  display: grid;
-  grid-template-columns: 58px 1fr;
-  gap: 12px;
-  align-items: center;
-}
-
-.accountIcon {
-  width: 58px;
-  height: 58px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #00eaff, #065dff);
-  color: #02070d;
-  font-weight: 1000;
-  font-size: 28px;
-}
-
-.menuAccount small,
-.menuAccount span {
-  display: block;
-  color: #aab6ca;
-}
-
-.menuAccount small {
-  color: #00e884;
-  font-weight: 900;
-}
-
-.menuAccount strong {
-  display: block;
-  font-size: 22px;
-  margin: 4px 0;
-}
-
-.menuSwitch {
-  margin-top: 12px;
-  height: 42px;
-  border-radius: 10px;
-  background: #060b17;
-  padding: 4px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-}
-
-.menuSwitch button {
-  border-radius: 8px;
-  background: transparent;
-  color: #aab6ca;
-  font-weight: 900;
-}
-
-.menuSwitch .active {
-  background: #00c76f;
-  color: white;
-}
-
-.menuGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  overflow: hidden;
-}
-
-.menuBlock {
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 10px;
-}
-
-.menuBlock h4 {
-  color: #aab6ca;
-  font-size: 12px;
-  margin-bottom: 8px;
-}
-
-.menuBtn2 {
-  width: 100%;
-  height: 38px;
-  background: transparent;
-  color: white;
-  display: grid;
-  grid-template-columns: 28px 1fr auto 14px;
-  align-items: center;
-  text-align: left;
-  gap: 5px;
-  border-radius: 8px;
-  padding: 0 6px;
-}
-
-.menuBtn2:hover {
-  background: rgba(0, 119, 255, 0.12);
-}
-
-.menuBtn2 span {
-  color: #0077ff;
-}
-
-.menuBtn2 strong {
-  font-size: 13px;
-}
-
-.menuBtn2 b {
-  width: 20px;
-  height: 20px;
-  background: #ff003b;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 10px;
-}
-
-.menuBtn2 em {
-  font-style: normal;
-  color: #aab6ca;
-}
-
-.logoutBtn {
-  border-radius: 12px;
-  background: rgba(255, 0, 59, 0.08);
-  border: 1px solid #ff003b;
-  color: #ff4057;
-  font-weight: 900;
-  font-size: 17px;
-}
-
-/* MODAL */
-
-.modalLayer {
-  position: fixed;
-  inset: 0;
-  z-index: 5000;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(7px);
-  display: grid;
-  place-items: center;
-  padding: 18px;
-}
-
-.depositModal {
-  width: 520px;
-  max-width: 100%;
-  background: #202838;
-  color: white;
-  border-radius: 22px;
-  padding: 26px;
-  position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.modalClose {
-  position: absolute;
-  right: 16px;
-  top: 12px;
-  width: 38px;
-  height: 38px;
-  background: transparent;
-  color: #aab6ca;
-  font-size: 38px;
-}
-
-.depositModal h2 {
-  font-size: 30px;
-  margin-bottom: 8px;
-}
-
-.depositModal p {
-  color: #aab6ca;
-  margin-bottom: 22px;
-}
-
-.paymentOption {
-  width: 100%;
-  min-height: 90px;
-  display: grid;
-  grid-template-columns: 62px 1fr 30px;
-  align-items: center;
-  gap: 16px;
-  border-radius: 16px;
-  background: #1d2534;
-  border: 1px solid #313a4f;
-  color: white;
-  padding: 15px;
-  text-align: left;
-  margin-bottom: 14px;
-}
-
-.paymentOption > span {
-  width: 58px;
-  height: 58px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: #254c58;
-  font-size: 26px;
-}
-
-.paymentOption strong,
-.paymentOption small {
-  display: block;
-}
-
-.paymentOption small {
-  color: #aab6ca;
-  margin-top: 5px;
-}
-
-.paymentOption b {
-  font-size: 32px;
-  color: #aab6ca;
-}
-
-.depositModal input {
-  width: 100%;
-  height: 52px;
-  border-radius: 10px;
-  background: #151c2a;
-  color: white;
-  border: 1px solid #313a4f;
-  padding: 0 14px;
-  margin-bottom: 16px;
-}
-
-.modalPrimary {
-  width: 100%;
-  height: 54px;
-  border-radius: 10px;
-  background: #00c76f;
-  color: white;
-  font-weight: 900;
-  font-size: 16px;
-}
-
-.backSmall {
-  height: 34px;
-  border-radius: 999px;
-  padding: 0 14px;
-  background: #2b3548;
-  color: white;
-  margin-bottom: 14px;
-}
-
-/* TOAST */
-
-.toast {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  width: 330px;
-  z-index: 9000;
-  border-radius: 14px;
-  background: #07111d;
-  color: white;
-  padding: 14px 16px;
-  border-left: 5px solid #0077ff;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-}
-
-.toast.win {
-  border-left-color: #00e884;
-}
-
-.toast.loss {
-  border-left-color: #ff4057;
-}
-
-.toast strong,
-.toast span {
-  display: block;
-}
-
-.toast span {
-  color: #aab6ca;
-  margin-top: 5px;
-}
-
 /* BOTTOM NAV */
 
 .bottomNav {
-  position: fixed;
-  left: 10px;
-  right: 10px;
-  bottom: 8px;
-  height: 72px;
-  border-radius: 18px;
+  min-height: 0;
+  margin: 0 10px 8px;
+  border-radius: 14px;
   background: rgba(5, 17, 29, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.11);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.35);
+  overflow: visible;
 }
 
 .bottomNav button {
@@ -2132,259 +1446,502 @@ select {
 }
 
 .bottomNav .active {
-  color: #0077ff;
+  color: #008cff;
 }
 
 .bottomNav button:nth-child(3) {
-  transform: translateY(-24px);
+  transform: translateY(-18px);
 }
 
 .bottomNav button:nth-child(3) span {
-  width: 68px;
-  height: 68px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
   background: #065dff;
   color: white;
+  display: grid;
+  place-items: center;
+}
+
+/* DRAWER */
+
+.menuLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.shade {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+}
+
+.drawer {
+  width: 430px;
+  max-width: 88vw;
+  height: 100dvh;
+  z-index: 2;
+  background:
+    radial-gradient(circle at top left, rgba(0, 119, 255, 0.2), transparent 35%),
+    #04101d;
+  border-right: 1px solid rgba(255, 255, 255, 0.13);
+  padding: 18px;
+  display: grid;
+  grid-template-rows: 54px 135px 1fr 54px;
+  gap: 10px;
+}
+
+.drawerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawerTop button {
+  background: transparent;
+  color: white;
+  font-size: 38px;
+}
+
+.drawerAccount {
+  padding: 12px;
+  border-radius: 15px;
+  background: rgba(5, 17, 29, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drawerUser {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.drawerUser > div {
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: #02070d;
+  background: linear-gradient(135deg, #00eaff, #065dff);
+  font-size: 24px;
+  font-weight: 1000;
+}
+
+.drawerUser small,
+.drawerUser span {
+  display: block;
+  color: #aab6ca;
+}
+
+.drawerUser small {
+  color: #00e884;
+  font-weight: 900;
+}
+
+.drawerUser strong {
+  display: block;
+  font-size: 20px;
+  margin: 3px 0;
+}
+
+.drawerSwitch {
+  height: 38px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: #060b17;
+  padding: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.drawerSwitch button {
+  border-radius: 8px;
+  background: transparent;
+  color: #aab6ca;
+  font-weight: 900;
+}
+
+.drawerSwitch .active {
+  background: #00c76f;
+  color: white;
+}
+
+.drawerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.drawerBlock {
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px;
+}
+
+.drawerBlock h4 {
+  color: #aab6ca;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.drawerBtn {
+  width: 100%;
+  height: 35px;
+  background: transparent;
+  color: white;
+  display: grid;
+  grid-template-columns: 25px 1fr auto 12px;
+  align-items: center;
+  gap: 4px;
+  text-align: left;
+  border-radius: 8px;
+  padding: 0 5px;
+}
+
+.drawerBtn:hover {
+  background: rgba(0, 119, 255, 0.12);
+}
+
+.drawerBtn span {
+  color: #008cff;
+}
+
+.drawerBtn strong {
+  font-size: 12px;
+}
+
+.drawerBtn b {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff003b;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+}
+
+.drawerBtn em {
+  font-style: normal;
+  color: #aab6ca;
+}
+
+.drawerLogout {
+  border-radius: 12px;
+  background: rgba(255, 0, 59, 0.08);
+  border: 1px solid #ff003b;
+  color: #ff4057;
+  font-weight: 900;
+  font-size: 17px;
+}
+
+/* MODALS */
+
+.modalLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.depositModal {
+  width: 520px;
+  max-width: 100%;
+  border-radius: 22px;
+  background: #202838;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  padding: 26px;
+  position: relative;
+}
+
+.x {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  background: transparent;
+  color: #aab6ca;
+  font-size: 38px;
+}
+
+.depositModal h2 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.depositModal p {
+  color: #aab6ca;
+  margin-bottom: 20px;
+}
+
+.payBtn {
+  width: 100%;
+  min-height: 88px;
+  display: grid;
+  grid-template-columns: 62px 1fr 30px;
+  gap: 16px;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  background: #1d2534;
+  border: 1px solid #313a4f;
+  color: white;
+  text-align: left;
+}
+
+.payBtn > span {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: #254c58;
+  font-size: 26px;
+}
+
+.payBtn strong,
+.payBtn small {
+  display: block;
+}
+
+.payBtn small {
+  color: #aab6ca;
+  margin-top: 5px;
+}
+
+.payBtn b {
+  font-size: 32px;
+  color: #aab6ca;
+}
+
+.back {
+  height: 32px;
+  border-radius: 999px;
+  padding: 0 12px;
+  background: #2b3548;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.depositModal label {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.depositModal input {
+  width: 100%;
+  height: 50px;
+  border-radius: 10px;
+  background: #151c2a;
+  color: white;
+  border: 1px solid #313a4f;
+  padding: 0 13px;
+  margin-bottom: 14px;
+}
+
+.modalPrimary {
+  width: 100%;
+  height: 52px;
+  border-radius: 10px;
+  background: #00c76f;
+  color: white;
+  font-weight: 1000;
+  font-size: 16px;
+}
+
+/* TOAST */
+
+.toast {
+  position: fixed;
+  right: 16px;
+  top: 14px;
+  z-index: 7000;
+  width: 320px;
+  border-radius: 13px;
+  background: #07111d;
+  border-left: 5px solid #008cff;
+  color: white;
+  padding: 13px 15px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.toast.win {
+  border-left-color: #00e884;
+}
+
+.toast.loss {
+  border-left-color: #ff4057;
+}
+
+.toast strong,
+.toast span {
+  display: block;
+}
+
+.toast span {
+  color: #aab6ca;
+  margin-top: 4px;
 }
 
 /* MOBILE */
 
 @media (max-width: 760px) {
-  .authShell {
-    padding: 8px;
-    overflow-y: auto;
+  .app {
+    grid-template-rows: 118px 1fr 64px;
   }
 
-  .authLoginPanel {
-    height: auto;
-    min-height: 100dvh;
-    padding: 24px 16px;
-    gap: 18px;
-  }
-
-  .logoMark {
-    width: 38px;
-    height: 38px;
-    font-size: 20px;
-  }
-
-  .logoBox strong {
-    font-size: 25px;
-  }
-
-  .authCard {
-    padding: 24px 18px;
-  }
-
-  .authCard h1,
-  .registerMain h1 {
-    font-size: 30px;
-  }
-
-  .registerPanel {
-    height: auto;
-    min-height: 100dvh;
-    grid-template-columns: 1fr;
-    padding: 16px;
-  }
-
-  .whyJoin {
-    display: none;
-  }
-
-  .regGrid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .authInput,
-  .regField div {
-    height: 52px;
-    margin-bottom: 14px;
-  }
-
-  .topHeader {
-    height: 96px;
-    flex: 0 0 96px;
-    padding: 8px 10px;
-    grid-template-columns: 30px auto 1fr 54px 82px 32px 38px;
-    grid-template-rows: 38px 42px;
+  .header {
+    grid-template-columns: 34px 1fr 34px 38px;
+    grid-template-rows: 44px 54px;
     gap: 6px;
+    padding: 8px 10px;
   }
 
-  .topHeader .logoBox {
-    grid-column: 2 / 4;
-  }
-
-  .hamburger {
+  .hamb {
+    grid-column: 1;
     font-size: 24px;
   }
 
-  .topHeader .logoMark {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
+  .header .logo {
+    grid-column: 2;
   }
 
-  .topHeader .logoBox strong {
-    font-size: 20px;
+  .header .logo div {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
   }
 
-  .walletBox {
-    grid-column: 1 / 4;
+  .header .logo strong {
+    font-size: 24px;
+  }
+
+  .bell {
+    grid-column: 3;
+  }
+
+  .avatar {
+    grid-column: 4;
+  }
+
+  .bell,
+  .avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .wallet {
+    grid-column: 1 / 3;
     grid-row: 2;
-    height: 40px;
-    padding: 0 8px;
+    height: 46px;
   }
 
-  .walletBox small {
+  .wallet small {
     font-size: 8px;
   }
 
-  .walletBox strong {
-    font-size: 12px;
-  }
-
-  .demoReal {
-    grid-column: 4 / 5;
-    grid-row: 2;
-    height: 40px;
-  }
-
-  .demoReal button {
-    font-size: 10px;
-  }
-
-  .depositTop {
-    grid-column: 5 / 6;
-    grid-row: 2;
-    height: 40px;
-    font-size: 12px;
-  }
-
-  .bellBtn {
-    grid-column: 6;
-  }
-
-  .userAvatar {
-    grid-column: 7;
-  }
-
-  .bellBtn,
-  .userAvatar {
-    width: 32px;
-    height: 32px;
+  .wallet strong {
     font-size: 13px;
   }
 
+  .switch {
+    grid-column: 3;
+    grid-row: 2;
+    height: 46px;
+    width: 74px;
+  }
+
+  .switch button {
+    font-size: 9px;
+  }
+
+  .depositBtn {
+    grid-column: 4;
+    grid-row: 2;
+    width: 86px;
+    height: 46px;
+    font-size: 12px;
+    transform: translateX(-50px);
+  }
+
   .mainScreen {
-    height: calc(100dvh - 96px);
     padding: 5px;
   }
 
   .page {
-    padding-bottom: 66px;
     gap: 5px;
   }
 
-  .accountStrip {
-    height: 54px;
-    grid-template-columns: 1fr 1fr 72px;
-    padding: 6px 8px;
-    gap: 6px;
-  }
-
-  .accountStrip small,
-  .accountStrip span {
-    font-size: 7px;
-    margin-bottom: 1px;
-  }
-
-  .accountStrip strong {
-    font-size: 10px;
-  }
-
-  .accountStrip em {
-    font-size: 7px;
-  }
-
-  .accountStrip button {
-    height: 34px;
-    font-size: 9px;
-  }
-
-  .hubNav {
+  .hub {
     height: 42px;
     border-radius: 10px;
   }
 
-  .hubNav button span {
+  .hub button span {
     font-size: 12px;
   }
 
-  .hubNav button small {
-    font-size: 5.9px;
+  .hub button small {
+    font-size: 6px;
   }
 
   .homePage {
-    grid-template-rows: 54px 42px 1fr 54px 44px;
+    grid-template-rows: 42px 1fr 50px 42px;
   }
 
-  .homeHero {
-    grid-template-columns: 1fr 120px;
+  .hero {
+    grid-template-columns: 1fr 105px;
     padding: 10px;
-    gap: 8px;
     border-radius: 10px;
   }
 
-  .homeHero h1 {
+  .hero h1 {
     font-size: 21px;
   }
 
-  .homeHero p {
+  .hero p {
     font-size: 10px;
-    margin: 7px 0;
+    margin: 6px 0 10px;
   }
 
-  .homeHero button {
-    width: 100px;
-    height: 34px;
+  .hero button {
+    width: 102px;
+    height: 33px;
     font-size: 10px;
   }
 
-  .phoneArt {
-    height: 118px;
+  .heroCard {
+    height: 120px;
     padding: 10px;
-    border-radius: 16px;
-    gap: 4px;
   }
 
-  .phoneArt strong {
-    font-size: 17px;
+  .heroCard strong {
+    font-size: 16px;
   }
 
-  .phoneArt span {
-    font-size: 9px;
+  .heroCard button {
+    width: 62px;
+    height: 24px;
+    font-size: 8px;
   }
 
-  .phoneArt button {
-    width: 65px;
-    height: 26px;
-    font-size: 9px;
-  }
-
-  .statsLine,
-  .botSummary,
+  .stats,
+  .botStats,
   .profileStats {
     padding: 5px;
     gap: 5px;
-  }
-
-  .stat {
-    padding: 5px;
-    border-radius: 9px;
   }
 
   .stat strong {
@@ -2393,47 +1950,43 @@ select {
 
   .stat span {
     font-size: 6px;
-    margin-top: 2px;
   }
 
-  .marketsMini button {
-    padding: 0 7px;
+  .marketStrip p {
+    padding: 8px;
   }
 
-  .marketsMini strong,
-  .marketsMini span {
+  .marketStrip b,
+  .marketStrip span {
     font-size: 8px;
   }
 
   .forexPage {
-    grid-template-rows: 50px 40px 48px 36px 1fr 100px 78px;
-  }
-
-  .forexSymbolBar {
-    grid-template-columns: 24px 90px 1fr 76px !important;
-  }
-
-  .forexSymbolBar > div:nth-of-type(3),
-  .forexSymbolBar > div:nth-of-type(4),
-  .forexSymbolBar button:nth-last-child(-n + 2) {
-    display: none;
-  }
-
-  .forexSymbolBar select {
-    height: 32px;
-    font-size: 10px;
-    padding: 0 6px;
+    grid-template-rows: 42px 48px 34px minmax(190px, 1fr) 96px 70px;
   }
 
   .symbolBar {
-    gap: 5px;
+    grid-template-columns: 26px 88px 1fr 75px;
     padding: 6px;
+    gap: 5px;
     border-radius: 10px;
   }
 
+  .symbolBar > div:nth-of-type(3),
+  .symbolBar > div:nth-of-type(4),
+  .symbolBar button:nth-last-child(-n + 2) {
+    display: none;
+  }
+
   .symbolBar button {
-    height: 28px;
+    height: 30px;
     font-size: 15px;
+  }
+
+  .symbolBar select {
+    height: 32px;
+    font-size: 10px;
+    padding: 0 6px;
   }
 
   .symbolBar strong {
@@ -2444,41 +1997,52 @@ select {
     font-size: 7px;
   }
 
-  .forexToolbar {
-    grid-template-columns: repeat(6, 42px) 28px 35px 72px !important;
-  }
-
-  .mt5Toolbar {
-    overflow: hidden;
+  .toolbar {
+    grid-template-columns: repeat(6, 42px) 24px 32px 70px;
     border-radius: 10px;
   }
 
-  .mt5Toolbar button {
+  .toolbar button {
     font-size: 8px;
   }
 
-  .mt5Toolbar button:nth-last-child(-n + 3) {
+  .toolbar button:nth-last-child(-n + 3) {
     display: none;
   }
 
-  .mt5Toolbar button.active {
+  .toolbar .active {
     margin: 6px;
   }
 
-  .tvChartWrap {
-    min-height: 250px;
-    border-radius: 10px;
+  .chartTop {
+    height: 28px;
+    font-size: 9px;
   }
 
-  .tradingviewBox {
-    min-height: 250px;
+  .chartInner svg {
+    top: 28px;
+    height: calc(100% - 28px);
   }
 
-  .forexOrderBox {
-    grid-template-columns: 1fr 1fr !important;
-    min-height: 98px;
-    gap: 6px;
+  .leftTools {
+    top: 36px;
+    left: 5px;
+    width: 28px;
+  }
+
+  .leftTools button {
+    font-size: 10px;
+  }
+
+  .chartInner svg {
+    left: 38px;
+    width: calc(100% - 38px);
+  }
+
+  .orderBox {
+    grid-template-columns: 1fr 1fr;
     padding: 6px;
+    gap: 6px;
     border-radius: 10px;
   }
 
@@ -2487,27 +2051,26 @@ select {
   }
 
   .orderTabs {
-    height: 22px;
+    height: 20px;
     gap: 8px;
     margin-bottom: 4px;
   }
 
   .orderTabs button {
-    font-size: 8px;
+    font-size: 7px;
   }
 
-  .mt5Inputs {
+  .inputsGrid {
     gap: 3px;
   }
 
   .mtInput span {
     font-size: 6px;
-    margin-bottom: 1px;
   }
 
   .mtInput div {
-    height: 22px;
-    grid-template-columns: 1fr 22px 22px;
+    height: 20px;
+    grid-template-columns: 1fr 20px 20px;
   }
 
   .mtInput strong {
@@ -2516,123 +2079,114 @@ select {
   }
 
   .mtInput button {
+    font-size: 9px;
+  }
+
+  .buySell button {
     font-size: 10px;
   }
 
-  .buySell {
-    gap: 6px;
-  }
-
-  .buy,
-  .sell {
-    font-size: 11px;
-  }
-
-  .forexPositions {
-    min-height: 76px;
+  .positions {
     border-radius: 10px;
   }
 
-  .positionTabs {
-    height: 26px;
+  .posTabs {
+    height: 24px;
     gap: 6px;
-    padding: 0 6px;
-    overflow: hidden;
+    padding: 0 5px;
   }
 
-  .positionTabs button {
+  .posTabs button {
     font-size: 7px;
   }
 
-  .positionTabs .active {
-    height: 26px;
+  .posTabs .active {
+    height: 24px;
   }
 
-  .positionHead,
-  .positionRow {
-    min-height: 22px;
-    grid-template-columns: 1fr 32px 28px 45px 32px 35px;
-    gap: 3px;
+  .posHead,
+  .posRow {
+    min-height: 20px;
+    grid-template-columns: 1fr 34px 30px 45px 45px 35px;
     padding: 0 5px;
-    font-size: 6.5px;
-  }
-
-  .positionRow button {
-    height: 16px;
+    gap: 3px;
     font-size: 6px;
   }
 
-  .binaryPage {
-    grid-template-rows: 36px 1fr 108px;
+  .posRow button {
+    height: 15px;
+    font-size: 6px;
+  }
+
+  .tradePage {
+    grid-template-rows: 36px minmax(220px, 1fr) 98px;
   }
 
   .tradeTypes {
     padding: 4px;
-    border-radius: 10px;
+    overflow-x: auto;
   }
 
-  .tradeTypes span {
+  .tradeTypes span,
+  .tradeTypes button {
     font-size: 8px;
   }
 
   .tradeTypes button {
+    min-width: 78px;
     height: 27px;
-    font-size: 8px;
-    padding: 0 7px;
   }
 
-  .binaryChart {
+  .binaryPanel {
     padding: 6px;
-    border-radius: 10px;
-  }
-
-  .binaryTop strong {
-    font-size: 11px;
-  }
-
-  .binaryTop small {
-    font-size: 8px;
-  }
-
-  .binaryTop button {
-    width: 46px;
-    height: 28px;
-    font-size: 9px;
   }
 
   .lineChart {
-    height: 86px;
-    border-radius: 9px;
+    height: 38%;
+    min-height: 80px;
   }
 
-  .binaryChart h4 {
-    font-size: 9px;
-    margin: 4px 0;
-  }
-
-  .digitGrid {
-    gap: 5px;
-  }
-
-  .digitGrid button {
-    width: 35px;
-    height: 35px;
-    border-width: 4px;
-  }
-
-  .digitGrid strong {
+  .binaryHeader strong {
     font-size: 11px;
   }
 
-  .digitGrid span {
+  .binaryHeader small {
+    font-size: 8px;
+  }
+
+  .binaryHeader button {
+    width: 46px;
+    height: 26px;
+    font-size: 9px;
+  }
+
+  .binaryPanel h3 {
+    font-size: 10px;
+    margin: 4px 0;
+  }
+
+  .digits {
+    gap: 5px;
+  }
+
+  .digits button {
+    width: 34px;
+    height: 34px;
+    border-width: 4px;
+  }
+
+  .digits strong {
+    font-size: 11px;
+  }
+
+  .digits span {
     font-size: 6px;
   }
 
   .binaryOrder {
-    grid-template-columns: 70px 90px 1fr;
-    gap: 5px;
+    grid-template-columns: 70px 92px 1fr;
     padding: 6px;
-    border-radius: 10px;
+    gap: 5px;
   }
 
   .binaryOrder label {
@@ -2650,167 +2204,128 @@ select {
     grid-template-columns: 24px 1fr 24px;
   }
 
-  .stakeBox button {
-    font-size: 13px;
-  }
-
-  .stakeBox strong {
-    font-size: 8px;
-  }
-
-  .actionButtons {
+  .binaryButtons {
     gap: 5px;
   }
 
-  .greenBtn,
-  .redBtn {
-    border-radius: 8px;
+  .greenButton,
+  .redButton {
+    font-size: 9px;
   }
 
-  .greenBtn strong,
-  .redBtn strong {
-    font-size: 11px;
-  }
-
-  .greenBtn span,
-  .redBtn span {
+  .greenButton span,
+  .redButton span {
     font-size: 6px;
   }
 
   .botsPage {
-    grid-template-rows: 46px 48px 1fr;
+    grid-template-rows: 44px 44px 1fr;
   }
 
-  .botsHeader {
-    padding: 6px 9px;
-    border-radius: 10px;
+  .botsTop {
+    padding: 6px;
   }
 
-  .botsHeader h2 {
-    font-size: 15px;
+  .botsTop h2 {
+    font-size: 14px;
   }
 
-  .botsHeader p {
-    font-size: 8px;
+  .botsTop p {
+    font-size: 7px;
   }
 
-  .botsHeader button {
-    height: 30px;
+  .botsTop button {
+    height: 28px;
     font-size: 9px;
-    padding: 0 9px;
   }
 
-  .botCards {
+  .botList {
     grid-template-columns: 1fr;
     gap: 5px;
-    overflow: hidden;
   }
 
   .botCard {
     padding: 6px;
-    border-radius: 10px;
-    min-height: 0;
   }
 
-  .botTop {
+  .botMain {
     grid-template-columns: 34px 1fr auto;
     gap: 6px;
   }
 
-  .botIcon {
+  .botMain > div {
     width: 30px;
     height: 30px;
     font-size: 10px;
   }
 
-  .botTop strong {
-    font-size: 11px;
+  .botMain strong {
+    font-size: 10px;
   }
 
-  .botTop span,
-  .botTop small {
-    font-size: 6.5px;
-    margin-top: 1px;
-  }
-
-  .botTop em {
+  .botMain span,
+  .botMain small {
     font-size: 6px;
-    padding: 3px 5px;
   }
 
-  .botNums {
-    margin: 5px 0;
+  .botMain em {
+    font-size: 6px;
+  }
+
+  .botData {
+    margin-top: 5px;
     padding-top: 5px;
   }
 
-  .botNums span {
-    font-size: 6px;
+  .botData span {
+    font-size: 5px;
   }
 
-  .botNums b {
-    font-size: 8px;
-  }
-
-  .botAction {
-    width: 78px;
-    height: 22px;
+  .botData b {
     font-size: 7px;
   }
 
-  .botLive {
-    grid-template-rows: 42px 58px 36px 46px 1fr 100px;
-  }
-
-  .runnerTabs button {
-    font-size: 12px;
-  }
-
-  .runnerStats {
-    grid-template-columns: repeat(3, 1fr);
-    padding: 5px;
+  .botData button {
+    height: 21px;
+    font-size: 6px;
   }
 
   .profilePage {
-    grid-template-rows: 74px 48px 1fr 42px;
+    grid-template-rows: 74px 46px 1fr 42px;
   }
 
-  .profileCard {
-    grid-template-columns: 50px 1fr;
-    padding: 7px;
-    gap: 7px;
+  .profileTop {
+    grid-template-columns: 48px 1fr;
+    padding: 6px;
   }
 
   .bigAvatar {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     font-size: 16px;
   }
 
-  .profileCard h2 {
+  .profileTop h2 {
     font-size: 13px;
   }
 
-  .profileCard p,
-  .profileCard small,
-  .profileCard b {
+  .profileTop p,
+  .profileTop b,
+  .profileTop small {
     font-size: 7px;
     margin-top: 1px;
   }
 
   .profileGrid {
-    grid-template-columns: repeat(4, 1fr);
-    padding: 5px;
     gap: 5px;
+    padding: 5px;
   }
 
   .profileGrid button {
-    height: auto;
-    min-height: 70px;
-    padding: 8px 4px;
-    font-size: 15px;
+    font-size: 16px;
   }
 
-  .profileGrid strong {
+  .profileGrid b {
     font-size: 8px;
   }
 
@@ -2818,191 +2333,85 @@ select {
     font-size: 6px;
   }
 
-  .logoutWide {
-    font-size: 12px;
-  }
-
-  .settingsPage {
-    grid-template-rows: 58px 46px 1fr;
-  }
-
-  .settingsHero {
-    padding: 8px 12px;
-    border-radius: 10px;
-  }
-
-  .settingsHero h1 {
-    font-size: 20px;
-  }
-
-  .settingsHero p {
-    font-size: 9px;
-    margin-top: 2px;
-  }
-
-  .settingsGrid {
-    grid-template-columns: repeat(6, 1fr);
-    border-radius: 10px;
-  }
-
-  .settingsGrid button {
-    font-size: 12px;
-    gap: 1px;
-  }
-
-  .settingsGrid span {
-    font-size: 6px;
-  }
-
-  .settingsCard {
-    padding: 10px;
-    border-radius: 10px;
-  }
-
-  .settingsCard h2 {
-    font-size: 15px;
-    margin-bottom: 6px;
-  }
-
-  .settingsCard label {
-    grid-template-columns: 1fr;
-    gap: 3px;
-    min-height: 54px;
-    font-size: 9px;
-  }
-
-  .settingsCard select {
-    height: 30px;
-    font-size: 9px;
-  }
-
-  .settingToggles {
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
-  }
-
-  .settingToggles p {
-    padding: 7px;
-    font-size: 8px;
-  }
-
-  .settingToggles b {
-    width: 30px;
-    height: 18px;
-  }
-
-  .settingToggles b::after {
-    width: 12px;
-    height: 12px;
-  }
-
-  .settingToggles b.on::after {
-    left: 15px;
-  }
-
-  .menuPanel {
+  .drawer {
     width: 84vw;
     padding: 12px;
-    grid-template-rows: 42px 108px 1fr 44px;
-    gap: 7px;
+    grid-template-rows: 44px 112px 1fr 46px;
   }
 
-  .menuTop .logoMark {
-    width: 32px;
-    height: 32px;
+  .drawer .logo div {
+    width: 34px;
+    height: 34px;
   }
 
-  .menuTop .logoBox strong {
+  .drawer .logo strong {
     font-size: 20px;
   }
 
-  .menuTop button {
-    font-size: 34px;
+  .drawerTop button {
+    font-size: 32px;
   }
 
-  .menuAccount {
-    padding: 8px;
-  }
-
-  .menuAccountTop {
+  .drawerUser {
     grid-template-columns: 42px 1fr;
-    gap: 8px;
   }
 
-  .accountIcon {
+  .drawerUser > div {
     width: 42px;
     height: 42px;
-    font-size: 20px;
   }
 
-  .menuAccount small {
+  .drawerUser small {
+    font-size: 8px;
+  }
+
+  .drawerUser strong {
+    font-size: 13px;
+  }
+
+  .drawerUser span {
+    font-size: 7px;
+  }
+
+  .drawerSwitch {
+    height: 30px;
+  }
+
+  .drawerSwitch button {
     font-size: 9px;
   }
 
-  .menuAccount strong {
-    font-size: 13px;
-    margin: 2px 0;
-  }
-
-  .menuAccount span {
-    font-size: 8px;
-  }
-
-  .menuSwitch {
-    margin-top: 7px;
-    height: 32px;
-  }
-
-  .menuSwitch button {
-    font-size: 10px;
-  }
-
-  .menuGrid {
+  .drawerGrid {
     gap: 5px;
   }
 
-  .menuBlock {
+  .drawerBlock {
     padding: 6px;
-    border-radius: 10px;
   }
 
-  .menuBlock h4 {
+  .drawerBlock h4 {
     font-size: 8px;
-    margin-bottom: 3px;
   }
 
-  .menuBtn2 {
+  .drawerBtn {
     height: 28px;
-    grid-template-columns: 20px 1fr auto 10px;
-    gap: 3px;
-    padding: 0 3px;
   }
 
-  .menuBtn2 strong {
+  .drawerBtn strong {
     font-size: 8px;
   }
 
-  .menuBtn2 span {
-    font-size: 12px;
+  .drawerBtn span {
+    font-size: 11px;
   }
 
-  .menuBtn2 b {
-    width: 16px;
-    height: 16px;
-    font-size: 8px;
-  }
-
-  .logoutBtn {
-    height: 44px;
+  .drawerLogout {
     font-size: 12px;
   }
 
   .bottomNav {
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
-    height: 58px;
-    border-radius: 15px;
+    margin: 0 5px 5px;
+    border-radius: 14px;
   }
 
   .bottomNav span {
@@ -3013,19 +2422,9 @@ select {
     font-size: 8px;
   }
 
-  .bottomNav button:nth-child(3) {
-    transform: translateY(-18px);
-  }
-
   .bottomNav button:nth-child(3) span {
-    width: 52px;
-    height: 52px;
-  }
-
-  .toast {
-    width: calc(100% - 16px);
-    top: 8px;
-    right: 8px;
+    width: 50px;
+    height: 50px;
   }
 
   .modalLayer {
@@ -3037,61 +2436,10 @@ select {
     width: 100%;
     border-radius: 22px 22px 0 0;
   }
-}
 
-@media (max-width: 390px) {
-  .topHeader {
-    height: 92px;
-    flex-basis: 92px;
-  }
-
-  .mainScreen {
-    height: calc(100dvh - 92px);
-  }
-
-  .forexPage {
-    grid-template-rows: 48px 38px 46px 34px 1fr 92px 72px;
-  }
-
-  .tvChartWrap {
-    min-height: 225px;
-  }
-
-  .tradingviewBox {
-    min-height: 225px;
-  }
-
-  .homePage {
-    grid-template-rows: 50px 40px 1fr 50px 40px;
-  }
-
-  .botsPage {
-    grid-template-rows: 42px 44px 1fr;
-  }
-
-  .botCard {
-    padding: 5px;
-  }
-
-  .botTop span,
-  .botTop small {
-    font-size: 6px;
-  }
-
-  .binaryPage {
-    grid-template-rows: 34px 1fr 102px;
-  }
-
-  .digitGrid button {
-    width: 32px;
-    height: 32px;
-  }
-
-  .lineChart {
-    height: 76px;
-  }
-
-  .forexOrderBox {
-    min-height: 90px;
+  .toast {
+    width: calc(100% - 16px);
+    right: 8px;
+    top: 8px;
   }
 }
