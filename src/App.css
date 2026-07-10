@@ -29,40 +29,17 @@ button {
   width: 100%;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at top right, rgba(0, 102, 255, 0.2), transparent 32%),
+    radial-gradient(circle at top right, rgba(0, 102, 255, 0.18), transparent 33%),
     linear-gradient(180deg, #020710, #02070d);
-  padding-bottom: 90px;
+  padding-bottom: 94px;
 }
 
-/* LOGO */
-
-.brandLogo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.green {
+  color: #00e884 !important;
 }
 
-.mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #00fff0, #065dff);
-  color: #02070d;
-  font-size: 22px;
-  font-weight: 1000;
-  box-shadow: 0 0 28px rgba(0, 102, 255, 0.45);
-}
-
-.brandLogo strong {
-  font-size: 26px;
-  color: white;
-  font-weight: 1000;
-}
-
-.brandLogo span {
-  color: #0077ff;
+.red {
+  color: #ff4057 !important;
 }
 
 /* HEADER */
@@ -71,140 +48,146 @@ button {
   position: sticky;
   top: 0;
   z-index: 900;
-  background: rgba(5, 12, 25, 0.97);
+  background: rgba(5, 12, 25, 0.98);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 14px 14px 10px;
+  padding: 14px 18px 12px;
 }
 
-.headerLine,
-.walletLine {
-  display: flex;
+.headerLine {
+  display: grid;
+  grid-template-columns: 34px auto 250px auto;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
 }
 
 .menuBtn {
   background: transparent;
   color: white;
+  font-size: 30px;
+}
+
+.brandLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #00fff0, #065dff);
+  color: #02070d;
   font-size: 26px;
+  font-weight: 1000;
+  box-shadow: 0 0 28px rgba(0, 102, 255, 0.45);
+}
+
+.brandLogo strong {
+  font-size: 30px;
+  color: white;
+  font-weight: 1000;
+}
+
+.brandLogo span {
+  color: #0077ff;
+}
+
+.topWallet {
+  height: 66px;
+  border-radius: 12px;
+  background: rgba(4, 12, 24, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: white;
+  text-align: left;
+  padding: 0 18px;
+  position: relative;
+}
+
+.topWallet small {
+  display: block;
+  color: #00e884;
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.topWallet strong {
+  font-size: 24px;
+}
+
+.topWallet span {
+  position: absolute;
+  right: 18px;
+  top: 23px;
+  color: #c7d2e5;
 }
 
 .headerRight {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  justify-self: end;
 }
 
 .bell {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: transparent;
   color: white;
   position: relative;
-  font-size: 22px;
+  font-size: 23px;
 }
 
 .bell span {
   position: absolute;
   top: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #ff003b;
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background: #050b14;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   color: white;
   font-weight: 900;
+  font-size: 18px;
   position: relative;
 }
 
 .avatar i {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 13px;
-  height: 13px;
+  right: 3px;
+  bottom: 4px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background: #00e884;
 }
 
 .walletLine {
-  margin-top: 12px;
-}
-
-.accountToggle {
-  height: 52px;
-  border-radius: 12px;
-  background: #060b17;
-  display: flex;
-  padding: 4px;
-  gap: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.accountToggle button {
-  min-width: 70px;
-  border-radius: 10px;
-  background: transparent;
-  color: #aab6ca;
-  font-weight: 900;
-  font-size: 15px;
-}
-
-.accountToggle button.active {
-  background: #00c76f;
-  color: white;
-  box-shadow: 0 0 18px rgba(0, 199, 111, 0.4);
-}
-
-.walletBox {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  padding: 8px 14px;
-  min-width: 170px;
-}
-
-.walletBox small {
-  display: block;
-  color: #00e884;
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.walletBox strong {
-  font-size: 20px;
-}
-
-.depositBig {
-  margin-left: auto;
-  height: 56px;
-  min-width: 150px;
-  border-radius: 12px;
-  background: #065dff;
-  color: white;
-  font-size: 18px;
-  font-weight: 900;
+  display: none;
 }
 
 .drawerMenu {
   position: absolute;
-  right: 14px;
-  top: 130px;
-  width: 240px;
+  right: 18px;
+  top: 90px;
+  width: 250px;
   border-radius: 18px;
   background: #07111d;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -223,267 +206,203 @@ button {
   font-weight: 800;
 }
 
+.drawerMenu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 /* MAIN */
 
 .screen {
-  min-height: calc(100dvh - 90px);
-  padding: 12px;
+  min-height: calc(100dvh - 94px);
+  padding: 14px;
 }
 
 .homePage,
+.forexPage,
 .tradePage,
+.marketsPage,
+.reportsPage,
+.historyPage,
 .botsPage,
 .profilePage,
-.marketsPage {
-  max-width: 760px;
+.settingsPage {
+  max-width: 1180px;
   margin: 0 auto;
 }
 
 .pageScroll {
   overflow-y: auto;
-  padding-bottom: 20px;
+  padding-bottom: 24px;
+}
+
+.fitPage {
+  overflow: hidden;
 }
 
 /* COMMON PANELS */
 
-.ticker,
-.featureGrid,
-.statPanel,
-.marketPanel,
-.aiCard,
-.accountSummary,
+.dashboardCard,
 .hubRow,
-.typeRow,
-.chartCard,
+.homeGrid,
+.compactStats,
+.marketPanel,
+.forexSymbol,
+.forexToolbar,
+.forexChartPanel,
+.forexOrder,
+.forexTrades,
+.equityBar,
+.binaryChartCard,
 .orderBox,
-.openTable,
+.miniTradeStatus,
+.simplePanel,
+.reportGrid,
+.marketTiles,
 .profileHero,
 .profileStats,
 .settingsList,
-.refCard,
 .logoutCard,
+.botTabsTop,
 .botStatsCards,
 .botSearchRow,
 .botCard,
-.botTabsTop {
-  background: rgba(5, 17, 29, 0.88);
+.settingsHero,
+.settingsCard {
+  background: rgba(5, 17, 29, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
-  box-shadow: inset 0 0 40px rgba(0, 102, 255, 0.03);
+  box-shadow: inset 0 0 40px rgba(0, 102, 255, 0.04);
 }
 
-.green {
-  color: #00e884 !important;
-}
+/* DASHBOARD CARD */
 
-.red {
-  color: #ff4057 !important;
-}
-
-/* HOME */
-
-.homeHero,
-.landingHero {
-  border-radius: 18px;
-  padding: 28px 22px;
-  background:
-    radial-gradient(circle at top right, rgba(0, 102, 255, 0.28), transparent 35%),
-    #07111d;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.dashboardCard {
+  min-height: 132px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 260px;
+  gap: 24px;
+  align-items: center;
+  padding: 22px 34px;
   margin-bottom: 12px;
 }
 
-.homeHero h1,
-.landingHero h1 {
-  font-size: 38px;
-  line-height: 1.15;
+.dashboardCard > div {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.homeHero h1 span,
-.landingHero h1 span {
+.dashboardCard small,
+.dashboardCard span {
   display: block;
-  color: #0077ff;
-}
-
-.homeHero p,
-.landingHero p {
   color: #aab6ca;
-  margin: 14px 0 22px;
-  line-height: 1.5;
-  font-size: 18px;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 
-.homeHero button,
-.landingHero button,
-.widePrimary {
-  height: 56px;
-  border-radius: 12px;
-  background: #065dff;
-  color: white;
-  padding: 0 22px;
-  font-size: 17px;
-  font-weight: 900;
+.dashboardCard strong {
+  display: block;
+  font-size: 27px;
 }
 
-.landing {
-  min-height: 100dvh;
-  padding: 14px;
-  background: #02070d;
+.dashboardCard em {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
 }
 
-.landingTop {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 22px;
-}
-
-.landingAuth {
-  margin-left: auto;
-  display: flex;
-  gap: 8px;
-}
-
-.landingAuth button {
-  height: 44px;
+.dashboardCard button {
+  height: 78px;
   border-radius: 10px;
   background: #065dff;
   color: white;
-  padding: 0 16px;
-  font-weight: 800;
+  font-size: 23px;
+  font-weight: 900;
 }
 
-.landingAuth button:first-child {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
+/* HUB ROW */
 
-/* TICKER */
-
-.ticker {
+.hubRow {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   overflow: hidden;
   margin-bottom: 12px;
 }
 
-.ticker div {
-  padding: 16px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+.hubRow button {
+  height: 96px;
+  background: rgba(9, 31, 59, 0.45);
+  color: #c8d2e3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-bottom: 4px solid transparent;
 }
 
-.ticker strong,
-.ticker span,
-.ticker em {
-  display: block;
+.hubRow button span {
+  font-size: 32px;
+  line-height: 1;
 }
 
-.ticker span {
-  color: #c7d2e5;
-  margin-top: 6px;
+.hubRow button small {
+  font-size: 16px;
 }
 
-.ticker em {
-  font-style: normal;
-  margin-top: 4px;
+.hubRow button.active {
+  color: #0077ff;
+  border-bottom-color: #0077ff;
+  background: rgba(0, 119, 255, 0.08);
 }
 
-/* FEATURES */
+/* HOME */
 
-.featureGrid {
+.homePage {
+  display: grid;
+  gap: 12px;
+}
+
+.homeGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  margin-bottom: 12px;
+  gap: 0;
+  overflow: hidden;
 }
 
-.feature {
-  min-height: 104px;
-  display: grid;
-  place-items: center;
-  gap: 8px;
-  text-align: center;
-  color: #c7d2e5;
-}
-
-.feature span {
-  font-size: 30px;
-}
-
-/* CARDS */
-
-.aiCard {
-  display: grid;
-  grid-template-columns: 90px 1fr 140px;
-  align-items: center;
-  gap: 16px;
-  padding: 18px;
-  margin-bottom: 12px;
-}
-
-.aiFace {
-  height: 74px;
-  border-radius: 16px;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle, #093b7a, #02070d);
-  color: #00d9ff;
-  font-weight: 1000;
-  font-size: 24px;
-}
-
-.aiCard strong {
-  display: block;
-  color: #0077ff;
-  font-size: 22px;
-}
-
-.aiCard span {
-  color: #aab6ca;
-  display: block;
-  margin-top: 6px;
-}
-
-.aiCard button {
-  height: 50px;
-  border-radius: 12px;
+.homeGrid button {
+  min-height: 118px;
   background: transparent;
+  color: white;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+}
+
+.homeGrid span {
+  font-size: 32px;
   color: #0077ff;
-  border: 1px solid #0077ff;
-  font-weight: 900;
 }
 
-.panelTitle {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 16px;
+.homeGrid strong {
+  font-size: 17px;
 }
 
-.panelTitle strong {
-  font-size: 22px;
+.homeGrid small {
+  color: #aab6ca;
 }
 
-.panelTitle span,
-.panelTitle a {
-  color: #00e884;
-  font-weight: 900;
-}
-
-.statPanel,
-.marketPanel {
-  padding: 18px;
-  margin-bottom: 12px;
-}
-
-.statsGrid,
-.profileStats,
-.botStatsCards {
+.compactStats,
+.reportGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+  padding: 12px;
 }
 
-.statBox,
-.botStat {
+.compactStats div,
+.statBox {
+  min-height: 86px;
   padding: 16px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.035);
@@ -491,25 +410,42 @@ button {
   text-align: center;
 }
 
-.statBox strong,
-.botStat strong {
+.compactStats small,
+.statBox span {
   display: block;
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-.statBox span,
-.botStat span,
-.botStat small {
   color: #aab6ca;
-  font-size: 13px;
+  margin-bottom: 8px;
 }
 
-/* MARKETS */
+.compactStats strong,
+.statBox strong {
+  display: block;
+  font-size: 22px;
+}
+
+.panelTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panelTitle strong {
+  font-size: 22px;
+}
+
+.panelTitle a {
+  color: #0077ff;
+  font-weight: 900;
+}
+
+.marketPanel {
+  padding: 18px;
+}
 
 .marketRow {
   display: grid;
-  grid-template-columns: 52px 1fr 130px 105px 38px;
+  grid-template-columns: 52px 1fr 140px 110px 42px;
   gap: 10px;
   align-items: center;
   padding: 14px 0;
@@ -527,8 +463,8 @@ button {
 }
 
 .miniSpark {
-  width: 110px;
-  height: 42px;
+  width: 120px;
+  height: 44px;
 }
 
 .miniSpark path {
@@ -546,75 +482,385 @@ button {
 .marketRow button {
   background: transparent;
   color: #8090aa;
-  font-size: 26px;
+  font-size: 28px;
 }
 
-/* TRADE PAGE */
+/* FOREX */
 
-.tradePage {
+.forexPage {
   display: grid;
-  gap: 10px;
-}
-
-.accountSummary {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 150px;
   gap: 12px;
-  padding: 14px;
 }
 
-.accountSummary small,
-.accountSummary span {
-  color: #aab6ca;
-  display: block;
-  margin-bottom: 5px;
+.forexSymbol {
+  min-height: 124px;
+  display: grid;
+  grid-template-columns: 34px 54px 1.2fr 1fr 130px 130px 54px 54px;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
 }
 
-.accountSummary strong {
-  font-size: 20px;
-}
-
-.accountSummary button {
+.forexSymbol button {
+  height: 48px;
   border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: white;
+  font-size: 25px;
+}
+
+.pairFlag {
+  font-size: 34px;
+}
+
+.forexSymbol strong {
+  display: block;
+  font-size: 22px;
+}
+
+.forexSymbol small {
+  display: block;
+  color: #aab6ca;
+  margin-top: 4px;
+}
+
+.symbolPrice strong {
+  color: #00e884;
+}
+
+.symbolPrice small {
+  color: #00e884;
+}
+
+.forexToolbar {
+  display: grid;
+  grid-template-columns: repeat(6, 64px) 54px 70px 1fr 54px 54px 54px;
+  overflow: hidden;
+}
+
+.forexToolbar button {
+  height: 70px;
+  background: transparent;
+  color: white;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 17px;
+}
+
+.forexToolbar button.active {
+  color: #0077ff;
+  border: 1px solid #0077ff;
+  border-radius: 8px;
+  margin: 12px;
+  height: 46px;
+}
+
+.forexChartPanel {
+  height: 420px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 86px 1fr;
+}
+
+.toolStrip {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 10px;
+}
+
+.toolStrip button {
+  height: 34px;
+  background: transparent;
+  color: #c7d2e5;
+  font-size: 18px;
+}
+
+.candleChart {
+  position: relative;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    #06111d;
+  background-size: 96px 62px;
+  overflow: hidden;
+}
+
+.candleChart::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 49%;
+  border-top: 1px dashed rgba(0, 232, 132, 0.45);
+}
+
+.candleChart span {
+  position: absolute;
+  width: 10px;
+  border-radius: 2px;
+}
+
+.candleChart span::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: -12px;
+  width: 2px;
+  height: calc(100% + 24px);
+  background: inherit;
+  opacity: 0.8;
+}
+
+.candleChart span.up {
+  background: #00c989;
+}
+
+.candleChart span.down {
+  background: #ff1f30;
+}
+
+.chartPriceTag {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  background: #00c989;
+  color: white;
+  padding: 7px 11px;
+  font-weight: 900;
+}
+
+.chartPriceTag small {
+  display: block;
+  font-size: 11px;
+}
+
+.forexOrder {
+  padding: 0;
+  overflow: hidden;
+}
+
+.orderTabs {
+  height: 82px;
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.orderTabs button {
+  width: 220px;
+  background: transparent;
+  color: #aab6ca;
+  font-size: 18px;
+  border-bottom: 4px solid transparent;
+}
+
+.orderTabs button.active {
+  color: white;
+  border-bottom-color: #0077ff;
+}
+
+.forexOrderGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px 300px;
+  gap: 28px;
+  padding: 28px;
+}
+
+.forexInputs {
+  display: grid;
+  gap: 12px;
+}
+
+.forexInput > span {
+  display: block;
+  color: #aab6ca;
+  margin-bottom: 6px;
+}
+
+.forexInput div {
+  height: 56px;
+  display: grid;
+  grid-template-columns: 1fr 54px 54px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(2, 7, 13, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.forexInput strong {
+  display: grid;
+  align-items: center;
+  padding-left: 14px;
+}
+
+.forexInput button {
+  background: transparent;
+  color: white;
+  font-size: 26px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.orderSmallText {
+  display: flex;
+  justify-content: space-between;
+  color: #aab6ca;
+}
+
+.buySellStack {
+  display: grid;
+  gap: 28px;
+}
+
+.forexBuy,
+.forexSell {
+  height: 132px;
+  border-radius: 10px;
+  color: white;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 16px;
+  font-size: 28px;
+  border: 1px solid;
+}
+
+.forexBuy {
+  background: rgba(0, 201, 137, 0.15);
+  border-color: #00c989;
+}
+
+.forexSell {
+  background: rgba(255, 31, 48, 0.15);
+  border-color: #ff1f30;
+}
+
+.forexBuy strong {
+  color: #00e884;
+}
+
+.forexSell strong {
+  color: #ff1f30;
+}
+
+.spreadBox {
+  padding: 20px 24px;
+  border-radius: 10px;
+  background: rgba(2, 7, 13, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.spreadBox div {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.spreadBox span {
+  color: #aab6ca;
+}
+
+.forexTrades {
+  overflow: hidden;
+}
+
+.tradeTabs {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+}
+
+.tradeTabs button {
+  background: transparent;
+  color: #c7d2e5;
+  font-size: 16px;
+  min-width: max-content;
+}
+
+.tradeTabs button.active {
+  color: white;
+  border-bottom: 4px solid #0077ff;
+  height: 76px;
+}
+
+.tradeTabs span {
+  background: #065dff;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.tradeTabs .closeAll {
+  margin-left: auto;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 8px;
+  color: #ff1f30;
+  border: 1px solid #ff1f30;
+}
+
+.forexTradeRow {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr 1fr 1fr 1fr 90px;
+  gap: 12px;
+  align-items: center;
+  min-height: 72px;
+  padding: 0 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.forexTradeRow.head {
+  min-height: 46px;
+  color: #aab6ca;
+  font-size: 13px;
+}
+
+.forexTradeRow em {
+  font-style: normal;
+}
+
+.forexTradeRow button {
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(255, 31, 48, 0.1);
+  border: 1px solid #ff1f30;
+  color: #ff1f30;
+  font-weight: 800;
+}
+
+.equityBar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 170px;
+  gap: 18px;
+  align-items: center;
+  padding: 22px 32px;
+}
+
+.equityBar small {
+  display: block;
+  color: #aab6ca;
+  margin-bottom: 7px;
+}
+
+.equityBar button {
+  height: 70px;
+  border-radius: 8px;
   background: #065dff;
   color: white;
   font-size: 17px;
   font-weight: 900;
 }
 
-/* REQUIRED HUB MENU */
+/* BINARY TRADE */
 
-.hubRow {
+.tradePage {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  overflow: hidden;
-}
-
-.hubRow button {
-  height: 74px;
-  background: rgba(9, 31, 59, 0.45);
-  color: #8ea0bc;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-bottom: 3px solid transparent;
-}
-
-.hubRow button span {
-  font-size: 23px;
-  line-height: 1;
-}
-
-.hubRow button small {
-  font-size: 11px;
-}
-
-.hubRow button.active {
-  color: #0077ff;
-  border-bottom-color: #0077ff;
-  background: rgba(0, 119, 255, 0.08);
+  gap: 12px;
 }
 
 .typeRow {
@@ -623,6 +869,9 @@ button {
   align-items: center;
   padding: 12px;
   overflow-x: auto;
+  background: rgba(5, 17, 29, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
 }
 
 .typeRow span {
@@ -645,7 +894,7 @@ button {
   box-shadow: 0 0 18px rgba(0, 102, 255, 0.25);
 }
 
-.chartCard {
+.binaryChartCard {
   padding: 14px;
 }
 
@@ -775,8 +1024,7 @@ button {
   font-size: 14px;
 }
 
-.orderBox select,
-.predictionSelect select {
+.orderBox select {
   margin-top: 6px;
   width: 100%;
   height: 44px;
@@ -808,11 +1056,6 @@ button {
   display: grid;
   place-items: center;
   color: white;
-}
-
-.predictionSelect {
-  display: block;
-  margin-bottom: 12px;
 }
 
 .actionGrid {
@@ -868,48 +1111,15 @@ button {
   font-size: 12px;
 }
 
-.openTable {
-  padding: 14px;
-}
-
-.tableTabs {
-  display: flex;
-  gap: 18px;
-  overflow-x: auto;
-  margin-bottom: 12px;
-}
-
-.tableTabs strong {
-  min-width: max-content;
-  color: #aab6ca;
-  font-size: 13px;
-}
-
-.tableTabs span {
-  background: #065dff;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 999px;
-}
-
-.tradeRow {
+.miniTradeStatus {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 70px;
-  padding: 10px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  color: #c7d2e5;
-}
-
-.tradeRow em {
-  color: #00e884;
-  font-style: normal;
-}
-
-.emptyText {
+  grid-template-columns: repeat(3, 1fr);
+  padding: 10px;
+  text-align: center;
   color: #aab6ca;
 }
 
-/* BOTS */
+/* SIMPLE PAGES */
 
 .pageHead {
   margin: 16px 6px;
@@ -923,6 +1133,51 @@ button {
   color: #aab6ca;
   margin-top: 5px;
 }
+
+.simplePanel {
+  padding: 18px;
+}
+
+.simplePanel h3 {
+  margin-bottom: 12px;
+}
+
+.simplePanel p {
+  color: #aab6ca;
+}
+
+.simpleRow {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.simpleRow small {
+  display: block;
+  color: #aab6ca;
+  margin-top: 4px;
+}
+
+.marketTiles {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.marketTiles button {
+  height: 80px;
+  background: rgba(255,255,255,.04);
+  color: white;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+/* BOTS */
 
 .botTabsTop {
   display: flex;
@@ -948,14 +1203,27 @@ button {
 .botStatsCards {
   padding: 12px;
   margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
 .botStat {
-  text-align: left;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.035);
+}
+
+.botStat span,
+.botStat small {
+  display: block;
+  color: #aab6ca;
 }
 
 .botStat strong {
+  display: block;
   font-size: 26px;
+  margin: 5px 0;
 }
 
 .botSearchRow {
@@ -1162,6 +1430,9 @@ button {
 
 .profileStats {
   margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
 .settingsList {
@@ -1217,7 +1488,6 @@ button {
   color: #c7d2e5;
 }
 
-.refCard,
 .logoutCard {
   display: block;
   width: 100%;
@@ -1227,29 +1497,246 @@ button {
   color: white;
 }
 
-.refCard strong,
 .logoutCard strong {
   display: block;
   font-size: 20px;
 }
 
-.refCard span,
 .logoutCard span {
   display: block;
   color: #aab6ca;
   margin-top: 8px;
 }
 
-.refCard code {
-  display: block;
-  margin-top: 12px;
-  color: #0077ff;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 14px;
-  border-radius: 10px;
+/* SETTINGS */
+
+.settingsPage {
+  max-width: 1180px;
 }
 
-/* MODALS */
+.settingsHero {
+  padding: 34px 30px;
+  border-radius: 14px 14px 0 0;
+}
+
+.settingsHero h1 {
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.settingsHero p {
+  color: #c7d2e5;
+  font-size: 18px;
+}
+
+.settingsLayout {
+  display: grid;
+  grid-template-columns: 355px 1fr;
+  gap: 28px;
+  background: rgba(5, 17, 29, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  padding-bottom: 26px;
+}
+
+.settingsSidebar {
+  background: rgba(5, 17, 29, 0.88);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settingsSidebar button {
+  width: 100%;
+  min-height: 88px;
+  background: transparent;
+  color: #dce7fa;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+  padding: 0 26px;
+  border-left: 4px solid transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.settingsSidebar button span {
+  font-size: 28px;
+}
+
+.settingsSidebar button strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+
+.settingsSidebar button small {
+  color: #aab6ca;
+  font-size: 14px;
+}
+
+.settingsSidebar button.active {
+  border-left-color: #0077ff;
+  color: #0077ff;
+  background: rgba(0, 119, 255, 0.08);
+}
+
+.settingsContent {
+  padding-right: 22px;
+}
+
+.settingsCard {
+  padding: 26px 28px;
+  margin-top: 26px;
+}
+
+.settingsCardTitle {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settingsCardTitle span {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 119, 255, 0.18);
+  color: #0077ff;
+  font-size: 26px;
+}
+
+.settingsCardTitle span.purple {
+  background: rgba(150, 54, 255, 0.18);
+  color: #9636ff;
+}
+
+.settingsCardTitle span.greenBg {
+  background: rgba(0, 232, 132, 0.14);
+  color: #00e884;
+}
+
+.settingsCardTitle strong {
+  font-size: 26px;
+}
+
+.settingLine {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 22px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.settingLine strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 7px;
+}
+
+.settingLine small {
+  color: #aab6ca;
+  font-size: 14px;
+}
+
+.settingLine select {
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(2, 7, 13, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: white;
+  padding: 0 16px;
+  font-size: 16px;
+}
+
+.settingsStake {
+  height: 52px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 58px 1fr 58px;
+  overflow: hidden;
+  background: rgba(2, 7, 13, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.settingsStake button {
+  background: transparent;
+  color: white;
+  font-size: 28px;
+}
+
+.settingsStake span {
+  display: grid;
+  place-items: center;
+}
+
+.checkLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  color: #c7d2e5;
+}
+
+.checkLine input {
+  width: 28px;
+  height: 28px;
+  accent-color: #065dff;
+}
+
+.themeSwitch {
+  height: 52px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: rgba(2, 7, 13, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.themeSwitch button {
+  background: transparent;
+  color: #c7d2e5;
+  font-size: 16px;
+}
+
+.themeSwitch button.active {
+  background: #065dff;
+  color: white;
+}
+
+.switchBtn {
+  width: 58px;
+  height: 32px;
+  border-radius: 999px;
+  justify-self: end;
+  background: #273345;
+  padding: 4px;
+}
+
+.switchBtn i {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  transition: 0.2s;
+}
+
+.switchBtn.on {
+  background: #065dff;
+}
+
+.switchBtn.on i {
+  transform: translateX(26px);
+}
+
+/* MODAL */
 
 .modalOverlay {
   position: fixed;
@@ -1568,11 +2055,6 @@ button {
   color: #ff4057;
 }
 
-.closedWin h2,
-.closedLoss h2 {
-  font-size: 30px;
-}
-
 .runnerTableHead,
 .runnerTableRow {
   display: grid;
@@ -1607,16 +2089,6 @@ button {
   padding: 16px;
   background: #f1f2f4;
   margin-bottom: 10px;
-}
-
-.journal strong,
-.journal span {
-  display: block;
-}
-
-.journal span {
-  color: #777;
-  margin-top: 8px;
 }
 
 .runnerStats {
@@ -1691,7 +2163,7 @@ button {
   bottom: 8px;
   height: 76px;
   border-radius: 18px;
-  background: rgba(5, 17, 29, 0.96);
+  background: rgba(5, 17, 29, 0.97);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1735,7 +2207,7 @@ button {
   box-shadow: 0 0 30px rgba(0, 102, 255, 0.55);
 }
 
-/* MOBILE FIT */
+/* MOBILE */
 
 @media (max-width: 760px) {
   html,
@@ -1751,25 +2223,22 @@ button {
     height: 100dvh;
     min-height: 100dvh;
     overflow: hidden;
-    padding-bottom: 74px;
+    padding-bottom: 72px;
   }
 
   .appHeader {
-    height: 104px;
-    min-height: 104px;
-    padding: 7px 10px;
+    height: 120px;
+    padding: 8px 12px;
   }
 
   .headerLine {
-    height: 38px;
-  }
-
-  .brandLogo {
+    grid-template-columns: 26px auto 1fr 76px;
     gap: 8px;
+    height: 42px;
   }
 
-  .brandLogo strong {
-    font-size: 19px;
+  .menuBtn {
+    font-size: 24px;
   }
 
   .mark {
@@ -1779,121 +2248,164 @@ button {
     font-size: 18px;
   }
 
-  .menuBtn {
-    font-size: 23px;
+  .brandLogo {
+    gap: 7px;
+  }
+
+  .brandLogo strong {
+    font-size: 20px;
+  }
+
+  .topWallet {
+    display: none;
+  }
+
+  .headerRight {
+    gap: 7px;
   }
 
   .bell,
   .avatar {
     width: 35px;
     height: 35px;
+    font-size: 14px;
   }
 
   .bell {
     font-size: 18px;
   }
 
+  .bell span {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
   .walletLine {
-    margin-top: 6px;
     display: grid;
     grid-template-columns: auto 1fr 92px;
+    align-items: center;
     gap: 7px;
-    height: 42px;
+    margin-top: 8px;
+    height: 48px;
   }
 
   .accountToggle {
-    height: 40px;
+    height: 42px;
     border-radius: 12px;
+    background: #060b17;
+    display: flex;
+    padding: 4px;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .accountToggle button {
     min-width: 50px;
-    font-size: 12px;
     border-radius: 9px;
+    background: transparent;
+    color: #aab6ca;
+    font-weight: 900;
+    font-size: 12px;
   }
 
-  .walletBox {
-    height: 40px;
-    min-width: 0;
-    padding: 5px 8px;
+  .accountToggle button.active {
+    background: #00c76f;
+    color: white;
+  }
+
+  .mobileBalance {
+    height: 42px;
     overflow: hidden;
   }
 
-  .walletBox small {
+  .mobileBalance small {
+    display: block;
+    color: #aab6ca;
     font-size: 9px;
-    margin-bottom: 2px;
+    margin-top: 4px;
   }
 
-  .walletBox strong {
+  .mobileBalance strong {
+    display: block;
     font-size: 13px;
     white-space: nowrap;
   }
 
   .depositBig {
-    height: 40px;
+    height: 42px;
     min-width: 92px;
-    font-size: 13px;
     border-radius: 11px;
+    background: #065dff;
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .drawerMenu {
+    top: 58px;
+    right: 10px;
   }
 
   .screen {
-    height: calc(100dvh - 178px);
+    height: calc(100dvh - 192px);
     min-height: 0;
     overflow: hidden;
     padding: 7px;
   }
 
-  .tradePage {
+  .pageScroll {
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 18px;
+  }
+
+  .homePage {
     height: 100%;
     display: grid;
-    grid-template-rows: 48px 54px 40px minmax(0, 1fr) 124px;
+    grid-template-rows: 70px 54px 1fr 62px 118px;
     gap: 6px;
-    overflow: hidden;
   }
 
-  .accountSummary {
-    grid-template-columns: 1fr 1fr 76px;
-    gap: 6px;
-    padding: 7px;
-    height: 48px;
+  .dashboardCard {
+    min-height: 70px;
+    height: 70px;
+    grid-template-columns: 1fr 1fr 92px;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 0;
+    border-radius: 11px;
   }
 
-  .accountSummary > div {
-    overflow: hidden;
-  }
-
-  .accountSummary > div:nth-child(3) {
-    display: none;
-  }
-
-  .accountSummary small,
-  .accountSummary span {
+  .dashboardCard small,
+  .dashboardCard span {
     font-size: 8px;
     margin-bottom: 2px;
   }
 
-  .accountSummary strong {
-    font-size: 12px;
-    white-space: nowrap;
+  .dashboardCard strong {
+    font-size: 13px;
   }
 
-  .accountSummary button {
-    height: 34px;
+  .dashboardCard em {
+    font-size: 9px;
+  }
+
+  .dashboardCard button {
+    height: 44px;
     font-size: 12px;
-    border-radius: 8px;
   }
 
   .hubRow {
     height: 54px;
     min-height: 54px;
     border-radius: 10px;
-    grid-template-columns: repeat(6, 1fr);
+    margin-bottom: 0;
   }
 
   .hubRow button {
     height: 54px;
     gap: 2px;
-    padding: 2px 0;
   }
 
   .hubRow button span {
@@ -1904,12 +2416,309 @@ button {
     font-size: 7px;
   }
 
+  .homeGrid {
+    grid-template-columns: repeat(2, 1fr);
+    border-radius: 11px;
+  }
+
+  .homeGrid button {
+    min-height: 74px;
+    gap: 3px;
+  }
+
+  .homeGrid span {
+    font-size: 22px;
+  }
+
+  .homeGrid strong {
+    font-size: 12px;
+  }
+
+  .homeGrid small {
+    font-size: 9px;
+  }
+
+  .compactStats {
+    padding: 6px;
+    gap: 5px;
+    border-radius: 11px;
+  }
+
+  .compactStats div {
+    min-height: 50px;
+    padding: 7px;
+  }
+
+  .compactStats small {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .compactStats strong {
+    font-size: 12px;
+  }
+
+  .compactMarket {
+    height: 118px;
+    overflow: hidden;
+    padding: 8px 10px;
+    border-radius: 11px;
+  }
+
+  .compactMarket .panelTitle {
+    margin-bottom: 3px;
+  }
+
+  .compactMarket .panelTitle strong,
+  .compactMarket .panelTitle a {
+    font-size: 12px;
+  }
+
+  .compactMarket .marketRow {
+    grid-template-columns: 28px 1fr 72px 24px;
+    padding: 5px 0;
+    gap: 4px;
+  }
+
+  .compactMarket .marketRow > span {
+    font-size: 17px;
+  }
+
+  .compactMarket .marketRow strong {
+    font-size: 10px;
+  }
+
+  .compactMarket .marketRow small {
+    font-size: 8px;
+  }
+
+  .compactMarket .miniSpark {
+    display: none;
+  }
+
+  .forexPage {
+    display: grid;
+    gap: 7px;
+  }
+
+  .forexSymbol {
+    min-height: 76px;
+    grid-template-columns: 24px 32px 1fr 72px 48px;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 11px;
+  }
+
+  .forexSymbol > div:nth-of-type(4),
+  .forexSymbol > div:nth-of-type(5),
+  .forexSymbol button:nth-last-child(-n + 2) {
+    display: none;
+  }
+
+  .forexSymbol button {
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .pairFlag {
+    font-size: 24px;
+  }
+
+  .forexSymbol strong {
+    font-size: 14px;
+  }
+
+  .forexSymbol small {
+    font-size: 9px;
+  }
+
+  .forexToolbar {
+    grid-template-columns: repeat(6, 44px) 42px 42px 1fr;
+    height: 46px;
+    border-radius: 11px;
+    overflow-x: auto;
+  }
+
+  .forexToolbar button {
+    height: 46px;
+    font-size: 11px;
+    min-width: max-content;
+    padding: 0 8px;
+  }
+
+  .forexToolbar button.active {
+    height: 30px;
+    margin: 8px;
+  }
+
+  .forexToolbar button:nth-last-child(-n + 3) {
+    display: none;
+  }
+
+  .forexChartPanel {
+    height: 210px;
+    grid-template-columns: 36px 1fr;
+    border-radius: 11px;
+  }
+
+  .toolStrip {
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .toolStrip button {
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .candleChart span {
+    width: 5px;
+  }
+
+  .candleChart span::before {
+    left: 2px;
+  }
+
+  .chartPriceTag {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+
+  .forexOrder {
+    border-radius: 11px;
+  }
+
+  .orderTabs {
+    height: 38px;
+  }
+
+  .orderTabs button {
+    height: 38px;
+    width: 120px;
+    font-size: 12px;
+  }
+
+  .forexOrderGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .spreadBox {
+    display: none;
+  }
+
+  .forexInputs {
+    gap: 5px;
+  }
+
+  .forexInput > span {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .forexInput div {
+    height: 30px;
+    grid-template-columns: 1fr 28px 28px;
+  }
+
+  .forexInput strong {
+    font-size: 10px;
+    padding-left: 7px;
+  }
+
+  .forexInput button {
+    font-size: 14px;
+  }
+
+  .orderSmallText {
+    font-size: 8px;
+  }
+
+  .buySellStack {
+    gap: 8px;
+  }
+
+  .forexBuy,
+  .forexSell {
+    height: 70px;
+    font-size: 16px;
+    gap: 6px;
+  }
+
+  .forexTrades {
+    border-radius: 11px;
+  }
+
+  .tradeTabs {
+    height: 40px;
+    gap: 12px;
+    padding: 0 8px;
+  }
+
+  .tradeTabs button {
+    font-size: 10px;
+  }
+
+  .tradeTabs button.active {
+    height: 40px;
+  }
+
+  .tradeTabs .closeAll {
+    height: 30px;
+    padding: 0 9px;
+  }
+
+  .forexTradeRow {
+    grid-template-columns: 1fr 42px 54px 60px 54px;
+    min-height: 40px;
+    padding: 0 8px;
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .forexTradeRow.head {
+    min-height: 28px;
+    font-size: 8px;
+  }
+
+  .forexTradeRow span:nth-child(4),
+  .forexTradeRow button {
+    display: none;
+  }
+
+  .equityBar {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 8px;
+    border-radius: 11px;
+  }
+
+  .equityBar small {
+    font-size: 8px;
+    margin-bottom: 2px;
+  }
+
+  .equityBar strong {
+    font-size: 10px;
+  }
+
+  .equityBar button {
+    display: none;
+  }
+
+  .tradePage {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 54px 40px minmax(0, 1fr) 120px 30px;
+    gap: 6px;
+  }
+
   .typeRow {
     height: 40px;
     padding: 5px;
     gap: 5px;
     border-radius: 10px;
-    overflow-x: auto;
     scrollbar-width: none;
   }
 
@@ -1927,7 +2736,7 @@ button {
     padding: 0 8px;
   }
 
-  .chartCard {
+  .binaryChartCard {
     min-height: 0;
     height: 100%;
     padding: 7px;
@@ -1965,7 +2774,6 @@ button {
   }
 
   .darkDigits {
-    grid-template-columns: repeat(5, 1fr);
     gap: 5px;
     padding: 0 3px;
   }
@@ -1992,15 +2800,14 @@ button {
   }
 
   .orderBox {
-    height: 124px;
-    min-height: 124px;
+    height: 120px;
+    min-height: 120px;
     padding: 7px;
     overflow: hidden;
     border-radius: 12px;
   }
 
   .orderInputs {
-    grid-template-columns: 1fr 1.25fr 1fr;
     gap: 5px;
     margin-bottom: 6px;
   }
@@ -2009,8 +2816,7 @@ button {
     font-size: 9px;
   }
 
-  .orderBox select,
-  .predictionSelect select {
+  .orderBox select {
     height: 29px;
     font-size: 10px;
     margin-top: 2px;
@@ -2031,23 +2837,19 @@ button {
     font-size: 10px;
   }
 
-  .predictionSelect {
-    display: none;
-  }
-
   .actionGrid {
     gap: 6px;
   }
 
   .buyButton,
   .sellButton {
-    height: 58px;
+    height: 56px;
     border-radius: 8px;
   }
 
   .buyButton div,
   .sellButton div {
-    height: 34px;
+    height: 32px;
     gap: 7px;
   }
 
@@ -2068,33 +2870,25 @@ button {
     font-size: 9px;
   }
 
-  .openTable {
-    display: none;
+  .miniTradeStatus {
+    height: 30px;
+    padding: 5px;
+    font-size: 10px;
   }
 
-  .pageScroll {
-    height: 100%;
-    overflow-y: auto;
-    padding-bottom: 18px;
-  }
-
-  .ticker {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .featureGrid,
-  .statsGrid,
+  .marketTiles,
+  .reportGrid,
   .profileStats,
   .botStatsCards {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .aiCard {
-    grid-template-columns: 70px 1fr;
+  .marketRow {
+    grid-template-columns: 40px 1fr 76px 34px;
   }
 
-  .aiCard button {
-    grid-column: 1 / -1;
+  .miniSpark {
+    display: none;
   }
 
   .botSearchRow {
@@ -2138,22 +2932,114 @@ button {
     grid-column: 1 / -1;
   }
 
-  .marketRow {
-    grid-template-columns: 42px 1fr 74px 38px;
+  .settingsHero {
+    padding: 18px 16px;
+    border-radius: 14px;
+    margin-bottom: 10px;
   }
 
-  .miniSpark {
+  .settingsHero h1 {
+    font-size: 26px;
+  }
+
+  .settingsHero p {
+    font-size: 14px;
+  }
+
+  .settingsLayout {
+    display: block;
+    border: none;
+    background: transparent;
+    padding: 0;
+  }
+
+  .settingsSidebar {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    padding: 0 0 8px;
+    scrollbar-width: none;
+  }
+
+  .settingsSidebar::-webkit-scrollbar {
     display: none;
   }
 
-  .toastWrap {
-    top: 10px;
-    left: 10px;
-    right: 10px;
+  .settingsSidebar button {
+    min-width: 145px;
+    min-height: 66px;
+    grid-template-columns: 28px 1fr;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-left: none;
+    border-bottom: none;
+    border-radius: 12px;
+    padding: 0 12px;
   }
 
-  .toast {
+  .settingsSidebar button span {
+    font-size: 20px;
+  }
+
+  .settingsSidebar button strong {
+    font-size: 12px;
+  }
+
+  .settingsSidebar button small {
+    font-size: 10px;
+  }
+
+  .settingsContent {
+    padding: 0;
+  }
+
+  .settingsCard {
+    padding: 16px;
+    margin-top: 10px;
+    border-radius: 14px;
+  }
+
+  .settingsCardTitle {
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+
+  .settingsCardTitle span {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 22px;
+  }
+
+  .settingsCardTitle strong {
+    font-size: 20px;
+  }
+
+  .settingLine {
+    min-height: 76px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 12px 0;
+  }
+
+  .settingLine strong {
+    font-size: 15px;
+  }
+
+  .settingLine small {
+    font-size: 12px;
+  }
+
+  .settingLine select,
+  .themeSwitch,
+  .settingsStake {
     width: 100%;
+    height: 44px;
+  }
+
+  .switchBtn {
+    justify-self: start;
   }
 
   .modalOverlay {
@@ -2166,6 +3052,16 @@ button {
     max-height: 92dvh;
     overflow-y: auto;
     border-radius: 22px 22px 0 0;
+  }
+
+  .toastWrap {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .toast {
+    width: 100%;
   }
 
   .bottomNav {
@@ -2196,17 +3092,20 @@ button {
 
 @media (max-width: 390px) {
   .appHeader {
-    height: 98px;
-    min-height: 98px;
+    height: 112px;
   }
 
   .screen {
-    height: calc(100dvh - 166px);
+    height: calc(100dvh - 184px);
   }
 
-  .tradePage {
-    grid-template-rows: 45px 50px 38px minmax(0, 1fr) 116px;
-    gap: 5px;
+  .homePage {
+    grid-template-rows: 64px 50px 1fr 56px 102px;
+  }
+
+  .dashboardCard {
+    height: 64px;
+    min-height: 64px;
   }
 
   .hubRow {
@@ -2226,8 +3125,17 @@ button {
     font-size: 6.8px;
   }
 
+  .forexChartPanel {
+    height: 188px;
+  }
+
+  .tradePage {
+    grid-template-rows: 50px 38px minmax(0, 1fr) 112px 28px;
+    gap: 5px;
+  }
+
   .chartBox {
-    height: 92px;
+    height: 88px;
   }
 
   .darkDigit {
@@ -2245,45 +3153,23 @@ button {
   }
 
   .orderBox {
-    height: 116px;
-    min-height: 116px;
+    height: 112px;
+    min-height: 112px;
   }
 
   .buyButton,
   .sellButton {
-    height: 53px;
+    height: 51px;
   }
 
   .buyButton div,
   .sellButton div {
-    height: 31px;
+    height: 30px;
   }
 
   .buyButton small,
   .sellButton small {
-    height: 22px;
+    height: 21px;
     font-size: 8px;
-  }
-}
-/* REMOVE BALANCE / PROFIT / DEPOSIT ROW FROM TRADE PAGE */
-
-.accountSummary {
-  display: none !important;
-}
-
-/* Fix spacing after removing that row */
-.tradePage {
-  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
-}
-
-@media (max-width: 760px) {
-  .tradePage {
-    grid-template-rows: 54px 40px minmax(0, 1fr) 124px !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .tradePage {
-    grid-template-rows: 50px 38px minmax(0, 1fr) 116px !important;
   }
 }
