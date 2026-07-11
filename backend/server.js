@@ -142,6 +142,8 @@ async function ensureIndexes() {
     withdrawals.createIndex({ id: 1 }, { unique: true }),
     db.collection("processedInvoices").createIndex({ invoiceKey: 1 }, { unique: true }),
     db.collection("transactions").createIndex({ email: 1, createdAt: -1 }),
+    db.collection("trades").createIndex({ id: 1 }, { unique: true }),
+    db.collection("trades").createIndex({ email: 1, createdAt: -1 }),
     db.collection("adminAudit").createIndex({ createdAt: -1 }),
   ]);
 
@@ -256,6 +258,77 @@ function publicUser(user) {
     createdAt: user.createdAt || "",
     updatedAt: user.updatedAt || "",
     lastLoginAt: user.lastLoginAt || "",
+  };
+}
+
+function normalizeTradeType(value) {
+  const type = cleanText(value, 40);
+  const allowed = new Set([
+    "Even/Odd",
+    "Matches/Differs",
+    "Over/Under",
+    "Rise/Fall",
+    "Touch/No Touch",
+  ]);
+  if (!allowed.has(type)) throw httpError(400, "Choose a valid trade type.");
+  return type;
+}
+
+function allowedTradeActions(type) {
+  if (type === "Even/Odd") return ["Even", "Odd"];
+  if (type === "Matches/Differs") return ["Matches", "Differs"];
+  if (type === "Over/Under") return ["Over", "Under"];
+  if (type === "Rise/Fall") return ["Rise", "Fall"];
+  return ["Touch", "No Touch"];
+}
+
+function winningDigitCount(type, action, prediction) {
+  const digit = Math.max(0, Math.min(9, Number(prediction || 0)));
+  if (type === "Even/Odd" || type === "Rise/Fall") return 5;
+  if (type === "Matches/Differs" || type === "Touch/No Touch") {
+    return action === "Matches" || action === "Touch" ? 1 : 9;
+  }
+  if (type === "Over/Under") {
+    return action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
+  }
+  return 0;
+}
+
+function tradeMultiplier(type, action, prediction) {
+  const winningDigits = winningDigitCount(type, action, prediction);
+  if (winningDigits <= 0) return 0;
+  return Number(Math.max(1.02, Math.min(8.3, (10 / winningDigits) * 0.91)).toFixed(3));
+}
+
+function tradeWins(type, action, prediction, resultDigit) {
+  if (type === "Even/Odd") return action === "Even" ? resultDigit % 2 === 0 : resultDigit % 2 !== 0;
+  if (type === "Matches/Differs") return action === "Matches" ? resultDigit === prediction : resultDigit !== prediction;
+  if (type === "Over/Under") return action === "Over" ? resultDigit > prediction : resultDigit < prediction;
+  if (type === "Touch/No Touch") return action === "Touch" ? resultDigit === prediction : resultDigit !== prediction;
+  if (type === "Rise/Fall") return action === "Rise" ? resultDigit >= 5 : resultDigit < 5;
+  return false;
+}
+
+function publicTrade(trade) {
+  return {
+    id: trade.id,
+    email: trade.email,
+    account: trade.account,
+    type: trade.type,
+    action: trade.action,
+    stake: roundMoney(trade.stake),
+    prediction: Number(trade.prediction),
+    ticks: Number(trade.ticks),
+    multiplier: Number(trade.multiplier),
+    payout: roundMoney(trade.payout),
+    entryPrice: Number(trade.entryPrice || 0),
+    resultDigit: Number.isInteger(trade.resultDigit) ? trade.resultDigit : null,
+    won: typeof trade.won === "boolean" ? trade.won : null,
+    profit: Number.isFinite(Number(trade.profit)) ? roundMoney(trade.profit) : null,
+    status: trade.status,
+    createdAt: trade.createdAt,
+    settleAt: trade.settleAt,
+    settledAt: trade.settledAt || "",
   };
 }
 
@@ -839,6 +912,178 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
       const restoredUser = await db.collection("users").findOne({ email });
       return res.status(502).json({ ok: false, status: "FAILED", realBalance: roundMoney(restoredUser?.realBalance), message });
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/trades/open", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const account = String(req.body?.account || "demo").toLowerCase() === "real" ? "real" : "demo";
+    const type = normalizeTradeType(req.body?.type);
+    const action = cleanText(req.body?.action, 30);
+    const prediction = Math.max(0, Math.min(9, Number(req.body?.prediction ?? 0)));
+    const ticks = Math.min(10, Math.max(1, Math.floor(Number(req.body?.ticks || 5))));
+    const stake = roundMoney(req.body?.stake);
+    const entryPrice = Number(req.body?.entryPrice || 0);
+
+    if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
+    if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
+
+    const multiplier = tradeMultiplier(type, action, prediction);
+    if (!multiplier) throw httpError(400, "This contract has no possible winning digit. Choose another prediction.");
+
+    const balanceField = account === "real" ? "realBalance" : "demoBalance";
+    const debit = await db.collection("users").findOneAndUpdate(
+      { _id: req.user._id, [balanceField]: { $gte: stake } },
+      { $inc: { [balanceField]: -stake }, $set: { updatedAt: nowIso() } },
+      { returnDocument: "after" }
+    );
+
+    if (!debit) throw httpError(400, `Your ${account} balance is too low for this trade.`);
+
+    const id = makeId("trade");
+    const createdAt = nowIso();
+    const settleAt = new Date(Date.now() + ticks * 850).toISOString();
+    const trade = {
+      id,
+      email: req.user.email,
+      account,
+      type,
+      action,
+      prediction,
+      ticks,
+      stake,
+      multiplier,
+      payout: roundMoney(stake * multiplier),
+      entryPrice,
+      status: "RUNNING",
+      createdAt,
+      settleAt,
+      settledAt: "",
+    };
+
+    try {
+      await db.collection("trades").insertOne(trade);
+    } catch (error) {
+      await db.collection("users").updateOne(
+        { _id: req.user._id },
+        { $inc: { [balanceField]: stake }, $set: { updatedAt: nowIso() } }
+      );
+      throw error;
+    }
+
+    res.status(201).json({
+      ok: true,
+      trade: publicTrade(trade),
+      user: publicUser(debit),
+      balance: roundMoney(debit[balanceField]),
+      message: "Trade opened.",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const id = cleanText(req.params.id, 100);
+    let trade = await db.collection("trades").findOne({ id, email: req.user.email });
+    if (!trade) throw httpError(404, "Trade was not found.");
+
+    if (trade.status === "SETTLED") {
+      const currentUser = await db.collection("users").findOne({ _id: req.user._id });
+      const balanceField = trade.account === "real" ? "realBalance" : "demoBalance";
+      return res.json({
+        ok: true,
+        trade: publicTrade(trade),
+        resultDigit: trade.resultDigit,
+        won: trade.won,
+        user: publicUser(currentUser),
+        balance: roundMoney(currentUser?.[balanceField]),
+        message: "Trade already settled.",
+      });
+    }
+
+    const remainingMs = new Date(trade.settleAt).getTime() - Date.now();
+    if (remainingMs > 0) {
+      return res.status(409).json({
+        ok: false,
+        remainingMs,
+        message: "Trade is still running.",
+      });
+    }
+
+    const resultDigit = crypto.randomInt(0, 10);
+    const won = tradeWins(trade.type, trade.action, Number(trade.prediction), resultDigit);
+    const profit = won ? roundMoney(trade.payout - trade.stake) : -roundMoney(trade.stake);
+    const settledAt = nowIso();
+
+    const claimed = await db.collection("trades").findOneAndUpdate(
+      { _id: trade._id, status: "RUNNING" },
+      {
+        $set: {
+          status: "SETTLED",
+          resultDigit,
+          won,
+          profit,
+          settledAt,
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+    if (!claimed) {
+      trade = await db.collection("trades").findOne({ _id: trade._id });
+      const currentUser = await db.collection("users").findOne({ _id: req.user._id });
+      const balanceField = trade.account === "real" ? "realBalance" : "demoBalance";
+      return res.json({
+        ok: true,
+        trade: publicTrade(trade),
+        resultDigit: trade.resultDigit,
+        won: trade.won,
+        user: publicUser(currentUser),
+        balance: roundMoney(currentUser?.[balanceField]),
+      });
+    }
+
+    const balanceField = claimed.account === "real" ? "realBalance" : "demoBalance";
+    if (won) {
+      await db.collection("users").updateOne(
+        { _id: req.user._id },
+        { $inc: { [balanceField]: roundMoney(claimed.payout) }, $set: { updatedAt: nowIso() } }
+      );
+    }
+
+    await db.collection("transactions").insertOne({
+      id: makeId("tx"),
+      email: req.user.email,
+      type: won ? "trade-profit" : "trade-loss",
+      method: "manual",
+      account: claimed.account,
+      amount: profit,
+      stake: roundMoney(claimed.stake),
+      payout: roundMoney(claimed.payout),
+      status: won ? "WON" : "LOST",
+      reference: claimed.id,
+      details: `${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
+      createdAt: settledAt,
+    });
+
+    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+    trade = await db.collection("trades").findOne({ _id: claimed._id });
+
+    res.json({
+      ok: true,
+      trade: publicTrade(trade),
+      resultDigit,
+      won,
+      user: publicUser(updatedUser),
+      balance: roundMoney(updatedUser?.[balanceField]),
+      message: won ? "Trade won." : "Trade lost.",
+    });
   } catch (error) {
     next(error);
   }

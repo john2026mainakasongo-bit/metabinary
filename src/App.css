@@ -13414,3 +13414,312 @@ button:disabled {
   }
 }
 
+
+/* =========================================================
+   FINAL LIVE HOTFIX — DIGIT RINGS + MOBILE ORDER CARD
+   This block is intentionally last so it changes only the
+   digit circles and the binary-order controls.
+   ========================================================= */
+
+/* Keep the area around the white digit circles black. */
+.tradePagePro .chartDigitsOverlay {
+  background: rgba(1, 6, 12, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 18px !important;
+  padding: 8px 10px 12px !important;
+  gap: 10px 12px !important;
+  overflow: visible !important;
+}
+
+/* White outside line, black layer, then a clean white centre. */
+.tradePagePro .chartDigit {
+  width: 50px !important;
+  height: 50px !important;
+  min-width: 50px !important;
+  min-height: 50px !important;
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: #03070c !important;
+  color: #000000 !important;
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 5px 12px rgba(0, 0, 0, 0.42) !important;
+}
+
+.tradePagePro .chartDigit::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 6px !important;
+  z-index: 0 !important;
+  border-radius: 50% !important;
+  background: #f4f6f8 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.18) !important;
+}
+
+.tradePagePro .chartDigit > strong,
+.tradePagePro .chartDigit > .digitPercent,
+.tradePagePro .chartDigit.highestDigit > strong,
+.tradePagePro .chartDigit.highestDigit > .digitPercent,
+.tradePagePro .chartDigit.picked > strong,
+.tradePagePro .chartDigit.picked > .digitPercent {
+  position: relative !important;
+  z-index: 2 !important;
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+.tradePagePro .chartDigit > strong {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+}
+
+.tradePagePro .chartDigit > .digitPercent {
+  margin-top: 3px !important;
+  font-size: 7px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+
+/* Highest percentage: half green and half black outside the white centre. */
+.tradePagePro .chartDigit.highestDigit:not(.resultWin):not(.resultLoss) {
+  background: conic-gradient(
+    from -90deg,
+    #20bf75 0deg 180deg,
+    #03070c 180deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 5px rgba(32, 191, 117, 0.16),
+    0 5px 12px rgba(0, 0, 0, 0.42) !important;
+}
+
+/* Selected digit stays readable and gets a light outside glow. */
+.tradePagePro .chartDigit.picked:not(.resultWin):not(.resultLoss) {
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 6px rgba(183, 204, 232, 0.62),
+    0 5px 12px rgba(0, 0, 0, 0.42) !important;
+}
+
+/* Result flashes are the only time the centre changes colour. */
+.tradePagePro .chartDigit.resultWin {
+  background: #00cf7a !important;
+  box-shadow:
+    0 0 0 3px #d8ffed,
+    0 0 24px rgba(0, 207, 122, 0.76) !important;
+}
+
+.tradePagePro .chartDigit.resultWin::before {
+  inset: 3px !important;
+  background: linear-gradient(145deg, #18e899, #00975a) !important;
+  box-shadow: none !important;
+}
+
+.tradePagePro .chartDigit.resultLoss {
+  background: #f03b52 !important;
+  box-shadow:
+    0 0 0 3px #ffd9de,
+    0 0 24px rgba(240, 59, 82, 0.74) !important;
+}
+
+.tradePagePro .chartDigit.resultLoss::before {
+  inset: 3px !important;
+  background: linear-gradient(145deg, #ff667a, #ca1836) !important;
+  box-shadow: none !important;
+}
+
+.tradePagePro .chartDigit.resultWin > strong,
+.tradePagePro .chartDigit.resultWin > .digitPercent,
+.tradePagePro .chartDigit.resultLoss > strong,
+.tradePagePro .chartDigit.resultLoss > .digitPercent {
+  color: #ffffff !important;
+}
+
+/* Keep the stake selector fully visible above the trade buttons. */
+.tradePagePro .proBinaryOrderCard {
+  overflow: visible !important;
+}
+
+.tradePagePro .orderInputsTop {
+  align-items: start !important;
+}
+
+.tradePagePro .orderInputsTop label {
+  min-width: 0 !important;
+}
+
+.tradePagePro .proStakeBox {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+/* Clear separation between the two lower contract buttons. */
+.tradePagePro .proTradeButtons {
+  gap: 14px !important;
+}
+
+@media (max-width: 760px) {
+  .tradePagePro .chartDigitsOverlay {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 10px 8px !important;
+    padding: 8px 8px 12px !important;
+  }
+
+  .tradePagePro .chartDigit {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+    justify-self: center !important;
+  }
+
+  .tradePagePro .chartDigit::before {
+    inset: 6px !important;
+  }
+
+  .tradePagePro .chartDigit > strong {
+    font-size: 13px !important;
+  }
+
+  .tradePagePro .chartDigit > .digitPercent {
+    font-size: 6.7px !important;
+  }
+
+  .tradePagePro .proBinaryOrderCard {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 11px 12px 13px !important;
+    overflow: visible !important;
+  }
+
+  .tradePagePro .orderInputsTop {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr) !important;
+    align-items: start !important;
+    gap: 10px !important;
+    margin: 0 !important;
+  }
+
+  .tradePagePro .orderInputsTop label {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+  }
+
+  .tradePagePro .orderInputsTop select,
+  .tradePagePro .proStakeBox {
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin-top: 5px !important;
+  }
+
+  .tradePagePro .orderInputsTop select {
+    min-width: 0 !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+  }
+
+  .tradePagePro .proStakeBox {
+    display: grid !important;
+    grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 3px !important;
+    overflow: visible !important;
+  }
+
+  .tradePagePro .proStakeBox button,
+  .tradePagePro .proStakeBox input {
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+  }
+
+  .tradePagePro .proStakeBox button {
+    font-size: 22px !important;
+  }
+
+  .tradePagePro .proStakeBox input {
+    padding: 0 5px !important;
+    font-size: 18px !important;
+  }
+
+  .tradePagePro .stakeHint {
+    display: none !important;
+  }
+
+  .tradePagePro .proTradeButtons {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px !important;
+    margin-top: 2px !important;
+  }
+
+  .tradePagePro .proTradeButtons button {
+    min-width: 0 !important;
+    min-height: 62px !important;
+    height: auto !important;
+    padding: 9px 11px !important;
+    border-radius: 14px !important;
+    display: block !important;
+    overflow: hidden !important;
+  }
+
+  .tradePagePro .proTradeButtons button > span {
+    display: none !important;
+  }
+
+  .tradePagePro .proTradeButtons strong {
+    font-size: 20px !important;
+    line-height: 1.05 !important;
+  }
+
+  .tradePagePro .proTradeButtons small {
+    margin-top: 4px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .tradePagePro .chartDigit {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+  }
+
+  .tradePagePro .chartDigitsOverlay {
+    gap: 9px 6px !important;
+    padding-inline: 6px !important;
+  }
+
+  .tradePagePro .orderInputsTop {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr) !important;
+    gap: 7px !important;
+  }
+
+  .tradePagePro .proTradeButtons {
+    gap: 9px !important;
+  }
+}
