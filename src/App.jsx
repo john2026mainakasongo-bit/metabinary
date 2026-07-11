@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -14,7 +14,105 @@ const STORE = {
   referral: "mb_referral_profile",
 };
 
-const MARKETS = ["EUR/USD", "GBP/USD", "XAU/USD", "BTC/USD", "USD/JPY"];
+const MARKET_API_KEY =
+  import.meta.env.VITE_TWELVE_DATA_API_KEY ||
+  import.meta.env.VITE_TWELVE_DATA_KEY ||
+  "";
+
+const MARKET_CACHE_KEY = "mb_real_market_feed_v1";
+
+const MARKET_OPTIONS = [
+  {
+    symbol: "XAU/USD",
+    label: "Gold",
+    category: "Metals",
+    apiSymbol: "XAU/USD",
+    tradingViewSymbol: "OANDA:XAUUSD",
+    decimals: 2,
+    priceStep: 0.1,
+    spread: 0.2,
+    contractSize: 100,
+    defaultPrice: 2350,
+    slDistance: 8,
+    tpDistance: 12,
+    alwaysOpen: false,
+  },
+  {
+    symbol: "BTC/USD",
+    label: "Bitcoin",
+    category: "Crypto",
+    apiSymbol: "BTC/USD",
+    tradingViewSymbol: "COINBASE:BTCUSD",
+    decimals: 2,
+    priceStep: 1,
+    spread: 10,
+    contractSize: 1,
+    defaultPrice: 60000,
+    slDistance: 500,
+    tpDistance: 750,
+    alwaysOpen: true,
+  },
+  {
+    symbol: "EUR/USD",
+    label: "Euro / US Dollar",
+    category: "Forex",
+    apiSymbol: "EUR/USD",
+    tradingViewSymbol: "OANDA:EURUSD",
+    decimals: 5,
+    priceStep: 0.0001,
+    spread: 0.00012,
+    contractSize: 100000,
+    defaultPrice: 1.08564,
+    slDistance: 0.002,
+    tpDistance: 0.003,
+    alwaysOpen: false,
+  },
+  {
+    symbol: "GBP/USD",
+    label: "British Pound / US Dollar",
+    category: "Forex",
+    apiSymbol: "GBP/USD",
+    tradingViewSymbol: "OANDA:GBPUSD",
+    decimals: 5,
+    priceStep: 0.0001,
+    spread: 0.00015,
+    contractSize: 100000,
+    defaultPrice: 1.2725,
+    slDistance: 0.0025,
+    tpDistance: 0.0035,
+    alwaysOpen: false,
+  },
+  {
+    symbol: "USD/JPY",
+    label: "US Dollar / Japanese Yen",
+    category: "Forex",
+    apiSymbol: "USD/JPY",
+    tradingViewSymbol: "OANDA:USDJPY",
+    decimals: 3,
+    priceStep: 0.01,
+    spread: 0.015,
+    contractSize: 100000,
+    defaultPrice: 156.2,
+    slDistance: 0.3,
+    tpDistance: 0.45,
+    alwaysOpen: false,
+  },
+];
+
+const MARKET_BY_SYMBOL = Object.fromEntries(
+  MARKET_OPTIONS.map((market) => [market.symbol, market])
+);
+
+const MARKETS = MARKET_OPTIONS.map((market) => market.symbol);
+
+const MARKET_TIMEFRAMES = [
+  { value: "1min", label: "1 minute", short: "1m", tradingView: "1" },
+  { value: "5min", label: "5 minutes", short: "5m", tradingView: "5" },
+  { value: "15min", label: "15 minutes", short: "15m", tradingView: "15" },
+  { value: "1h", label: "1 hour", short: "1h", tradingView: "60" },
+  { value: "4h", label: "4 hours", short: "4h", tradingView: "240" },
+  { value: "1day", label: "1 day", short: "1D", tradingView: "D" },
+];
 
 const BOT_TEMPLATES = [
   {
@@ -116,6 +214,126 @@ function makePrices(start = 1.08564) {
   });
 }
 
+function formatMarketPrice(value, marketOrSymbol = "EUR/USD") {
+  const market =
+    typeof marketOrSymbol === "string"
+      ? MARKET_BY_SYMBOL[marketOrSymbol]
+      : marketOrSymbol;
+
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) return "—";
+
+  return number.toLocaleString(undefined, {
+    minimumFractionDigits: market?.decimals ?? 5,
+    maximumFractionDigits: market?.decimals ?? 5,
+  });
+}
+
+function parseMarketOpen(value, fallback) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+  }
+  return fallback;
+}
+
+function likelyMarketOpen(market, date = new Date()) {
+  if (market?.alwaysOpen) return true;
+
+  const day = date.getUTCDay();
+  const hour = date.getUTCHours();
+
+  if (day === 6) return false;
+  if (day === 5 && hour >= 22) return false;
+  if (day === 0 && hour < 22) return false;
+
+  return true;
+}
+
+function normalizeMarketQuote(raw, market) {
+  const price = Number(raw?.close ?? raw?.price ?? raw?.last ?? raw?.previous_close);
+  const previousClose = Number(raw?.previous_close ?? raw?.open ?? price);
+  const change = Number(raw?.change ?? (price - previousClose));
+  const percentChange = Number(
+    raw?.percent_change ??
+      (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
+  );
+
+  return {
+    price: Number.isFinite(price) ? price : 0,
+    previousClose: Number.isFinite(previousClose) ? previousClose : 0,
+    open: Number(raw?.open || 0),
+    high: Number(raw?.high || 0),
+    low: Number(raw?.low || 0),
+    change: Number.isFinite(change) ? change : 0,
+    percentChange: Number.isFinite(percentChange) ? percentChange : 0,
+    isOpen: parseMarketOpen(raw?.is_market_open, likelyMarketOpen(market)),
+    updatedAt: raw?.datetime || new Date().toISOString(),
+    status: "live",
+    error: "",
+  };
+}
+
+async function fetchMarketQuote(market, signal) {
+  if (!MARKET_API_KEY) {
+    throw new Error("Live quote key is not configured.");
+  }
+
+  const url = new URL("https://api.twelvedata.com/quote");
+  url.searchParams.set("symbol", market.apiSymbol);
+  url.searchParams.set("apikey", MARKET_API_KEY);
+
+  const response = await fetch(url, { signal });
+  const data = await response.json();
+
+  if (!response.ok || data?.status === "error" || data?.code) {
+    throw new Error(data?.message || "Unable to load live market quote.");
+  }
+
+  return normalizeMarketQuote(data, market);
+}
+
+async function fetchMarketCandles(market, timeframe, signal) {
+  if (!MARKET_API_KEY) {
+    throw new Error("Live candle key is not configured.");
+  }
+
+  const url = new URL("https://api.twelvedata.com/time_series");
+  url.searchParams.set("symbol", market.apiSymbol);
+  url.searchParams.set("interval", timeframe);
+  url.searchParams.set("outputsize", "180");
+  url.searchParams.set("format", "JSON");
+  url.searchParams.set("timezone", "UTC");
+  url.searchParams.set("apikey", MARKET_API_KEY);
+
+  const response = await fetch(url, { signal });
+  const data = await response.json();
+
+  if (!response.ok || data?.status === "error" || data?.code || !Array.isArray(data?.values)) {
+    throw new Error(data?.message || "Unable to load live market candles.");
+  }
+
+  return data.values
+    .slice()
+    .reverse()
+    .map((item) => ({
+      time: item.datetime,
+      open: Number(item.open),
+      high: Number(item.high),
+      low: Number(item.low),
+      close: Number(item.close),
+      volume: Number(item.volume || 0),
+    }))
+    .filter(
+      (item) =>
+        Number.isFinite(item.open) &&
+        Number.isFinite(item.high) &&
+        Number.isFinite(item.low) &&
+        Number.isFinite(item.close)
+    );
+}
+
 export default function App() {
   const [user, setUser] = useState(() => readStore(STORE.user, null));
   const [authMode, setAuthMode] = useState("login");
@@ -127,6 +345,9 @@ export default function App() {
   );
 
   const [prices, setPrices] = useState(() => makePrices());
+  const [marketSymbol, setMarketSymbol] = useState("XAU/USD");
+  const [marketTimeframe, setMarketTimeframe] = useState("1min");
+  const [marketFeed, setMarketFeed] = useState(() => readStore(MARKET_CACHE_KEY, {}));
   const [positions, setPositions] = useState(() => readStore(STORE.positions, []));
   const [closedPositions, setClosedPositions] = useState(() => readStore(STORE.closed, []));
   const [transactions, setTransactions] = useState(() => readStore(STORE.tx, []));
@@ -152,6 +373,27 @@ export default function App() {
   const [referral, setReferral] = useState(() => readStore(STORE.referral, null));
 
   const livePrice = prices[prices.length - 1] || 1.08564;
+  const activeMarket = MARKET_BY_SYMBOL[marketSymbol] || MARKET_OPTIONS[0];
+  const activeMarketFeed = marketFeed[marketSymbol] || {};
+  const marketPrice = Number(
+    activeMarketFeed.price ||
+      activeMarketFeed.candles?.[activeMarketFeed.candles.length - 1]?.close ||
+      0
+  );
+  const marketCandles = Array.isArray(activeMarketFeed.candles)
+    ? activeMarketFeed.candles
+    : [];
+  const quotedMarketSymbols = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          marketSymbol,
+          ...positions.map((position) => position.instrument).filter(Boolean),
+        ])
+      ).filter((symbol) => MARKET_BY_SYMBOL[symbol]),
+    [marketSymbol, positions]
+  );
+  const quotedMarketSymbolsKey = quotedMarketSymbols.join("|");
   const balance = balances[account] || 0;
 
   useEffect(() => saveStore(STORE.user, user), [user]);
@@ -161,6 +403,7 @@ export default function App() {
   useEffect(() => saveStore(STORE.closed, closedPositions), [closedPositions]);
   useEffect(() => saveStore(STORE.tx, transactions), [transactions]);
   useEffect(() => saveStore(STORE.referral, referral), [referral]);
+  useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -186,21 +429,161 @@ export default function App() {
 
   useEffect(() => {
     setPositions((old) =>
-      old.map((p) => {
+      old.map((position) => {
+        const market = MARKET_BY_SYMBOL[position.instrument] || MARKET_BY_SYMBOL["EUR/USD"];
+        const quote = Number(marketFeed[position.instrument]?.price);
+
+        if (!Number.isFinite(quote) || quote <= 0) return position;
+
+        const contractSize = Number(position.contractSize || market.contractSize || 100000);
         const pl =
-          p.side === "Buy"
-            ? (livePrice - p.openPrice) * 100000 * p.volume
-            : (p.openPrice - livePrice) * 100000 * p.volume;
+          position.side === "Buy"
+            ? (quote - position.openPrice) * contractSize * position.volume
+            : (position.openPrice - quote) * contractSize * position.volume;
+
+        const marginBase = Number(position.margin || 0);
 
         return {
-          ...p,
-          currentPrice: livePrice,
+          ...position,
+          currentPrice: quote,
+          contractSize,
           pl: Number(pl.toFixed(2)),
-          plPercent: Number(((pl / 1000) * 100).toFixed(2)),
+          plPercent: Number(
+            (marginBase > 0 ? (pl / marginBase) * 100 : 0).toFixed(2)
+          ),
         };
       })
     );
-  }, [livePrice]);
+  }, [marketFeed]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+
+    async function refreshQuotes() {
+      if (!quotedMarketSymbols.length) return;
+
+      if (!MARKET_API_KEY) {
+        setMarketFeed((old) => {
+          const next = { ...old };
+
+          quotedMarketSymbols.forEach((symbol) => {
+            const market = MARKET_BY_SYMBOL[symbol];
+            const previous = next[symbol] || {};
+
+            next[symbol] = {
+              ...previous,
+              isOpen: likelyMarketOpen(market),
+              status: previous.price ? "cached" : "chart-only",
+              error: previous.price
+                ? ""
+                : "Add VITE_TWELVE_DATA_API_KEY to enable live Buy/Sell prices.",
+            };
+          });
+
+          return next;
+        });
+        return;
+      }
+
+      const results = await Promise.allSettled(
+        quotedMarketSymbols.map(async (symbol) => {
+          const market = MARKET_BY_SYMBOL[symbol];
+          const quote = await fetchMarketQuote(market, controller.signal);
+          return { symbol, quote };
+        })
+      );
+
+      if (cancelled) return;
+
+      setMarketFeed((old) => {
+        const next = { ...old };
+
+        results.forEach((result, index) => {
+          const symbol = quotedMarketSymbols[index];
+          const market = MARKET_BY_SYMBOL[symbol];
+
+          if (result.status === "fulfilled") {
+            next[symbol] = {
+              ...(next[symbol] || {}),
+              ...result.value.quote,
+            };
+          } else if (result.reason?.name !== "AbortError") {
+            const previous = next[symbol] || {};
+            next[symbol] = {
+              ...previous,
+              isOpen: parseMarketOpen(previous.isOpen, likelyMarketOpen(market)),
+              status: previous.price ? "cached" : "error",
+              error: result.reason?.message || "Live quote temporarily unavailable.",
+            };
+          }
+        });
+
+        return next;
+      });
+    }
+
+    refreshQuotes();
+    const timer = window.setInterval(refreshQuotes, 15000);
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearInterval(timer);
+    };
+  }, [quotedMarketSymbolsKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+
+    async function refreshCandles() {
+      if (!MARKET_API_KEY) return;
+
+      try {
+        const candles = await fetchMarketCandles(
+          activeMarket,
+          marketTimeframe,
+          controller.signal
+        );
+
+        if (cancelled) return;
+
+        const last = candles[candles.length - 1];
+
+        setMarketFeed((old) => ({
+          ...old,
+          [marketSymbol]: {
+            ...(old[marketSymbol] || {}),
+            candles,
+            price: Number(old[marketSymbol]?.price || last?.close || 0),
+            status: old[marketSymbol]?.status || "live",
+            error: "",
+          },
+        }));
+      } catch (error) {
+        if (cancelled || error?.name === "AbortError") return;
+
+        setMarketFeed((old) => ({
+          ...old,
+          [marketSymbol]: {
+            ...(old[marketSymbol] || {}),
+            status: old[marketSymbol]?.price ? "cached" : "error",
+            error: error?.message || "Unable to load live candles.",
+          },
+        }));
+      }
+    }
+
+    refreshCandles();
+    const timer = window.setInterval(refreshCandles, 60000);
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearInterval(timer);
+    };
+  }, [marketSymbol, marketTimeframe]);
 
   useEffect(() => {
     if (!user?.email) return;
@@ -356,28 +739,73 @@ export default function App() {
     setAuthMode("login");
   }
 
-  function placeForexOrder({ side, symbol, volume, leverage, stopLoss, takeProfit }) {
+  function placeForexOrder({
+    side,
+    symbol,
+    volume,
+    leverage,
+    stopLoss,
+    takeProfit,
+    marketPrice: submittedMarketPrice,
+    marketOpen,
+  }) {
+    const market = MARKET_BY_SYMBOL[symbol] || MARKET_BY_SYMBOL["EUR/USD"];
     const lots = Number(volume);
     const leverageValue = Number(String(leverage).split(":")[1] || 100);
-    const openPrice =
-      side === "Buy"
-        ? Number((livePrice + 0.00002).toFixed(5))
-        : Number((livePrice - 0.00002).toFixed(5));
+    const quote = Number(submittedMarketPrice || marketFeed[symbol]?.price || 0);
+
+    if (!Number.isFinite(quote) || quote <= 0) {
+      notify(
+        "loss",
+        "Live price unavailable",
+        "Connect the live quote feed before placing a market order."
+      );
+      return false;
+    }
+
+    if (marketOpen === false || marketFeed[symbol]?.isOpen === false) {
+      notify(
+        "loss",
+        "Market closed",
+        `${market.label} is closed. The live chart will stay visible, but orders are disabled.`
+      );
+      return false;
+    }
+
+    const halfSpread = Number(market.spread || 0) / 2;
+    const openPrice = Number(
+      (
+        side === "Buy"
+          ? quote + halfSpread
+          : quote - halfSpread
+      ).toFixed(market.decimals)
+    );
 
     if (!Number.isFinite(lots) || lots < 0.01 || lots > 10) {
       notify("loss", "Invalid volume", "Volume must be between 0.01 and 10 lots.");
       return false;
     }
 
-    const accountPositions = positions.filter((p) => p.account === account);
+    const accountPositions = positions.filter((position) => position.account === account);
     if (accountPositions.length >= 10) {
       notify("loss", "Position limit", "Close an open position before placing another order.");
       return false;
     }
 
-    const floatingPl = accountPositions.reduce((sum, p) => sum + Number(p.pl || 0), 0);
-    const usedMargin = accountPositions.reduce((sum, p) => sum + Number(p.margin || 0), 0);
-    const requiredMargin = Number(((openPrice * 100000 * lots) / leverageValue).toFixed(2));
+    const floatingPl = accountPositions.reduce(
+      (sum, position) => sum + Number(position.pl || 0),
+      0
+    );
+    const usedMargin = accountPositions.reduce(
+      (sum, position) => sum + Number(position.margin || 0),
+      0
+    );
+    const requiredMargin = Number(
+      (
+        (openPrice * Number(market.contractSize || 100000) * lots) /
+        leverageValue
+      ).toFixed(2)
+    );
     const freeMargin = Number((balance + floatingPl - usedMargin).toFixed(2));
 
     if (requiredMargin > freeMargin) {
@@ -415,12 +843,14 @@ export default function App() {
       id: uid(),
       account,
       instrument: symbol,
+      marketLabel: market.label,
       side,
       volume: lots,
       leverage,
       margin: requiredMargin,
+      contractSize: market.contractSize,
       openPrice,
-      currentPrice: livePrice,
+      currentPrice: quote,
       stopLoss: sl,
       takeProfit: tp,
       pl: 0,
@@ -442,7 +872,7 @@ export default function App() {
     notify(
       "open",
       `${side} order placed`,
-      `${symbol} · ${position.volume} lot · ${money(requiredMargin)} USD margin`
+      `${market.label} · ${position.volume} lot · ${money(requiredMargin)} USD margin`
     );
 
     return true;
@@ -735,8 +1165,14 @@ export default function App() {
           <ForexPage
             account={account}
             balance={balance}
-            livePrice={livePrice}
-            prices={prices}
+            symbol={marketSymbol}
+            setSymbol={setMarketSymbol}
+            timeframe={marketTimeframe}
+            setTimeframe={setMarketTimeframe}
+            market={activeMarket}
+            marketFeed={activeMarketFeed}
+            livePrice={marketPrice}
+            candles={marketCandles}
             positions={positions}
             placeForexOrder={placeForexOrder}
             setActivePage={setActivePage}
@@ -1348,146 +1784,264 @@ function MiniSpark({ type = "blue" }) {
 function ForexPage({
   account,
   balance,
+  symbol,
+  setSymbol,
+  timeframe,
+  setTimeframe,
+  market,
+  marketFeed,
   livePrice,
-  prices,
+  candles,
   positions,
   placeForexOrder,
   setActivePage,
   openDeposit,
 }) {
-  const [symbol, setSymbol] = useState("EUR/USD");
   const [volume, setVolume] = useState(0.01);
   const [leverage, setLeverage] = useState("1:100");
-  const [stopLoss, setStopLoss] = useState(1.08312);
-  const [takeProfit, setTakeProfit] = useState(1.08789);
-  const [showLines] = useState(true);
+  const [stopLoss, setStopLoss] = useState(0);
+  const [takeProfit, setTakeProfit] = useState(0);
   const [orderBusy, setOrderBusy] = useState(false);
+  const seededSymbolRef = useRef("");
 
-  const accountPositions = positions.filter((p) => p.account === account);
-  const visiblePositions = accountPositions.filter((p) => p.instrument === symbol);
-  const floatingPl = accountPositions.reduce((sum, p) => sum + Number(p.pl || 0), 0);
-  const usedMargin = accountPositions.reduce((sum, p) => sum + Number(p.margin || 0), 0);
-  const freeMargin = Math.max(0, Number(balance || 0) + floatingPl - usedMargin);
+  const accountPositions = positions.filter((position) => position.account === account);
+  const visiblePositions = accountPositions.filter(
+    (position) => position.instrument === symbol
+  );
+  const floatingPl = accountPositions.reduce(
+    (sum, position) => sum + Number(position.pl || 0),
+    0
+  );
+  const usedMargin = accountPositions.reduce(
+    (sum, position) => sum + Number(position.margin || 0),
+    0
+  );
+  const freeMargin = Math.max(
+    0,
+    Number(balance || 0) + floatingPl - usedMargin
+  );
+
+  const marketOpen = parseMarketOpen(
+    marketFeed?.isOpen,
+    likelyMarketOpen(market)
+  );
+  const priceReady = Number.isFinite(Number(livePrice)) && Number(livePrice) > 0;
+  const feedStatus = marketFeed?.status || (MARKET_API_KEY ? "connecting" : "chart-only");
+  const change = Number(marketFeed?.change || 0);
+  const percentChange = Number(marketFeed?.percentChange || 0);
+  const positiveChange = change >= 0;
+  const currentTimeframe =
+    MARKET_TIMEFRAMES.find((item) => item.value === timeframe) ||
+    MARKET_TIMEFRAMES[0];
+
+  useEffect(() => {
+    if (!priceReady || seededSymbolRef.current === symbol) return;
+
+    setStopLoss(
+      Number(
+        (Number(livePrice) - Number(market.slDistance || market.priceStep)).toFixed(
+          market.decimals
+        )
+      )
+    );
+    setTakeProfit(
+      Number(
+        (Number(livePrice) + Number(market.tpDistance || market.priceStep)).toFixed(
+          market.decimals
+        )
+      )
+    );
+    seededSymbolRef.current = symbol;
+  }, [symbol, livePrice, priceReady, market]);
 
   function order(side) {
-    if (orderBusy) return;
+    if (orderBusy || !priceReady || !marketOpen) return;
 
+    const gap = Number(market.priceStep || 0.0001);
     const normalizedStopLoss =
       side === "Buy"
-        ? Math.min(Number(stopLoss), livePrice - 0.0001)
-        : Math.max(Number(stopLoss), livePrice + 0.0001);
+        ? Math.min(Number(stopLoss), Number(livePrice) - gap)
+        : Math.max(Number(stopLoss), Number(livePrice) + gap);
 
     const normalizedTakeProfit =
       side === "Buy"
-        ? Math.max(Number(takeProfit), livePrice + 0.0001)
-        : Math.min(Number(takeProfit), livePrice - 0.0001);
+        ? Math.max(Number(takeProfit), Number(livePrice) + gap)
+        : Math.min(Number(takeProfit), Number(livePrice) - gap);
 
-    setStopLoss(Number(normalizedStopLoss.toFixed(5)));
-    setTakeProfit(Number(normalizedTakeProfit.toFixed(5)));
+    const fixedStopLoss = Number(
+      normalizedStopLoss.toFixed(market.decimals)
+    );
+    const fixedTakeProfit = Number(
+      normalizedTakeProfit.toFixed(market.decimals)
+    );
+
+    setStopLoss(fixedStopLoss);
+    setTakeProfit(fixedTakeProfit);
     setOrderBusy(true);
 
-    placeForexOrder({
+    const placed = placeForexOrder({
       side,
       symbol,
       volume,
       leverage,
-      stopLoss: normalizedStopLoss,
-      takeProfit: normalizedTakeProfit,
+      stopLoss: fixedStopLoss,
+      takeProfit: fixedTakeProfit,
+      marketPrice: livePrice,
+      marketOpen,
     });
 
-    window.setTimeout(() => setOrderBusy(false), 700);
+    window.setTimeout(() => setOrderBusy(false), placed ? 700 : 350);
   }
 
+  const buyPrice = priceReady
+    ? Number(livePrice) + Number(market.spread || 0) / 2
+    : 0;
+  const sellPrice = priceReady
+    ? Number(livePrice) - Number(market.spread || 0) / 2
+    : 0;
+
+  const statusLabel =
+    feedStatus === "live"
+      ? marketOpen
+        ? "Market open"
+        : "Market closed"
+      : feedStatus === "cached"
+      ? "Last price"
+      : feedStatus === "error"
+      ? "Feed unavailable"
+      : feedStatus === "connecting"
+      ? "Connecting"
+      : "Chart live";
+
   return (
-    <div className="page forexPage forexPublishPage">
-      <HubNav active="Forex" setActivePage={setActivePage} openDeposit={openDeposit} />
+    <div className="page forexPage forexPublishPage realMarketPublishPage">
+      <HubNav
+        active="Forex"
+        setActivePage={setActivePage}
+        openDeposit={openDeposit}
+      />
 
-      <section className="forexSymbolBar forexMarketCard">
-        <button className="marketBack" aria-label="Back">‹</button>
+      <section className="forexSymbolBar forexMarketCard realMarketHeaderCard">
+        <button
+          className="marketBack"
+          aria-label="Back to markets"
+          onClick={() => setActivePage("home")}
+        >
+          ‹
+        </button>
 
-        <label className="symbolPicker">
+        <label className="symbolPicker realSymbolPicker">
           <span>★</span>
-          <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
-            {MARKETS.map((market) => (
-              <option key={market}>{market}</option>
+          <select
+            value={symbol}
+            onChange={(event) => {
+              seededSymbolRef.current = "";
+              setSymbol(event.target.value);
+            }}
+            aria-label="Choose market"
+          >
+            {MARKET_OPTIONS.map((option) => (
+              <option key={option.symbol} value={option.symbol}>
+                {option.label} · {option.symbol}
+              </option>
             ))}
           </select>
         </label>
 
         <div className="marketNameBlock">
-          <strong>{symbol}</strong>
-          <small>Live trading market</small>
+          <strong>{market.label}</strong>
+          <small>
+            {market.category} · {symbol}
+          </small>
         </div>
 
         <div className="marketPriceBlock">
-          <strong>{livePrice.toFixed(5)}</strong>
-          <small>+0.00231 (+0.21%) ▲</small>
+          <strong>{formatMarketPrice(livePrice, market)}</strong>
+          <small className={positiveChange ? "green" : "red"}>
+            {positiveChange ? "+" : ""}
+            {formatMarketPrice(change, market)} ({positiveChange ? "+" : ""}
+            {percentChange.toFixed(2)}%)
+          </small>
         </div>
 
         <div className="marketHighLow">
-          <p><span>High</span><b>1.09143</b></p>
-          <p><span>Low</span><b>1.08612</b></p>
+          <p>
+            <span>High</span>
+            <b>{formatMarketPrice(marketFeed?.high, market)}</b>
+          </p>
+          <p>
+            <span>Low</span>
+            <b>{formatMarketPrice(marketFeed?.low, market)}</b>
+          </p>
         </div>
 
-        <button className="marketInfoBtn">ⓘ Market Info</button>
+        <span
+          className={`marketStatusPill ${
+            marketOpen ? "open" : "closed"
+          } ${feedStatus}`}
+        >
+          <i />
+          {statusLabel}
+        </span>
       </section>
 
-      <section className="forexToolbar forexProToolbar">
-        {['1m', '5m', '15m', '1h', '4h', '1D'].map((item, index) => (
-          <button key={item} className={index === 0 ? 'active' : ''}>{item}</button>
-        ))}
-        <button>⌄</button>
-        <button>↗ Indicators</button>
-        <button>⌗</button>
-        <button>▥</button>
-        <button>ƒx</button>
-        <button>⛶</button>
+      <section className="singleTimeframeBar">
+        <div className="timeframeSummary">
+          <small>Chart timeframe</small>
+          <strong>{currentTimeframe.label}</strong>
+        </div>
+
+        <label className="timeframeSelect">
+          <span>{currentTimeframe.short}</span>
+          <select
+            value={timeframe}
+            onChange={(event) => setTimeframe(event.target.value)}
+            aria-label="Choose chart timeframe"
+          >
+            {MARKET_TIMEFRAMES.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+          <b>⌄</b>
+        </label>
+
+        <div className="marketFeedMessage">
+          <span>{marketOpen ? "Live market data" : "Last market session"}</span>
+          <small>
+            {MARKET_API_KEY
+              ? "Quotes refresh automatically"
+              : "Add your Twelve Data key for order prices"}
+          </small>
+        </div>
       </section>
 
-      <section className="proChartPanel forexBigChart">
-        <CandleChart
-          symbol={symbol}
-          prices={prices}
-          livePrice={livePrice}
-          positions={visiblePositions}
-          showLines={showLines}
+      <section className="proChartPanel forexBigChart realMarketChartPanel">
+        <TradingViewMarketChart
+          market={market}
+          timeframe={timeframe}
+          marketOpen={marketOpen}
         />
       </section>
 
-      <section className="proOrderPanel forexOrderCard">
-        <div className="orderForm">
-          <div className="orderTabs">
-            <button className="active">Market Order</button>
-            <button>Pending Order</button>
-          </div>
-
-          <div className="orderInputs">
-            <OrderInput label="Volume (Lots)" value={volume} setValue={setVolume} step={0.01} min={0.01} />
-
-            <label className="orderInput">
-              <span>Leverage</span>
-              <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-                <option>1:100</option>
-                <option>1:200</option>
-                <option>1:500</option>
-              </select>
-            </label>
-
-            <OrderInput label="Stop Loss" value={stopLoss} setValue={setStopLoss} step={0.0001} min={0} />
-            <OrderInput label="Take Profit" value={takeProfit} setValue={setTakeProfit} step={0.0001} min={0} />
-          </div>
-        </div>
-
-        <div className="tradeActionColumn">
+      <section className="proOrderPanel forexOrderCard marketOrderStack">
+        <div className="tradeActionColumn marketActionColumn">
           <div className="buySellBox buySellProBox">
             <button
               type="button"
               className="buyLarge"
               onClick={() => order("Buy")}
-              disabled={orderBusy}
+              disabled={orderBusy || !priceReady || !marketOpen}
             >
-              <b>{orderBusy ? "Placing…" : "Buy ↗"}</b>
-              <strong>{livePrice.toFixed(5)}</strong>
+              <b>
+                {!marketOpen
+                  ? "Closed"
+                  : orderBusy
+                  ? "Placing…"
+                  : "Buy ↗"}
+              </b>
+              <strong>{formatMarketPrice(buyPrice, market)}</strong>
               <MiniSpark type="green" />
             </button>
 
@@ -1495,31 +2049,117 @@ function ForexPage({
               type="button"
               className="sellLarge"
               onClick={() => order("Sell")}
-              disabled={orderBusy}
+              disabled={orderBusy || !priceReady || !marketOpen}
             >
-              <b>{orderBusy ? "Placing…" : "Sell ↘"}</b>
-              <strong>{(livePrice - 0.00012).toFixed(5)}</strong>
+              <b>
+                {!marketOpen
+                  ? "Closed"
+                  : orderBusy
+                  ? "Placing…"
+                  : "Sell ↘"}
+              </b>
+              <strong>{formatMarketPrice(sellPrice, market)}</strong>
               <MiniSpark type="red" />
             </button>
           </div>
-
-          <button
-            type="button"
-            className="viewOpenTradesBtn"
-            onClick={() => setActivePage("openTrades")}
-          >
-            <span>View Open Trades</span>
-            <b>{accountPositions.length}</b>
-            <em>›</em>
-          </button>
         </div>
 
-        <div className="spreadStats compactSpreadStats">
-          <p><span>Balance</span><b>{money(balance)} USD</b></p>
-          <p><span>Free margin</span><b>{money(freeMargin)} USD</b></p>
-          <p><span>Used margin</span><b>{money(usedMargin)} USD</b></p>
-          <p><span>Floating P/L</span><b className={floatingPl >= 0 ? "green" : "red"}>{floatingPl >= 0 ? "+" : ""}{money(floatingPl)} USD</b></p>
+        <div className="orderForm realMarketOrderForm">
+          <div className="orderTabs">
+            <button className="active">Market Order</button>
+            <button type="button">Pending Order</button>
+          </div>
+
+          <div className="orderInputs">
+            <OrderInput
+              label="Volume (Lots)"
+              value={volume}
+              setValue={setVolume}
+              step={0.01}
+              min={0.01}
+              decimals={2}
+            />
+
+            <label className="orderInput">
+              <span>Leverage</span>
+              <select
+                value={leverage}
+                onChange={(event) => setLeverage(event.target.value)}
+              >
+                <option>1:100</option>
+                <option>1:200</option>
+                <option>1:500</option>
+              </select>
+            </label>
+
+            <OrderInput
+              label="Stop Loss"
+              value={stopLoss}
+              setValue={setStopLoss}
+              step={market.priceStep}
+              min={0}
+              decimals={market.decimals}
+            />
+
+            <OrderInput
+              label="Take Profit"
+              value={takeProfit}
+              setValue={setTakeProfit}
+              step={market.priceStep}
+              min={0}
+              decimals={market.decimals}
+            />
+          </div>
         </div>
+
+        <button
+          type="button"
+          className="viewOpenTradesBtn"
+          onClick={() => setActivePage("openTrades")}
+        >
+          <span>View Open Trades</span>
+          <b>{accountPositions.length}</b>
+          <em>›</em>
+        </button>
+
+        <div className="spreadStats compactSpreadStats realMarketStats">
+          <p>
+            <span>Balance</span>
+            <b>{money(balance)} USD</b>
+          </p>
+          <p>
+            <span>Free margin</span>
+            <b>{money(freeMargin)} USD</b>
+          </p>
+          <p>
+            <span>Used margin</span>
+            <b>{money(usedMargin)} USD</b>
+          </p>
+          <p>
+            <span>Floating P/L</span>
+            <b className={floatingPl >= 0 ? "green" : "red"}>
+              {floatingPl >= 0 ? "+" : ""}
+              {money(floatingPl)} USD
+            </b>
+          </p>
+        </div>
+
+        {!MARKET_API_KEY && (
+          <div className="marketKeyNotice">
+            <b>Real chart connected</b>
+            <span>
+              Add <code>VITE_TWELVE_DATA_API_KEY</code> to enable live Buy,
+              Sell, margin and profit calculations.
+            </span>
+          </div>
+        )}
+
+        {MARKET_API_KEY && marketFeed?.error && (
+          <div className="marketKeyNotice error">
+            <b>Quote feed notice</b>
+            <span>{marketFeed.error}</span>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -1679,13 +2319,28 @@ function OpenTradesPage({
   );
 }
 
-function OrderInput({ label, value, setValue, step, min }) {
+function OrderInput({
+  label,
+  value,
+  setValue,
+  step,
+  min,
+  decimals = 5,
+}) {
   function dec() {
-    setValue(Number(Math.max(min, Number(value) - Number(step)).toFixed(5)));
+    setValue(
+      Number(
+        Math.max(min, Number(value || 0) - Number(step || 0)).toFixed(decimals)
+      )
+    );
   }
 
   function inc() {
-    setValue(Number((Number(value) + Number(step)).toFixed(5)));
+    setValue(
+      Number(
+        (Number(value || 0) + Number(step || 0)).toFixed(decimals)
+      )
+    );
   }
 
   return (
@@ -1693,15 +2348,94 @@ function OrderInput({ label, value, setValue, step, min }) {
       <span>{label}</span>
 
       <div>
-        <input value={value} onChange={(e) => setValue(Number(e.target.value))} />
-        <button type="button" onClick={dec}>
+        <input
+          type="number"
+          inputMode="decimal"
+          value={value}
+          min={min}
+          step={step}
+          onChange={(event) => setValue(Number(event.target.value))}
+        />
+        <button type="button" onClick={dec} aria-label={`Decrease ${label}`}>
           −
         </button>
-        <button type="button" onClick={inc}>
+        <button type="button" onClick={inc} aria-label={`Increase ${label}`}>
           +
         </button>
       </div>
     </label>
+  );
+}
+
+function TradingViewMarketChart({ market, timeframe, marketOpen }) {
+  const containerRef = useRef(null);
+  const timeframeConfig =
+    MARKET_TIMEFRAMES.find((item) => item.value === timeframe) ||
+    MARKET_TIMEFRAMES[0];
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    container.innerHTML =
+      '<div class="tradingview-widget-container__widget"></div>';
+
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src =
+      "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol: market.tradingViewSymbol,
+      interval: timeframeConfig.tradingView,
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      backgroundColor: "rgba(2, 7, 13, 1)",
+      gridColor: "rgba(35, 55, 78, 0.35)",
+      hide_top_toolbar: true,
+      hide_legend: false,
+      allow_symbol_change: false,
+      save_image: false,
+      calendar: false,
+      details: false,
+      hotlist: false,
+      withdateranges: false,
+      support_host: "https://www.tradingview.com",
+    });
+
+    container.appendChild(script);
+
+    return () => {
+      container.innerHTML = "";
+    };
+  }, [market.tradingViewSymbol, timeframeConfig.tradingView]);
+
+  return (
+    <div className="realChartShell">
+      <div className="realChartCaption">
+        <div>
+          <span>{market.label}</span>
+          <b>{market.symbol}</b>
+        </div>
+
+        <strong className={marketOpen ? "open" : "closed"}>
+          <i />
+          {marketOpen ? "OPEN" : "CLOSED"}
+        </strong>
+      </div>
+
+      <div
+        className="tradingview-widget-container realTradingViewWidget"
+        ref={containerRef}
+      />
+
+      <div className="chartGestureHint">
+        Drag to move · Pinch to zoom · Scroll through history
+      </div>
+    </div>
   );
 }
 

@@ -10121,3 +10121,722 @@ button:disabled {
     grid-template-columns: minmax(0, 1fr) 130px !important;
   }
 }
+
+/* =========================================================
+   FINAL MARKET MOBILE VISIBILITY FIX
+   Keeps the approved market look while ensuring every control
+   is reachable on phones without horizontal scrolling.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .app {
+    width: 100% !important;
+    max-width: 100% !important;
+    grid-template-rows: 64px minmax(0, 1fr) 68px !important;
+    overflow: hidden !important;
+  }
+
+  .mainScreen {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 6px !important;
+  }
+
+  .realMarketPublishPage {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    align-content: flex-start !important;
+    gap: 7px !important;
+    padding: 0 0 calc(16px + env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .realMarketPublishPage::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .realMarketPublishPage > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Bottom navigation already provides these links on mobile. */
+  .realMarketPublishPage > .hubNav {
+    display: none !important;
+  }
+
+  /* Compact but readable market header. */
+  .realMarketHeaderCard {
+    min-height: 70px !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr) auto !important;
+    grid-template-rows: 38px 22px !important;
+    gap: 3px 7px !important;
+    align-items: center !important;
+    padding: 7px 8px !important;
+    overflow: hidden !important;
+  }
+
+  .realMarketHeaderCard .marketBack {
+    grid-column: 1 !important;
+    grid-row: 1 / 3 !important;
+    width: 34px !important;
+    height: 48px !important;
+    min-width: 34px !important;
+    align-self: center !important;
+  }
+
+  .realMarketHeaderCard .realSymbolPicker {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .realMarketHeaderCard .realSymbolPicker select {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 36px !important;
+    padding: 0 24px 0 6px !important;
+    font-size: 12px !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .realMarketHeaderCard .marketNameBlock {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    overflow: hidden !important;
+  }
+
+  .realMarketHeaderCard .marketNameBlock strong {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    font-size: 10px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketHeaderCard .marketNameBlock small {
+    display: none !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+    justify-self: end !important;
+    min-width: 74px !important;
+    text-align: right !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock strong {
+    display: block !important;
+    font-size: 15px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock small {
+    display: block !important;
+    margin-top: 3px !important;
+    font-size: 7px !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketHeaderCard .marketStatusPill {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    justify-self: end !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 20px !important;
+    padding: 0 6px !important;
+    gap: 4px !important;
+    font-size: 7px !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketHeaderCard .marketHighLow,
+  .realMarketHeaderCard .marketInfoBtn {
+    display: none !important;
+  }
+
+  /* One compact timeframe control. */
+  .singleTimeframeBar {
+    min-height: 44px !important;
+    height: 44px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 142px !important;
+    gap: 7px !important;
+    align-items: center !important;
+    padding: 4px 7px !important;
+    overflow: hidden !important;
+  }
+
+  .timeframeSummary {
+    min-width: 0 !important;
+  }
+
+  .timeframeSummary small {
+    display: block !important;
+    font-size: 7px !important;
+  }
+
+  .timeframeSummary strong {
+    display: block !important;
+    margin-top: 1px !important;
+    font-size: 11px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .timeframeSelect {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    grid-template-columns: 38px minmax(0, 1fr) 18px !important;
+  }
+
+  .timeframeSelect > span,
+  .timeframeSelect select,
+  .timeframeSelect b {
+    font-size: 9px !important;
+  }
+
+  .marketFeedMessage {
+    display: none !important;
+  }
+
+  /* The chart remains the main focus but no longer hides the order area. */
+  .realMarketChartPanel {
+    width: 100% !important;
+    height: clamp(280px, 42vh, 340px) !important;
+    min-height: 280px !important;
+    max-height: 340px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .realChartShell {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 280px !important;
+    grid-template-rows: 34px minmax(0, 1fr) 20px !important;
+    overflow: hidden !important;
+  }
+
+  .realChartCaption {
+    min-width: 0 !important;
+    padding: 0 8px !important;
+  }
+
+  .realChartCaption > div {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .realChartCaption span {
+    font-size: 10px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .realChartCaption b,
+  .realChartCaption strong {
+    font-size: 7px !important;
+    white-space: nowrap !important;
+  }
+
+  .realTradingViewWidget,
+  .realTradingViewWidget > div,
+  .realTradingViewWidget iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    border: 0 !important;
+  }
+
+  .chartGestureHint {
+    min-height: 20px !important;
+    font-size: 7px !important;
+  }
+
+  /* Buy/Sell, then Open Trades, then compact settings. */
+  .marketOrderStack {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    overflow: visible !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .marketActionColumn {
+    order: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .buySellProBox {
+    width: 100% !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .buySellProBox button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    padding: 7px !important;
+    border-radius: 13px !important;
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .buySellProBox button b {
+    font-size: 15px !important;
+  }
+
+  .buySellProBox button strong {
+    font-size: 17px !important;
+  }
+
+  .buySellProBox .miniSpark {
+    width: 54px !important;
+    height: 22px !important;
+    right: 6px !important;
+    bottom: 4px !important;
+  }
+
+  .marketOrderStack > .viewOpenTradesBtn {
+    order: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    grid-template-columns: minmax(0, 1fr) 28px 18px !important;
+    border-radius: 12px !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .marketOrderStack > .viewOpenTradesBtn span {
+    min-width: 0 !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketOrderForm {
+    order: 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    background: rgba(2, 9, 20, 0.72) !important;
+    border: 1px solid rgba(70, 145, 255, 0.15) !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  .realMarketOrderForm .orderTabs {
+    width: 100% !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    gap: 14px !important;
+    overflow: hidden !important;
+  }
+
+  .realMarketOrderForm .orderTabs button {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 2px !important;
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketOrderForm .orderInputs {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .realMarketOrderForm .orderInput {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .realMarketOrderForm .orderInput > span {
+    display: block !important;
+    margin-bottom: 3px !important;
+    font-size: 8px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketOrderForm .orderInput > div,
+  .realMarketOrderForm .orderInput select {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 9px !important;
+  }
+
+  .realMarketOrderForm .orderInput > div {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 32px 32px !important;
+    overflow: hidden !important;
+  }
+
+  .realMarketOrderForm .orderInput input {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 5px !important;
+    font-size: 10px !important;
+    text-align: center !important;
+  }
+
+  .realMarketOrderForm .orderInput button {
+    width: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    font-size: 15px !important;
+  }
+
+  .realMarketOrderForm .orderInput select {
+    padding: 0 7px !important;
+    font-size: 10px !important;
+  }
+
+  .realMarketStats,
+  .marketKeyNotice {
+    display: none !important;
+  }
+
+  /* Dedicated Open Trades page: full width, vertical cards only. */
+  .openTradesFullPage {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    padding: 0 0 calc(16px + env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .openTradesFullPage > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .openTradesHeader {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+  }
+
+  .tradeOverviewCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .openTradeTabs {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    overflow: hidden !important;
+  }
+
+  .openTradeTabs button {
+    min-width: 0 !important;
+    padding: 0 3px !important;
+    font-size: 8px !important;
+    white-space: nowrap !important;
+  }
+
+  .openTradesControls {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 7px !important;
+  }
+
+  .openTradeCardList,
+  .fullTradeCard {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .fullTradeTop {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+  }
+
+  .fullTradeGrid,
+  .tradeProtectionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .fullTradeGrid p,
+  .tradeProtectionGrid label {
+    min-width: 0 !important;
+  }
+
+  .tradeProtectionGrid input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .fullTradeFooter {
+    gap: 7px !important;
+  }
+
+  .fullTradeFooter small {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Bots begin at the top and use natural compact height. */
+  .botsPage {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
+    gap: 7px !important;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .botsTopBar,
+  .botStats,
+  .botFilters,
+  .botGrid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .botsTopBar {
+    min-height: 48px !important;
+    padding: 7px 10px !important;
+  }
+
+  .botStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .botFilters {
+    display: flex !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+  }
+
+  .botFilters::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .botFilters input {
+    flex: 0 0 150px !important;
+    min-width: 150px !important;
+  }
+
+  .botFilters button {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  .botGrid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    gap: 7px !important;
+    overflow: visible !important;
+  }
+
+  .botCard {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    grid-template-columns: 48px minmax(0, 1fr) auto !important;
+    grid-template-rows: auto 58px auto auto !important;
+    padding: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .botCard h2 {
+    font-size: 15px !important;
+  }
+
+  .botCard p,
+  .botCard small {
+    font-size: 9px !important;
+  }
+
+  .botGraph,
+  .botMetrics,
+  .botAction {
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
+  }
+
+  .botAction {
+    width: 100% !important;
+    min-height: 40px !important;
+  }
+
+  .bottomNav {
+    width: calc(100% - 12px) !important;
+    max-width: calc(100% - 12px) !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    margin: 0 6px 4px !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .realMarketHeaderCard {
+    grid-template-columns: 30px minmax(0, 1fr) auto !important;
+    padding-inline: 6px !important;
+  }
+
+  .realMarketHeaderCard .marketBack {
+    width: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock strong {
+    font-size: 13px !important;
+  }
+
+  .singleTimeframeBar {
+    grid-template-columns: minmax(0, 1fr) 126px !important;
+  }
+
+  .realMarketChartPanel {
+    height: clamp(255px, 39vh, 300px) !important;
+    min-height: 255px !important;
+    max-height: 300px !important;
+  }
+
+  .realChartShell {
+    min-height: 255px !important;
+  }
+
+  .buySellProBox,
+  .buySellProBox button {
+    height: 74px !important;
+    min-height: 74px !important;
+  }
+
+  .buySellProBox button b {
+    font-size: 13px !important;
+  }
+
+  .buySellProBox button strong {
+    font-size: 15px !important;
+  }
+
+  .realMarketOrderForm .orderInputs {
+    gap: 6px !important;
+  }
+
+  .realMarketOrderForm .orderInput > div {
+    grid-template-columns: minmax(0, 1fr) 29px 29px !important;
+  }
+
+  .realMarketOrderForm .orderInput button {
+    width: 29px !important;
+    min-width: 29px !important;
+  }
+}
