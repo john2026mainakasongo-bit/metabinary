@@ -346,28 +346,78 @@ export default function App() {
   }
 
   function placeForexOrder({ side, symbol, volume, leverage, stopLoss, takeProfit }) {
+    const lots = Number(volume);
+    const leverageValue = Number(String(leverage).split(":")[1] || 100);
     const openPrice =
       side === "Buy"
         ? Number((livePrice + 0.00002).toFixed(5))
         : Number((livePrice - 0.00002).toFixed(5));
+
+    if (!Number.isFinite(lots) || lots < 0.01 || lots > 10) {
+      notify("loss", "Invalid volume", "Volume must be between 0.01 and 10 lots.");
+      return false;
+    }
+
+    const accountPositions = positions.filter((p) => p.account === account);
+    if (accountPositions.length >= 10) {
+      notify("loss", "Position limit", "Close an open position before placing another order.");
+      return false;
+    }
+
+    const floatingPl = accountPositions.reduce((sum, p) => sum + Number(p.pl || 0), 0);
+    const usedMargin = accountPositions.reduce((sum, p) => sum + Number(p.margin || 0), 0);
+    const requiredMargin = Number(((openPrice * 100000 * lots) / leverageValue).toFixed(2));
+    const freeMargin = Number((balance + floatingPl - usedMargin).toFixed(2));
+
+    if (requiredMargin > freeMargin) {
+      notify(
+        "loss",
+        "Insufficient margin",
+        `Required ${money(requiredMargin)} USD · Free ${money(Math.max(0, freeMargin))} USD`
+      );
+      return false;
+    }
+
+    const sl = Number(stopLoss);
+    const tp = Number(takeProfit);
+
+    if (!Number.isFinite(sl) || !Number.isFinite(tp) || sl <= 0 || tp <= 0) {
+      notify("loss", "Invalid protection", "Enter valid Stop Loss and Take Profit prices.");
+      return false;
+    }
+
+    const validProtection =
+      side === "Buy" ? sl < openPrice && tp > openPrice : sl > openPrice && tp < openPrice;
+
+    if (!validProtection) {
+      notify(
+        "loss",
+        "Check SL and TP",
+        side === "Buy"
+          ? "For Buy: Stop Loss must be below price and Take Profit above price."
+          : "For Sell: Stop Loss must be above price and Take Profit below price."
+      );
+      return false;
+    }
 
     const position = {
       id: uid(),
       account,
       instrument: symbol,
       side,
-      volume: Number(volume || 0.01),
+      volume: lots,
       leverage,
+      margin: requiredMargin,
       openPrice,
       currentPrice: livePrice,
-      stopLoss: Number(stopLoss || (side === "Buy" ? livePrice - 0.002 : livePrice + 0.002)),
-      takeProfit: Number(takeProfit || (side === "Buy" ? livePrice + 0.002 : livePrice - 0.002)),
+      stopLoss: sl,
+      takeProfit: tp,
       pl: 0,
       plPercent: 0,
       openedAt: new Date().toLocaleTimeString(),
     };
 
-    setPositions((old) => [position, ...old].slice(0, 20));
+    setPositions((old) => [position, ...old].slice(0, 40));
 
     addTx({
       type: `${side} ${symbol}`,
@@ -375,10 +425,16 @@ export default function App() {
       account,
       amount: 0,
       status: "Open",
-      details: `${position.volume} lot`,
+      details: `${position.volume} lot · Margin ${money(requiredMargin)} USD`,
     });
 
-    notify("open", `${side} order placed`, `${symbol} · ${position.volume} lot`);
+    notify(
+      "open",
+      `${side} order placed`,
+      `${symbol} · ${position.volume} lot · ${money(requiredMargin)} USD margin`
+    );
+
+    return true;
   }
 
   function updatePosition(id, patch) {
@@ -418,8 +474,14 @@ export default function App() {
     );
   }
 
-  function closeAllPositions() {
-    positions.forEach((p) => closePosition(p.id));
+  function closeAllPositions(filter = {}) {
+    positions
+      .filter((p) => {
+        if (filter.account && p.account !== filter.account) return false;
+        if (filter.instrument && p.instrument !== filter.instrument) return false;
+        return true;
+      })
+      .forEach((p) => closePosition(p.id));
   }
 
   function actionsFor(type) {
@@ -660,6 +722,8 @@ export default function App() {
 
         {activePage === "forex" && (
           <ForexPage
+            account={account}
+            balance={balance}
             livePrice={livePrice}
             prices={prices}
             positions={positions}
@@ -711,6 +775,7 @@ export default function App() {
         {activePage === "profile" && (
           <ProfilePage
             user={user}
+            account={account}
             balances={balances}
             transactions={transactions}
             referral={referral}
@@ -913,25 +978,37 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
         </strong>
       </button>
 
-      <div className="accountSwitch brokerAccountSwitch">
+      <div className="accountSwitch brokerAccountSwitch" aria-label="Account type">
         <button
+          type="button"
           className={account === "demo" ? "active demoActive" : ""}
           onClick={() => setAccount("demo")}
+          aria-pressed={account === "demo"}
         >
           Demo
         </button>
 
         <button
+          type="button"
           className={account === "real" ? "active realActive" : ""}
           onClick={() => setAccount("real")}
+          aria-pressed={account === "real"}
         >
           <span>🛡</span> Real
         </button>
       </div>
 
+      <button
+        type="button"
+        className="depositTop brokerDepositBtn"
+        onClick={openDeposit}
+        aria-label="Deposit funds"
+      >
+        <span>Deposit</span>
+        <b>＋</b>
+      </button>
 
-      <button className="bellBtn brokerBellBtn">
-        ♡
+      <button type="button" className="bellBtn brokerBellBtn" aria-label="Notifications">
         <i>🔔</i>
         <b>3</b>
       </button>
@@ -1249,6 +1326,8 @@ function MiniSpark({ type = "blue" }) {
 }
 
 function ForexPage({
+  account,
+  balance,
   livePrice,
   prices,
   positions,
@@ -1268,8 +1347,11 @@ function ForexPage({
   const [tab, setTab] = useState("open");
   const [showLines, setShowLines] = useState(true);
   const [tradesOpen, setTradesOpen] = useState(false);
+  const [orderBusy, setOrderBusy] = useState(false);
 
-  const visiblePositions = positions.filter((p) => p.instrument === symbol);
+  const visiblePositions = positions.filter(
+    (p) => p.instrument === symbol && p.account === account
+  );
   const profitCount = visiblePositions.filter((p) => p.pl >= 0).length;
   const lossCount = visiblePositions.filter((p) => p.pl < 0).length;
 
@@ -1279,19 +1361,41 @@ function ForexPage({
       : tab === "loss"
       ? visiblePositions.filter((p) => p.pl < 0)
       : tab === "closed"
-      ? closedPositions.filter((p) => p.instrument === symbol)
+      ? closedPositions.filter((p) => p.instrument === symbol && p.account === account)
       : visiblePositions;
 
+  const floatingPl = visiblePositions.reduce((sum, p) => sum + Number(p.pl || 0), 0);
+  const usedMargin = visiblePositions.reduce((sum, p) => sum + Number(p.margin || 0), 0);
+  const freeMargin = Math.max(0, Number(balance || 0) + floatingPl - usedMargin);
+
   function order(side) {
-    placeForexOrder({
+    if (orderBusy) return;
+
+    const normalizedStopLoss =
+      side === "Buy"
+        ? Math.min(Number(stopLoss), livePrice - 0.0001)
+        : Math.max(Number(stopLoss), livePrice + 0.0001);
+
+    const normalizedTakeProfit =
+      side === "Buy"
+        ? Math.max(Number(takeProfit), livePrice + 0.0001)
+        : Math.min(Number(takeProfit), livePrice - 0.0001);
+
+    setStopLoss(Number(normalizedStopLoss.toFixed(5)));
+    setTakeProfit(Number(normalizedTakeProfit.toFixed(5)));
+    setOrderBusy(true);
+
+    const placed = placeForexOrder({
       side,
       symbol,
       volume,
       leverage,
-      stopLoss,
-      takeProfit,
+      stopLoss: normalizedStopLoss,
+      takeProfit: normalizedTakeProfit,
     });
-    setTradesOpen(true);
+
+    if (placed) setTradesOpen(true);
+    window.setTimeout(() => setOrderBusy(false), 700);
   }
 
   return (
@@ -1381,22 +1485,34 @@ function ForexPage({
         </div>
 
         <div className="buySellBox buySellProBox">
-          <button className="buyLarge" onClick={() => order('Buy')}>
-            <b>Buy ↗</b>
+          <button
+            type="button"
+            className="buyLarge"
+            onClick={() => order("Buy")}
+            disabled={orderBusy}
+          >
+            <b>{orderBusy ? "Placing…" : "Buy ↗"}</b>
             <strong>{livePrice.toFixed(5)}</strong>
             <MiniSpark type="green" />
           </button>
 
-          <button className="sellLarge" onClick={() => order('Sell')}>
-            <b>Sell ↘</b>
+          <button
+            type="button"
+            className="sellLarge"
+            onClick={() => order("Sell")}
+            disabled={orderBusy}
+          >
+            <b>{orderBusy ? "Placing…" : "Sell ↘"}</b>
             <strong>{(livePrice - 0.00012).toFixed(5)}</strong>
             <MiniSpark type="red" />
           </button>
         </div>
 
         <div className="spreadStats compactSpreadStats">
-          <p><span>Spread</span><b>1.2</b></p>
-          <p><span>Change</span><b className="green">+0.21%</b></p>
+          <p><span>Balance</span><b>{money(balance)} USD</b></p>
+          <p><span>Free margin</span><b>{money(freeMargin)} USD</b></p>
+          <p><span>Used margin</span><b>{money(usedMargin)} USD</b></p>
+          <p><span>Floating P/L</span><b className={floatingPl >= 0 ? "green" : "red"}>{floatingPl >= 0 ? "+" : ""}{money(floatingPl)} USD</b></p>
         </div>
       </section>
 
@@ -1407,11 +1523,11 @@ function ForexPage({
           </button>
 
           <button className={tab === 'profit' ? 'active' : ''} onClick={() => setTab('profit')}>
-            Profit <b>{profitCount}</b>
+            Winning <b>{profitCount}</b>
           </button>
 
           <button className={tab === 'loss' ? 'active' : ''} onClick={() => setTab('loss')}>
-            Loss <b>{lossCount}</b>
+            Losing <b>{lossCount}</b>
           </button>
 
           <button className={tab === 'closed' ? 'active' : ''} onClick={() => setTab('closed')}>
@@ -1423,7 +1539,7 @@ function ForexPage({
             Lines
           </label>
 
-          <button className="closeAll" onClick={closeAllPositions}>Close All</button>
+          <button className="closeAll" onClick={() => closeAllPositions({ account, instrument: symbol })}>Close All</button>
         </div>
 
         <div className="tradeTable">
@@ -1443,29 +1559,43 @@ function ForexPage({
 
           {rows.map((p) => (
             <div className="tradeRow" key={p.id}>
-              <strong>{p.instrument}</strong>
-              <b className={p.side === 'Buy' ? 'buyTag' : 'sellTag'}>{p.side}</b>
-              <span>{p.volume}</span>
-              <span>{Number(p.openPrice).toFixed(5)}</span>
-              <span>{Number(p.currentPrice || p.openPrice).toFixed(5)}</span>
+              <strong className="tradeCell tradeInstrument" data-label="Instrument">{p.instrument}</strong>
+              <b className={`tradeCell ${p.side === "Buy" ? "buyTag" : "sellTag"}`} data-label="Type">{p.side}</b>
+              <span className="tradeCell" data-label="Volume">{p.volume}</span>
+              <span className="tradeCell" data-label="Open Price">{Number(p.openPrice).toFixed(5)}</span>
+              <span className="tradeCell" data-label="Current Price">{Number(p.currentPrice || p.openPrice).toFixed(5)}</span>
 
-              {tab === 'closed' ? (
-                <>
-                  <span>{Number(p.stopLoss).toFixed(5)}</span>
-                  <span>{Number(p.takeProfit).toFixed(5)}</span>
-                </>
-              ) : (
-                <>
-                  <input value={p.stopLoss} onChange={(e) => updatePosition(p.id, { stopLoss: Number(e.target.value) })} />
-                  <input value={p.takeProfit} onChange={(e) => updatePosition(p.id, { takeProfit: Number(e.target.value) })} />
-                </>
-              )}
+              <span className="tradeCell editableTradeCell" data-label="Stop Loss">
+                {tab === "closed" ? (
+                  Number(p.stopLoss).toFixed(5)
+                ) : (
+                  <input
+                    aria-label="Stop Loss"
+                    value={p.stopLoss}
+                    onChange={(e) => updatePosition(p.id, { stopLoss: Number(e.target.value) })}
+                  />
+                )}
+              </span>
 
-              <em className={p.pl >= 0 ? 'green' : 'red'}>
-                {p.pl >= 0 ? '+' : ''}{money(p.pl)} USD
+              <span className="tradeCell editableTradeCell" data-label="Take Profit">
+                {tab === "closed" ? (
+                  Number(p.takeProfit).toFixed(5)
+                ) : (
+                  <input
+                    aria-label="Take Profit"
+                    value={p.takeProfit}
+                    onChange={(e) => updatePosition(p.id, { takeProfit: Number(e.target.value) })}
+                  />
+                )}
+              </span>
+
+              <em className={`tradeCell ${p.pl >= 0 ? "green" : "red"}`} data-label="P/L">
+                {p.pl >= 0 ? "+" : ""}{money(p.pl)} USD
               </em>
 
-              {tab === 'closed' ? <span>Closed</span> : <button onClick={() => closePosition(p.id)}>Close</button>}
+              <span className="tradeCell tradeAction" data-label="Action">
+                {tab === "closed" ? <span>Closed</span> : <button onClick={() => closePosition(p.id)}>Close</button>}
+              </span>
             </div>
           ))}
         </div>
@@ -1979,7 +2109,7 @@ function BotLivePage({ bot, running, stopBot, startBot, trades, botTab, setBotTa
   );
 }
 
-function ProfilePage({ user, balances, referral, applyReferralProgram, logout, setActivePage }) {
+function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage }) {
   const realBalance = balances?.real || 0;
   const demoBalance = balances?.demo || 10000;
   const accountId = user?.brokerId || "MB168844";
@@ -1991,6 +2121,15 @@ function ProfilePage({ user, balances, referral, applyReferralProgram, logout, s
   const referralApproved = referral?.status === "approved";
   const referralEarned = referral?.totalEarned || 0;
   const referralCount = referral?.totalReferrals || 0;
+  const accountLabel = account === "real" ? "Real Account" : "Demo Account";
+  const tradeTransactions = (transactions || []).filter(
+    (tx) => ["Manual", "Bot", "Forex"].includes(tx.method) && Number(tx.amount) !== 0
+  );
+  const totalProfit = tradeTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+  const winningTrades = tradeTransactions.filter((tx) => Number(tx.amount) > 0).length;
+  const winRate = tradeTransactions.length
+    ? (winningTrades / tradeTransactions.length) * 100
+    : 0;
 
   const profileCards = [
     {
@@ -2013,7 +2152,7 @@ function ProfilePage({ user, balances, referral, applyReferralProgram, logout, s
       icon: "🛡",
       title: "KYC Verification",
       text: "Verify your identity to unlock all platform features",
-      button: "Verified ✓",
+      button: user?.verified ? "Verified ✓" : "Start Verification",
       color: "green",
       action: () => {},
     },
@@ -2073,7 +2212,7 @@ function ProfilePage({ user, balances, referral, applyReferralProgram, logout, s
 
             <span>
               Status
-              <strong className="activeStatus">● Active — Demo Account</strong>
+              <strong className="activeStatus">● Active — {accountLabel}</strong>
             </span>
           </div>
         </div>
@@ -2087,8 +2226,8 @@ function ProfilePage({ user, balances, referral, applyReferralProgram, logout, s
       <section className="proProfileStats">
         <ProfileBalanceCard icon="💼" label="REAL BALANCE" value={`${money(realBalance)} USD`} color="blue" />
         <ProfileBalanceCard icon="▮▮▮" label="DEMO BALANCE" value={`${money(demoBalance)} USD`} color="purple" />
-        <ProfileBalanceCard icon="📈" label="TOTAL PROFIT" value="+2,450.75 USD" color="green" />
-        <ProfileBalanceCard icon="◎" label="WIN RATE" value="63.25%" color="yellow" />
+        <ProfileBalanceCard icon="📈" label="TOTAL PROFIT" value={`${totalProfit >= 0 ? "+" : ""}${money(totalProfit)} USD`} color={totalProfit >= 0 ? "green" : "red"} />
+        <ProfileBalanceCard icon="◎" label="WIN RATE" value={`${winRate.toFixed(1)}%`} color="yellow" />
       </section>
 
       <section className="proProfileMain">
@@ -2117,8 +2256,8 @@ function ProfilePage({ user, balances, referral, applyReferralProgram, logout, s
             </div>
 
             <div className="responseTime">
-              <small>Average Response Time</small>
-              <strong>● 2m 30s</strong>
+              <small>Support Availability</small>
+              <strong>● Online</strong>
             </div>
 
             <button>Contact Support ›</button>
@@ -2193,7 +2332,7 @@ function ProfileBalanceCard({ icon, label, value, color }) {
 
       <div>
         <span>{label}</span>
-        <strong className={color === "green" ? "green" : ""}>{value}</strong>
+        <strong className={color === "green" ? "green" : color === "red" ? "red" : ""}>{value}</strong>
       </div>
 
       <em>›</em>
@@ -2305,12 +2444,14 @@ function BottomNav({ activePage, setActivePage }) {
   ];
 
   return (
-    <nav className="bottomNav">
+    <nav className="bottomNav" aria-label="Primary navigation">
       {items.map(([key, label, icon]) => (
         <button
           key={key}
           className={activePage === key || (key === "bots" && activePage === "botLive") ? "active" : ""}
           onClick={() => setActivePage(key)}
+          aria-label={label}
+          aria-current={activePage === key ? "page" : undefined}
         >
           <span>{icon}</span>
           <small>{label}</small>
@@ -2328,9 +2469,9 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
 
   return (
     <div className="menuLayer">
-      <button className="menuShade" onClick={close}></button>
+      <button className="menuShade" onClick={close} aria-label="Close menu"></button>
 
-      <aside className="sideDrawer">
+      <aside className="sideDrawer" role="dialog" aria-modal="true" aria-label="Main menu">
         <div className="drawerTop">
           <Logo />
           <button onClick={close}>×</button>
@@ -2338,7 +2479,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
 
         <section className="drawerAccount">
           <div className="drawerUser">
-            <div>M</div>
+            <div>{user.initials || initials(user.name || user.email)}</div>
 
             <section>
               <small>{account === "demo" ? "Demo Account" : "Real Account"}</small>
@@ -2435,8 +2576,8 @@ function DepositModal({ close, submit }) {
 
   return (
     <div className="modalLayer">
-      <div className="depositModal">
-        <button className="closeModal" onClick={close}>
+      <div className="depositModal" role="dialog" aria-modal="true" aria-label="Deposit funds">
+        <button className="closeModal" onClick={close} aria-label="Close dialog">
           ×
         </button>
 
@@ -2499,8 +2640,8 @@ function WithdrawModal({ close, submit }) {
 
   return (
     <div className="modalLayer">
-      <div className="depositModal">
-        <button className="closeModal" onClick={close}>
+      <div className="depositModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
+        <button className="closeModal" onClick={close} aria-label="Close dialog">
           ×
         </button>
 
