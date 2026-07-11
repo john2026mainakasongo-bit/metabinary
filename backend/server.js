@@ -96,28 +96,57 @@ function httpError(status, message) {
 async function getDb() {
   if (!MONGODB_URI) throw httpError(503, "MONGODB_URI is not configured on the backend.");
   if (!mongoClientPromise) {
-    const client = new MongoClient(MONGODB_URI, { maxPoolSize: 10 });
+    const client = new MongoClient(MONGODB_URI, {
+      maxPoolSize: 10,
+      family: 4,
+      connectTimeoutMS: 20000,
+      serverSelectionTimeoutMS: 45000,
+    });
     mongoClientPromise = client.connect();
   }
   const client = await mongoClientPromise;
   return client.db(MONGODB_DB);
 }
 
+async function ensurePartialRequestIndex(collection, indexName) {
+  const indexes = await collection.indexes();
+  const legacyIndex = indexes.find((index) => index.name === "email_1_requestId_1");
+
+  if (legacyIndex) {
+    await collection.dropIndex(legacyIndex.name);
+  }
+
+  await collection.createIndex(
+    { email: 1, requestId: 1 },
+    {
+      name: indexName,
+      unique: true,
+      partialFilterExpression: {
+        requestId: { $type: "string" },
+      },
+    }
+  );
+}
+
 async function ensureIndexes() {
   const db = await getDb();
+  const deposits = db.collection("deposits");
+  const withdrawals = db.collection("withdrawals");
+
   await Promise.all([
     db.collection("users").createIndex({ email: 1 }, { unique: true }),
     db.collection("users").createIndex({ accountId: 1 }, { unique: true, sparse: true }),
-    db.collection("deposits").createIndex({ id: 1 }, { unique: true }),
-    db.collection("deposits").createIndex({ invoiceId: 1 }, { sparse: true }),
-    db.collection("deposits").createIndex({ apiRef: 1 }, { sparse: true }),
-    db.collection("deposits").createIndex({ email: 1, requestId: 1 }, { unique: true, sparse: true }),
-    db.collection("withdrawals").createIndex({ id: 1 }, { unique: true }),
-    db.collection("withdrawals").createIndex({ email: 1, requestId: 1 }, { unique: true, sparse: true }),
+    deposits.createIndex({ id: 1 }, { unique: true }),
+    deposits.createIndex({ invoiceId: 1 }, { sparse: true }),
+    deposits.createIndex({ apiRef: 1 }, { sparse: true }),
+    withdrawals.createIndex({ id: 1 }, { unique: true }),
     db.collection("processedInvoices").createIndex({ invoiceKey: 1 }, { unique: true }),
     db.collection("transactions").createIndex({ email: 1, createdAt: -1 }),
     db.collection("adminAudit").createIndex({ createdAt: -1 }),
   ]);
+
+  await ensurePartialRequestIndex(deposits, "uniq_deposit_email_requestId");
+  await ensurePartialRequestIndex(withdrawals, "uniq_withdrawal_email_requestId");
 }
 
 function hashPassword(password) {
