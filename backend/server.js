@@ -16,7 +16,7 @@ const USD_RATE = Number(process.env.USD_RATE || 130);
 const MIN_DEPOSIT_USD = Number(process.env.MIN_DEPOSIT_USD || 1);
 const MIN_WITHDRAW_USD = Number(process.env.MIN_WITHDRAW_USD || 5);
 const MAX_WITHDRAW_USD = Number(process.env.MAX_WITHDRAW_USD || 150000);
-const TRADE_TICK_MS = 1500;
+const TRADE_TICK_MS = 2200;
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
@@ -323,6 +323,7 @@ function publicTrade(trade) {
     multiplier: Number(trade.multiplier),
     payout: roundMoney(trade.payout),
     entryPrice: Number(trade.entryPrice || 0),
+    market: trade.market || "Volatility 100 (1s) Index",
     resultDigit: Number.isInteger(trade.resultDigit) ? trade.resultDigit : null,
     won: typeof trade.won === "boolean" ? trade.won : null,
     profit: Number.isFinite(Number(trade.profit)) ? roundMoney(trade.profit) : null,
@@ -928,6 +929,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const ticks = Math.min(10, Math.max(1, Math.floor(Number(req.body?.ticks || 5))));
     const stake = roundMoney(req.body?.stake);
     const entryPrice = Number(req.body?.entryPrice || 0);
+    const market = cleanText(req.body?.market || "Volatility 100 (1s) Index", 100);
 
     if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
     if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
@@ -959,6 +961,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       multiplier,
       payout: roundMoney(stake * multiplier),
       entryPrice,
+      market,
       status: "RUNNING",
       createdAt,
       settleAt,
@@ -1069,7 +1072,7 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
       payout: roundMoney(claimed.payout),
       status: won ? "WON" : "LOST",
       reference: claimed.id,
-      details: `${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
+      details: `${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
       createdAt: settledAt,
     });
 

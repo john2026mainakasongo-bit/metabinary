@@ -7,8 +7,121 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-trade-fit-phone-video-digits-2026-07-12";
-const DIGIT_TICK_MS = 2000;
+const FRONTEND_BUILD = "metabinary-final-volatility-digit-targets-2026-07-12";
+const DIGIT_TICK_MS = 2200;
+
+const VOLATILITY_OPTIONS = [
+  {
+    id: "vol10",
+    label: "Volatility 10 Index",
+    short: "V10",
+    start: 1.205,
+    scale: 800,
+    step: 0.00016,
+    wave: 0.000025,
+    priceStep: 0.75,
+    description: "Lower movement",
+  },
+  {
+    id: "vol10-1s",
+    label: "Volatility 10 (1s) Index",
+    short: "V10 1s",
+    start: 1.236,
+    scale: 800,
+    step: 0.0002,
+    wave: 0.00003,
+    priceStep: 0.9,
+    description: "Lower one-second movement",
+  },
+  {
+    id: "vol25",
+    label: "Volatility 25 Index",
+    short: "V25",
+    start: 1.112,
+    scale: 800,
+    step: 0.00027,
+    wave: 0.000045,
+    priceStep: 1.1,
+    description: "Moderate movement",
+  },
+  {
+    id: "vol25-1s",
+    label: "Volatility 25 (1s) Index",
+    short: "V25 1s",
+    start: 1.148,
+    scale: 800,
+    step: 0.00033,
+    wave: 0.000055,
+    priceStep: 1.25,
+    description: "Moderate one-second movement",
+  },
+  {
+    id: "vol50",
+    label: "Volatility 50 Index",
+    short: "V50",
+    start: 1.31,
+    scale: 800,
+    step: 0.0004,
+    wave: 0.000065,
+    priceStep: 1.55,
+    description: "Balanced movement",
+  },
+  {
+    id: "vol50-1s",
+    label: "Volatility 50 (1s) Index",
+    short: "V50 1s",
+    start: 1.348,
+    scale: 800,
+    step: 0.00048,
+    wave: 0.000075,
+    priceStep: 1.75,
+    description: "Balanced one-second movement",
+  },
+  {
+    id: "vol75",
+    label: "Volatility 75 Index",
+    short: "V75",
+    start: 1.42,
+    scale: 800,
+    step: 0.00055,
+    wave: 0.00009,
+    priceStep: 2.0,
+    description: "Higher movement",
+  },
+  {
+    id: "vol75-1s",
+    label: "Volatility 75 (1s) Index",
+    short: "V75 1s",
+    start: 1.46,
+    scale: 800,
+    step: 0.00064,
+    wave: 0.000105,
+    priceStep: 2.2,
+    description: "Higher one-second movement",
+  },
+  {
+    id: "vol100",
+    label: "Volatility 100 Index",
+    short: "V100",
+    start: 1.018,
+    scale: 800,
+    step: 0.00072,
+    wave: 0.00012,
+    priceStep: 2.45,
+    description: "Strong movement",
+  },
+  {
+    id: "vol100-1s",
+    label: "Volatility 100 (1s) Index",
+    short: "V100 1s",
+    start: 1.086,
+    scale: 800,
+    step: 0.00082,
+    wave: 0.000135,
+    priceStep: 2.7,
+    description: "Strong one-second movement",
+  },
+];
 
 if (typeof window !== "undefined") {
   window.__METABINARY_BUILD__ = FRONTEND_BUILD;
@@ -26,6 +139,7 @@ const STORE = {
   closed: "mb_closed_positions",
   referral: "mb_referral_profile",
   notifications: "mb_notifications",
+  binaryMarket: "mb_binary_market",
 };
 
 const MARKET_API_KEY =
@@ -480,7 +594,13 @@ function TradingApp() {
     readStore(STORE.balances, { demo: 10000, real: 0 })
   );
 
-  const [prices, setPrices] = useState(() => makePrices());
+  const [binaryMarketId, setBinaryMarketId] = useState(() =>
+    readStore(STORE.binaryMarket, "vol100-1s")
+  );
+  const activeBinaryMarket =
+    VOLATILITY_OPTIONS.find((market) => market.id === binaryMarketId) ||
+    VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
+  const [prices, setPrices] = useState(() => makePrices(activeBinaryMarket.start));
   const [marketSymbol, setMarketSymbol] = useState("XAU/USD");
   const [marketTimeframe, setMarketTimeframe] = useState("1min");
   const [marketFeed, setMarketFeed] = useState(() => readStore(MARKET_CACHE_KEY, {}));
@@ -548,18 +668,26 @@ function TradingApp() {
   useEffect(() => saveStore(STORE.tx, transactions), [transactions]);
   useEffect(() => saveStore(STORE.referral, referral), [referral]);
   useEffect(() => saveStore(STORE.notifications, notifications), [notifications]);
+  useEffect(() => saveStore(STORE.binaryMarket, binaryMarketId), [binaryMarketId]);
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
+
+  useEffect(() => {
+    setPrices(makePrices(activeBinaryMarket.start));
+    setDigitStats(makeInitialDigitStats());
+    setLastDigit(0);
+    lastDigitRef.current = 0;
+  }, [binaryMarketId]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setPrices((old) => {
-        const last = old[old.length - 1] || 1.08564;
+        const last = old[old.length - 1] || activeBinaryMarket.start;
         const next = Number(
           (
             last +
-            (Math.random() - 0.5) * 0.0006 +
-            Math.sin(Date.now() / 7000) * 0.00006
-          ).toFixed(5)
+            (Math.random() - 0.5) * activeBinaryMarket.step +
+            Math.sin(Date.now() / 8400) * activeBinaryMarket.wave
+          ).toFixed(6)
         );
         return [...old.slice(-119), next];
       });
@@ -571,7 +699,7 @@ function TradingApp() {
     }, DIGIT_TICK_MS);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [binaryMarketId]);
 
   useEffect(() => {
     if (!activeBinaryTrade?.id) return undefined;
@@ -1349,6 +1477,7 @@ function TradingApp() {
           prediction,
           ticks: usedTicks,
           entryPrice: livePrice,
+          market: activeBinaryMarket.label,
         }),
       });
 
@@ -1368,6 +1497,7 @@ function TradingApp() {
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
+        market: opened.market || activeBinaryMarket.label,
         totalTicks: Number(opened.ticks ?? usedTicks),
         remainingTicks: Number(opened.ticks ?? usedTicks),
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
@@ -1387,7 +1517,12 @@ function TradingApp() {
 
       setBinaryResultFlash(null);
       setActiveBinaryTrade(openTrade);
-      notify("open", "Open trade", `${type} · ${action} · ${usedTicks} ticks`, 1700);
+      notify(
+        "open",
+        "Open trade",
+        `${activeBinaryMarket.label} · ${type} · ${action} · ${usedTicks} ticks`,
+        1700
+      );
     } catch (error) {
       console.error("Trade open failed:", error);
       notify(
@@ -1771,6 +1906,10 @@ function TradingApp() {
             actionsFor={actionsFor}
             payoutRate={payoutRate}
             runBinaryTrade={runBinaryTrade}
+            binaryMarket={activeBinaryMarket}
+            binaryMarketId={binaryMarketId}
+            setBinaryMarketId={setBinaryMarketId}
+            volatilityOptions={VOLATILITY_OPTIONS}
           />
         )}
 
@@ -3273,9 +3412,14 @@ function TradePage({
   actionsFor,
   payoutRate,
   runBinaryTrade,
+  binaryMarket,
+  binaryMarketId,
+  setBinaryMarketId,
+  volatilityOptions,
 }) {
   const actions = actionsFor(tradeType);
-  const indexValue = livePrice * 800;
+  const indexValue = livePrice * Number(binaryMarket?.scale || 800);
+  const priceStep = Number(binaryMarket?.priceStep || 2);
   const safeStake = Math.max(0, Number(stake) || 0);
   const rateOne = payoutRate(tradeType, actions[0], prediction);
   const rateTwo = payoutRate(tradeType, actions[1], prediction);
@@ -3312,27 +3456,43 @@ function TradePage({
 
       <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
         <div className="proChartTitle finalBinaryChartTitle">
-          <div>
-            <h2>Volatility 100 (1s) Index</h2>
-            <p>{indexValue.toFixed(2)} · LIVE</p>
-          </div>
+          <label className="binaryMarketPicker">
+            <span className="binaryMarketBadge">{binaryMarket?.short || "V100 1s"}</span>
+            <span className="binaryMarketSelectText">
+              <select
+                value={binaryMarketId}
+                onChange={(event) => setBinaryMarketId(event.target.value)}
+                disabled={Boolean(activeBinaryTrade)}
+                aria-label="Choose volatility index"
+              >
+                {volatilityOptions.map((market) => (
+                  <option key={market.id} value={market.id}>
+                    {market.label}
+                  </option>
+                ))}
+              </select>
+              <small>{binaryMarket?.description || "Synthetic volatility market"}</small>
+            </span>
+          </label>
 
-          <strong>▲ 12.42 (1.45%)</strong>
+          <strong>{indexValue.toFixed(2)} · LIVE</strong>
           <button type="button">{duration} ticks⌄</button>
           <button type="button">⛶</button>
         </div>
 
         <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale">
-            <span>{(indexValue + 1.37).toFixed(2)}</span>
-            <span>{(indexValue - 0.63).toFixed(2)}</span>
-            <span>{(indexValue - 2.63).toFixed(2)}</span>
-            <span>{(indexValue - 4.63).toFixed(2)}</span>
-            <span>{(indexValue - 6.63).toFixed(2)}</span>
+            <span>{(indexValue + priceStep * 2).toFixed(2)}</span>
+            <span>{(indexValue + priceStep).toFixed(2)}</span>
+            <span>{indexValue.toFixed(2)}</span>
+            <span>{(indexValue - priceStep).toFixed(2)}</span>
+            <span>{(indexValue - priceStep * 2).toFixed(2)}</span>
           </div>
 
           <div className="proChartCanvas">
-            <LineChart data={prices.map((value) => value * 800)} />
+            <LineChart
+              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+            />
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
 
@@ -3359,7 +3519,7 @@ function TradePage({
         <div className="finalDigitBoard">
           <div className="finalDigitBoardHead">
             <span>Last digit statistics</span>
-            <small>Live · smooth 2 second movement</small>
+            <small>{binaryMarket?.short || "V100 1s"} · smooth 2.2 second cursor</small>
           </div>
 
           <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
@@ -3369,6 +3529,15 @@ function TradePage({
               const isPicked = digit === prediction;
               const isCurrent = digit === lastDigit;
               const isResultDigit = binaryResultFlash?.digit === digit;
+              const canShowWinningTargets =
+                activeBinaryTrade &&
+                ["Even/Odd", "Matches/Differs", "Over/Under", "Touch/No Touch"].includes(
+                  activeBinaryTrade.type
+                );
+              const isWinningTarget = Boolean(
+                canShowWinningTargets &&
+                  digitWinsTrade(activeBinaryTrade, digit, livePrice)
+              );
 
               return (
                 <button
@@ -3382,6 +3551,7 @@ function TradePage({
                     isLowest ? "lowestDigit" : "",
                     isPicked ? "picked" : "",
                     isCurrent ? "currentDigit" : "",
+                    isWinningTarget ? "winningTarget" : "",
                     isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
                     isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
                   ]
