@@ -16,7 +16,7 @@ const USD_RATE = Number(process.env.USD_RATE || 130);
 const MIN_DEPOSIT_USD = Number(process.env.MIN_DEPOSIT_USD || 1);
 const MIN_WITHDRAW_USD = Number(process.env.MIN_WITHDRAW_USD || 5);
 const MAX_WITHDRAW_USD = Number(process.env.MAX_WITHDRAW_USD || 150000);
-const TRADE_TICK_MS = 2200;
+const TRADE_TICK_MS = 2400;
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
@@ -29,12 +29,60 @@ const FRONTEND_URLS = String(process.env.FRONTEND_URL || "http://localhost:5173"
   .filter(Boolean);
 const PUBLIC_KEY = String(process.env.INTASEND_PUBLIC_KEY || "").trim();
 const SECRET_KEY = String(process.env.INTASEND_SECRET_KEY || "").trim();
+const TWELVE_DATA_API_KEY = String(
+  process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
+).trim();
 
 const PASSWORD_ITERATIONS = 120000;
 const PASSWORD_KEY_LENGTH = 32;
 const PASSWORD_DIGEST = "sha256";
 const PAID_STATUSES = new Set(["COMPLETE", "COMPLETED", "PAID", "SUCCESS", "SUCCESSFUL"]);
 const FAILED_STATUSES = new Set(["FAILED", "FAILURE", "CANCELLED", "CANCELED", "REVERSED", "EXPIRED"]);
+
+const FOREX_MARKETS = {
+  "XAU/USD": {
+    label: "Gold",
+    apiSymbol: "XAU/USD",
+    decimals: 2,
+    spread: 0.2,
+    contractSize: 100,
+    alwaysOpen: false,
+  },
+  "BTC/USD": {
+    label: "Bitcoin",
+    apiSymbol: "BTC/USD",
+    decimals: 2,
+    spread: 10,
+    contractSize: 1,
+    alwaysOpen: true,
+  },
+  "EUR/USD": {
+    label: "Euro / US Dollar",
+    apiSymbol: "EUR/USD",
+    decimals: 5,
+    spread: 0.00012,
+    contractSize: 100000,
+    alwaysOpen: false,
+  },
+  "GBP/USD": {
+    label: "British Pound / US Dollar",
+    apiSymbol: "GBP/USD",
+    decimals: 5,
+    spread: 0.00015,
+    contractSize: 100000,
+    alwaysOpen: false,
+  },
+  "USD/JPY": {
+    label: "US Dollar / Japanese Yen",
+    apiSymbol: "USD/JPY",
+    decimals: 3,
+    spread: 0.015,
+    contractSize: 100000,
+    alwaysOpen: false,
+  },
+};
+
+const marketQuoteCache = new Map();
 
 const app = express();
 app.disable("x-powered-by");
@@ -145,6 +193,8 @@ async function ensureIndexes() {
     db.collection("transactions").createIndex({ email: 1, createdAt: -1 }),
     db.collection("trades").createIndex({ id: 1 }, { unique: true }),
     db.collection("trades").createIndex({ email: 1, createdAt: -1 }),
+    db.collection("forexPositions").createIndex({ id: 1 }, { unique: true }),
+    db.collection("forexPositions").createIndex({ email: 1, status: 1, createdAt: -1 }),
     db.collection("adminAudit").createIndex({ createdAt: -1 }),
   ]);
 
@@ -324,6 +374,8 @@ function publicTrade(trade) {
     payout: roundMoney(trade.payout),
     entryPrice: Number(trade.entryPrice || 0),
     market: trade.market || "Volatility 100 (1s) Index",
+    source: trade.source || "manual",
+    strategy: trade.strategy || "",
     resultDigit: Number.isInteger(trade.resultDigit) ? trade.resultDigit : null,
     won: typeof trade.won === "boolean" ? trade.won : null,
     profit: Number.isFinite(Number(trade.profit)) ? roundMoney(trade.profit) : null,
@@ -331,6 +383,148 @@ function publicTrade(trade) {
     createdAt: trade.createdAt,
     settleAt: trade.settleAt,
     settledAt: trade.settledAt || "",
+  };
+}
+
+function normalizeMarketSymbol(value) {
+  const symbol = cleanText(value, 20).toUpperCase();
+  if (!FOREX_MARKETS[symbol]) throw httpError(400, "Choose a supported forex or crypto market.");
+  return symbol;
+}
+
+function marketIsOpen(market, date = new Date()) {
+  if (market.alwaysOpen) return true;
+  const day = date.getUTCDay();
+  const hour = date.getUTCHours();
+  if (day === 6) return false;
+  if (day === 5 && hour >= 22) return false;
+  if (day === 0 && hour < 22) return false;
+  return true;
+}
+
+async function fetchTrustedMarketQuote(symbol, options = {}) {
+  const market = FOREX_MARKETS[symbol];
+  if (!market) throw httpError(400, "Unsupported market.");
+
+  const cached = marketQuoteCache.get(symbol);
+  if (cached && Date.now() - cached.cachedAt < 8000) return cached;
+
+  if (symbol === "BTC/USD") {
+    const response = await fetch("https://api.coinbase.com/v2/prices/BTC-USD/spot", {
+      headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.0" },
+      signal: AbortSignal.timeout(10000),
+    });
+    const data = await response.json();
+    const price = Number(data?.data?.amount);
+    if (!response.ok || !Number.isFinite(price) || price <= 0) {
+      throw httpError(502, "Bitcoin live price is temporarily unavailable.");
+    }
+    const quote = {
+      symbol,
+      price,
+      previousClose: price,
+      open: price,
+      high: price,
+      low: price,
+      change: 0,
+      percentChange: 0,
+      isMarketOpen: true,
+      is_market_open: true,
+      datetime: nowIso(),
+      source: "coinbase",
+      cachedAt: Date.now(),
+    };
+    marketQuoteCache.set(symbol, quote);
+    return quote;
+  }
+
+  if (TWELVE_DATA_API_KEY) {
+    const url = new URL("https://api.twelvedata.com/quote");
+    url.searchParams.set("symbol", market.apiSymbol);
+    url.searchParams.set("apikey", TWELVE_DATA_API_KEY);
+    const response = await fetch(url, {
+      headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.0" },
+      signal: AbortSignal.timeout(10000),
+    });
+    const data = await response.json();
+    const price = Number(data?.close ?? data?.price);
+    if (!response.ok || data?.status === "error" || data?.code || !Number.isFinite(price) || price <= 0) {
+      throw httpError(502, data?.message || `${market.label} live price is temporarily unavailable.`);
+    }
+    const previousClose = Number(data?.previous_close ?? data?.open ?? price);
+    const change = Number(data?.change ?? price - previousClose);
+    const percentChange = Number(
+      data?.percent_change ?? (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
+    );
+    const isOpen = typeof data?.is_market_open === "boolean"
+      ? data.is_market_open
+      : marketIsOpen(market);
+    const quote = {
+      symbol,
+      price,
+      previousClose,
+      open: Number(data?.open || price),
+      high: Number(data?.high || price),
+      low: Number(data?.low || price),
+      change: Number.isFinite(change) ? change : 0,
+      percentChange: Number.isFinite(percentChange) ? percentChange : 0,
+      isMarketOpen: isOpen,
+      is_market_open: isOpen,
+      datetime: data?.datetime || nowIso(),
+      source: "twelve-data",
+      cachedAt: Date.now(),
+    };
+    marketQuoteCache.set(symbol, quote);
+    return quote;
+  }
+
+  const fallback = Number(options.clientPrice || 0);
+  if (options.allowClientFallback && Number.isFinite(fallback) && fallback > 0) {
+    return {
+      symbol,
+      price: fallback,
+      previousClose: fallback,
+      open: fallback,
+      high: fallback,
+      low: fallback,
+      change: 0,
+      percentChange: 0,
+      isMarketOpen: marketIsOpen(market),
+      is_market_open: marketIsOpen(market),
+      datetime: nowIso(),
+      source: "demo-client-quote",
+      cachedAt: Date.now(),
+    };
+  }
+
+  throw httpError(
+    503,
+    `${market.label} live server pricing requires TWELVE_DATA_API_KEY on the backend.`
+  );
+}
+
+function publicForexPosition(position) {
+  return {
+    id: position.id,
+    account: position.account,
+    instrument: position.instrument,
+    marketLabel: position.marketLabel,
+    side: position.side,
+    volume: Number(position.volume),
+    leverage: position.leverage,
+    leverageValue: Number(position.leverageValue),
+    margin: roundMoney(position.margin),
+    contractSize: Number(position.contractSize),
+    openPrice: Number(position.openPrice),
+    currentPrice: Number(position.currentPrice ?? position.openPrice),
+    stopLoss: Number(position.stopLoss),
+    takeProfit: Number(position.takeProfit),
+    pl: roundMoney(position.pl || 0),
+    plPercent: Number(position.plPercent || 0),
+    status: position.status,
+    openedAt: position.openedAt || position.createdAt,
+    createdAt: position.createdAt,
+    closedAt: position.closedAt || "",
   };
 }
 
@@ -919,6 +1113,203 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
   }
 });
 
+app.get("/api/markets/quote", async (req, res, next) => {
+  try {
+    const symbol = normalizeMarketSymbol(req.query.symbol);
+    const quote = await fetchTrustedMarketQuote(symbol);
+    res.set("Cache-Control", "public, max-age=5, stale-while-revalidate=10");
+    res.json({ ok: true, quote });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/forex/positions", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const positions = await db.collection("forexPositions")
+      .find({ email: req.user.email, status: "OPEN" })
+      .sort({ createdAt: -1 })
+      .limit(40)
+      .toArray();
+    res.json({ ok: true, positions: positions.map(publicForexPosition) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/forex/open", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const account = String(req.body?.account || "demo").toLowerCase() === "real" ? "real" : "demo";
+    const instrument = normalizeMarketSymbol(req.body?.symbol);
+    const market = FOREX_MARKETS[instrument];
+    const side = cleanText(req.body?.side, 10);
+    const volume = Number(req.body?.volume);
+    const leverageText = cleanText(req.body?.leverage || "1:100", 20);
+    const leverageValue = Number(leverageText.split(":")[1] || 100);
+    const stopLoss = Number(req.body?.stopLoss);
+    const takeProfit = Number(req.body?.takeProfit);
+    const clientPrice = Number(req.body?.marketPrice || 0);
+
+    if (!["Buy", "Sell"].includes(side)) throw httpError(400, "Choose Buy or Sell.");
+    if (!Number.isFinite(volume) || volume < 0.01 || volume > 10) throw httpError(400, "Volume must be between 0.01 and 10 lots.");
+    if (!Number.isFinite(leverageValue) || leverageValue < 10 || leverageValue > 1000) throw httpError(400, "Leverage must be between 1:10 and 1:1000.");
+
+    const quote = await fetchTrustedMarketQuote(instrument, {
+      allowClientFallback: account === "demo",
+      clientPrice,
+    });
+    if (!quote.isMarketOpen) throw httpError(400, `${market.label} is currently closed.`);
+
+    const halfSpread = Number(market.spread || 0) / 2;
+    const openPrice = Number((side === "Buy" ? quote.price + halfSpread : quote.price - halfSpread).toFixed(market.decimals));
+    if (!Number.isFinite(stopLoss) || !Number.isFinite(takeProfit) || stopLoss <= 0 || takeProfit <= 0) {
+      throw httpError(400, "Enter valid Stop Loss and Take Profit prices.");
+    }
+    const protectionOk = side === "Buy"
+      ? stopLoss < openPrice && takeProfit > openPrice
+      : stopLoss > openPrice && takeProfit < openPrice;
+    if (!protectionOk) throw httpError(400, "Stop Loss and Take Profit are on the wrong side of the market price.");
+
+    const openPositions = await db.collection("forexPositions")
+      .find({ email: req.user.email, account, status: "OPEN" })
+      .toArray();
+    if (openPositions.length >= 10) throw httpError(400, "Close an open position before placing another order.");
+
+    const margin = roundMoney((openPrice * market.contractSize * volume) / leverageValue);
+    const usedMargin = roundMoney(openPositions.reduce((sum, position) => sum + Number(position.margin || 0), 0));
+    const balanceField = account === "real" ? "realBalance" : "demoBalance";
+    const currentBalance = roundMoney(req.user[balanceField]);
+    if (margin > currentBalance - usedMargin) {
+      throw httpError(400, `Insufficient free margin. Required ${margin.toFixed(2)} USD.`);
+    }
+
+    const id = makeId("fx");
+    const createdAt = nowIso();
+    const position = {
+      id,
+      email: req.user.email,
+      account,
+      instrument,
+      marketLabel: market.label,
+      side,
+      volume,
+      leverage: leverageText,
+      leverageValue,
+      margin,
+      contractSize: market.contractSize,
+      openPrice,
+      currentPrice: quote.price,
+      stopLoss,
+      takeProfit,
+      pl: 0,
+      plPercent: 0,
+      status: "OPEN",
+      openedAt: createdAt,
+      createdAt,
+      updatedAt: createdAt,
+      quoteSource: quote.source,
+    };
+    await db.collection("forexPositions").insertOne(position);
+    await db.collection("transactions").insertOne({
+      id: makeId("tx"),
+      email: req.user.email,
+      type: "forex-open",
+      method: "forex",
+      account,
+      amount: 0,
+      status: "OPEN",
+      reference: id,
+      details: `${side} ${instrument} · ${volume} lot · margin ${margin.toFixed(2)} USD`,
+      createdAt,
+    });
+
+    const currentUser = await db.collection("users").findOne({ _id: req.user._id });
+    res.status(201).json({
+      ok: true,
+      position: publicForexPosition(position),
+      user: publicUser(currentUser),
+      message: `${side} position opened.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/forex/:id/close", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const id = cleanText(req.params.id, 100);
+    const position = await db.collection("forexPositions").findOne({ id, email: req.user.email });
+    if (!position) throw httpError(404, "Forex position was not found.");
+
+    if (position.status === "CLOSED") {
+      const currentUser = await db.collection("users").findOne({ _id: req.user._id });
+      return res.json({ ok: true, position: publicForexPosition(position), user: publicUser(currentUser), message: "Position already closed." });
+    }
+
+    const quote = await fetchTrustedMarketQuote(position.instrument, {
+      allowClientFallback: position.account === "demo",
+      clientPrice: Number(req.body?.marketPrice || 0),
+    });
+    const closePrice = Number(quote.price.toFixed(FOREX_MARKETS[position.instrument].decimals));
+    const rawPl = position.side === "Buy"
+      ? (closePrice - position.openPrice) * position.contractSize * position.volume
+      : (position.openPrice - closePrice) * position.contractSize * position.volume;
+    const balanceField = position.account === "real" ? "realBalance" : "demoBalance";
+    const latestUser = await db.collection("users").findOne({ _id: req.user._id });
+    const availableBalance = roundMoney(latestUser?.[balanceField]);
+    const pl = roundMoney(Math.max(-availableBalance, rawPl));
+    const closedAt = nowIso();
+
+    const claimed = await db.collection("forexPositions").findOneAndUpdate(
+      { _id: position._id, status: "OPEN" },
+      { $set: { status: "CLOSED", currentPrice: closePrice, closePrice, pl, closedAt, updatedAt: closedAt, quoteSource: quote.source } },
+      { returnDocument: "after" }
+    );
+    const closed = claimed?.value || claimed;
+    if (!closed) throw httpError(409, "Position is already being closed.");
+
+    if (pl !== 0) {
+      if (pl > 0) {
+        await db.collection("users").updateOne(
+          { _id: req.user._id },
+          { $inc: { [balanceField]: pl }, $set: { updatedAt: closedAt } }
+        );
+      } else {
+        await db.collection("users").updateOne(
+          { _id: req.user._id },
+          [{ $set: { [balanceField]: { $max: [0, { $add: [`$${balanceField}`, pl] }] }, updatedAt: closedAt } }]
+        );
+      }
+    }
+
+    await db.collection("transactions").insertOne({
+      id: makeId("tx"),
+      email: req.user.email,
+      type: "forex-close",
+      method: "forex",
+      account: position.account,
+      amount: pl,
+      status: "CLOSED",
+      reference: position.id,
+      details: `${position.side} ${position.instrument} · ${position.volume} lot`,
+      createdAt: closedAt,
+    });
+
+    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+    res.json({
+      ok: true,
+      position: publicForexPosition(closed),
+      user: publicUser(updatedUser),
+      message: "Forex position closed.",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/trades/open", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();
@@ -930,6 +1321,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const stake = roundMoney(req.body?.stake);
     const entryPrice = Number(req.body?.entryPrice || 0);
     const market = cleanText(req.body?.market || "Volatility 100 (1s) Index", 100);
+    const source = String(req.body?.source || "manual").toLowerCase() === "bot" ? "bot" : "manual";
+    const strategy = cleanText(req.body?.strategy || "", 100);
 
     if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
     if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
@@ -962,6 +1355,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       payout: roundMoney(stake * multiplier),
       entryPrice,
       market,
+      source,
+      strategy,
       status: "RUNNING",
       createdAt,
       settleAt,
@@ -1065,14 +1460,14 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
       id: makeId("tx"),
       email: req.user.email,
       type: won ? "trade-profit" : "trade-loss",
-      method: "manual",
+      method: claimed.source === "bot" ? "bot" : "manual",
       account: claimed.account,
       amount: profit,
       stake: roundMoney(claimed.stake),
       payout: roundMoney(claimed.payout),
       status: won ? "WON" : "LOST",
       reference: claimed.id,
-      details: `${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
+      details: `${claimed.strategy ? `${claimed.strategy} · ` : ""}${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
       createdAt: settledAt,
     });
 

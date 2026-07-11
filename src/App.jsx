@@ -7,9 +7,8 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-full-mobile-bot-setup-cursor-2026-07-12";
-const DIGIT_TICK_MS = 2200;
-const COINBASE_BTC_SPOT_URL = "https://api.coinbase.com/v2/prices/BTC-USD/spot";
+const FRONTEND_BUILD = "metabinary-final-public-trading-2026-07-12";
+const DIGIT_TICK_MS = 2400;
 
 const VOLATILITY_OPTIONS = [
   {
@@ -141,6 +140,7 @@ const STORE = {
   referral: "mb_referral_profile",
   notifications: "mb_notifications",
   binaryMarket: "mb_binary_market",
+  botConfig: "mb_bot_config",
 };
 
 const MARKET_API_KEY =
@@ -327,6 +327,57 @@ const BOT_TEMPLATES = [
     trades: 20,
   },
 ];
+
+const TRADING_PAGES = new Set([
+  "home",
+  "forex",
+  "openTrades",
+  "trade",
+  "bots",
+  "botSetup",
+  "botLive",
+  "profile",
+  "settings",
+  "history",
+  "reports",
+]);
+
+function initialTradingPage() {
+  if (typeof window === "undefined") return "home";
+  const page = window.location.hash.replace(/^#/, "");
+  return TRADING_PAGES.has(page) ? page : "home";
+}
+
+function defaultBotAction(type) {
+  if (type === "Even/Odd") return "Even";
+  if (type === "Matches/Differs") return "Differs";
+  if (type === "Over/Under") return "Over";
+  if (type === "Rise/Fall") return "Rise";
+  return "No Touch";
+}
+
+function createBotConfig(bot = BOT_TEMPLATES[0]) {
+  const matchedMarket =
+    VOLATILITY_OPTIONS.find((market) => market.label === bot?.market) ||
+    VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
+
+  return {
+    botId: bot?.id || "custom-bot",
+    name: bot?.name || "MetaBinary Bot",
+    type: bot?.type || "Even/Odd",
+    action: defaultBotAction(bot?.type || "Even/Odd"),
+    marketId: matchedMarket.id,
+    prediction: 2,
+    stake: Number(bot?.stake || 1),
+    ticks: Math.min(10, Math.max(1, Number(bot?.duration || 5))),
+    martingaleEnabled: true,
+    martingaleMultiplier: 2,
+    martingaleSteps: 3,
+    takeProfit: 50,
+    stopLoss: 30,
+  };
+}
+
 
 function readStore(key, fallback) {
   try {
@@ -526,48 +577,44 @@ function normalizeMarketQuote(raw, market) {
 }
 
 async function fetchMarketQuote(market, signal) {
-  if (market?.symbol === "BTC/USD") {
-    const response = await fetch(COINBASE_BTC_SPOT_URL, {
-      signal,
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-    });
-    const data = await response.json();
-    const amount = Number(data?.data?.amount);
+  let backendError = null;
 
-    if (!response.ok || !Number.isFinite(amount) || amount <= 0) {
-      throw new Error("Unable to load the live Bitcoin spot price.");
+  if (API_URL) {
+    try {
+      const url = new URL(`${API_URL}/api/markets/quote`);
+      url.searchParams.set("symbol", market.symbol);
+      const response = await fetch(url, { signal, cache: "no-store" });
+      const data = await readApiResponse(response);
+      if (!response.ok || data?.ok === false) {
+        throw new Error(data?.message || "Unable to load the server market quote.");
+      }
+      return normalizeMarketQuote(data.quote || data, market);
+    } catch (error) {
+      if (error?.name === "AbortError") throw error;
+      backendError = error;
+    }
+  }
+
+  if (MARKET_API_KEY) {
+    const url = new URL("https://api.twelvedata.com/quote");
+    url.searchParams.set("symbol", market.apiSymbol);
+    url.searchParams.set("apikey", MARKET_API_KEY);
+
+    const response = await fetch(url, { signal });
+    const data = await response.json();
+
+    if (!response.ok || data?.status === "error" || data?.code) {
+      throw new Error(data?.message || "Unable to load live market quote.");
     }
 
-    return normalizeMarketQuote(
-      {
-        price: amount,
-        previous_close: amount,
-        is_market_open: true,
-        datetime: new Date().toISOString(),
-      },
-      market
-    );
+    return normalizeMarketQuote(data, market);
   }
 
-  if (!MARKET_API_KEY) {
-    throw new Error(
-      "Add VITE_TWELVE_DATA_API_KEY to enable live Forex and metals order prices."
-    );
-  }
-
-  const url = new URL("https://api.twelvedata.com/quote");
-  url.searchParams.set("symbol", market.apiSymbol);
-  url.searchParams.set("apikey", MARKET_API_KEY);
-
-  const response = await fetch(url, { signal, cache: "no-store" });
-  const data = await response.json();
-
-  if (!response.ok || data?.status === "error" || data?.code) {
-    throw new Error(data?.message || "Unable to load live market quote.");
-  }
-
-  return normalizeMarketQuote(data, market);
+  throw backendError || new Error(
+    market.symbol === "BTC/USD"
+      ? "Bitcoin live price is temporarily unavailable."
+      : "Add TWELVE_DATA_API_KEY to the backend for live forex and metals prices."
+  );
 }
 
 async function fetchMarketCandles(market, timeframe, signal) {
@@ -615,9 +662,7 @@ function TradingApp() {
   const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
   const [authMode, setAuthMode] = useState("login");
 
-  const [activePage, setActivePage] = useState("home");
-  const historyReadyRef = useRef(false);
-  const popNavigationRef = useRef(false);
+  const [activePage, setActivePage] = useState(initialTradingPage);
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
   const [balances, setBalances] = useState(() =>
     readStore(STORE.balances, { demo: 10000, real: 0 })
@@ -658,23 +703,23 @@ function TradingApp() {
   const resultFlashTimerRef = useRef(null);
 
   const [selectedBot, setSelectedBot] = useState(null);
+  const [botConfig, setBotConfig] = useState(() =>
+    readStore(STORE.botConfig, createBotConfig(BOT_TEMPLATES[0]))
+  );
   const [botRunning, setBotRunning] = useState(false);
-  const [botTab, setBotTab] = useState("summary");
+  const [botTab, setBotTab] = useState("transactions");
   const [botTrades, setBotTrades] = useState([]);
-  const [botRuntime, setBotRuntime] = useState({
-    lossStreak: 0,
-    net: 0,
-    runs: 0,
-    currentStake: 0,
-    stoppedBy: "",
-  });
-  const botRuntimeRef = useRef({
-    lossStreak: 0,
-    net: 0,
-    runs: 0,
-    currentStake: 0,
-    stoppedBy: "",
-  });
+  const [botSessionPnl, setBotSessionPnl] = useState(0);
+  const [botMartingaleStep, setBotMartingaleStep] = useState(0);
+  const botSessionPnlRef = useRef(0);
+  const botMartingaleStepRef = useRef(0);
+  const botBusyRef = useRef(false);
+  const botRunningRef = useRef(false);
+  const balancesRef = useRef(balances);
+  const accountRef = useRef(account);
+  const historyPopRef = useRef(false);
+  const historyReadyRef = useRef(false);
+  const closingForexIdsRef = useRef(new Set());
   const [referral, setReferral] = useState(() => readStore(STORE.referral, null));
 
   const livePrice = prices[prices.length - 1] || 1.08564;
@@ -702,8 +747,6 @@ function TradingApp() {
   );
   const quotedMarketSymbolsKey = quotedMarketSymbols.join("|");
   const balance = balances[account] || 0;
-  const balancesRef = useRef(balances);
-  balancesRef.current = balances;
 
   useEffect(() => saveStore(STORE.user, user), [user]);
   useEffect(() => saveStore(STORE.account, account), [account]);
@@ -714,7 +757,61 @@ function TradingApp() {
   useEffect(() => saveStore(STORE.referral, referral), [referral]);
   useEffect(() => saveStore(STORE.notifications, notifications), [notifications]);
   useEffect(() => saveStore(STORE.binaryMarket, binaryMarketId), [binaryMarketId]);
+  useEffect(() => saveStore(STORE.botConfig, botConfig), [botConfig]);
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
+  useEffect(() => {
+    balancesRef.current = balances;
+  }, [balances]);
+  useEffect(() => {
+    accountRef.current = account;
+  }, [account]);
+  useEffect(() => {
+    botRunningRef.current = botRunning;
+  }, [botRunning]);
+
+  useEffect(() => {
+    const onPopState = (event) => {
+      const statePage = event.state?.mbPage;
+      const hashPage = window.location.hash.replace(/^#/, "");
+      const nextPage = TRADING_PAGES.has(statePage)
+        ? statePage
+        : TRADING_PAGES.has(hashPage)
+        ? hashPage
+        : "home";
+      historyPopRef.current = true;
+      setActivePage(nextPage);
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  useEffect(() => {
+    const url = `${window.location.pathname}${window.location.search}#${activePage}`;
+
+    if (!historyReadyRef.current) {
+      window.history.replaceState(
+        { ...(window.history.state || {}), mbPage: activePage },
+        "",
+        url
+      );
+      historyReadyRef.current = true;
+      return;
+    }
+
+    if (historyPopRef.current) {
+      historyPopRef.current = false;
+      return;
+    }
+
+    if (window.history.state?.mbPage !== activePage) {
+      window.history.pushState(
+        { ...(window.history.state || {}), mbPage: activePage },
+        "",
+        url
+      );
+    }
+  }, [activePage]);
 
   useEffect(() => {
     setPrices(makePrices(activeBinaryMarket.start));
@@ -800,6 +897,24 @@ function TradingApp() {
   }, [marketFeed]);
 
   useEffect(() => {
+    positions.forEach((position) => {
+      const quote = Number(marketFeed[position.instrument]?.price);
+      if (!Number.isFinite(quote) || quote <= 0) return;
+
+      const hitStop = position.side === "Buy"
+        ? quote <= Number(position.stopLoss)
+        : quote >= Number(position.stopLoss);
+      const hitTarget = position.side === "Buy"
+        ? quote >= Number(position.takeProfit)
+        : quote <= Number(position.takeProfit);
+
+      if ((hitStop || hitTarget) && !closingForexIdsRef.current.has(position.id)) {
+        void closePosition(position.id);
+      }
+    });
+  }, [marketFeed]);
+
+  useEffect(() => {
     const controller = new AbortController();
     let cancelled = false;
 
@@ -833,13 +948,8 @@ function TradingApp() {
             next[symbol] = {
               ...previous,
               isOpen: parseMarketOpen(previous.isOpen, likelyMarketOpen(market)),
-              status: previous.price
-                ? "cached"
-                : !MARKET_API_KEY && symbol !== "BTC/USD"
-                ? "chart-only"
-                : "error",
-              error:
-                result.reason?.message || "Live quote temporarily unavailable.",
+              status: previous.price ? "cached" : "error",
+              error: result.reason?.message || "Live quote temporarily unavailable.",
             };
           }
         });
@@ -914,59 +1024,44 @@ function TradingApp() {
     if (!user?.email) return;
 
     refreshUser();
+    refreshForexPositions();
 
-    const timer = setInterval(refreshUser, 3000);
-    return () => clearInterval(timer);
+    const userTimer = setInterval(refreshUser, 3000);
+    const forexTimer = setInterval(refreshForexPositions, 12000);
+    return () => {
+      clearInterval(userTimer);
+      clearInterval(forexTimer);
+    };
   }, [user?.email, authToken]);
 
   useEffect(() => {
-    if (!botRunning || !selectedBot) return undefined;
+    if (!botRunning || !selectedBot || !authToken) return undefined;
 
-    const intervalMs = Math.max(
-      2500,
-      Number(selectedBot.duration || 5) * 1000 + 900
-    );
+    let cancelled = false;
+    let timer = 0;
 
-    const timer = window.setInterval(() => {
-      runBotTrade(selectedBot);
-    }, intervalMs);
+    const cycle = async () => {
+      if (cancelled || !botRunningRef.current || botBusyRef.current) return;
+      botBusyRef.current = true;
 
-    return () => window.clearInterval(timer);
-  }, [botRunning, selectedBot, account]);
+      try {
+        await runBotTrade(selectedBot);
+      } finally {
+        botBusyRef.current = false;
+      }
 
-  useEffect(() => {
-    const onPopState = (event) => {
-      popNavigationRef.current = true;
-      setActivePage(event.state?.mbPage || "home");
+      if (!cancelled && botRunningRef.current) {
+        timer = window.setTimeout(cycle, 900);
+      }
     };
 
-    window.history.replaceState(
-      { ...(window.history.state || {}), mbPage: activePage },
-      "",
-      window.location.href
-    );
-    historyReadyRef.current = true;
-    window.addEventListener("popstate", onPopState);
+    void cycle();
 
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
-
-  useEffect(() => {
-    if (!historyReadyRef.current) return;
-
-    if (popNavigationRef.current) {
-      popNavigationRef.current = false;
-      return;
-    }
-
-    if (window.history.state?.mbPage === activePage) return;
-
-    window.history.pushState(
-      { ...(window.history.state || {}), mbPage: activePage },
-      "",
-      window.location.href
-    );
-  }, [activePage]);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [botRunning, selectedBot?.id, selectedBot?.configuredAt, authToken]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -1006,6 +1101,25 @@ function TradingApp() {
       }));
     } catch {
       return;
+    }
+  }
+
+
+  async function refreshForexPositions() {
+    if (!authToken || !user?.email || !API_URL) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/forex/positions`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) return;
+      if (Array.isArray(result.positions)) {
+        setPositions(result.positions);
+      }
+    } catch (error) {
+      console.warn("Unable to refresh forex positions:", error);
     }
   }
 
@@ -1191,7 +1305,7 @@ function TradingApp() {
     setAuthMode("login");
   }
 
-  function placeForexOrder({
+  async function placeForexOrder({
     side,
     symbol,
     volume,
@@ -1201,189 +1315,172 @@ function TradingApp() {
     marketPrice: submittedMarketPrice,
     marketOpen,
   }) {
-    if (account === "real") {
-      notify(
-        "loss",
-        "Real Forex execution not connected",
-        "Connect a licensed broker or MT5 execution bridge before accepting real Forex orders."
-      );
-      return false;
-    }
-
     const market = MARKET_BY_SYMBOL[symbol] || MARKET_BY_SYMBOL["EUR/USD"];
     const lots = Number(volume);
-    const leverageValue = Number(String(leverage).split(":")[1] || 100);
     const quote = Number(submittedMarketPrice || marketFeed[symbol]?.price || 0);
 
     if (!Number.isFinite(quote) || quote <= 0) {
-      notify(
-        "loss",
-        "Live price unavailable",
-        "Connect the live quote feed before placing a market order."
-      );
+      notify("loss", "Live price unavailable", "Wait for the live market quote before placing an order.");
       return false;
     }
 
     if (marketOpen === false || marketFeed[symbol]?.isOpen === false) {
-      notify(
-        "loss",
-        "Market closed",
-        `${market.label} is closed. The live chart will stay visible, but orders are disabled.`
-      );
+      notify("loss", "Market closed", `${market.label} is closed. Orders are disabled until the market opens.`);
       return false;
     }
-
-    const halfSpread = Number(market.spread || 0) / 2;
-    const openPrice = Number(
-      (
-        side === "Buy"
-          ? quote + halfSpread
-          : quote - halfSpread
-      ).toFixed(market.decimals)
-    );
 
     if (!Number.isFinite(lots) || lots < 0.01 || lots > 10) {
       notify("loss", "Invalid volume", "Volume must be between 0.01 and 10 lots.");
       return false;
     }
 
-    const accountPositions = positions.filter((position) => position.account === account);
-    if (accountPositions.length >= 10) {
-      notify("loss", "Position limit", "Close an open position before placing another order.");
+    if (!authToken) {
+      notify("loss", "Login required", "Login again before placing a forex trade.");
       return false;
     }
 
-    const floatingPl = accountPositions.reduce(
-      (sum, position) => sum + Number(position.pl || 0),
-      0
-    );
-    const usedMargin = accountPositions.reduce(
-      (sum, position) => sum + Number(position.margin || 0),
-      0
-    );
-    const requiredMargin = Number(
-      (
-        (openPrice * Number(market.contractSize || 100000) * lots) /
-        leverageValue
-      ).toFixed(2)
-    );
-    const freeMargin = Number((balance + floatingPl - usedMargin).toFixed(2));
+    try {
+      const response = await fetch(`${API_URL}/api/forex/open`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({
+          account,
+          side,
+          symbol,
+          volume: lots,
+          leverage,
+          stopLoss: Number(stopLoss),
+          takeProfit: Number(takeProfit),
+          marketPrice: quote,
+        }),
+      });
 
-    if (requiredMargin > freeMargin) {
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Forex order could not be opened.");
+      }
+
+      if (result.position) {
+        setPositions((old) => [
+          result.position,
+          ...old.filter((position) => position.id !== result.position.id),
+        ].slice(0, 40));
+      }
+
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        setBalances((old) => ({
+          demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? old.real ?? 0),
+        }));
+      }
+
+      addTx({
+        type: `${side} ${symbol}`,
+        method: "Forex",
+        account,
+        amount: 0,
+        status: "Open",
+        details: `${lots} lot · Margin ${money(result.position?.margin || 0)} USD`,
+      });
+
+      notify(
+        "open",
+        `${side} order placed`,
+        `${market.label} · ${lots} lot · ${money(result.position?.margin || 0)} USD margin`
+      );
+      return true;
+    } catch (error) {
       notify(
         "loss",
-        "Insufficient margin",
-        `Required ${money(requiredMargin)} USD · Free ${money(Math.max(0, freeMargin))} USD`
+        "Forex order failed",
+        error instanceof Error ? error.message : "Unable to open the forex position.",
+        4500
       );
       return false;
     }
-
-    const sl = Number(stopLoss);
-    const tp = Number(takeProfit);
-
-    if (!Number.isFinite(sl) || !Number.isFinite(tp) || sl <= 0 || tp <= 0) {
-      notify("loss", "Invalid protection", "Enter valid Stop Loss and Take Profit prices.");
-      return false;
-    }
-
-    const validProtection =
-      side === "Buy" ? sl < openPrice && tp > openPrice : sl > openPrice && tp < openPrice;
-
-    if (!validProtection) {
-      notify(
-        "loss",
-        "Check SL and TP",
-        side === "Buy"
-          ? "For Buy: Stop Loss must be below price and Take Profit above price."
-          : "For Sell: Stop Loss must be above price and Take Profit below price."
-      );
-      return false;
-    }
-
-    const position = {
-      id: uid(),
-      account,
-      instrument: symbol,
-      marketLabel: market.label,
-      side,
-      volume: lots,
-      leverage,
-      margin: requiredMargin,
-      contractSize: market.contractSize,
-      openPrice,
-      currentPrice: quote,
-      stopLoss: sl,
-      takeProfit: tp,
-      pl: 0,
-      plPercent: 0,
-      openedAt: new Date().toLocaleTimeString(),
-    };
-
-    setPositions((old) => [position, ...old].slice(0, 40));
-
-    addTx({
-      type: `${side} ${symbol}`,
-      method: "Forex",
-      account,
-      amount: 0,
-      status: "Open",
-      details: `${position.volume} lot · Margin ${money(requiredMargin)} USD`,
-    });
-
-    notify(
-      "open",
-      `${side} order placed`,
-      `${market.label} · ${position.volume} lot · ${money(requiredMargin)} USD margin`
-    );
-
-    return true;
   }
 
   function updatePosition(id, patch) {
-    setPositions((old) => old.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+    setPositions((old) => old.map((position) => (position.id === id ? { ...position, ...patch } : position)));
   }
 
-  function closePosition(id) {
-    const item = positions.find((p) => p.id === id);
-    if (!item) return;
+  async function closePosition(id) {
+    const item = positions.find((position) => position.id === id);
+    if (!item || !authToken || closingForexIdsRef.current.has(id)) return false;
 
-    updateBalance(item.account, item.pl);
+    closingForexIdsRef.current.add(id);
+    const quote = Number(marketFeed[item.instrument]?.price || item.currentPrice || 0);
 
-    setClosedPositions((old) => [
-      {
-        ...item,
+    try {
+      const response = await fetch(`${API_URL}/api/forex/${encodeURIComponent(id)}/close`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({ marketPrice: quote }),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Position could not be closed.");
+      }
+
+      const closed = result.position || { ...item, pl: item.pl || 0 };
+      setClosedPositions((old) => [closed, ...old.filter((position) => position.id !== closed.id)].slice(0, 100));
+      setPositions((old) => old.filter((position) => position.id !== id));
+
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        setBalances((old) => ({
+          demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? old.real ?? 0),
+        }));
+      } else {
+        await refreshUser();
+      }
+
+      addTx({
+        type: `Closed ${item.side} ${item.instrument}`,
+        method: "Forex",
+        account: item.account,
+        amount: Number(closed.pl || 0),
         status: "Closed",
-        closedAt: new Date().toLocaleTimeString(),
-      },
-      ...old,
-    ]);
+        details: `${item.volume} lot`,
+      });
 
-    setPositions((old) => old.filter((p) => p.id !== id));
+      notify(
+        Number(closed.pl || 0) >= 0 ? "win" : "loss",
+        "Trade closed",
+        `${Number(closed.pl || 0) >= 0 ? "+" : ""}${money(closed.pl || 0)} USD`
+      );
+      return true;
+    } catch (error) {
+      notify(
+        "loss",
+        "Close failed",
+        error instanceof Error ? error.message : "Unable to close the position.",
+        4500
+      );
+      return false;
+    } finally {
+      closingForexIdsRef.current.delete(id);
+    }
+  }
 
-    addTx({
-      type: `Closed ${item.side} ${item.instrument}`,
-      method: "Forex",
-      account: item.account,
-      amount: item.pl,
-      status: "Closed",
-      details: `${item.volume} lot`,
+  async function closeAllPositions(filter = {}) {
+    const selected = positions.filter((position) => {
+      if (filter.account && position.account !== filter.account) return false;
+      if (filter.instrument && position.instrument !== filter.instrument) return false;
+      return true;
     });
 
-    notify(
-      item.pl >= 0 ? "win" : "loss",
-      "Trade closed",
-      `${item.pl >= 0 ? "+" : ""}${money(item.pl)} USD`
-    );
-  }
-
-  function closeAllPositions(filter = {}) {
-    positions
-      .filter((p) => {
-        if (filter.account && p.account !== filter.account) return false;
-        if (filter.instrument && p.instrument !== filter.instrument) return false;
-        return true;
-      })
-      .forEach((p) => closePosition(p.id));
+    for (const position of selected) {
+      // Close sequentially so every balance update is returned by the server in order.
+      // eslint-disable-next-line no-await-in-loop
+      await closePosition(position.id);
+    }
   }
 
   function actionsFor(type) {
@@ -1610,191 +1707,194 @@ function TradingApp() {
     }
   }
 
-  function haltBot(reason) {
-    const nextRuntime = {
-      ...botRuntimeRef.current,
-      stoppedBy: reason || "Stopped",
-    };
-    botRuntimeRef.current = nextRuntime;
-    setBotRuntime(nextRuntime);
+  function configureBot(bot) {
+    const nextConfig = createBotConfig(bot);
+    setSelectedBot({ ...bot, ...nextConfig });
+    setBotConfig(nextConfig);
     setBotRunning(false);
-  }
-
-  function runBotTrade(bot) {
-    if (!bot || !botRunning && botRuntimeRef.current.runs > 0) return;
-
-    if (account === "real") {
-      haltBot("Real bot execution is not connected");
-      notify(
-        "loss",
-        "Bot stopped",
-        "Connect a licensed server-side execution engine before running bots on a real account."
-      );
-      return;
-    }
-
-    const runtime = botRuntimeRef.current;
-    const baseStake = Math.max(0.3, Number(bot.stake || 1));
-    const martingaleEnabled = Boolean(bot.martingaleEnabled);
-    const maxSteps = Math.max(0, Math.min(6, Number(bot.martingaleSteps || 0)));
-    const multiplier = Math.max(1, Math.min(3, Number(bot.martingaleMultiplier || 2)));
-    const level = martingaleEnabled
-      ? Math.min(runtime.lossStreak || 0, maxSteps)
-      : 0;
-    const usedStake = Number((baseStake * multiplier ** level).toFixed(2));
-    const availableBalance = Number(balancesRef.current?.[account] || 0);
-
-    if (availableBalance < usedStake) {
-      haltBot("Low balance");
-      notify(
-        "loss",
-        "Bot stopped",
-        `The next stake is ${money(usedStake)} USD but the available balance is ${money(
-          availableBalance
-        )} USD.`
-      );
-      return;
-    }
-
-    updateBalance(account, -usedStake);
-
-    const won = Math.random() > 0.48;
-    const payoutRateValue = Number(bot.payoutRate || 1.82);
-    const payout = Number((usedStake * payoutRateValue).toFixed(2));
-    const profit = Number((payout - usedStake).toFixed(2));
-    const nextNet = Number(
-      (runtime.net + (won ? profit : -usedStake)).toFixed(2)
-    );
-    const nextLossStreak = won
-      ? 0
-      : Math.min((runtime.lossStreak || 0) + 1, maxSteps);
-    const nextRuns = Number(runtime.runs || 0) + 1;
-
-    const takeProfit = Math.max(0, Number(bot.takeProfit || 0));
-    const stopLoss = Math.max(0, Number(bot.stopLoss || 0));
-    const maxTrades = Math.max(1, Math.min(500, Number(bot.maxTrades || 50)));
-
-    let stoppedBy = "";
-    if (takeProfit > 0 && nextNet >= takeProfit) {
-      stoppedBy = "Take profit reached";
-    } else if (stopLoss > 0 && nextNet <= -stopLoss) {
-      stoppedBy = "Stop loss reached";
-    } else if (nextRuns >= maxTrades) {
-      stoppedBy = "Maximum trades reached";
-    }
-
-    const row = {
-      id: uid(),
-      botId: bot.id,
-      botName: bot.name,
-      type: bot.type,
-      action:
-        bot.type === "Rise/Fall"
-          ? "Rise"
-          : bot.type === "Over/Under"
-          ? "Over"
-          : bot.type === "Matches/Differs"
-          ? "Differs"
-          : "Even",
-      market: bot.market,
-      stake: usedStake,
-      baseStake,
-      martingaleLevel: level,
-      payout,
-      profit,
-      won,
-      status: won ? "WON" : "LOST",
-      time: new Date().toLocaleTimeString(),
-    };
-
-    setBotTrades((old) => [row, ...old].slice(0, 100));
-
-    if (won) updateBalance(account, payout);
-
-    addTx({
-      type: won ? "Bot profit" : "Bot loss",
-      method: "Bot",
-      account,
-      amount: won ? profit : -usedStake,
-      status: row.status,
-      details: `${bot.name} · ${bot.type} · step ${level}`,
-    });
-
-    const nextRuntime = {
-      lossStreak: nextLossStreak,
-      net: nextNet,
-      runs: nextRuns,
-      currentStake: usedStake,
-      stoppedBy,
-    };
-    botRuntimeRef.current = nextRuntime;
-    setBotRuntime(nextRuntime);
-
-    if (stoppedBy) {
-      setBotRunning(false);
-      notify(
-        stoppedBy === "Take profit reached" ? "win" : "open",
-        "Bot stopped",
-        `${stoppedBy} · Net ${nextNet >= 0 ? "+" : ""}${money(nextNet)} USD`
-      );
-    }
-  }
-
-  function openBotSetup(bot) {
-    setSelectedBot(bot);
-    setBotRunning(false);
-    setBotTab("summary");
+    setBotTab("transactions");
     setActivePage("botSetup");
   }
 
-  function startBot(bot) {
-    if (!bot) return;
+  async function runBotTrade(bot) {
+    if (!bot || !authToken || !botRunningRef.current) return null;
 
-    if (account === "real") {
-      notify(
-        "loss",
-        "Real bot execution not connected",
-        "Use Demo until a licensed server-side bot and broker execution connection is installed."
-      );
-      return;
+    const market =
+      VOLATILITY_OPTIONS.find((item) => item.id === bot.marketId) ||
+      VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
+    const step = botMartingaleStepRef.current;
+    const baseStake = Math.max(0.3, Number(bot.stake || 1));
+    const multiplier = bot.martingaleEnabled
+      ? Math.max(1, Math.min(3, Number(bot.martingaleMultiplier || 2)))
+      : 1;
+    const usedStake = Number((baseStake * Math.pow(multiplier, step)).toFixed(2));
+    const botAccount = accountRef.current;
+    const availableBalance = Number(balancesRef.current?.[botAccount] || 0);
+
+    if (availableBalance < usedStake) {
+      botRunningRef.current = false;
+      setBotRunning(false);
+      notify("loss", "Bot stopped", `Low ${botAccount} balance for ${money(usedStake)} USD stake.`);
+      return null;
     }
 
-    const cleanBot = {
-      ...bot,
-      stake: Math.max(0.3, Number(bot.stake || 1)),
-      duration: Math.max(1, Math.min(10, Number(bot.duration || 5))),
-      stopLoss: Math.max(0, Number(bot.stopLoss || 0)),
-      takeProfit: Math.max(0, Number(bot.takeProfit || 0)),
-      martingaleSteps: Math.max(
-        0,
-        Math.min(6, Number(bot.martingaleSteps || 0))
-      ),
-      martingaleMultiplier: Math.max(
-        1,
-        Math.min(3, Number(bot.martingaleMultiplier || 2))
-      ),
-      maxTrades: Math.max(1, Math.min(500, Number(bot.maxTrades || 50))),
+    try {
+      const openResponse = await fetch(`${API_URL}/api/trades/open`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({
+          account: botAccount,
+          type: bot.type,
+          action: bot.action,
+          stake: usedStake,
+          prediction: Number(bot.prediction || 0),
+          ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
+          entryPrice: livePriceRef.current,
+          market: market.label,
+          source: "bot",
+          strategy: bot.name,
+        }),
+      });
+      const opened = await readApiResponse(openResponse);
+      if (!openResponse.ok || opened.ok === false) {
+        throw new Error(opened.message || "Bot trade could not be opened.");
+      }
+
+      if (opened.user) {
+        const updatedUser = normalizeApiUser(opened.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        const nextBalances = {
+          demo: Number(updatedUser.demoBalance ?? balancesRef.current.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? balancesRef.current.real ?? 0),
+        };
+        balancesRef.current = nextBalances;
+        setBalances(nextBalances);
+      }
+
+      const trade = opened.trade;
+      const waitMs = Math.max(350, new Date(trade.settleAt).getTime() - Date.now() + 160);
+      await wait(waitMs);
+
+      const settleResponse = await fetch(`${API_URL}/api/trades/${encodeURIComponent(trade.id)}/settle`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({}),
+      });
+      const settled = await readApiResponse(settleResponse);
+      if (!settleResponse.ok || settled.ok === false) {
+        throw new Error(settled.message || "Bot trade could not be settled.");
+      }
+
+      const won = Boolean(settled.won);
+      const settledStake = Number(settled.trade?.stake ?? usedStake);
+      const settledPayout = Number(settled.trade?.payout ?? 0);
+      const net = Number((won ? settledPayout - settledStake : -settledStake).toFixed(2));
+      const nextPnl = Number((botSessionPnlRef.current + net).toFixed(2));
+      botSessionPnlRef.current = nextPnl;
+      setBotSessionPnl(nextPnl);
+
+      if (settled.user) {
+        const updatedUser = normalizeApiUser(settled.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        const nextBalances = {
+          demo: Number(updatedUser.demoBalance ?? balancesRef.current.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? balancesRef.current.real ?? 0),
+        };
+        balancesRef.current = nextBalances;
+        setBalances(nextBalances);
+      } else {
+        await refreshUser();
+      }
+
+      const row = {
+        id: trade.id,
+        botName: bot.name,
+        type: bot.type,
+        action: bot.action,
+        market: market.label,
+        stake: settledStake,
+        payout: settledPayout,
+        profit: Number((settledPayout - settledStake).toFixed(2)),
+        net,
+        won,
+        resultDigit: Number(settled.resultDigit),
+        martingaleStep: step,
+        status: won ? "WON" : "LOST",
+        time: new Date().toLocaleTimeString(),
+      };
+      setBotTrades((old) => [row, ...old].slice(0, 80));
+
+      addTx({
+        type: won ? "Bot profit" : "Bot loss",
+        method: "Bot",
+        account: botAccount,
+        amount: net,
+        status: row.status,
+        details: `${bot.name} · ${market.short} · ${bot.type} · step ${step}`,
+      });
+
+      const maxSteps = Math.max(0, Math.min(6, Number(bot.martingaleSteps || 0)));
+      const nextStep = won ? 0 : Math.min(maxSteps, step + 1);
+      botMartingaleStepRef.current = nextStep;
+      setBotMartingaleStep(nextStep);
+
+      const takeProfit = Math.max(0, Number(bot.takeProfit || 0));
+      const stopLoss = Math.max(0, Number(bot.stopLoss || 0));
+      if ((takeProfit > 0 && nextPnl >= takeProfit) || (stopLoss > 0 && nextPnl <= -stopLoss)) {
+        botRunningRef.current = false;
+        setBotRunning(false);
+        notify(
+          nextPnl >= 0 ? "win" : "loss",
+          nextPnl >= 0 ? "Bot take profit reached" : "Bot stop loss reached",
+          `${nextPnl >= 0 ? "+" : ""}${money(nextPnl)} USD`
+        );
+      }
+
+      return row;
+    } catch (error) {
+      console.error("Bot cycle failed:", error);
+      botRunningRef.current = false;
+      setBotRunning(false);
+      notify(
+        "loss",
+        "Bot stopped",
+        error instanceof Error ? error.message : "The bot could not complete its trade.",
+        5000
+      );
+      await refreshUser();
+      return null;
+    }
+  }
+
+  function startBot(config = botConfig) {
+    const market =
+      VOLATILITY_OPTIONS.find((item) => item.id === config.marketId) ||
+      VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
+    const prepared = {
+      ...(selectedBot || BOT_TEMPLATES[0]),
+      ...config,
+      market: market.label,
+      configuredAt: Date.now(),
     };
 
-    const initialRuntime = {
-      lossStreak: 0,
-      net: 0,
-      runs: 0,
-      currentStake: cleanBot.stake,
-      stoppedBy: "",
-    };
-    botRuntimeRef.current = initialRuntime;
-    setBotRuntime(initialRuntime);
-    setSelectedBot(cleanBot);
+    setSelectedBot(prepared);
+    setBotConfig(config);
+    botSessionPnlRef.current = 0;
+    botMartingaleStepRef.current = 0;
+    setBotSessionPnl(0);
+    setBotMartingaleStep(0);
+    botRunningRef.current = true;
     setBotRunning(true);
-    setBotTab("summary");
+    setBotTab("transactions");
     setActivePage("botLive");
-    window.setTimeout(() => runBotTrade(cleanBot), 120);
-    notify("open", "Bot started", `${cleanBot.name} · Demo execution`);
+    notify("open", "Bot started", `${prepared.name} · ${market.short}`);
   }
 
   function stopBot() {
-    haltBot("Stopped manually");
+    botRunningRef.current = false;
+    setBotRunning(false);
     notify("open", "Bot stopped", "No new contracts will be bought.");
   }
 
@@ -2053,6 +2153,16 @@ function TradingApp() {
       />
 
       <main className="mainScreen">
+        {["settings", "history", "reports"].includes(activePage) && (
+          <button
+            type="button"
+            className="globalPageBack"
+            onClick={() => window.history.back()}
+            aria-label="Go back"
+          >
+            ‹ Back
+          </button>
+        )}
         {activePage === "home" && (
           <HomePage
             livePrice={livePrice}
@@ -2120,15 +2230,17 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "bots" && (
-          <BotsPage bots={BOT_TEMPLATES} openBotSetup={openBotSetup} />
-        )}
+        {activePage === "bots" && <BotsPage bots={BOT_TEMPLATES} configureBot={configureBot} />}
 
         {activePage === "botSetup" && (
           <BotSetupPage
             bot={selectedBot}
+            config={botConfig}
+            setConfig={setBotConfig}
+            volatilityOptions={VOLATILITY_OPTIONS}
+            actionsFor={actionsFor}
             startBot={startBot}
-            back={() => setActivePage("bots")}
+            back={() => window.history.back()}
           />
         )}
 
@@ -2137,16 +2249,17 @@ function TradingApp() {
             bot={selectedBot}
             running={botRunning}
             stopBot={stopBot}
-            startBot={startBot}
+            startBot={() => startBot(botConfig)}
             trades={botTrades}
-            runtime={botRuntime}
             botTab={botTab}
             setBotTab={setBotTab}
-            back={() => setActivePage("bots")}
+            sessionPnl={botSessionPnl}
+            martingaleStep={botMartingaleStep}
             edit={() => {
               setBotRunning(false);
               setActivePage("botSetup");
             }}
+            back={() => window.history.back()}
           />
         )}
 
@@ -2871,9 +2984,7 @@ function ForexPage({
     likelyMarketOpen(market)
   );
   const priceReady = Number.isFinite(Number(livePrice)) && Number(livePrice) > 0;
-  const feedStatus =
-    marketFeed?.status ||
-    (MARKET_API_KEY || symbol === "BTC/USD" ? "connecting" : "chart-only");
+  const feedStatus = marketFeed?.status || "connecting";
   const change = Number(marketFeed?.change || 0);
   const percentChange = Number(marketFeed?.percentChange || 0);
   const positiveChange = change >= 0;
@@ -2901,7 +3012,7 @@ function ForexPage({
     seededSymbolRef.current = symbol;
   }, [symbol, livePrice, priceReady, market]);
 
-  function order(side) {
+  async function order(side) {
     if (orderBusy || !priceReady || !marketOpen) return;
 
     const gap = Number(market.priceStep || 0.0001);
@@ -2926,18 +3037,20 @@ function ForexPage({
     setTakeProfit(fixedTakeProfit);
     setOrderBusy(true);
 
-    const placed = placeForexOrder({
-      side,
-      symbol,
-      volume,
-      leverage,
-      stopLoss: fixedStopLoss,
-      takeProfit: fixedTakeProfit,
-      marketPrice: livePrice,
-      marketOpen,
-    });
-
-    window.setTimeout(() => setOrderBusy(false), placed ? 700 : 350);
+    try {
+      await placeForexOrder({
+        side,
+        symbol,
+        volume,
+        leverage,
+        stopLoss: fixedStopLoss,
+        takeProfit: fixedTakeProfit,
+        marketPrice: livePrice,
+        marketOpen,
+      });
+    } finally {
+      window.setTimeout(() => setOrderBusy(false), 350);
+    }
   }
 
   const buyPrice = priceReady
@@ -3057,11 +3170,9 @@ function ForexPage({
         <div className="marketFeedMessage">
           <span>{marketOpen ? "Live market data" : "Last market session"}</span>
           <small>
-            {symbol === "BTC/USD"
-              ? "Public Bitcoin spot quote refreshes automatically"
-              : MARKET_API_KEY
-              ? "Quotes refresh automatically"
-              : "Add your Twelve Data key for Forex and metals order prices"}
+            {market.symbol === "BTC/USD"
+              ? "Bitcoin quote refreshes automatically"
+              : "Live forex pricing is verified by the backend"}
           </small>
         </div>
       </section>
@@ -3075,15 +3186,6 @@ function ForexPage({
       </section>
 
       <section className="proOrderPanel forexOrderCard marketOrderStack">
-        <div className={`executionModeNotice ${account === "demo" ? "demo" : "real"}`}>
-          <strong>{account === "demo" ? "Demo execution" : "Real execution bridge required"}</strong>
-          <small>
-            {account === "demo"
-              ? "Orders use the live quote shown above and settle inside your demo account."
-              : "Real Forex orders stay disabled until a licensed broker or MT5 server connection is installed."}
-          </small>
-        </div>
-
         <div className="tradeActionColumn marketActionColumn">
           <div className="buySellBox buySellProBox">
             <button
@@ -3664,17 +3766,6 @@ function TradePage({
   const lowestPercent = Math.min(...digitStats);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const quickStakeValues = [1, 5, 10, 50, 100];
-  const tradeProgress = activeBinaryTrade
-    ? Math.max(
-        0,
-        Math.min(
-          1,
-          1 -
-            Number(activeBinaryTrade.remainingTicks || 0) /
-              Math.max(1, Number(activeBinaryTrade.totalTicks || 1))
-        )
-      )
-    : 0;
 
   const changeStake = (difference) => {
     setStake((current) =>
@@ -3743,17 +3834,6 @@ function TradePage({
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
 
             {activeBinaryTrade && (
-              <div
-                className="binaryChartCursor"
-                style={{ left: `${12 + tradeProgress * 76}%` }}
-                aria-hidden="true"
-              >
-                <i></i>
-                <span>{activeBinaryTrade.remainingTicks}</span>
-              </div>
-            )}
-
-            {activeBinaryTrade && (
               <div className="binaryTradeStatus" role="status">
                 <span className="binaryTradePulse"></span>
                 <strong>{activeBinaryTrade.action}</strong>
@@ -3773,11 +3853,7 @@ function TradePage({
           <span>10:51:30</span>
         </div>
 
-        <div
-          className={`finalDigitBoard ${
-            activeBinaryTrade ? "tradeRunning" : ""
-          }`}
-        >
+        <div className={`finalDigitBoard ${activeBinaryTrade ? "isTrading" : ""}`}>
           <div className="finalDigitBoardHead">
             <span>Last digit statistics</span>
             <small>{binaryMarket?.short || "V100 1s"} · smooth 2.2 second cursor</small>
@@ -3812,7 +3888,6 @@ function TradePage({
                     isLowest ? "lowestDigit" : "",
                     isPicked ? "picked" : "",
                     isCurrent ? "currentDigit" : "",
-                    isCurrent && activeBinaryTrade ? "activeTradeCursor" : "",
                     isWinningTarget ? "winningTarget" : "",
                     isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
                     isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
@@ -3972,79 +4047,42 @@ function TradePage({
   );
 }
 
-function BotsPage({ bots, openBotSetup }) {
-  const running = bots.filter((x) => x.status === "Running").length;
-  const stopped = bots.filter((x) => x.status === "Stopped").length;
-  const completed = 4;
+function BotsPage({ bots, configureBot }) {
+  const running = bots.filter((item) => item.status === "Running").length;
+  const stopped = bots.length - running;
 
   return (
-    <div className="page botsPage">
+    <div className="page botsPage finalBotsPage">
       <header className="botsTopBar">
         <div>
-          <small>AI trading</small>
-          <h1>My Bots</h1>
+          <small>Automated strategies</small>
+          <h1>Trading Bots</h1>
         </div>
-        <span><b>{running}</b> running</span>
+        <span><b>{running}</b> templates active</span>
       </header>
 
-      <section className="botStats">
-        <Stat icon="🤖" value={bots.length} label="Total Bots" spark="blue" />
-        <Stat icon="▶" value={running} label="Running" spark="green" />
-        <Stat icon="Ⅱ" value={stopped} label="Stopped" spark="yellow" />
-        <Stat icon="✓" value={completed} label="Completed" spark="purple" />
+      <section className="botStats compactBotStats">
+        <Stat icon="🤖" value={bots.length} label="Strategies" spark="blue" />
+        <Stat icon="▶" value={running} label="Active" spark="green" />
+        <Stat icon="Ⅱ" value={stopped} label="Ready" spark="yellow" />
+        <Stat icon="✓" value="1–10" label="Ticks" spark="purple" />
       </section>
 
-      <section className="botFilters">
-        <input placeholder="Search bots..." />
-        <button>All Status</button>
-        <button>Performance</button>
-        <button>Strategy Type</button>
-      </section>
-
-      <section className="botGrid">
+      <section className="botGrid finalBotGrid">
         {bots.map((bot, index) => (
-          <article className="botCard" key={bot.id}>
+          <article className="botCard finalBotCard" key={bot.id}>
             <div className={`botIcon botIcon${index + 1}`}>{bot.code}</div>
-
-            <div>
+            <div className="botCardCopy">
               <h2>{bot.name}</h2>
-              <p>
-                {bot.type} · {bot.market}
-              </p>
-              <small>
-                Stake: {money(bot.stake)} USD · Duration: {bot.duration}s
-              </small>
+              <p>{bot.type} · {bot.market}</p>
+              <small>Configure market, stake, ticks, martingale and limits before starting.</small>
             </div>
-
-            <b className={bot.status === "Running" ? "botStatus running" : "botStatus stopped"}>{bot.status}</b>
-
-            <div className="botGraph">
-              <BotLine positive={bot.profit >= 0} />
+            <div className="botMetrics compactBotMetrics">
+              <p><span>Example stake</span><strong>{money(bot.stake)} USD</strong></p>
+              <p><span>Template win rate</span><strong>{bot.winRate}%</strong></p>
+              <p><span>Previous runs</span><strong>{bot.trades}</strong></p>
             </div>
-
-            <div className="botMetrics">
-              <p>
-                <span>Total Profit</span>
-                <strong className={bot.profit >= 0 ? "green" : "red"}>
-                  {bot.profit >= 0 ? "+" : ""}
-                  {money(bot.profit)} USD
-                </strong>
-              </p>
-
-              <p>
-                <span>Win Rate</span>
-                <strong>{bot.winRate}%</strong>
-              </p>
-
-              <p>
-                <span>Trades</span>
-                <strong>{bot.trades}</strong>
-              </p>
-            </div>
-
-            <button className="botAction" onClick={() => openBotSetup(bot)}>
-              {bot.status === "Running" ? "Open Setup" : "Configure Bot"}
-            </button>
+            <button className="botAction" onClick={() => configureBot(bot)}>Configure Bot</button>
           </article>
         ))}
       </section>
@@ -4052,367 +4090,115 @@ function BotsPage({ bots, openBotSetup }) {
   );
 }
 
-
-function BotSetupPage({ bot, startBot, back }) {
-  const makeConfig = (source) => ({
-    ...source,
-    name: source?.name || "MetaBinary Bot",
-    market: source?.market || "Volatility 100 (1s) Index",
-    type: source?.type || "Even/Odd",
-    stake: Number(source?.stake || 1),
-    duration: Number(source?.duration || 5),
-    prediction: Number(source?.prediction ?? 2),
-    stopLoss: Number(source?.stopLoss || 50),
-    takeProfit: Number(source?.takeProfit || 30),
-    martingaleEnabled: Boolean(source?.martingaleEnabled),
-    martingaleSteps: Number(source?.martingaleSteps ?? 2),
-    martingaleMultiplier: Number(source?.martingaleMultiplier || 2),
-    maxTrades: Number(source?.maxTrades || 50),
-  });
-
-  const [config, setConfig] = useState(() => makeConfig(bot));
-
-  useEffect(() => {
-    setConfig(makeConfig(bot));
-  }, [bot?.id]);
-
+function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, startBot, back }) {
   if (!bot) {
     return (
-      <div className="page botSetupPage">
-        <div className="botSetupHeader">
-          <button type="button" onClick={back}>
-            ‹ Back to Bots
-          </button>
-          <div>
-            <small>Bot Builder</small>
-            <h1>Select a bot first</h1>
-          </div>
-        </div>
+      <div className="page emptyPage darkEmptyPage">
+        <button onClick={back}>‹ Back</button>
+        <h2>Select a bot first.</h2>
       </div>
     );
   }
 
-  function update(field, value) {
-    setConfig((current) => ({ ...current, [field]: value }));
-  }
-
-  function submit(event) {
-    event.preventDefault();
-
-    const clean = {
-      ...config,
-      stake: Math.max(0.3, Number(config.stake || 0.3)),
-      duration: Math.max(1, Math.min(10, Number(config.duration || 5))),
-      prediction: Math.max(0, Math.min(9, Number(config.prediction || 0))),
-      stopLoss: Math.max(0, Number(config.stopLoss || 0)),
-      takeProfit: Math.max(0, Number(config.takeProfit || 0)),
-      martingaleSteps: Math.max(
-        0,
-        Math.min(6, Number(config.martingaleSteps || 0))
-      ),
-      martingaleMultiplier: Math.max(
-        1,
-        Math.min(3, Number(config.martingaleMultiplier || 2))
-      ),
-      maxTrades: Math.max(1, Math.min(500, Number(config.maxTrades || 50))),
-    };
-
-    startBot(clean);
-  }
+  const actions = actionsFor(config.type);
+  const update = (patch) => setConfig((current) => ({ ...current, ...patch }));
 
   return (
     <div className="page botSetupPage">
-      <div className="botSetupHeader">
-        <button type="button" onClick={back}>
-          ‹ Back to Bots
-        </button>
+      <header className="botSetupTop">
+        <button type="button" onClick={back}>‹ Back</button>
+        <div><small>Configure strategy</small><strong>{bot.name}</strong></div>
+        <span>{config.martingaleEnabled ? `MG ×${config.martingaleMultiplier}` : "Fixed stake"}</span>
+      </header>
 
-        <div>
-          <small>Bot Builder</small>
-          <h1>{config.name}</h1>
-          <p>Set the market, amount and risk controls before starting.</p>
-        </div>
+      <section className="botSetupGrid">
+        <label className="botWideField">
+          <span>Market</span>
+          <select value={config.marketId} onChange={(event) => update({ marketId: event.target.value })}>
+            {volatilityOptions.map((market) => <option key={market.id} value={market.id}>{market.label}</option>)}
+          </select>
+        </label>
 
-        <span className="botSetupBadge">DEMO ENGINE</span>
-      </div>
-
-      <form className="botSetupForm" onSubmit={submit}>
-        <section className="botSetupCard botIdentityCard">
-          <div className="botSetupCardTitle">
-            <span>01</span>
-            <div>
-              <h2>Strategy</h2>
-              <p>Choose what the bot trades.</p>
-            </div>
-          </div>
-
-          <div className="botSetupGrid twoColumns">
-            <label>
-              <span>Bot name</span>
-              <input
-                value={config.name}
-                onChange={(event) => update("name", event.target.value)}
-              />
-            </label>
-
-            <label>
-              <span>Market</span>
-              <select
-                value={config.market}
-                onChange={(event) => update("market", event.target.value)}
-              >
-                {VOLATILITY_OPTIONS.map((market) => (
-                  <option key={market.id} value={market.label}>
-                    {market.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              <span>Trade type</span>
-              <select
-                value={config.type}
-                onChange={(event) => update("type", event.target.value)}
-              >
-                {[
-                  "Even/Odd",
-                  "Matches/Differs",
-                  "Over/Under",
-                  "Rise/Fall",
-                  "Touch/No Touch",
-                ].map((type) => (
-                  <option key={type}>{type}</option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              <span>Prediction digit</span>
-              <select
-                value={config.prediction}
-                onChange={(event) =>
-                  update("prediction", Number(event.target.value))
-                }
-              >
-                {Array.from({ length: 10 }, (_, digit) => (
-                  <option key={digit} value={digit}>
-                    {digit}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </section>
-
-        <section className="botSetupCard">
-          <div className="botSetupCardTitle">
-            <span>02</span>
-            <div>
-              <h2>Amount and duration</h2>
-              <p>Control the base trade amount and run length.</p>
-            </div>
-          </div>
-
-          <div className="botSetupGrid threeColumns">
-            <label>
-              <span>Base amount</span>
-              <div className="botInputWithUnit">
-                <input
-                  type="number"
-                  min="0.3"
-                  step="0.1"
-                  inputMode="decimal"
-                  value={config.stake}
-                  onChange={(event) =>
-                    update("stake", Number(event.target.value))
-                  }
-                />
-                <b>USD</b>
-              </div>
-            </label>
-
-            <label>
-              <span>Ticks per trade</span>
-              <select
-                value={config.duration}
-                onChange={(event) =>
-                  update("duration", Number(event.target.value))
-                }
-              >
-                {Array.from({ length: 10 }, (_, index) => index + 1).map(
-                  (ticks) => (
-                    <option key={ticks} value={ticks}>
-                      {ticks} tick{ticks === 1 ? "" : "s"}
-                    </option>
-                  )
-                )}
-              </select>
-            </label>
-
-            <label>
-              <span>Maximum trades</span>
-              <input
-                type="number"
-                min="1"
-                max="500"
-                value={config.maxTrades}
-                onChange={(event) =>
-                  update("maxTrades", Number(event.target.value))
-                }
-              />
-            </label>
-          </div>
-
-          <div className="quickBotAmounts">
-            {[1, 5, 10, 25, 50, 100].map((amount) => (
-              <button
-                key={amount}
-                type="button"
-                className={Number(config.stake) === amount ? "active" : ""}
-                onClick={() => update("stake", amount)}
-              >
-                {amount} USD
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="botSetupCard">
-          <div className="botSetupCardTitle">
-            <span>03</span>
-            <div>
-              <h2>Risk limits</h2>
-              <p>The bot stops automatically when either limit is reached.</p>
-            </div>
-          </div>
-
-          <div className="botSetupGrid twoColumns">
-            <label>
-              <span>Stop loss</span>
-              <div className="botInputWithUnit">
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={config.stopLoss}
-                  onChange={(event) =>
-                    update("stopLoss", Number(event.target.value))
-                  }
-                />
-                <b>USD</b>
-              </div>
-            </label>
-
-            <label>
-              <span>Take profit</span>
-              <div className="botInputWithUnit">
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={config.takeProfit}
-                  onChange={(event) =>
-                    update("takeProfit", Number(event.target.value))
-                  }
-                />
-                <b>USD</b>
-              </div>
-            </label>
-          </div>
-        </section>
-
-        <section className="botSetupCard martingaleCard">
-          <div className="botSetupCardTitle">
-            <span>04</span>
-            <div>
-              <h2>Martingale recovery</h2>
-              <p>Optional stake increase after a losing trade.</p>
-            </div>
-
-            <label className="botSwitch">
-              <input
-                type="checkbox"
-                checked={config.martingaleEnabled}
-                onChange={(event) =>
-                  update("martingaleEnabled", event.target.checked)
-                }
-              />
-              <i></i>
-            </label>
-          </div>
-
-          <div
-            className={`botSetupGrid twoColumns ${
-              config.martingaleEnabled ? "" : "disabledFields"
-            }`}
+        <label>
+          <span>Trade type</span>
+          <select
+            value={config.type}
+            onChange={(event) => {
+              const type = event.target.value;
+              update({ type, action: defaultBotAction(type) });
+            }}
           >
-            <label>
-              <span>Maximum recovery steps</span>
-              <select
-                value={config.martingaleSteps}
-                disabled={!config.martingaleEnabled}
-                onChange={(event) =>
-                  update("martingaleSteps", Number(event.target.value))
-                }
-              >
-                {Array.from({ length: 7 }, (_, step) => (
-                  <option key={step} value={step}>
-                    {step}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => <option key={type}>{type}</option>)}
+          </select>
+        </label>
 
-            <label>
-              <span>Stake multiplier</span>
-              <select
-                value={config.martingaleMultiplier}
-                disabled={!config.martingaleEnabled}
-                onChange={(event) =>
-                  update(
-                    "martingaleMultiplier",
-                    Number(event.target.value)
-                  )
-                }
-              >
-                {[1.25, 1.5, 1.75, 2, 2.5, 3].map((multiplier) => (
-                  <option key={multiplier} value={multiplier}>
-                    ×{multiplier}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+        <label>
+          <span>Action</span>
+          <select value={config.action} onChange={(event) => update({ action: event.target.value })}>
+            {actions.map((action) => <option key={action}>{action}</option>)}
+          </select>
+        </label>
 
-          <div className="riskWarning">
-            <strong>High-risk setting</strong>
-            <span>
-              Martingale can increase losses quickly. Keep the stop loss active
-              and test on Demo first.
-            </span>
-          </div>
-        </section>
+        <label>
+          <span>Base stake USD</span>
+          <input type="number" min="0.3" step="0.1" inputMode="decimal" value={config.stake} onChange={(event) => update({ stake: Number(event.target.value) })} />
+        </label>
 
-        <div className="botSetupFooter">
-          <div>
-            <strong>Ready to start</strong>
-            <small>
-              Starting opens the compact live transaction screen. This
-              front-end bot runs in Demo only until a server-side execution
-              engine is connected.
-            </small>
-          </div>
+        <label>
+          <span>Ticks</span>
+          <select value={config.ticks} onChange={(event) => update({ ticks: Number(event.target.value) })}>
+            {Array.from({ length: 10 }, (_, index) => index + 1).map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}
+          </select>
+        </label>
 
-          <button type="button" className="secondaryBotButton" onClick={back}>
-            Cancel
+        {!['Even/Odd', 'Rise/Fall'].includes(config.type) && (
+          <label>
+            <span>Prediction digit</span>
+            <select value={config.prediction} onChange={(event) => update({ prediction: Number(event.target.value) })}>
+              {Array.from({ length: 10 }, (_, digit) => <option key={digit} value={digit}>{digit}</option>)}
+            </select>
+          </label>
+        )}
+
+        <label className="botToggleField">
+          <span>Martingale</span>
+          <button type="button" className={config.martingaleEnabled ? "on" : ""} onClick={() => update({ martingaleEnabled: !config.martingaleEnabled })}>
+            {config.martingaleEnabled ? "Enabled" : "Disabled"}
           </button>
+        </label>
 
-          <button type="submit" className="startConfiguredBot">
-            ▶ Start Bot
-          </button>
-        </div>
-      </form>
+        <label>
+          <span>Multiplier</span>
+          <select disabled={!config.martingaleEnabled} value={config.martingaleMultiplier} onChange={(event) => update({ martingaleMultiplier: Number(event.target.value) })}>
+            {[1.2, 1.5, 1.8, 2, 2.5, 3].map((value) => <option key={value} value={value}>×{value}</option>)}
+          </select>
+        </label>
+
+        <label>
+          <span>Maximum steps</span>
+          <select disabled={!config.martingaleEnabled} value={config.martingaleSteps} onChange={(event) => update({ martingaleSteps: Number(event.target.value) })}>
+            {Array.from({ length: 7 }, (_, step) => <option key={step} value={step}>{step}</option>)}
+          </select>
+        </label>
+
+        <label>
+          <span>Take profit USD</span>
+          <input type="number" min="0" step="1" value={config.takeProfit} onChange={(event) => update({ takeProfit: Number(event.target.value) })} />
+        </label>
+
+        <label>
+          <span>Stop loss USD</span>
+          <input type="number" min="0" step="1" value={config.stopLoss} onChange={(event) => update({ stopLoss: Number(event.target.value) })} />
+        </label>
+      </section>
+
+      <section className="botRiskPreview">
+        <div><span>First stake</span><strong>{money(config.stake)} USD</strong></div>
+        <div><span>Maximum recovery</span><strong>{money(Number(config.stake || 0) * Math.pow(config.martingaleEnabled ? Number(config.martingaleMultiplier || 1) : 1, Number(config.martingaleSteps || 0)))} USD</strong></div>
+        <div><span>Limits</span><strong>+{money(config.takeProfit)} / -{money(config.stopLoss)}</strong></div>
+      </section>
+
+      <button className="startConfiguredBot" type="button" onClick={() => startBot(config)}>▶ Start Bot & Open Transactions</button>
     </div>
   );
 }
@@ -4442,238 +4228,93 @@ function BotLivePage({
   stopBot,
   startBot,
   trades,
-  runtime,
   botTab,
   setBotTab,
-  back,
+  sessionPnl,
+  martingaleStep,
   edit,
+  back,
 }) {
-  const botTrades = trades.filter(
-    (trade) => !trade.botId || trade.botId === bot?.id
-  );
-  const profitLoss = botTrades.reduce(
-    (sum, trade) => sum + (trade.won ? trade.profit : -trade.stake),
-    0
-  );
-  const last = botTrades[0];
+  const last = trades[0];
+  const wins = trades.filter((trade) => trade.won).length;
+  const losses = trades.length - wins;
 
   if (!bot) {
     return (
-      <div className="page botLivePage emptyBotLive">
-        <div className="botLiveTop">
-          <button type="button" onClick={back}>
-            ‹ Back to Bots
-          </button>
-        </div>
-        <div className="emptyBotCard">
-          <h2>Select a bot first.</h2>
-          <p>Open My Bots and configure a strategy before starting.</p>
-        </div>
+      <div className="page emptyPage darkEmptyPage">
+        <button onClick={back}>‹ Back to Bots</button>
+        <h2>Select a bot first.</h2>
       </div>
     );
   }
 
   return (
-    <div className="page botLivePage compactBotLivePage">
-      <div className="botLiveTop">
-        <button type="button" onClick={back}>
-          ‹ Back to Bots
-        </button>
+    <div className="page botLivePage finalBotLivePage">
+      <header className="botLiveTop">
+        <button type="button" onClick={back}>‹ Bots</button>
+        <div><small>Running strategy</small><strong>{bot.name}</strong></div>
+        <button type="button" className="editBotButton" onClick={edit}>Edit</button>
+      </header>
 
-        <div>
-          <small>Live bot monitor</small>
-          <strong>{bot.name}</strong>
+      <section className="runnerBox finalRunnerBox">
+        <button className={running ? "stopRunner" : "startRunner"} onClick={running ? stopBot : startBot}>
+          {running ? "■ Stop Bot" : "▶ Run Bot"}
+        </button>
+        <div className="runnerStatusCopy">
+          <strong>{running ? "Watching for the next contract" : "Bot paused"}</strong>
+          <small>{bot.market} · {bot.type} · {bot.action} · {bot.ticks} ticks</small>
+          <span><i className={running ? "active" : ""}></i></span>
         </div>
-
-        <button type="button" className="editBotSetup" onClick={edit}>
-          Edit setup
-        </button>
-      </div>
-
-      <section className="botLiveSummaryStrip">
-        <span>
-          <small>Market</small>
-          <strong>{bot.market}</strong>
-        </span>
-        <span>
-          <small>Strategy</small>
-          <strong>{bot.type}</strong>
-        </span>
-        <span>
-          <small>Base amount</small>
-          <strong>{money(bot.stake)} USD</strong>
-        </span>
-        <span>
-          <small>Martingale</small>
-          <strong>
-            {bot.martingaleEnabled
-              ? `×${bot.martingaleMultiplier} · ${bot.martingaleSteps} steps`
-              : "Off"}
-          </strong>
-        </span>
       </section>
 
-      <section className="runnerBox compactRunnerBox">
-        <button
-          className={running ? "stopRunner" : "startRunner"}
-          onClick={running ? stopBot : () => startBot(bot)}
-        >
-          {running ? "■ Stop" : "▶ Run"}
-        </button>
-
-        <div>
-          <span className={`botRunDot ${running ? "running" : ""}`}></span>
-          <strong>
-            {running
-              ? "Watching for the next contract"
-              : runtime?.stoppedBy || "Bot is not running"}
-          </strong>
-          <small>
-            Run {runtime?.runs || 0} · Current stake{" "}
-            {money(runtime?.currentStake || bot.stake)} USD · Net{" "}
-            {Number(runtime?.net || 0) >= 0 ? "+" : ""}
-            {money(runtime?.net || 0)} USD
-          </small>
-          <span className="botRunProgress">
-            <i className={running ? "active" : ""}></i>
-          </span>
-        </div>
+      <section className="botLiveMetrics">
+        <div><span>Session P/L</span><strong className={sessionPnl >= 0 ? "green" : "red"}>{sessionPnl >= 0 ? "+" : ""}{money(sessionPnl)} USD</strong></div>
+        <div><span>Current MG step</span><strong>{martingaleStep}/{bot.martingaleSteps || 0}</strong></div>
+        <div><span>Next base stake</span><strong>{money(bot.stake)} USD</strong></div>
       </section>
 
       <section className="runnerTabs">
-        {["summary", "transactions", "journal"].map((tab) => (
-          <button
-            type="button"
-            key={tab}
-            className={botTab === tab ? "active" : ""}
-            onClick={() => setBotTab(tab)}
-          >
-            {tab}
-          </button>
+        {["transactions", "summary", "journal"].map((tab) => (
+          <button key={tab} className={botTab === tab ? "active" : ""} onClick={() => setBotTab(tab)}>{tab}</button>
         ))}
       </section>
 
-      <section className="runnerBody darkRunnerBody">
-        {botTab === "summary" && (
-          <div className="botSummaryContent">
-            <div
-              className={
-                last?.won
-                  ? "runnerResult won"
-                  : last
-                  ? "runnerResult lost"
-                  : "runnerResult"
-              }
-            >
-              <strong>{last ? "Closed" : "Ready"}</strong>
-              <h2>
-                {last
-                  ? `${last.won ? "+" : "-"}${money(
-                      last.won ? last.profit : last.stake
-                    )} USD`
-                  : "Waiting for first trade"}
-              </h2>
-              {last && (
-                <small>
-                  {last.type} · {last.action} · Stake {money(last.stake)} USD
-                  {last.martingaleLevel > 0
-                    ? ` · Recovery step ${last.martingaleLevel}`
-                    : ""}
-                </small>
-              )}
-            </div>
-
-            <div className="botLimitCards">
-              <p>
-                <span>Stop loss</span>
-                <strong>{money(bot.stopLoss)} USD</strong>
+      <section className="runnerBody">
+        {botTab === "transactions" && (
+          <div className="runnerList finalRunnerList">
+            {trades.length === 0 && <div className="runnerEmpty">The first transaction will appear here.</div>}
+            {trades.slice(0, 10).map((trade) => (
+              <p key={trade.id}>
+                <span><b>{trade.market?.replace("Volatility ", "V")}</b><small>{trade.type} · {trade.action} · digit {trade.resultDigit}</small></span>
+                <span className="transactionStake"><small>Stake {money(trade.stake)}</small><b className={trade.won ? "green" : "red"}>{trade.net >= 0 ? "+" : ""}{money(trade.net)}</b></span>
               </p>
-              <p>
-                <span>Take profit</span>
-                <strong>{money(bot.takeProfit)} USD</strong>
-              </p>
-              <p>
-                <span>Loss streak</span>
-                <strong>{runtime?.lossStreak || 0}</strong>
-              </p>
-              <p>
-                <span>Maximum trades</span>
-                <strong>{bot.maxTrades}</strong>
-              </p>
-            </div>
+            ))}
           </div>
         )}
 
-        {botTab === "transactions" && (
-          <div className="runnerList">
-            {botTrades.length === 0 && (
-              <p className="emptyRunnerRow">
-                <span>No transactions yet.</span>
-              </p>
-            )}
-
-            {botTrades.slice(0, 20).map((trade) => (
-              <p key={trade.id}>
-                <span>
-                  <strong>
-                    {trade.type} · {trade.action}
-                  </strong>
-                  <small>
-                    {trade.time} · Stake {money(trade.stake)} USD
-                    {trade.martingaleLevel > 0
-                      ? ` · Step ${trade.martingaleLevel}`
-                      : ""}
-                  </small>
-                </span>
-
-                <b className={trade.won ? "green" : "red"}>
-                  {trade.won ? "+" : "-"}
-                  {money(trade.won ? trade.profit : trade.stake)}
-                </b>
-              </p>
-            ))}
+        {botTab === "summary" && (
+          <div className={last?.won ? "runnerResult won" : last ? "runnerResult lost" : "runnerResult"}>
+            <strong>{last ? last.status : "Ready"}</strong>
+            <h2>{last ? `${last.net >= 0 ? "+" : ""}${money(last.net)} USD` : "Start the bot"}</h2>
+            <small>{last ? `${last.market} · step ${last.martingaleStep}` : "Configured limits protect the session."}</small>
           </div>
         )}
 
         {botTab === "journal" && (
-          <div className="runnerList">
-            {botTrades.length === 0 && (
-              <p className="emptyRunnerRow">
-                <span>The journal will appear after the first contract.</span>
-              </p>
-            )}
-
-            {botTrades.slice(0, 20).map((trade) => (
-              <p key={trade.id}>
-                <span>
-                  <strong>
-                    {trade.won ? "Profit amount" : "Loss amount"}
-                  </strong>
-                  <small>
-                    {trade.market || bot.market} · {trade.status}
-                  </small>
-                </span>
-                <small>{trade.time}</small>
-              </p>
+          <div className="runnerList finalRunnerList">
+            {trades.slice(0, 10).map((trade) => (
+              <p key={trade.id}><span>{trade.won ? "Winning contract" : "Losing contract"}</span><small>{trade.time}</small></p>
             ))}
           </div>
         )}
       </section>
 
-      <section className="runnerStats compactRunnerStats">
-        <Stat value={botTrades.length} label="Runs" />
-        <Stat value={botTrades.filter((x) => x.won).length} label="Won" />
-        <Stat value={botTrades.filter((x) => !x.won).length} label="Lost" />
-        <Stat
-          value={`${profitLoss >= 0 ? "+" : ""}${money(profitLoss)}`}
-          label="P/L"
-        />
+      <section className="runnerStats">
+        <Stat value={trades.length} label="Runs" />
+        <Stat value={wins} label="Won" />
+        <Stat value={losses} label="Lost" />
+        <Stat value={`${sessionPnl >= 0 ? "+" : ""}${money(sessionPnl)}`} label="P/L" />
       </section>
-
-      <div className="botSimulationNotice">
-        Demo bot monitor. Real-money bot execution must be handled and audited
-        on the server through a licensed broker connection.
-      </div>
     </div>
   );
 }
@@ -5027,9 +4668,7 @@ function BottomNav({ activePage, setActivePage }) {
           onClick={() => setActivePage(key)}
           aria-label={label}
           aria-current={
-            activePage === key ||
-            (key === "bots" && ["botSetup", "botLive"].includes(activePage)) ||
-            (key === "forex" && activePage === "openTrades")
+            activePage === key || (key === "forex" && activePage === "openTrades")
               ? "page"
               : undefined
           }
