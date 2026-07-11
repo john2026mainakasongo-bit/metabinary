@@ -7,8 +7,8 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-final-black-digits-slow-cursor-2026-07-12";
-const DIGIT_TICK_MS = 1500;
+const FRONTEND_BUILD = "metabinary-trade-fit-phone-video-digits-2026-07-12";
+const DIGIT_TICK_MS = 2000;
 
 if (typeof window !== "undefined") {
   window.__METABINARY_BUILD__ = FRONTEND_BUILD;
@@ -3359,7 +3359,7 @@ function TradePage({
         <div className="finalDigitBoard">
           <div className="finalDigitBoardHead">
             <span>Last digit statistics</span>
-            <small>Live · 1.5 second movement</small>
+            <small>Live · smooth 2 second movement</small>
           </div>
 
           <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
