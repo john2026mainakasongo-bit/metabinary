@@ -9530,3 +9530,594 @@ button:disabled {
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+/* =========================================================
+   FINAL REAL MARKET DESK — GOLD, BITCOIN & FOREX
+   One timeframe selector, real TradingView chart, mobile scroll
+   ========================================================= */
+
+.realMarketPublishPage {
+  grid-template-rows: 48px auto 54px minmax(360px, 1fr) auto !important;
+  align-content: start;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.realMarketHeaderCard {
+  min-height: 72px;
+}
+
+.realSymbolPicker select {
+  min-width: 190px;
+}
+
+.marketStatusPill {
+  min-width: 112px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #a8b5ca;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.marketStatusPill i,
+.realChartCaption strong i {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.marketStatusPill.open,
+.realChartCaption strong.open {
+  color: #00e884;
+  border-color: rgba(0, 232, 132, 0.36);
+  background: rgba(0, 232, 132, 0.08);
+}
+
+.marketStatusPill.closed,
+.realChartCaption strong.closed {
+  color: #ff697b;
+  border-color: rgba(255, 64, 87, 0.34);
+  background: rgba(255, 64, 87, 0.08);
+}
+
+.marketStatusPill.cached,
+.marketStatusPill.chart-only,
+.marketStatusPill.connecting {
+  color: #56a9ff;
+  border-color: rgba(70, 145, 255, 0.34);
+  background: rgba(0, 119, 255, 0.08);
+}
+
+.singleTimeframeBar {
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: minmax(140px, auto) 190px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(7, 25, 45, 0.97), rgba(3, 12, 24, 0.97));
+  border: 1px solid rgba(70, 145, 255, 0.2);
+  box-shadow: inset 0 0 28px rgba(0, 119, 255, 0.04);
+}
+
+.timeframeSummary small,
+.timeframeSummary strong,
+.marketFeedMessage span,
+.marketFeedMessage small {
+  display: block;
+}
+
+.timeframeSummary small,
+.marketFeedMessage small {
+  color: #7f91ac;
+  font-size: 10px;
+}
+
+.timeframeSummary strong {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.timeframeSelect {
+  position: relative;
+  height: 38px;
+  display: grid;
+  grid-template-columns: 44px 1fr 24px;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #020914;
+  border: 1px solid rgba(70, 145, 255, 0.36);
+}
+
+.timeframeSelect > span {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #56a9ff;
+  background: rgba(0, 119, 255, 0.12);
+  border-right: 1px solid rgba(70, 145, 255, 0.22);
+  font-weight: 1000;
+}
+
+.timeframeSelect select {
+  width: 100%;
+  height: 100%;
+  padding: 0 8px;
+  color: white;
+  background: transparent;
+  border: 0;
+  appearance: none;
+  font-weight: 800;
+}
+
+.timeframeSelect b {
+  color: #8ea0ba;
+  pointer-events: none;
+}
+
+.marketFeedMessage {
+  min-width: 0;
+  text-align: right;
+}
+
+.marketFeedMessage span {
+  color: #dce8fa;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.marketFeedMessage small {
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.realMarketChartPanel {
+  min-height: 380px;
+  height: 100%;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #02070d !important;
+}
+
+.realChartShell {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  position: relative;
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr) 24px;
+  overflow: hidden;
+  background: #02070d;
+  touch-action: pan-x pan-y;
+}
+
+.realChartCaption {
+  z-index: 3;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px;
+  background: rgba(3, 10, 19, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.realChartCaption > div {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.realChartCaption span {
+  color: white;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.realChartCaption b {
+  color: #8496b1;
+  font-size: 10px;
+}
+
+.realChartCaption strong {
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 9px;
+}
+
+.realTradingViewWidget,
+.realTradingViewWidget > div,
+.realTradingViewWidget iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.realTradingViewWidget {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: #02070d;
+}
+
+.chartGestureHint {
+  display: grid;
+  place-items: center;
+  color: #72839c;
+  background: rgba(3, 10, 19, 0.98);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 9px;
+  letter-spacing: 0.2px;
+}
+
+.marketOrderStack {
+  height: auto !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.15fr) minmax(180px, 0.65fr) !important;
+  grid-template-areas:
+    "actions form stats"
+    "open form stats"
+    "notice notice notice";
+  align-items: stretch;
+  gap: 10px !important;
+  padding: 10px !important;
+  overflow: visible !important;
+}
+
+.marketActionColumn {
+  grid-area: actions;
+  display: block !important;
+}
+
+.realMarketOrderForm {
+  grid-area: form;
+  min-width: 0;
+}
+
+.marketOrderStack > .viewOpenTradesBtn {
+  grid-area: open;
+  align-self: end;
+}
+
+.realMarketStats {
+  grid-area: stats;
+  min-width: 0;
+}
+
+.marketKeyNotice {
+  grid-area: notice;
+  min-width: 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: #9db0ca;
+  background: rgba(0, 119, 255, 0.08);
+  border: 1px solid rgba(70, 145, 255, 0.22);
+  font-size: 10px;
+}
+
+.marketKeyNotice b {
+  flex: 0 0 auto;
+  color: #56a9ff;
+}
+
+.marketKeyNotice code {
+  color: white;
+}
+
+.marketKeyNotice.error {
+  background: rgba(255, 64, 87, 0.08);
+  border-color: rgba(255, 64, 87, 0.24);
+}
+
+.marketKeyNotice.error b {
+  color: #ff697b;
+}
+
+.buySellProBox button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  filter: saturate(0.65);
+}
+
+@media (max-width: 1100px) {
+  .marketOrderStack {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-areas:
+      "actions form"
+      "open form"
+      "stats stats"
+      "notice notice";
+  }
+
+  .realMarketStats {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .realMarketPublishPage {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    scrollbar-width: none !important;
+  }
+
+  .realMarketPublishPage::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .realMarketHeaderCard {
+    flex: 0 0 auto !important;
+    min-height: 82px !important;
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) auto !important;
+    grid-template-rows: 42px 26px !important;
+    gap: 4px 7px !important;
+    padding: 8px !important;
+  }
+
+  .realMarketHeaderCard .marketBack {
+    grid-column: 1 !important;
+    grid-row: 1 / 3 !important;
+    height: 52px !important;
+  }
+
+  .realMarketHeaderCard .realSymbolPicker {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .realMarketHeaderCard .realSymbolPicker select {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 38px !important;
+    font-size: 12px !important;
+  }
+
+  .realMarketHeaderCard .marketNameBlock {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+  }
+
+  .realMarketHeaderCard .marketNameBlock strong {
+    font-size: 11px !important;
+  }
+
+  .realMarketHeaderCard .marketNameBlock small {
+    display: block !important;
+    color: #7487a4 !important;
+    font-size: 7px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock strong {
+    font-size: 15px !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock small {
+    font-size: 7px !important;
+  }
+
+  .realMarketHeaderCard .marketHighLow {
+    display: none !important;
+  }
+
+  .realMarketHeaderCard .marketStatusPill {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+    justify-self: end !important;
+    min-width: 0 !important;
+    height: 22px !important;
+    padding: 0 7px !important;
+    gap: 4px !important;
+    font-size: 7px !important;
+  }
+
+  .realMarketHeaderCard .marketStatusPill i {
+    width: 5px !important;
+    height: 5px !important;
+    flex-basis: 5px !important;
+  }
+
+  .singleTimeframeBar {
+    flex: 0 0 50px !important;
+    min-height: 50px !important;
+    grid-template-columns: minmax(0, 1fr) 145px !important;
+    gap: 7px !important;
+    padding: 6px 8px !important;
+  }
+
+  .timeframeSummary small {
+    font-size: 7px !important;
+  }
+
+  .timeframeSummary strong {
+    font-size: 11px !important;
+  }
+
+  .timeframeSelect {
+    height: 38px !important;
+    grid-template-columns: 40px 1fr 20px !important;
+  }
+
+  .timeframeSelect > span,
+  .timeframeSelect select {
+    font-size: 10px !important;
+  }
+
+  .marketFeedMessage {
+    display: none !important;
+  }
+
+  .realMarketChartPanel {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 390px !important;
+    height: min(57vh, 540px) !important;
+    overflow: hidden !important;
+    border-radius: 14px !important;
+  }
+
+  .realChartShell {
+    min-height: 390px !important;
+    grid-template-rows: 38px minmax(0, 1fr) 22px !important;
+  }
+
+  .realChartCaption {
+    padding: 0 9px !important;
+  }
+
+  .realChartCaption span {
+    font-size: 11px !important;
+  }
+
+  .realChartCaption b,
+  .realChartCaption strong {
+    font-size: 7px !important;
+  }
+
+  .realTradingViewWidget {
+    overflow: hidden !important;
+    touch-action: pan-x pan-y !important;
+  }
+
+  .chartGestureHint {
+    font-size: 7px !important;
+  }
+
+  .marketOrderStack {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+    padding: 10px !important;
+    overflow: visible !important;
+  }
+
+  .marketActionColumn {
+    order: 1 !important;
+    width: 100% !important;
+  }
+
+  .realMarketOrderForm {
+    order: 2 !important;
+    width: 100% !important;
+  }
+
+  .marketOrderStack > .viewOpenTradesBtn {
+    order: 3 !important;
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    margin: 0 !important;
+  }
+
+  .realMarketStats {
+    order: 4 !important;
+    display: none !important;
+  }
+
+  .marketKeyNotice {
+    order: 5 !important;
+    min-height: 0 !important;
+    align-items: flex-start !important;
+    padding: 8px 10px !important;
+    font-size: 8px !important;
+  }
+
+  .buySellProBox {
+    height: 92px !important;
+  }
+
+  .buySellProBox button {
+    height: 92px !important;
+    min-height: 92px !important;
+  }
+
+  .buySellProBox button b {
+    font-size: 16px !important;
+  }
+
+  .buySellProBox button strong {
+    font-size: 18px !important;
+  }
+
+  .realMarketOrderForm .orderInputs {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .realMarketOrderForm .orderInput > div,
+  .realMarketOrderForm .orderInput select {
+    height: 46px !important;
+  }
+
+  .realMarketOrderForm .orderInput span {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .realMarketChartPanel {
+    min-height: 350px !important;
+    height: min(53vh, 470px) !important;
+  }
+
+  .realChartShell {
+    min-height: 350px !important;
+  }
+
+  .realMarketHeaderCard .marketPriceBlock strong {
+    font-size: 13px !important;
+  }
+
+  .singleTimeframeBar {
+    grid-template-columns: minmax(0, 1fr) 130px !important;
+  }
+}
