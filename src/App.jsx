@@ -221,6 +221,17 @@ export default function App() {
     return () => clearInterval(timer);
   }, [botRunning, selectedBot, account, balances]);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const main = document.querySelector(".mainScreen");
+      const page = main?.querySelector(".page");
+      main?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      page?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [activePage]);
+
   async function refreshUser() {
     try {
       const res = await fetch(`${API_URL}/api/user/${encodeURIComponent(user.email)}`);
@@ -727,13 +738,22 @@ export default function App() {
             livePrice={livePrice}
             prices={prices}
             positions={positions}
-            closedPositions={closedPositions}
             placeForexOrder={placeForexOrder}
+            setActivePage={setActivePage}
+            openDeposit={() => setDepositOpen(true)}
+          />
+        )}
+
+        {activePage === "openTrades" && (
+          <OpenTradesPage
+            account={account}
+            balance={balance}
+            positions={positions}
+            closedPositions={closedPositions}
             updatePosition={updatePosition}
             closePosition={closePosition}
             closeAllPositions={closeAllPositions}
-            setActivePage={setActivePage}
-            openDeposit={() => setDepositOpen(true)}
+            back={() => setActivePage("forex")}
           />
         )}
 
@@ -1331,11 +1351,7 @@ function ForexPage({
   livePrice,
   prices,
   positions,
-  closedPositions,
   placeForexOrder,
-  updatePosition,
-  closePosition,
-  closeAllPositions,
   setActivePage,
   openDeposit,
 }) {
@@ -1344,28 +1360,13 @@ function ForexPage({
   const [leverage, setLeverage] = useState("1:100");
   const [stopLoss, setStopLoss] = useState(1.08312);
   const [takeProfit, setTakeProfit] = useState(1.08789);
-  const [tab, setTab] = useState("open");
-  const [showLines, setShowLines] = useState(true);
-  const [tradesOpen, setTradesOpen] = useState(false);
+  const [showLines] = useState(true);
   const [orderBusy, setOrderBusy] = useState(false);
 
-  const visiblePositions = positions.filter(
-    (p) => p.instrument === symbol && p.account === account
-  );
-  const profitCount = visiblePositions.filter((p) => p.pl >= 0).length;
-  const lossCount = visiblePositions.filter((p) => p.pl < 0).length;
-
-  const rows =
-    tab === "profit"
-      ? visiblePositions.filter((p) => p.pl >= 0)
-      : tab === "loss"
-      ? visiblePositions.filter((p) => p.pl < 0)
-      : tab === "closed"
-      ? closedPositions.filter((p) => p.instrument === symbol && p.account === account)
-      : visiblePositions;
-
-  const floatingPl = visiblePositions.reduce((sum, p) => sum + Number(p.pl || 0), 0);
-  const usedMargin = visiblePositions.reduce((sum, p) => sum + Number(p.margin || 0), 0);
+  const accountPositions = positions.filter((p) => p.account === account);
+  const visiblePositions = accountPositions.filter((p) => p.instrument === symbol);
+  const floatingPl = accountPositions.reduce((sum, p) => sum + Number(p.pl || 0), 0);
+  const usedMargin = accountPositions.reduce((sum, p) => sum + Number(p.margin || 0), 0);
   const freeMargin = Math.max(0, Number(balance || 0) + floatingPl - usedMargin);
 
   function order(side) {
@@ -1385,7 +1386,7 @@ function ForexPage({
     setTakeProfit(Number(normalizedTakeProfit.toFixed(5)));
     setOrderBusy(true);
 
-    const placed = placeForexOrder({
+    placeForexOrder({
       side,
       symbol,
       volume,
@@ -1394,7 +1395,6 @@ function ForexPage({
       takeProfit: normalizedTakeProfit,
     });
 
-    if (placed) setTradesOpen(true);
     window.setTimeout(() => setOrderBusy(false), 700);
   }
 
@@ -1403,7 +1403,7 @@ function ForexPage({
       <HubNav active="Forex" setActivePage={setActivePage} openDeposit={openDeposit} />
 
       <section className="forexSymbolBar forexMarketCard">
-        <button className="marketBack">‹</button>
+        <button className="marketBack" aria-label="Back">‹</button>
 
         <label className="symbolPicker">
           <span>★</span>
@@ -1416,7 +1416,7 @@ function ForexPage({
 
         <div className="marketNameBlock">
           <strong>{symbol}</strong>
-          <small>Live TradingView market</small>
+          <small>Live trading market</small>
         </div>
 
         <div className="marketPriceBlock">
@@ -1454,12 +1454,6 @@ function ForexPage({
         />
       </section>
 
-      <button className="openTradesFloatingBtn" onClick={() => setTradesOpen((x) => !x)}>
-        <span>Open Trades</span>
-        <b>{visiblePositions.length}</b>
-        <em>{tradesOpen ? '⌄' : '⌃'}</em>
-      </button>
-
       <section className="proOrderPanel forexOrderCard">
         <div className="orderForm">
           <div className="orderTabs">
@@ -1484,27 +1478,39 @@ function ForexPage({
           </div>
         </div>
 
-        <div className="buySellBox buySellProBox">
-          <button
-            type="button"
-            className="buyLarge"
-            onClick={() => order("Buy")}
-            disabled={orderBusy}
-          >
-            <b>{orderBusy ? "Placing…" : "Buy ↗"}</b>
-            <strong>{livePrice.toFixed(5)}</strong>
-            <MiniSpark type="green" />
-          </button>
+        <div className="tradeActionColumn">
+          <div className="buySellBox buySellProBox">
+            <button
+              type="button"
+              className="buyLarge"
+              onClick={() => order("Buy")}
+              disabled={orderBusy}
+            >
+              <b>{orderBusy ? "Placing…" : "Buy ↗"}</b>
+              <strong>{livePrice.toFixed(5)}</strong>
+              <MiniSpark type="green" />
+            </button>
+
+            <button
+              type="button"
+              className="sellLarge"
+              onClick={() => order("Sell")}
+              disabled={orderBusy}
+            >
+              <b>{orderBusy ? "Placing…" : "Sell ↘"}</b>
+              <strong>{(livePrice - 0.00012).toFixed(5)}</strong>
+              <MiniSpark type="red" />
+            </button>
+          </div>
 
           <button
             type="button"
-            className="sellLarge"
-            onClick={() => order("Sell")}
-            disabled={orderBusy}
+            className="viewOpenTradesBtn"
+            onClick={() => setActivePage("openTrades")}
           >
-            <b>{orderBusy ? "Placing…" : "Sell ↘"}</b>
-            <strong>{(livePrice - 0.00012).toFixed(5)}</strong>
-            <MiniSpark type="red" />
+            <span>View Open Trades</span>
+            <b>{accountPositions.length}</b>
+            <em>›</em>
           </button>
         </div>
 
@@ -1515,90 +1521,159 @@ function ForexPage({
           <p><span>Floating P/L</span><b className={floatingPl >= 0 ? "green" : "red"}>{floatingPl >= 0 ? "+" : ""}{money(floatingPl)} USD</b></p>
         </div>
       </section>
+    </div>
+  );
+}
 
-      <section className={`tradeManager openTradesPanel ${tradesOpen ? 'open' : ''}`}>
-        <div className="managerTabs">
-          <button className={tab === 'open' ? 'active' : ''} onClick={() => setTab('open')}>
-            Open Trades <b>{visiblePositions.length}</b>
-          </button>
+function OpenTradesPage({
+  account,
+  balance,
+  positions,
+  closedPositions,
+  updatePosition,
+  closePosition,
+  closeAllPositions,
+  back,
+}) {
+  const [tab, setTab] = useState("open");
+  const [market, setMarket] = useState("All markets");
 
-          <button className={tab === 'profit' ? 'active' : ''} onClick={() => setTab('profit')}>
-            Winning <b>{profitCount}</b>
-          </button>
+  const open = positions.filter((p) => p.account === account);
+  const closed = closedPositions.filter((p) => p.account === account);
+  const winning = open.filter((p) => Number(p.pl || 0) >= 0);
+  const losing = open.filter((p) => Number(p.pl || 0) < 0);
 
-          <button className={tab === 'loss' ? 'active' : ''} onClick={() => setTab('loss')}>
-            Losing <b>{lossCount}</b>
-          </button>
+  const selectedRows =
+    tab === "winning" ? winning :
+    tab === "losing" ? losing :
+    tab === "history" ? closed : open;
 
-          <button className={tab === 'closed' ? 'active' : ''} onClick={() => setTab('closed')}>
-            History
-          </button>
+  const rows = market === "All markets"
+    ? selectedRows
+    : selectedRows.filter((p) => p.instrument === market);
 
-          <label>
-            <input checked={showLines} onChange={(e) => setShowLines(e.target.checked)} type="checkbox" />
-            Lines
-          </label>
+  const markets = Array.from(new Set([...open, ...closed].map((p) => p.instrument))).filter(Boolean);
+  const floatingPl = open.reduce((sum, p) => sum + Number(p.pl || 0), 0);
+  const usedMargin = open.reduce((sum, p) => sum + Number(p.margin || 0), 0);
+  const equity = Number(balance || 0) + floatingPl;
+  const freeMargin = Math.max(0, equity - usedMargin);
+  const isHistory = tab === "history";
 
-          <button className="closeAll" onClick={() => closeAllPositions({ account, instrument: symbol })}>Close All</button>
+  return (
+    <div className="page openTradesFullPage">
+      <header className="openTradesHeader">
+        <button type="button" onClick={back} aria-label="Back to market">‹</button>
+        <div>
+          <small>Markets</small>
+          <h1>{isHistory ? "Trade History" : "Open Trades"}</h1>
         </div>
+        <span className={`accountPill ${account}`}>{account === "real" ? "Real" : "Demo"}</span>
+      </header>
 
-        <div className="tradeTable">
-          <div className="tradeHead">
-            <span>Instrument</span>
-            <span>Type</span>
-            <span>Volume</span>
-            <span>Open Price</span>
-            <span>Current Price</span>
-            <span>SL</span>
-            <span>TP</span>
-            <span>P/L</span>
-            <span>Action</span>
+      <section className="tradeOverviewCards">
+        <article><span>Balance</span><strong>{money(balance)}</strong><small>USD</small></article>
+        <article><span>Equity</span><strong>{money(equity)}</strong><small>USD</small></article>
+        <article><span>Free margin</span><strong>{money(freeMargin)}</strong><small>USD</small></article>
+        <article><span>Floating P/L</span><strong className={floatingPl >= 0 ? "green" : "red"}>{floatingPl >= 0 ? "+" : ""}{money(floatingPl)}</strong><small>USD</small></article>
+      </section>
+
+      <nav className="openTradeTabs" aria-label="Trade filters">
+        <button className={tab === "open" ? "active" : ""} onClick={() => setTab("open")}>Open <b>{open.length}</b></button>
+        <button className={tab === "winning" ? "active" : ""} onClick={() => setTab("winning")}>Winning <b>{winning.length}</b></button>
+        <button className={tab === "losing" ? "active" : ""} onClick={() => setTab("losing")}>Losing <b>{losing.length}</b></button>
+        <button className={tab === "history" ? "active" : ""} onClick={() => setTab("history")}>History <b>{closed.length}</b></button>
+      </nav>
+
+      <section className="openTradesControls">
+        <label>
+          <span>Market</span>
+          <select value={market} onChange={(e) => setMarket(e.target.value)}>
+            <option>All markets</option>
+            {markets.map((item) => <option key={item}>{item}</option>)}
+          </select>
+        </label>
+
+        {!isHistory && (
+          <button
+            type="button"
+            className="closeAllTradesBtn"
+            disabled={open.length === 0}
+            onClick={() => closeAllPositions({ account })}
+          >
+            Close all
+          </button>
+        )}
+      </section>
+
+      <section className="openTradeCardList">
+        {rows.length === 0 && (
+          <div className="openTradesEmpty">
+            <b>{isHistory ? "No closed trades yet" : "No open trades"}</b>
+            <span>{isHistory ? "Your completed positions will appear here." : "Go back to Markets and place a Buy or Sell order."}</span>
+            {!isHistory && <button type="button" onClick={back}>Go to market</button>}
           </div>
+        )}
 
-          {rows.length === 0 && <div className="emptyRow">No open trades yet. Place Buy or Sell order.</div>}
-
-          {rows.map((p) => (
-            <div className="tradeRow" key={p.id}>
-              <strong className="tradeCell tradeInstrument" data-label="Instrument">{p.instrument}</strong>
-              <b className={`tradeCell ${p.side === "Buy" ? "buyTag" : "sellTag"}`} data-label="Type">{p.side}</b>
-              <span className="tradeCell" data-label="Volume">{p.volume}</span>
-              <span className="tradeCell" data-label="Open Price">{Number(p.openPrice).toFixed(5)}</span>
-              <span className="tradeCell" data-label="Current Price">{Number(p.currentPrice || p.openPrice).toFixed(5)}</span>
-
-              <span className="tradeCell editableTradeCell" data-label="Stop Loss">
-                {tab === "closed" ? (
-                  Number(p.stopLoss).toFixed(5)
-                ) : (
-                  <input
-                    aria-label="Stop Loss"
-                    value={p.stopLoss}
-                    onChange={(e) => updatePosition(p.id, { stopLoss: Number(e.target.value) })}
-                  />
-                )}
-              </span>
-
-              <span className="tradeCell editableTradeCell" data-label="Take Profit">
-                {tab === "closed" ? (
-                  Number(p.takeProfit).toFixed(5)
-                ) : (
-                  <input
-                    aria-label="Take Profit"
-                    value={p.takeProfit}
-                    onChange={(e) => updatePosition(p.id, { takeProfit: Number(e.target.value) })}
-                  />
-                )}
-              </span>
-
-              <em className={`tradeCell ${p.pl >= 0 ? "green" : "red"}`} data-label="P/L">
-                {p.pl >= 0 ? "+" : ""}{money(p.pl)} USD
-              </em>
-
-              <span className="tradeCell tradeAction" data-label="Action">
-                {tab === "closed" ? <span>Closed</span> : <button onClick={() => closePosition(p.id)}>Close</button>}
-              </span>
+        {rows.map((p) => (
+          <article className="fullTradeCard" key={p.id}>
+            <div className="fullTradeTop">
+              <div>
+                <small>{p.instrument}</small>
+                <strong className={p.side === "Buy" ? "green" : "red"}>{p.side} · {p.volume} lot</strong>
+              </div>
+              <div className="fullTradeProfit">
+                <span>Profit / Loss</span>
+                <b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>
+                  {Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)} USD
+                </b>
+              </div>
             </div>
-          ))}
-        </div>
+
+            <div className="fullTradeGrid">
+              <p><span>Open price</span><b>{Number(p.openPrice || 0).toFixed(5)}</b></p>
+              <p><span>Current price</span><b>{Number(p.currentPrice || p.openPrice || 0).toFixed(5)}</b></p>
+              <p><span>Leverage</span><b>{p.leverage || "1:100"}</b></p>
+              <p><span>Margin</span><b>{money(p.margin)} USD</b></p>
+              <p><span>Opened</span><b>{p.openedAt || "—"}</b></p>
+              <p><span>Status</span><b>{isHistory ? "Closed" : "Live"}</b></p>
+            </div>
+
+            <div className="tradeProtectionGrid">
+              <label>
+                <span>Stop Loss</span>
+                {isHistory ? (
+                  <b>{Number(p.stopLoss || 0).toFixed(5)}</b>
+                ) : (
+                  <input
+                    type="number"
+                    step="0.00001"
+                    value={p.stopLoss ?? ""}
+                    onChange={(e) => updatePosition(p.id, { stopLoss: e.target.value })}
+                  />
+                )}
+              </label>
+
+              <label>
+                <span>Take Profit</span>
+                {isHistory ? (
+                  <b>{Number(p.takeProfit || 0).toFixed(5)}</b>
+                ) : (
+                  <input
+                    type="number"
+                    step="0.00001"
+                    value={p.takeProfit ?? ""}
+                    onChange={(e) => updatePosition(p.id, { takeProfit: e.target.value })}
+                  />
+                )}
+              </label>
+            </div>
+
+            <div className="fullTradeFooter">
+              <small>Ticket {String(p.id).slice(-8)} {isHistory && p.closedAt ? `· Closed ${p.closedAt}` : "· Updating live"}</small>
+              {!isHistory && <button type="button" onClick={() => closePosition(p.id)}>Close trade</button>}
+            </div>
+          </article>
+        ))}
       </section>
     </div>
   );
@@ -1936,6 +2011,13 @@ function BotsPage({ bots, startBot }) {
 
   return (
     <div className="page botsPage">
+      <header className="botsTopBar">
+        <div>
+          <small>AI trading</small>
+          <h1>My Bots</h1>
+        </div>
+        <span><b>{running}</b> running</span>
+      </header>
 
       <section className="botStats">
         <Stat icon="🤖" value={bots.length} label="Total Bots" spark="blue" />
@@ -2448,10 +2530,20 @@ function BottomNav({ activePage, setActivePage }) {
       {items.map(([key, label, icon]) => (
         <button
           key={key}
-          className={activePage === key || (key === "bots" && activePage === "botLive") ? "active" : ""}
+          className={
+            activePage === key ||
+            (key === "bots" && activePage === "botLive") ||
+            (key === "forex" && activePage === "openTrades")
+              ? "active"
+              : ""
+          }
           onClick={() => setActivePage(key)}
           aria-label={label}
-          aria-current={activePage === key ? "page" : undefined}
+          aria-current={
+            activePage === key || (key === "forex" && activePage === "openTrades")
+              ? "page"
+              : undefined
+          }
         >
           <span>{icon}</span>
           <small>{label}</small>
