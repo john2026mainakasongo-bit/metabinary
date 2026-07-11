@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-deposit-fix-2026-07-11-v2";
+const FRONTEND_BUILD = "metabinary-mongodb-admin-2026-07-11-v1";
 
 if (typeof window !== "undefined") {
   window.__METABINARY_BUILD__ = FRONTEND_BUILD;
@@ -16,6 +16,8 @@ if (typeof window !== "undefined") {
 
 const STORE = {
   user: "mb_user",
+  token: "mb_auth_token",
+  adminToken: "mb_admin_token",
   account: "mb_account",
   balances: "mb_balances",
   tx: "mb_transactions",
@@ -260,6 +262,36 @@ async function readApiResponse(response) {
   }
 }
 
+function normalizeApiUser(raw = {}) {
+  const fullName = raw.fullName || raw.name || String(raw.email || "MetaBinary User").split("@")[0];
+  const brokerId = raw.brokerId || raw.accountId || "";
+  return {
+    ...raw,
+    name: fullName,
+    fullName,
+    brokerId,
+    accountId: raw.accountId || brokerId,
+    initials: initials(fullName),
+    verified: Boolean(raw.verified ?? raw.emailVerified ?? false),
+  };
+}
+
+function currentUserToken() {
+  return localStorage.getItem(STORE.token) || "";
+}
+
+function currentAdminToken() {
+  return localStorage.getItem(STORE.adminToken) || "";
+}
+
+function apiHeaders(extra = {}, token = currentUserToken()) {
+  return {
+    Accept: "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
+  };
+}
+
 function wait(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
@@ -436,8 +468,9 @@ async function fetchMarketCandles(market, timeframe, signal) {
     );
 }
 
-export default function App() {
+function TradingApp() {
   const [user, setUser] = useState(() => readStore(STORE.user, null));
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
   const [authMode, setAuthMode] = useState("login");
 
   const [activePage, setActivePage] = useState("home");
@@ -724,7 +757,7 @@ export default function App() {
 
     const timer = setInterval(refreshUser, 8000);
     return () => clearInterval(timer);
-  }, [user?.email]);
+  }, [user?.email, authToken]);
 
   useEffect(() => {
     if (!botRunning || !selectedBot) return;
@@ -748,14 +781,29 @@ export default function App() {
   }, [activePage]);
 
   async function refreshUser() {
+    if (!user?.email || !authToken) return;
     try {
-      const res = await fetch(`${API_URL}/api/user/${encodeURIComponent(user.email)}`);
+      const res = await fetch(`${API_URL}/api/user/${encodeURIComponent(user.email)}`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
       const data = await readApiResponse(res);
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem(STORE.token);
+        localStorage.removeItem(STORE.user);
+        setAuthToken("");
+        setUser(null);
+        notify("loss", "Account access blocked", data.message || "Login again to continue.", 5000);
+        return;
+      }
       if (!res.ok || data.ok === false) return;
 
+      const updatedUser = normalizeApiUser(data.user || data);
+      setUser((old) => ({ ...old, ...updatedUser }));
       setBalances((old) => ({
-        demo: Number(data.demoBalance ?? old.demo ?? 10000),
-        real: Number(data.realBalance ?? old.real ?? 0),
+        demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+        real: Number(updatedUser.realBalance ?? old.real ?? 0),
       }));
     } catch {
       return;
@@ -854,53 +902,90 @@ export default function App() {
     notify("win", "Referral link created", "You can now invite traders and earn commissions.");
   }
 
-  function login(data) {
+  async function login(data) {
     if (!data.email || !data.password) {
       notify("loss", "Login failed", "Enter email and password.");
-      return;
+      return false;
     }
 
-    const logged = {
-      name: data.email.split("@")[0],
-      email: data.email,
-      initials: initials(data.email),
-      brokerId: "MB" + Math.floor(100000 + Math.random() * 900000),
-      verified: true,
-    };
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, ""),
+        cache: "no-store",
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) throw new Error(result.message || "Login failed.");
 
-    setUser(logged);
-    setActivePage("home");
-    notify("win", "Welcome back", "Login successful.");
+      const logged = normalizeApiUser(result.user);
+      localStorage.setItem(STORE.token, result.token);
+      setAuthToken(result.token);
+      setUser(logged);
+      setBalances({
+        demo: Number(logged.demoBalance ?? 10000),
+        real: Number(logged.realBalance ?? 0),
+      });
+      setActivePage("home");
+      notify("win", "Welcome back", result.message || "Login successful.");
+      return true;
+    } catch (error) {
+      notify("loss", "Login failed", error instanceof Error ? error.message : "Unable to login.", 4500);
+      return false;
+    }
   }
 
-  function register(data) {
-    if (!data.firstName || !data.lastName || !data.email || !data.password) {
-      notify("loss", "Register failed", "Fill all required fields.");
-      return;
+  async function register(data) {
+    if (!data.firstName || !data.lastName || !data.email || !data.phone || !data.password) {
+      notify("loss", "Register failed", "Fill all required fields, including phone number.");
+      return false;
     }
 
     if (data.password !== data.confirmPassword) {
       notify("loss", "Password error", "Passwords do not match.");
-      return;
+      return false;
     }
 
-    const created = {
-      name: `${data.firstName} ${data.lastName}`,
-      email: data.email,
-      phone: data.phone,
-      initials: initials(`${data.firstName} ${data.lastName}`),
-      brokerId: "MB" + Math.floor(100000 + Math.random() * 900000),
-      verified: true,
-    };
+    try {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, ""),
+        cache: "no-store",
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          fullName: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          phone: data.phone,
+          password: data.password,
+          country: "Kenya",
+          documentType: "National ID",
+        }),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) throw new Error(result.message || "Registration failed.");
 
-    setUser(created);
-    setBalances({ demo: 10000, real: 0 });
-    setActivePage("home");
-    notify("win", "Account created", "Your demo account is ready.");
+      const created = normalizeApiUser(result.user);
+      localStorage.setItem(STORE.token, result.token);
+      setAuthToken(result.token);
+      setUser(created);
+      setBalances({
+        demo: Number(created.demoBalance ?? 10000),
+        real: Number(created.realBalance ?? 0),
+      });
+      setActivePage("home");
+      notify("win", "Account created", result.message || "Your MetaBinary account is ready.");
+      return true;
+    } catch (error) {
+      notify("loss", "Register failed", error instanceof Error ? error.message : "Unable to register.", 4500);
+      return false;
+    }
   }
 
   function logout() {
     localStorage.removeItem(STORE.user);
+    localStorage.removeItem(STORE.token);
+    setAuthToken("");
     setUser(null);
     setMenuOpen(false);
     setActivePage("home");
@@ -1249,7 +1334,7 @@ export default function App() {
           `${API_URL}/api/deposit/${encodeURIComponent(depositId)}/status`,
           {
             method: "GET",
-            headers: { Accept: "application/json" },
+            headers: apiHeaders({}, authToken),
             cache: "no-store",
           }
         );
@@ -1319,10 +1404,7 @@ export default function App() {
     try {
       const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
         cache: "no-store",
         body: JSON.stringify({
           method,
@@ -1415,10 +1497,7 @@ export default function App() {
     try {
       const response = await fetch(`${API_URL}/api/withdraw`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
         cache: "no-store",
         body: JSON.stringify({
           ...data,
@@ -1472,7 +1551,7 @@ export default function App() {
     }
   }
 
-  if (!user) {
+  if (!user || !authToken) {
     return (
       <>
         <AuthScreen mode={authMode} setMode={setAuthMode} login={login} register={register} />
@@ -1635,6 +1714,12 @@ export default function App() {
       {toast && <Toast toast={toast} />}
     </div>
   );
+}
+
+export default function App() {
+  const params = new URLSearchParams(window.location.search);
+  const adminMode = window.location.pathname.startsWith("/admin") || params.get("admin") === "1";
+  return adminMode ? <AdminPortal /> : <TradingApp />;
 }
 
 function Logo() {
@@ -3970,6 +4055,365 @@ function PaymentButton({ icon, title, text, onClick }) {
 
       <b>›</b>
     </button>
+  );
+}
+
+
+function AdminPortal() {
+  const [token, setToken] = useState(() => currentAdminToken());
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [adjustment, setAdjustment] = useState({ account: "real", adjustment: "", reason: "" });
+  const [statusReason, setStatusReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const adminHeaders = (extra = {}) => apiHeaders(extra, token);
+
+  useEffect(() => {
+    if (!token) return;
+    void loadAdminData();
+  }, [token]);
+
+  async function adminRequest(path, options = {}) {
+    const response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: adminHeaders(options.headers || {}),
+      cache: "no-store",
+    });
+    const result = await readApiResponse(response);
+    if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem(STORE.adminToken);
+      setToken("");
+    }
+    if (!response.ok || result.ok === false) throw new Error(result.message || `Admin request failed (${response.status}).`);
+    return result;
+  }
+
+  async function loginAdmin(event) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, ""),
+        body: JSON.stringify(credentials),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) throw new Error(result.message || "Admin login failed.");
+      localStorage.setItem(STORE.adminToken, result.token);
+      setToken(result.token);
+      setMessage("Admin login successful.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Admin login failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loadAdminData(query = search) {
+    setBusy(true);
+    setMessage("");
+    try {
+      const q = encodeURIComponent(query.trim());
+      const [usersResult, statsResult] = await Promise.all([
+        adminRequest(`/api/admin/users?limit=100&search=${q}`),
+        adminRequest("/api/admin/stats"),
+      ]);
+      setUsers(usersResult.users || []);
+      setStats(statsResult.stats || null);
+      if (selected) {
+        const fresh = (usersResult.users || []).find((item) => item.id === selected.id);
+        if (fresh) setSelected(fresh);
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to load users.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openUser(user) {
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await adminRequest(`/api/admin/users/${encodeURIComponent(user.id || user.email)}`);
+      setSelected(result.user);
+      setTransactions(result.transactions || []);
+      setStatusReason("");
+      setAdjustment({ account: "real", adjustment: "", reason: "" });
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to open user.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function adjustBalance(event) {
+    event.preventDefault();
+    if (!selected) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await adminRequest(
+        `/api/admin/users/${encodeURIComponent(selected.id || selected.email)}/adjust-balance`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            account: adjustment.account,
+            adjustment: Number(adjustment.adjustment),
+            reason: adjustment.reason,
+          }),
+        }
+      );
+      setSelected(result.user);
+      setTransactions((old) => [result.transaction, ...old]);
+      setAdjustment((old) => ({ ...old, adjustment: "", reason: "" }));
+      setMessage(result.message || "Balance updated.");
+      await loadAdminData();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Balance update failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function changeStatus(status) {
+    if (!selected) return;
+    if (status !== "active" && !statusReason.trim()) {
+      setMessage("Enter a reason before suspending or banning the account.");
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await adminRequest(
+        `/api/admin/users/${encodeURIComponent(selected.id || selected.email)}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status, reason: status === "active" ? "Account restored by admin" : statusReason }),
+        }
+      );
+      setSelected(result.user);
+      setStatusReason("");
+      setMessage(result.message || "Account status updated.");
+      await loadAdminData();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Status update failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function logoutAdmin() {
+    localStorage.removeItem(STORE.adminToken);
+    setToken("");
+    setUsers([]);
+    setSelected(null);
+  }
+
+  if (!token) {
+    return (
+      <div className="adminShell adminLoginShell">
+        <form className="adminLoginCard" onSubmit={loginAdmin}>
+          <Logo />
+          <span className="adminEyebrow">SECURE ADMIN AREA</span>
+          <h1>MetaBinary Admin</h1>
+          <p>Sign in with the Admin credentials stored in the Render backend environment.</p>
+          <label>Admin email</label>
+          <input
+            type="email"
+            value={credentials.email}
+            onChange={(event) => setCredentials((old) => ({ ...old, email: event.target.value }))}
+            placeholder="admin@metabinaryfx.com"
+            autoComplete="username"
+          />
+          <label>Admin password</label>
+          <input
+            type="password"
+            value={credentials.password}
+            onChange={(event) => setCredentials((old) => ({ ...old, password: event.target.value }))}
+            placeholder="Admin password"
+            autoComplete="current-password"
+          />
+          {message && <div className="adminMessage">{message}</div>}
+          <button className="adminPrimary" disabled={busy}>{busy ? "Signing in…" : "Sign in as Admin"}</button>
+          <a href="/" className="adminBackLink">← Return to trading platform</a>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="adminShell">
+      <header className="adminHeader">
+        <div>
+          <Logo />
+          <small>MongoDB account administration</small>
+        </div>
+        <div className="adminHeaderActions">
+          <a href="/">Open platform</a>
+          <button onClick={logoutAdmin}>Log out</button>
+        </div>
+      </header>
+
+      <main className="adminMain">
+        <section className="adminStatsGrid">
+          <AdminStat title="Registered users" value={stats?.totalUsers ?? "—"} />
+          <AdminStat title="Active accounts" value={stats?.activeUsers ?? "—"} />
+          <AdminStat title="Banned accounts" value={stats?.bannedUsers ?? "—"} />
+          <AdminStat title="Completed deposits" value={`$${money(stats?.totalDeposits || 0)}`} />
+          <AdminStat title="Withdrawals" value={`$${money(stats?.totalWithdrawals || 0)}`} />
+        </section>
+
+        {message && <div className="adminMessage adminMessageWide">{message}</div>}
+
+        <section className="adminWorkspace">
+          <div className="adminUsersPanel">
+            <div className="adminPanelTitle">
+              <div>
+                <h2>Registered Accounts</h2>
+                <p>Accounts stored in MongoDB → {`metabinary.users`}</p>
+              </div>
+              <button onClick={() => loadAdminData()} disabled={busy}>Refresh</button>
+            </div>
+
+            <form className="adminSearch" onSubmit={(event) => { event.preventDefault(); void loadAdminData(search); }}>
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search email, name, phone or broker ID"
+              />
+              <button disabled={busy}>Search</button>
+            </form>
+
+            <div className="adminUserList">
+              {users.map((item) => (
+                <button
+                  key={item.id || item.email}
+                  className={`adminUserRow ${selected?.id === item.id ? "selected" : ""}`}
+                  onClick={() => openUser(item)}
+                >
+                  <span className="adminUserAvatar">{initials(item.fullName || item.email)}</span>
+                  <span className="adminUserIdentity">
+                    <strong>{item.fullName || item.name || "Unnamed user"}</strong>
+                    <small>{item.email}</small>
+                    <em>{item.accountId || item.brokerId || "No broker ID"}</em>
+                  </span>
+                  <span className="adminUserBalances">
+                    <b>${money(item.realBalance)}</b>
+                    <small>Demo ${money(item.demoBalance)}</small>
+                  </span>
+                  <span className={`adminStatus ${item.status || "active"}`}>{item.status || "active"}</span>
+                </button>
+              ))}
+              {!users.length && !busy && <div className="adminEmpty">No registered accounts found.</div>}
+              {busy && <div className="adminEmpty">Loading…</div>}
+            </div>
+          </div>
+
+          <div className="adminUserDetail">
+            {!selected ? (
+              <div className="adminEmpty adminSelectPrompt">Select an account to manage balances and access.</div>
+            ) : (
+              <>
+                <div className="adminDetailHeader">
+                  <span className="adminUserAvatar large">{initials(selected.fullName || selected.email)}</span>
+                  <div>
+                    <h2>{selected.fullName || selected.name}</h2>
+                    <p>{selected.email}</p>
+                    <small>{selected.accountId || selected.brokerId}</small>
+                  </div>
+                  <span className={`adminStatus ${selected.status || "active"}`}>{selected.status || "active"}</span>
+                </div>
+
+                <div className="adminBalanceCards">
+                  <div><span>Real balance</span><strong>${money(selected.realBalance)}</strong></div>
+                  <div><span>Demo balance</span><strong>${money(selected.demoBalance)}</strong></div>
+                </div>
+
+                <form className="adminActionCard" onSubmit={adjustBalance}>
+                  <h3>Adjust Balance</h3>
+                  <p>Use a positive amount to add funds or a negative amount to remove funds. Every change is logged.</p>
+                  <div className="adminFormGrid">
+                    <label>
+                      Account
+                      <select value={adjustment.account} onChange={(event) => setAdjustment((old) => ({ ...old, account: event.target.value }))}>
+                        <option value="real">Real account</option>
+                        <option value="demo">Demo account</option>
+                      </select>
+                    </label>
+                    <label>
+                      Adjustment USD
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={adjustment.adjustment}
+                        onChange={(event) => setAdjustment((old) => ({ ...old, adjustment: event.target.value }))}
+                        placeholder="Example: 20 or -10"
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Reason
+                    <input
+                      value={adjustment.reason}
+                      onChange={(event) => setAdjustment((old) => ({ ...old, reason: event.target.value }))}
+                      placeholder="Example: Verified deposit correction"
+                    />
+                  </label>
+                  <button className="adminPrimary" disabled={busy}>Apply balance adjustment</button>
+                </form>
+
+                <div className="adminActionCard">
+                  <h3>Account Access</h3>
+                  <p>Suspended and banned users are immediately blocked from login, deposits and withdrawals.</p>
+                  <label>
+                    Reason for suspension or ban
+                    <input value={statusReason} onChange={(event) => setStatusReason(event.target.value)} placeholder="Enter the reason" />
+                  </label>
+                  <div className="adminStatusActions">
+                    <button className="restore" onClick={() => changeStatus("active")} disabled={busy}>Activate</button>
+                    <button className="suspend" onClick={() => changeStatus("suspended")} disabled={busy}>Suspend</button>
+                    <button className="ban" onClick={() => changeStatus("banned")} disabled={busy}>Ban account</button>
+                  </div>
+                </div>
+
+                <div className="adminActionCard adminTransactionsCard">
+                  <h3>Recent Transactions</h3>
+                  <div className="adminTransactions">
+                    {transactions.slice(0, 30).map((tx) => (
+                      <div key={tx.id || tx._id || `${tx.type}-${tx.createdAt}`}>
+                        <span><strong>{tx.type || "transaction"}</strong><small>{tx.reason || tx.reference || tx.status}</small></span>
+                        <b className={Number(tx.amount) < 0 ? "negative" : "positive"}>{Number(tx.amount) >= 0 ? "+" : ""}${money(tx.amount)}</b>
+                        <time>{tx.createdAt ? new Date(tx.createdAt).toLocaleString() : ""}</time>
+                      </div>
+                    ))}
+                    {!transactions.length && <div className="adminEmpty">No transactions yet.</div>}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function AdminStat({ title, value }) {
+  return (
+    <div className="adminStat">
+      <span>{title}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 

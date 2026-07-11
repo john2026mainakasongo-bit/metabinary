@@ -12548,3 +12548,653 @@ button:disabled {
     max-width: 108px !important;
   }
 }
+
+/* =========================================================
+   METABINARY MONGODB ADMIN PORTAL
+   Open /admin or /?admin=1
+   ========================================================= */
+
+.adminShell {
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(0, 111, 255, .16), transparent 34%),
+    radial-gradient(circle at 100% 20%, rgba(0, 204, 132, .10), transparent 30%),
+    #06101c;
+  color: #f7fbff;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+}
+
+.adminLoginShell {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.adminLoginCard {
+  width: min(100%, 440px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 30px;
+  border: 1px solid rgba(122, 164, 214, .23);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(21, 37, 57, .98), rgba(10, 23, 38, .98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .5);
+}
+
+.adminLoginCard .logo {
+  margin-bottom: 8px;
+}
+
+.adminLoginCard h1,
+.adminPanelTitle h2,
+.adminDetailHeader h2,
+.adminActionCard h3 {
+  margin: 0;
+}
+
+.adminLoginCard p,
+.adminPanelTitle p,
+.adminActionCard p,
+.adminDetailHeader p {
+  margin: 0;
+  color: #91a3b9;
+  line-height: 1.5;
+}
+
+.adminEyebrow {
+  color: #4ba0ff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.adminLoginCard label,
+.adminActionCard label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #dce7f5;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.adminLoginCard input,
+.adminActionCard input,
+.adminActionCard select,
+.adminSearch input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #2a405c;
+  border-radius: 12px;
+  outline: none;
+  background: #091726;
+  color: #fff;
+  font: inherit;
+}
+
+.adminLoginCard input:focus,
+.adminActionCard input:focus,
+.adminActionCard select:focus,
+.adminSearch input:focus {
+  border-color: #1681ff;
+  box-shadow: 0 0 0 3px rgba(22, 129, 255, .14);
+}
+
+.adminPrimary,
+.adminSearch button,
+.adminPanelTitle button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, #0876ff, #145cff);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.adminPrimary:disabled,
+.adminSearch button:disabled,
+.adminPanelTitle button:disabled,
+.adminStatusActions button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.adminBackLink {
+  text-align: center;
+  color: #9db0c5;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminMessage {
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 184, 77, .35);
+  border-radius: 11px;
+  background: rgba(255, 153, 0, .09);
+  color: #ffd79a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.adminMessageWide {
+  margin-bottom: 16px;
+}
+
+.adminHeader {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px clamp(16px, 3vw, 38px);
+  border-bottom: 1px solid rgba(112, 151, 196, .17);
+  background: rgba(5, 15, 27, .88);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.adminHeader > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.adminHeader small {
+  color: #7590ad;
+}
+
+.adminHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adminHeaderActions a,
+.adminHeaderActions button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #263d58;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: #0b1a2b;
+  color: #e8f2ff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adminMain {
+  width: min(1540px, 100%);
+  margin: 0 auto;
+  padding: 22px clamp(12px, 2.5vw, 34px) 40px;
+}
+
+.adminStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.adminStat {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: 17px;
+  border: 1px solid rgba(111, 152, 201, .18);
+  border-radius: 17px;
+  background: linear-gradient(150deg, rgba(20, 38, 59, .96), rgba(8, 22, 37, .96));
+}
+
+.adminStat span {
+  color: #88a0bb;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.adminStat strong {
+  color: #fff;
+  font-size: clamp(22px, 2vw, 31px);
+}
+
+.adminWorkspace {
+  display: grid;
+  grid-template-columns: minmax(360px, .85fr) minmax(500px, 1.15fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.adminUsersPanel,
+.adminUserDetail {
+  min-width: 0;
+  border: 1px solid rgba(111, 152, 201, .18);
+  border-radius: 20px;
+  background: rgba(9, 24, 40, .95);
+  overflow: hidden;
+}
+
+.adminUsersPanel {
+  position: sticky;
+  top: 92px;
+}
+
+.adminPanelTitle {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 17px;
+  border-bottom: 1px solid rgba(111, 152, 201, .15);
+}
+
+.adminPanelTitle p {
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.adminSearch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 13px;
+  border-bottom: 1px solid rgba(111, 152, 201, .12);
+}
+
+.adminUserList {
+  max-height: calc(100dvh - 255px);
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.adminUserRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.adminUserRow:hover,
+.adminUserRow.selected {
+  border-color: rgba(42, 133, 255, .38);
+  background: rgba(19, 77, 145, .18);
+}
+
+.adminUserAvatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #137cff, #004bc2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.adminUserAvatar.large {
+  width: 54px;
+  height: 54px;
+  font-size: 16px;
+}
+
+.adminUserIdentity,
+.adminUserBalances {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.adminUserIdentity strong,
+.adminUserIdentity small,
+.adminUserIdentity em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adminUserIdentity strong {
+  font-size: 13px;
+}
+
+.adminUserIdentity small,
+.adminUserIdentity em,
+.adminUserBalances small {
+  color: #8399b2;
+  font-size: 10px;
+  font-style: normal;
+}
+
+.adminUserBalances {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.adminUserBalances b {
+  color: #53dda3;
+  font-size: 12px;
+}
+
+.adminStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(40, 210, 137, .13);
+  color: #53dda3;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.adminStatus.suspended {
+  background: rgba(255, 176, 44, .13);
+  color: #ffbc53;
+}
+
+.adminStatus.banned {
+  background: rgba(255, 69, 100, .14);
+  color: #ff6580;
+}
+
+.adminUserDetail {
+  padding: 18px;
+}
+
+.adminDetailHeader {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 15px;
+}
+
+.adminDetailHeader p,
+.adminDetailHeader small {
+  overflow-wrap: anywhere;
+}
+
+.adminDetailHeader small {
+  color: #65809d;
+}
+
+.adminBalanceCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.adminBalanceCards > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #263d58;
+  border-radius: 14px;
+  background: #071523;
+}
+
+.adminBalanceCards span {
+  color: #8298b0;
+  font-size: 12px;
+}
+
+.adminBalanceCards strong {
+  font-size: 24px;
+}
+
+.adminActionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 13px;
+  padding: 16px;
+  border: 1px solid #20364f;
+  border-radius: 16px;
+  background: #081827;
+}
+
+.adminFormGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.adminStatusActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.adminStatusActions button {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.adminStatusActions .restore {
+  border-color: rgba(52, 213, 151, .35);
+  background: rgba(52, 213, 151, .12);
+  color: #53dda3;
+}
+
+.adminStatusActions .suspend {
+  border-color: rgba(255, 183, 66, .35);
+  background: rgba(255, 183, 66, .11);
+  color: #ffc167;
+}
+
+.adminStatusActions .ban {
+  border-color: rgba(255, 76, 108, .4);
+  background: rgba(255, 76, 108, .12);
+  color: #ff6c87;
+}
+
+.adminTransactions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.adminTransactions > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid rgba(106, 148, 196, .12);
+  border-radius: 10px;
+  background: #06131f;
+}
+
+.adminTransactions span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.adminTransactions strong {
+  text-transform: capitalize;
+  font-size: 12px;
+}
+
+.adminTransactions small,
+.adminTransactions time {
+  color: #7189a3;
+  font-size: 10px;
+}
+
+.adminTransactions b {
+  font-size: 12px;
+}
+
+.adminTransactions b.positive {
+  color: #53dda3;
+}
+
+.adminTransactions b.negative {
+  color: #ff6c87;
+}
+
+.adminEmpty {
+  padding: 26px 14px;
+  color: #7e94ad;
+  text-align: center;
+  font-size: 13px;
+}
+
+.adminSelectPrompt {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 1100px) {
+  .adminStatsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .adminWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .adminUsersPanel {
+    position: static;
+  }
+
+  .adminUserList {
+    max-height: 430px;
+  }
+}
+
+@media (max-width: 700px) {
+  .adminHeader {
+    align-items: flex-start;
+  }
+
+  .adminHeader > div:first-child small {
+    display: none;
+  }
+
+  .adminHeaderActions a {
+    display: none;
+  }
+
+  .adminStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adminMain {
+    padding: 12px 8px 28px;
+  }
+
+  .adminUserDetail,
+  .adminLoginCard {
+    padding: 14px;
+  }
+
+  .adminUserRow {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+  }
+
+  .adminUserAvatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .adminUserBalances {
+    display: none;
+  }
+
+  .adminStatus {
+    min-width: 56px;
+    padding: 0 7px;
+    font-size: 8px;
+  }
+
+  .adminFormGrid,
+  .adminStatusActions {
+    grid-template-columns: 1fr;
+  }
+
+  .adminTransactions > div {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .adminTransactions time {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 420px) {
+  .adminStatsGrid {
+    gap: 7px;
+  }
+
+  .adminStat {
+    min-height: 82px;
+    padding: 12px;
+  }
+
+  .adminStat span {
+    font-size: 9px;
+  }
+
+  .adminStat strong {
+    font-size: 19px;
+  }
+
+  .adminPanelTitle {
+    padding: 12px;
+  }
+
+  .adminSearch {
+    grid-template-columns: 1fr;
+  }
+
+  .adminDetailHeader {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .adminDetailHeader .adminStatus {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .adminBalanceCards {
+    grid-template-columns: 1fr;
+  }
+}
