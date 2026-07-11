@@ -12454,3 +12454,97 @@ button:disabled {
     font-size: 10px !important;
   }
 }
+
+
+/* =========================================================
+   FINAL ACCOUNT, DIGIT AND MOBILE HEADER CORRECTIONS
+   ========================================================= */
+
+.cleanBrokerHeader .brokerWallet.accountSelectorButton {
+  grid-template-columns: minmax(0, 1fr) 18px !important;
+}
+
+.cleanBrokerHeader .accountStatusIcon,
+.accountPickerPanel .accountChoiceIcon,
+.cleanBrokerHeader .usdFlag {
+  display: none !important;
+}
+
+.cleanBrokerHeader .accountSelectorText small i {
+  display: inline-block !important;
+}
+
+.accountPickerPanel > button {
+  grid-template-columns: minmax(0, 1fr) 24px !important;
+}
+
+.accountPickerPanel > button > span:not(.accountChoiceIcon) {
+  min-width: 0 !important;
+}
+
+.chartDigit > strong,
+.chartDigit > .digitPercent,
+.chartDigit.highestDigit > strong,
+.chartDigit.highestDigit > .digitPercent,
+.chartDigit.lowestDigit > strong,
+.chartDigit.lowestDigit > .digitPercent,
+.chartDigit.picked > strong,
+.chartDigit.picked > .digitPercent,
+.chartDigit.waitingWinner > strong,
+.chartDigit.waitingWinner > .digitPercent {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+.chartDigit.resultWin > strong,
+.chartDigit.resultWin > .digitPercent,
+.chartDigit.resultLoss > strong,
+.chartDigit.resultLoss > .digitPercent {
+  color: #ffffff !important;
+}
+
+.depositModal button:disabled,
+.depositModal input:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.68 !important;
+}
+
+@media (max-width: 760px) {
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader {
+    grid-template-columns: 28px minmax(86px, 1fr) 118px 30px 34px !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    grid-column: 3 !important;
+    width: 118px !important;
+    max-width: 118px !important;
+    grid-template-columns: minmax(0, 1fr) 10px !important;
+  }
+
+  .cleanBrokerHeader .compactDepositButton,
+  .cleanBrokerHeader .brokerDepositBtn,
+  .cleanBrokerHeader .depositTop {
+    display: none !important;
+  }
+
+  .cleanBrokerHeader .workingBellButton {
+    grid-column: 4 !important;
+  }
+
+  .cleanBrokerHeader .brokerAvatarBtn {
+    grid-column: 5 !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader {
+    grid-template-columns: 26px minmax(72px, 1fr) 108px 27px 31px !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    width: 108px !important;
+    max-width: 108px !important;
+  }
+}

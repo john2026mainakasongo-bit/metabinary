@@ -224,6 +224,35 @@ function uid() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+async function readApiResponse(response) {
+  const text = await response.text();
+
+  if (!text.trim()) {
+    return {
+      ok: response.ok,
+      message: response.ok
+        ? "The server returned an empty response."
+        : `Server error (${response.status}).`,
+    };
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {
+      ok: false,
+      message: response.ok
+        ? "The server returned an invalid response."
+        : `Server error (${response.status}).`,
+      details: text.slice(0, 180),
+    };
+  }
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 function initials(name = "JM") {
   return (
     String(name)
@@ -710,9 +739,8 @@ export default function App() {
   async function refreshUser() {
     try {
       const res = await fetch(`${API_URL}/api/user/${encodeURIComponent(user.email)}`);
-      if (!res.ok) return;
-
-      const data = await res.json();
+      const data = await readApiResponse(res);
+      if (!res.ok || data.ok === false) return;
 
       setBalances((old) => ({
         demo: Number(data.demoBalance ?? old.demo ?? 10000),
@@ -1199,62 +1227,154 @@ export default function App() {
     notify("open", "Bot stopped", "No new contracts will be bought.");
   }
 
+  async function pollDepositStatus(depositId) {
+    if (!depositId) return;
+
+    for (let attempt = 0; attempt < 18; attempt += 1) {
+      await wait(5000);
+
+      try {
+        const res = await fetch(`${API_URL}/api/deposit/${encodeURIComponent(depositId)}/status`);
+        const data = await readApiResponse(res);
+
+        if (!res.ok || data.ok === false) continue;
+
+        const status = String(data.status || "").toUpperCase();
+
+        if (["COMPLETE", "COMPLETED", "PAID", "SUCCESS", "SUCCESSFUL"].includes(status)) {
+          if (Number.isFinite(Number(data.realBalance))) {
+            setBalances((old) => ({ ...old, real: Number(data.realBalance) }));
+          } else {
+            await refreshUser();
+          }
+
+          addTx({
+            type: "Deposit completed",
+            method: "M-Pesa",
+            account: "real",
+            amount: Number(data.amountUsd || 0),
+            status: "Completed",
+            details: data.phone || "M-Pesa",
+          });
+
+          notify("win", "Deposit completed", `${money(data.amountUsd)} USD added to your real account.`);
+          return;
+        }
+
+        if (["FAILED", "CANCELLED", "CANCELED", "REVERSED", "EXPIRED"].includes(status)) {
+          notify("loss", "Deposit not completed", data.message || `Payment status: ${status}.`);
+          return;
+        }
+      } catch {
+        // Keep polling. A temporary network error should not lose a successful payment.
+      }
+    }
+
+    notify("open", "Deposit still pending", "Open History later to confirm the final payment status.");
+  }
+
   async function submitDeposit(data) {
+    const amountUsd = Number(data.amountUsd);
+    const method = String(data.method || "").toLowerCase();
+
+    if (!Number.isFinite(amountUsd) || amountUsd < 1) {
+      notify("loss", "Invalid amount", "Minimum deposit is 1 USD.");
+      return false;
+    }
+
+    if (method === "mpesa" && !String(data.phone || "").trim()) {
+      notify("loss", "Phone required", "Enter the M-Pesa phone number.");
+      return false;
+    }
+
     try {
       const res = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, email: user.email }),
+        body: JSON.stringify({
+          ...data,
+          amountUsd,
+          email: user.email,
+          name: user.name || user.email,
+          requestId: uid(),
+        }),
       });
 
-      const json = await res.json();
+      const json = await readApiResponse(res);
 
-      if (!res.ok || json.ok === false) throw new Error(json.message || "Deposit failed.");
+      if (!res.ok || json.ok === false) {
+        throw new Error(json.message || `Deposit failed (${res.status}).`);
+      }
+
+      if (json.checkoutUrl) {
+        window.location.assign(json.checkoutUrl);
+        return true;
+      }
 
       setDepositOpen(false);
       setAccount("real");
 
       addTx({
         type: "Deposit pending",
-        method: data.method,
+        method: method === "mpesa" ? "M-Pesa" : "Card",
         account: "real",
-        amount: Number(data.amountUsd),
+        amount: amountUsd,
         status: "Pending",
-        details: data.phone || data.method,
+        details: data.phone || method,
       });
 
-      notify("open", "Deposit started", "Check your phone for STK push.");
-      setTimeout(refreshUser, 5000);
+      notify("open", "Deposit started", json.message || "Check your phone for the M-Pesa prompt.");
+      void pollDepositStatus(json.depositId);
+      return true;
     } catch (error) {
       notify("loss", "Deposit error", error.message || "Backend not connected.");
+      return false;
     }
   }
 
   async function submitWithdraw(data) {
     const amount = Number(data.amountUsd);
 
-    if (amount < 5) {
+    if (!Number.isFinite(amount) || amount < 5) {
       notify("loss", "Minimum withdrawal", "Minimum withdrawal is 5 USD.");
-      return;
+      return false;
+    }
+
+    if (!String(data.phone || "").trim()) {
+      notify("loss", "Phone required", "Enter the M-Pesa phone number.");
+      return false;
     }
 
     if (balances.real < amount) {
       notify("loss", "Low real balance", "You do not have enough real balance.");
-      return;
+      return false;
     }
 
     try {
       const res = await fetch(`${API_URL}/api/withdraw`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, email: user.email }),
+        body: JSON.stringify({
+          ...data,
+          amountUsd: amount,
+          email: user.email,
+          name: user.name || user.email,
+          requestId: uid(),
+        }),
       });
 
-      const json = await res.json();
+      const json = await readApiResponse(res);
 
-      if (!res.ok || json.ok === false) throw new Error(json.message || "Withdrawal failed.");
+      if (!res.ok || json.ok === false) {
+        throw new Error(json.message || `Withdrawal failed (${res.status}).`);
+      }
 
-      updateBalance("real", -amount);
+      if (Number.isFinite(Number(json.realBalance))) {
+        setBalances((old) => ({ ...old, real: Number(json.realBalance) }));
+      } else {
+        await refreshUser();
+      }
+
       setWithdrawOpen(false);
 
       addTx({
@@ -1262,13 +1382,15 @@ export default function App() {
         method: "M-Pesa",
         account: "real",
         amount: -amount,
-        status: "Processing",
+        status: json.status || "Processing",
         details: data.phone,
       });
 
-      notify("open", "Withdrawal requested", "Your withdrawal is processing.");
+      notify("open", "Withdrawal requested", json.message || "Your withdrawal is processing.");
+      return true;
     } catch (error) {
       notify("loss", "Withdrawal error", error.message || "Backend not connected.");
+      return false;
     }
   }
 
@@ -1608,14 +1730,10 @@ function Header({
         aria-expanded={accountMenuOpen}
         aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
       >
-        <span className={`accountStatusIcon ${isReal ? "real" : "demo"}`} aria-hidden="true">
-          {isReal ? "R" : "D"}
-        </span>
-
         <span className="accountSelectorText">
           <small>
             {isReal ? "LIVE ACCOUNT" : "DEMO ACCOUNT"}
-            <i></i>
+            {isReal && <i aria-label="Live account online"></i>}
           </small>
           <strong>
             {money(balance)} <em>USD</em>
@@ -1668,7 +1786,6 @@ function Header({
             className={account === "demo" ? "selected" : ""}
             onClick={() => chooseAccount("demo")}
           >
-            <span className="accountChoiceIcon demo">D</span>
             <span>
               <strong>Demo Account</strong>
               <small>{money(balances.demo)} USD</small>
@@ -1683,10 +1800,9 @@ function Header({
             className={account === "real" ? "selected" : ""}
             onClick={() => chooseAccount("real")}
           >
-            <span className="accountChoiceIcon real">R</span>
             <span>
               <strong>Real Account</strong>
-              <small>{money(balances.real)} USD</small>
+              <small>{money(balances.real)} USD · ID {user.brokerId}</small>
             </span>
             <i>{account === "real" ? "✓" : ""}</i>
           </button>
@@ -3622,7 +3738,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
             <section>
               <small>{account === "demo" ? "Demo Account" : "Real Account"}</small>
               <strong>{money(balance)} USD</strong>
-              <span>Account ID: {user.brokerId} ⧉</span>
+              {account === "real" && <span>Account ID: {user.brokerId} ⧉</span>}
             </section>
           </div>
 
@@ -3711,11 +3827,19 @@ function DepositModal({ close, submit }) {
   const [method, setMethod] = useState("");
   const [amountUsd, setAmountUsd] = useState(10);
   const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit() {
+    if (submitting) return;
+    setSubmitting(true);
+    const completed = await submit({ method, amountUsd, phone });
+    if (!completed) setSubmitting(false);
+  }
 
   return (
     <div className="modalLayer">
       <div className="depositModal" role="dialog" aria-modal="true" aria-label="Deposit funds">
-        <button className="closeModal" onClick={close} aria-label="Close dialog">
+        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
           ×
         </button>
 
@@ -3725,30 +3849,29 @@ function DepositModal({ close, submit }) {
             <p>Choose payment method</p>
 
             <PaymentButton icon="📱" title="M-Pesa" text="Instant mobile money" onClick={() => setMethod("mpesa")} />
-            <PaymentButton icon="💳" title="Credit/Debit Card" text="Visa, Mastercard" onClick={() => setMethod("card")} />
-            <PaymentButton icon="₿" title="USDT (TRC20)" text="Cryptocurrency" onClick={() => setMethod("usdt")} />
+            <PaymentButton icon="💳" title="Credit/Debit Card" text="Secure hosted checkout" onClick={() => setMethod("card")} />
           </>
         ) : (
           <>
-            <button className="modalBack" onClick={() => setMethod("")}>
+            <button className="modalBack" onClick={() => setMethod("")} disabled={submitting}>
               ‹ Back
             </button>
 
-            <h2>{method === "mpesa" ? "M-Pesa Deposit" : method === "card" ? "Card Deposit" : "USDT Deposit"}</h2>
+            <h2>{method === "mpesa" ? "M-Pesa Deposit" : "Card Deposit"}</h2>
             <p>Funds go to your real account.</p>
 
             <label>Amount USD</label>
-            <input type="number" min="1" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} />
+            <input type="number" min="1" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} disabled={submitting} />
 
-            {method !== "usdt" && (
+            {method === "mpesa" && (
               <>
                 <label>Phone Number</label>
-                <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={submitting} />
               </>
             )}
 
-            <button className="modalPrimary" onClick={() => submit({ method, amountUsd, phone })}>
-              {method === "mpesa" ? "Send STK Push" : "Continue"}
+            <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? "Please wait…" : method === "mpesa" ? "Send STK Push" : "Continue to secure checkout"}
             </button>
           </>
         )}
@@ -3775,11 +3898,19 @@ function PaymentButton({ icon, title, text, onClick }) {
 function WithdrawModal({ close, submit }) {
   const [amountUsd, setAmountUsd] = useState(5);
   const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit() {
+    if (submitting) return;
+    setSubmitting(true);
+    const completed = await submit({ amountUsd, phone });
+    if (!completed) setSubmitting(false);
+  }
 
   return (
     <div className="modalLayer">
       <div className="depositModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
-        <button className="closeModal" onClick={close} aria-label="Close dialog">
+        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
           ×
         </button>
 
@@ -3787,13 +3918,13 @@ function WithdrawModal({ close, submit }) {
         <p>Minimum withdrawal is 5 USD.</p>
 
         <label>Amount USD</label>
-        <input type="number" min="5" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} />
+        <input type="number" min="5" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} disabled={submitting} />
 
         <label>M-Pesa Phone</label>
-        <input placeholder="07XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={submitting} />
 
-        <button className="modalPrimary" onClick={() => submit({ amountUsd, phone })}>
-          Request Withdrawal
+        <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? "Submitting…" : "Request Withdrawal"}
         </button>
       </div>
     </div>
