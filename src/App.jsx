@@ -2601,6 +2601,52 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
   );
 }
 
+
+function LineChart({ data = [] }) {
+  const values = Array.isArray(data)
+    ? data.map(Number).filter(Number.isFinite)
+    : [];
+
+  const safeValues =
+    values.length >= 2
+      ? values
+      : values.length === 1
+      ? [values[0], values[0]]
+      : [0, 0];
+
+  const min = Math.min(...safeValues);
+  const max = Math.max(...safeValues);
+  const range = max - min || 1;
+
+  const points = safeValues.map((value, index) => {
+    const x = (index / Math.max(1, safeValues.length - 1)) * 100;
+    const y = 88 - ((value - min) / range) * 70;
+    return [x, y];
+  });
+
+  const linePath = points
+    .map(([x, y], index) =>
+      `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`
+    )
+    .join(" ");
+
+  const areaPath = `${linePath} L100,100 L0,100 Z`;
+
+  return (
+    <div className="lineChart" aria-hidden="true">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path className="areaPath" d={areaPath} />
+        <path
+          className="linePath"
+          d={linePath}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
 function TradePage({
   prices,
   livePrice,
