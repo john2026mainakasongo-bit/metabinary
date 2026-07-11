@@ -11209,3 +11209,358 @@ button:disabled {
     min-height: 24px !important;
   }
 }
+
+/* =========================================================
+   FINAL BINARY TRADE FEEDBACK + DIGITS INSIDE CHART
+   ========================================================= */
+
+.compactTradeToast.toast {
+  position: fixed !important;
+  z-index: 100000 !important;
+  top: max(86px, calc(env(safe-area-inset-top, 0px) + 74px)) !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(340px, calc(100vw - 24px)) !important;
+  min-width: 0 !important;
+  max-width: 340px !important;
+  height: auto !important;
+  min-height: 54px !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 9px 11px !important;
+  display: grid !important;
+  grid-template-columns: 34px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 9px !important;
+  transform: translateX(-50%) !important;
+  overflow: hidden !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(70, 145, 255, 0.42) !important;
+  background: rgba(3, 13, 25, 0.96) !important;
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.55), inset 0 0 26px rgba(0, 119, 255, 0.07) !important;
+  backdrop-filter: blur(14px) !important;
+  pointer-events: none !important;
+  animation: compactToastIn 0.2s ease-out both !important;
+}
+
+.compactTradeToast.toast > i {
+  width: 34px !important;
+  height: 34px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 11px !important;
+  background: rgba(0, 140, 255, 0.16) !important;
+  color: #36a7ff !important;
+  font-style: normal !important;
+  font-size: 18px !important;
+  font-weight: 1000 !important;
+}
+
+.compactTradeToast.toast.win {
+  border-color: rgba(0, 232, 132, 0.62) !important;
+}
+
+.compactTradeToast.toast.win > i {
+  background: rgba(0, 232, 132, 0.16) !important;
+  color: #00e884 !important;
+}
+
+.compactTradeToast.toast.loss {
+  border-color: rgba(255, 64, 87, 0.62) !important;
+}
+
+.compactTradeToast.toast.loss > i {
+  background: rgba(255, 64, 87, 0.16) !important;
+  color: #ff4057 !important;
+}
+
+.compactTradeToast.toast > div {
+  min-width: 0 !important;
+  display: block !important;
+}
+
+.compactTradeToast.toast strong,
+.compactTradeToast.toast span {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  text-align: left !important;
+}
+
+.compactTradeToast.toast strong {
+  display: block !important;
+  color: white !important;
+  font-size: 13px !important;
+  line-height: 1.15 !important;
+}
+
+.compactTradeToast.toast span {
+  display: block !important;
+  margin-top: 3px !important;
+  overflow: hidden !important;
+  color: #aebbd2 !important;
+  font-size: 10px !important;
+  line-height: 1.25 !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+@keyframes compactToastIn {
+  from { opacity: 0; transform: translate(-50%, -8px) scale(0.98); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.binaryChartWithDigits .proChartCanvas {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.binaryTradeStatus {
+  position: absolute !important;
+  z-index: 18 !important;
+  top: 7px !important;
+  left: 8px !important;
+  max-width: calc(100% - 88px) !important;
+  min-height: 30px !important;
+  padding: 5px 9px !important;
+  display: grid !important;
+  grid-template-columns: 8px auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border: 1px solid rgba(0, 140, 255, 0.42) !important;
+  border-radius: 10px !important;
+  background: rgba(2, 12, 23, 0.92) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.binaryTradePulse {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #00e884 !important;
+  box-shadow: 0 0 12px rgba(0, 232, 132, 0.95) !important;
+  animation: binaryPulse 0.9s ease-in-out infinite alternate !important;
+}
+
+.binaryTradeStatus strong {
+  color: white !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+.binaryTradeStatus small {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: #9fb0ca !important;
+  font-size: 8px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+@keyframes binaryPulse {
+  from { opacity: 0.55; transform: scale(0.82); }
+  to { opacity: 1; transform: scale(1.12); }
+}
+
+.chartDigitsOverlay {
+  position: absolute !important;
+  z-index: 16 !important;
+  left: 7px !important;
+  right: 7px !important;
+  bottom: 7px !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, 1fr) !important;
+  justify-items: center !important;
+  align-items: center !important;
+  gap: 4px 7px !important;
+  padding: 5px 6px !important;
+  border: 1px solid rgba(0, 232, 132, 0.2) !important;
+  border-radius: 13px !important;
+  background: linear-gradient(180deg, rgba(1, 12, 20, 0.64), rgba(0, 20, 22, 0.82)) !important;
+  box-shadow: inset 0 0 24px rgba(0, 232, 132, 0.06), 0 8px 25px rgba(0, 0, 0, 0.34) !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+.chartDigit {
+  position: relative !important;
+  width: clamp(31px, 8.9vw, 39px) !important;
+  height: clamp(31px, 8.9vw, 39px) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-content: center !important;
+  gap: 1px !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(140, 163, 194, 0.38) !important;
+  border-radius: 50% !important;
+  background: rgba(5, 17, 29, 0.94) !important;
+  color: #dce8fa !important;
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.025) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.2s ease !important;
+}
+
+.chartDigit strong,
+.chartDigit span {
+  position: relative !important;
+  z-index: 3 !important;
+  color: inherit !important;
+}
+
+.chartDigit strong {
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.chartDigit span {
+  font-size: 6px !important;
+  line-height: 1 !important;
+}
+
+.chartDigit.highestDigit:not(.waitingWinner):not(.resultWin):not(.resultLoss) {
+  border-color: rgba(0, 232, 132, 0.76) !important;
+  background: conic-gradient(from -90deg, rgba(0, 232, 132, 0.78) 0deg 180deg, rgba(5, 17, 29, 0.96) 180deg 360deg) !important;
+  box-shadow: 0 0 15px rgba(0, 232, 132, 0.2) !important;
+}
+
+.chartDigit.lowestDigit:not(.waitingWinner):not(.resultWin):not(.resultLoss) {
+  border-color: rgba(255, 64, 87, 0.76) !important;
+  background: conic-gradient(from -90deg, rgba(255, 64, 87, 0.76) 0deg 180deg, rgba(5, 17, 29, 0.96) 180deg 360deg) !important;
+  box-shadow: 0 0 15px rgba(255, 64, 87, 0.18) !important;
+}
+
+.chartDigit.picked:not(.waitingWinner):not(.resultWin):not(.resultLoss) {
+  border-color: #f4f8ff !important;
+  background: rgba(239, 246, 255, 0.15) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14), 0 0 16px rgba(255, 255, 255, 0.18) !important;
+}
+
+.chartDigit.currentDigit:not(.resultWin):not(.resultLoss) {
+  transform: translateY(-1px) scale(1.04) !important;
+}
+
+.chartDigit.waitingWinner:not(.resultWin):not(.resultLoss) {
+  border-color: #00e884 !important;
+  background: linear-gradient(145deg, #00bf73, #007a4d) !important;
+  color: white !important;
+  box-shadow: 0 0 18px rgba(0, 232, 132, 0.38), inset 0 0 12px rgba(255, 255, 255, 0.15) !important;
+}
+
+.chartDigit.resultWin {
+  border-color: #8dffd0 !important;
+  background: #00c979 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 28px rgba(0, 232, 132, 0.95), inset 0 0 16px rgba(255, 255, 255, 0.28) !important;
+  animation: digitWinFlash 0.32s ease-in-out 5 alternate !important;
+}
+
+.chartDigit.resultLoss {
+  border-color: #ffafba !important;
+  background: #e31f42 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 28px rgba(255, 64, 87, 0.92), inset 0 0 16px rgba(255, 255, 255, 0.22) !important;
+  animation: digitLossFlash 0.32s ease-in-out 5 alternate !important;
+}
+
+@keyframes digitWinFlash {
+  from { transform: scale(0.96); filter: brightness(0.9); }
+  to { transform: scale(1.13); filter: brightness(1.35); }
+}
+
+@keyframes digitLossFlash {
+  from { transform: scale(0.96); filter: brightness(0.88); }
+  to { transform: scale(1.13); filter: brightness(1.3); }
+}
+
+.tradePagePro button:disabled,
+.tradePagePro select:disabled {
+  cursor: not-allowed !important;
+}
+
+.tradePagePro .proTradeTypeRow button:disabled,
+.tradePagePro .orderInputsTop select:disabled,
+.tradePagePro .proStakeBox button:disabled {
+  opacity: 0.62 !important;
+}
+
+.tradePagePro .proTradeButtons button:disabled {
+  opacity: 0.78 !important;
+  filter: saturate(0.82) !important;
+}
+
+@media (max-width: 760px) {
+  .tradePagePro {
+    grid-template-rows: 38px minmax(0, 1fr) 114px !important;
+  }
+
+  .tradePagePro .proTradeChartCard {
+    grid-template-rows: 34px minmax(0, 1fr) 14px 25px !important;
+  }
+
+  .tradePagePro .proDigitsCard {
+    display: none !important;
+  }
+
+  .tradePagePro .proChartCanvas .lineChart {
+    padding-bottom: 78px !important;
+  }
+
+  .chartDigitsOverlay {
+    left: 4px !important;
+    right: 4px !important;
+    bottom: 4px !important;
+    gap: 3px 5px !important;
+    padding: 4px 5px !important;
+  }
+
+  .chartDigit {
+    width: clamp(29px, 8.5vw, 37px) !important;
+    height: clamp(29px, 8.5vw, 37px) !important;
+  }
+
+  .binaryTradeStatus {
+    top: 4px !important;
+    left: 5px !important;
+    min-height: 27px !important;
+    padding: 4px 7px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .chartDigitsOverlay {
+    gap: 3px !important;
+    padding-inline: 3px !important;
+  }
+
+  .chartDigit {
+    width: 29px !important;
+    height: 29px !important;
+    border-width: 2px !important;
+  }
+
+  .chartDigit strong { font-size: 10px !important; }
+  .chartDigit span { font-size: 5.5px !important; }
+}
+
+@media (max-width: 760px) and (max-height: 680px) {
+  .tradePagePro {
+    grid-template-rows: 34px minmax(0, 1fr) 104px !important;
+  }
+
+  .chartDigit {
+    width: 27px !important;
+    height: 27px !important;
+  }
+
+  .chartDigitsOverlay { padding-block: 3px !important; }
+  .tradePagePro .proChartCanvas .lineChart { padding-bottom: 68px !important; }
+}
