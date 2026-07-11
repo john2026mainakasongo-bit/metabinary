@@ -574,17 +574,21 @@ function TradingApp() {
 
   useEffect(() => {
     if (!activeBinaryTrade?.id) return undefined;
-    const timer = setInterval(() => {
+
+    const timer = window.setInterval(() => {
       setActiveBinaryTrade((current) => {
         if (!current) return null;
+
         const remainingTicks = Number(current.remainingTicks || 0) - 1;
         if (remainingTicks > 0) return { ...current, remainingTicks };
+
         const finishedTrade = { ...current, remainingTicks: 0 };
-        window.setTimeout(() => settleBinaryTrade(finishedTrade, lastDigitRef.current), 0);
+        window.setTimeout(() => void settleBinaryTrade(finishedTrade), 0);
         return null;
       });
     }, 900);
-    return () => clearInterval(timer);
+
+    return () => window.clearInterval(timer);
   }, [activeBinaryTrade?.id]);
 
   useEffect(() => () => {
@@ -755,7 +759,7 @@ function TradingApp() {
 
     refreshUser();
 
-    const timer = setInterval(refreshUser, 8000);
+    const timer = setInterval(refreshUser, 3000);
     return () => clearInterval(timer);
   }, [user?.email, authToken]);
 
@@ -1186,45 +1190,121 @@ function TradingApp() {
     return ["Touch", "No Touch"];
   }
 
-  function payoutRate(type, action) {
-    if (type === "Matches/Differs" && action === "Matches") return 8.333;
-    if (type === "Matches/Differs" && action === "Differs") return 1.087;
-    if (type === "Even/Odd") return 1.818;
-    return 1.9;
+  function getWinningDigitCount(type, action, predictionValue = prediction) {
+    const digit = Math.max(0, Math.min(9, Number(predictionValue ?? 0)));
+
+    if (type === "Even/Odd" || type === "Rise/Fall") return 5;
+    if (type === "Matches/Differs" || type === "Touch/No Touch") {
+      return action === "Matches" || action === "Touch" ? 1 : 9;
+    }
+    if (type === "Over/Under") {
+      return action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
+    }
+    return 0;
   }
 
-  function settleBinaryTrade(openTrade, digit) {
-    const won = digitWinsTrade(openTrade, digit, livePriceRef.current);
-    const profit = Number((openTrade.payout - openTrade.stake).toFixed(2));
+  function payoutRate(type, action, predictionValue = prediction) {
+    const winningDigits = getWinningDigitCount(type, action, predictionValue);
+    if (winningDigits <= 0) return 0;
 
-    if (won) updateBalance(openTrade.account, openTrade.payout);
-
-    addTx({
-      type: won ? "Profit amount" : "Loss amount",
-      method: "Manual",
-      account: openTrade.account,
-      amount: won ? profit : -openTrade.stake,
-      status: won ? "WON" : "LOST",
-      details: `${openTrade.type} · ${openTrade.action} · digit ${digit}`,
-    });
-
-    window.clearTimeout(resultFlashTimerRef.current);
-    setBinaryResultFlash({ id: uid(), digit, result: won ? "win" : "loss" });
-    resultFlashTimerRef.current = window.setTimeout(() => setBinaryResultFlash(null), 1800);
-
-    notify(
-      won ? "win" : "loss",
-      won ? "Trade won" : "Trade lost",
-      `${openTrade.type} · ${openTrade.action} · digit ${digit} · ${won ? "+" : "-"}${money(
-        won ? profit : openTrade.stake
-      )} USD`,
-      2600
-    );
+    // Probability-based payout with a built-in house margin.
+    // The backend calculates the same value and remains the source of truth.
+    const rawMultiplier = (10 / winningDigits) * 0.91;
+    return Number(Math.max(1.02, Math.min(8.3, rawMultiplier)).toFixed(3));
   }
 
-  function runBinaryTrade(type, action) {
+  async function settleBinaryTrade(openTrade) {
+    if (!openTrade?.id || !authToken) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/trades/${encodeURIComponent(openTrade.id)}/settle`,
+        {
+          method: "POST",
+          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+          cache: "no-store",
+          body: JSON.stringify({}),
+        }
+      );
+
+      const result = await readApiResponse(response);
+
+      if (response.status === 409 && Number(result.remainingMs) > 0) {
+        window.setTimeout(
+          () => void settleBinaryTrade(openTrade),
+          Math.min(1800, Math.max(250, Number(result.remainingMs) + 120))
+        );
+        return;
+      }
+
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Trade could not be settled.");
+      }
+
+      const resultDigit = Number(result.resultDigit);
+      const won = Boolean(result.won);
+      const settledStake = Number(result.trade?.stake ?? openTrade.stake ?? 0);
+      const settledPayout = Number(result.trade?.payout ?? openTrade.payout ?? 0);
+      const profit = Number((settledPayout - settledStake).toFixed(2));
+
+      if (Number.isInteger(resultDigit) && resultDigit >= 0 && resultDigit <= 9) {
+        lastDigitRef.current = resultDigit;
+        setLastDigit(resultDigit);
+      }
+
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        setBalances((old) => ({
+          demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? old.real ?? 0),
+        }));
+      } else if (Number.isFinite(Number(result.balance))) {
+        setBalances((old) => ({ ...old, [openTrade.account]: Number(result.balance) }));
+      } else {
+        await refreshUser();
+      }
+
+      addTx({
+        type: won ? "Profit amount" : "Loss amount",
+        method: "Manual",
+        account: openTrade.account,
+        amount: won ? profit : -settledStake,
+        status: won ? "WON" : "LOST",
+        details: `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`,
+      });
+
+      window.clearTimeout(resultFlashTimerRef.current);
+      setBinaryResultFlash({ id: uid(), digit: resultDigit, result: won ? "win" : "loss" });
+      resultFlashTimerRef.current = window.setTimeout(
+        () => setBinaryResultFlash(null),
+        1800
+      );
+
+      notify(
+        won ? "win" : "loss",
+        won ? "Trade won" : "Trade lost",
+        `${openTrade.type} · ${openTrade.action} · digit ${resultDigit} · ${
+          won ? "+" : "-"
+        }${money(won ? profit : settledStake)} USD`,
+        2800
+      );
+    } catch (error) {
+      console.error("Trade settlement failed:", error);
+      notify(
+        "loss",
+        "Trade settlement delayed",
+        error instanceof Error ? error.message : "Refresh the account to check the final result.",
+        4500
+      );
+      await refreshUser();
+    }
+  }
+
+  async function runBinaryTrade(type, action) {
     const usedStake = Number(stake);
-    const usedTicks = Math.max(1, Number(duration || 5));
+    const usedTicks = Math.min(10, Math.max(1, Number(duration || 5)));
+    const multiplier = payoutRate(type, action, prediction);
 
     if (activeBinaryTrade) {
       notify(
@@ -1235,36 +1315,88 @@ function TradingApp() {
       return;
     }
 
-    if (usedStake < 0.3) {
+    if (!Number.isFinite(usedStake) || usedStake < 0.3) {
       notify("loss", "Minimum stake", "Minimum stake is 0.30 USD.");
       return;
     }
 
-    if (balance < usedStake) {
-      notify("loss", "Low balance", `Your ${account} balance is low.`);
+    if (!Number.isFinite(multiplier) || multiplier <= 0) {
+      notify("loss", "Unavailable contract", "Choose a digit that gives at least one possible winning result.");
       return;
     }
 
-    updateBalance(account, -usedStake);
+    if (balance < usedStake) {
+      notify("loss", "Low balance", `Your ${account} balance is too low for this trade.`);
+      return;
+    }
 
-    const openTrade = {
-      id: uid(),
-      account,
-      type,
-      action,
-      stake: usedStake,
-      prediction,
-      payout: Number((usedStake * payoutRate(type, action)).toFixed(2)),
-      entryPrice: livePrice,
-      totalTicks: usedTicks,
-      remainingTicks: usedTicks,
-      openedAt: new Date().toLocaleTimeString(),
-      status: "RUNNING",
-    };
+    if (!authToken) {
+      notify("loss", "Login required", "Login again before placing a trade.");
+      return;
+    }
 
-    setBinaryResultFlash(null);
-    setActiveBinaryTrade(openTrade);
-    notify("open", "Open trade", `${type} · ${action} · ${usedTicks} ticks`, 1700);
+    try {
+      const response = await fetch(`${API_URL}/api/trades/open`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({
+          account,
+          type,
+          action,
+          stake: usedStake,
+          prediction,
+          ticks: usedTicks,
+          entryPrice: livePrice,
+        }),
+      });
+
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Trade could not be opened.");
+      }
+
+      const opened = result.trade || {};
+      const openTrade = {
+        id: opened.id,
+        account: opened.account || account,
+        type: opened.type || type,
+        action: opened.action || action,
+        stake: Number(opened.stake ?? usedStake),
+        prediction: Number(opened.prediction ?? prediction),
+        payout: Number(opened.payout ?? usedStake * multiplier),
+        multiplier: Number(opened.multiplier ?? multiplier),
+        entryPrice: Number(opened.entryPrice ?? livePrice),
+        totalTicks: Number(opened.ticks ?? usedTicks),
+        remainingTicks: Number(opened.ticks ?? usedTicks),
+        openedAt: opened.createdAt || new Date().toLocaleTimeString(),
+        status: "RUNNING",
+      };
+
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        setBalances((old) => ({
+          demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? old.real ?? 0),
+        }));
+      } else if (Number.isFinite(Number(result.balance))) {
+        setBalances((old) => ({ ...old, [account]: Number(result.balance) }));
+      }
+
+      setBinaryResultFlash(null);
+      setActiveBinaryTrade(openTrade);
+      notify("open", "Open trade", `${type} · ${action} · ${usedTicks} ticks`, 1700);
+    } catch (error) {
+      console.error("Trade open failed:", error);
+      notify(
+        "loss",
+        "Trade failed",
+        error instanceof Error ? error.message : "The trade could not be opened.",
+        4500
+      );
+      await refreshUser();
+    }
   }
 
   function runBotTrade(bot) {
@@ -1326,8 +1458,8 @@ function TradingApp() {
   async function pollDepositStatus(depositId) {
     if (!depositId || !API_URL) return;
 
-    for (let attempt = 0; attempt < 18; attempt += 1) {
-      await wait(5000);
+    for (let attempt = 0; attempt < 36; attempt += 1) {
+      await wait(2500);
 
       try {
         const res = await fetch(
@@ -3143,10 +3275,13 @@ function TradePage({
 }) {
   const actions = actionsFor(tradeType);
   const indexValue = livePrice * 800;
-  const payoutOne = money(stake * payoutRate(tradeType, actions[0]));
-  const payoutTwo = money(stake * payoutRate(tradeType, actions[1]));
+  const safeStake = Math.max(0, Number(stake) || 0);
+  const rateOne = payoutRate(tradeType, actions[0], prediction);
+  const rateTwo = payoutRate(tradeType, actions[1], prediction);
+  const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
+  const payoutTwo = rateTwo > 0 ? money(safeStake * rateTwo) : "—";
   const highestPercent = Math.max(...digitStats);
-  const lowestPercent = Math.min(...digitStats);
+  const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
 
   return (
     <div className="page tradePage tradePagePro">
@@ -3173,8 +3308,8 @@ function TradePage({
           </div>
 
           <strong>▲ 12.42 (1.45%)</strong>
-          <button>{duration} ticks⌄</button>
-          <button>⛶</button>
+          <button type="button">{duration} ticks⌄</button>
+          <button type="button">⛶</button>
         </div>
 
         <div className="proChartArea">
@@ -3187,7 +3322,7 @@ function TradePage({
           </div>
 
           <div className="proChartCanvas">
-            <LineChart data={prices.map((x) => x * 800)} />
+            <LineChart data={prices.map((value) => value * 800)} />
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
 
@@ -3204,11 +3339,8 @@ function TradePage({
             <div className="chartDigitsOverlay" aria-label="Digit percentages">
               {digitStats.map((percent, digit) => {
                 const isHighest = Math.abs(percent - highestPercent) < 0.01;
-                const isLowest = Math.abs(percent - lowestPercent) < 0.01;
                 const isPicked = digit === prediction;
                 const isCurrent = digit === lastDigit;
-                const isWaitingWinner =
-                  Boolean(activeBinaryTrade) && digitWinsTrade(activeBinaryTrade, digit, livePrice);
                 const isResultDigit = binaryResultFlash?.digit === digit;
 
                 return (
@@ -3220,10 +3352,8 @@ function TradePage({
                     className={[
                       "chartDigit",
                       isHighest ? "highestDigit" : "",
-                      isLowest ? "lowestDigit" : "",
                       isPicked ? "picked" : "",
                       isCurrent ? "currentDigit" : "",
-                      isWaitingWinner ? "waitingWinner" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
                     ]
@@ -3249,10 +3379,10 @@ function TradePage({
         </div>
 
         <div className="chartToolRow">
-          <button>⌁</button>
-          <button>▥</button>
-          <button>▱</button>
-          <button>⛶</button>
+          <button type="button">⌁</button>
+          <button type="button">▥</button>
+          <button type="button">▱</button>
+          <button type="button">⛶</button>
         </div>
       </section>
 
@@ -3262,32 +3392,57 @@ function TradePage({
             Ticks
             <select
               value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
+              onChange={(event) => setDuration(Number(event.target.value))}
               disabled={Boolean(activeBinaryTrade)}
             >
-              <option value={5}>5 ticks</option>
-              <option value={10}>10 ticks</option>
-              <option value={30}>30 ticks</option>
+              {tickOptions.map((tick) => (
+                <option key={tick} value={tick}>
+                  {tick} tick{tick === 1 ? "" : "s"}
+                </option>
+              ))}
             </select>
           </label>
 
           <label>
-            Stake
+            Amount to trade
             <div className="proStakeBox">
               <button
-                onClick={() => setStake((x) => Math.max(0.3, Number(x) - 1))}
+                type="button"
+                onClick={() =>
+                  setStake((current) =>
+                    Number(Math.max(0.3, (Number(current) || 0) - 1).toFixed(2))
+                  )
+                }
                 disabled={Boolean(activeBinaryTrade)}
               >
                 −
               </button>
-              <strong>{money(stake)}</strong>
+
+              <input
+                type="number"
+                min="0.30"
+                step="0.10"
+                inputMode="decimal"
+                value={stake}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setStake(value === "" ? "" : Number(value));
+                }}
+                disabled={Boolean(activeBinaryTrade)}
+                aria-label="Amount to trade in USD"
+              />
+
               <button
-                onClick={() => setStake((x) => Number(x) + 1)}
+                type="button"
+                onClick={() =>
+                  setStake((current) => Number(((Number(current) || 0) + 1).toFixed(2)))
+                }
                 disabled={Boolean(activeBinaryTrade)}
               >
                 +
               </button>
             </div>
+            <small className="stakeHint">Minimum 0.30 USD</small>
           </label>
         </div>
 
@@ -3295,7 +3450,7 @@ function TradePage({
           <button
             className="proGreenTrade"
             onClick={() => runBinaryTrade(tradeType, actions[0])}
-            disabled={Boolean(activeBinaryTrade)}
+            disabled={Boolean(activeBinaryTrade) || rateOne <= 0}
           >
             <span>{actions[0] === "Even" ? "⌂" : "↗"}</span>
             <div>
@@ -3303,7 +3458,9 @@ function TradePage({
               <small>
                 {activeBinaryTrade
                   ? `${activeBinaryTrade.remainingTicks} ticks remaining`
-                  : `Payout ${payoutOne} USD`}
+                  : rateOne > 0
+                  ? `Payout ${payoutOne} USD · ${rateOne.toFixed(3)}×`
+                  : "Unavailable for this digit"}
               </small>
             </div>
           </button>
@@ -3311,7 +3468,7 @@ function TradePage({
           <button
             className="proRedTrade"
             onClick={() => runBinaryTrade(tradeType, actions[1])}
-            disabled={Boolean(activeBinaryTrade)}
+            disabled={Boolean(activeBinaryTrade) || rateTwo <= 0}
           >
             <span>{actions[1] === "Odd" ? "↓" : "↘"}</span>
             <div>
@@ -3319,7 +3476,9 @@ function TradePage({
               <small>
                 {activeBinaryTrade
                   ? `${activeBinaryTrade.remainingTicks} ticks remaining`
-                  : `Payout ${payoutTwo} USD`}
+                  : rateTwo > 0
+                  ? `Payout ${payoutTwo} USD · ${rateTwo.toFixed(3)}×`
+                  : "Unavailable for this digit"}
               </small>
             </div>
           </button>
