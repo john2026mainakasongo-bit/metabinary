@@ -16,6 +16,7 @@ const USD_RATE = Number(process.env.USD_RATE || 130);
 const MIN_DEPOSIT_USD = Number(process.env.MIN_DEPOSIT_USD || 1);
 const MIN_WITHDRAW_USD = Number(process.env.MIN_WITHDRAW_USD || 5);
 const MAX_WITHDRAW_USD = Number(process.env.MAX_WITHDRAW_USD || 150000);
+const TRADE_TICK_MS = 1500;
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
@@ -945,7 +946,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
 
     const id = makeId("trade");
     const createdAt = nowIso();
-    const settleAt = new Date(Date.now() + ticks * 850).toISOString();
+    const settleAt = new Date(Date.now() + ticks * TRADE_TICK_MS).toISOString();
     const trade = {
       id,
       email: req.user.email,

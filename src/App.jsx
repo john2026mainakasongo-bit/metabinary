@@ -7,7 +7,8 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-mongodb-admin-2026-07-11-v1";
+const FRONTEND_BUILD = "metabinary-final-black-digits-slow-cursor-2026-07-12";
+const DIGIT_TICK_MS = 1500;
 
 if (typeof window !== "undefined") {
   window.__METABINARY_BUILD__ = FRONTEND_BUILD;
@@ -567,7 +568,7 @@ function TradingApp() {
       lastDigitRef.current = nextDigit;
       setLastDigit(nextDigit);
       setDigitStats((old) => driftDigitStats(old));
-    }, 900);
+    }, DIGIT_TICK_MS);
 
     return () => clearInterval(timer);
   }, []);
@@ -586,7 +587,7 @@ function TradingApp() {
         window.setTimeout(() => void settleBinaryTrade(finishedTrade), 0);
         return null;
       });
-    }, 900);
+    }, DIGIT_TICK_MS);
 
     return () => window.clearInterval(timer);
   }, [activeBinaryTrade?.id]);
@@ -3281,16 +3282,25 @@ function TradePage({
   const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
   const payoutTwo = rateTwo > 0 ? money(safeStake * rateTwo) : "—";
   const highestPercent = Math.max(...digitStats);
+  const lowestPercent = Math.min(...digitStats);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
+  const quickStakeValues = [1, 5, 10, 50, 100];
+
+  const changeStake = (difference) => {
+    setStake((current) =>
+      Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2))
+    );
+  };
 
   return (
-    <div className="page tradePage tradePagePro">
-      <section className="proTradeTypeRow">
+    <div className="page tradePage tradePagePro finalBinaryTradePage">
+      <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
 
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
           <button
             key={type}
+            type="button"
             className={tradeType === type ? "active" : ""}
             onClick={() => setTradeType(type)}
             disabled={Boolean(activeBinaryTrade)}
@@ -3300,8 +3310,8 @@ function TradePage({
         ))}
       </section>
 
-      <section className="proTradeChartCard binaryChartWithDigits">
-        <div className="proChartTitle">
+      <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
+        <div className="proChartTitle finalBinaryChartTitle">
           <div>
             <h2>Volatility 100 (1s) Index</h2>
             <p>{indexValue.toFixed(2)} · LIVE</p>
@@ -3312,7 +3322,7 @@ function TradePage({
           <button type="button">⛶</button>
         </div>
 
-        <div className="proChartArea">
+        <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale">
             <span>{(indexValue + 1.37).toFixed(2)}</span>
             <span>{(indexValue - 0.63).toFixed(2)}</span>
@@ -3335,42 +3345,10 @@ function TradePage({
                 </small>
               </div>
             )}
-
-            <div className="chartDigitsOverlay" aria-label="Digit percentages">
-              {digitStats.map((percent, digit) => {
-                const isHighest = Math.abs(percent - highestPercent) < 0.01;
-                const isPicked = digit === prediction;
-                const isCurrent = digit === lastDigit;
-                const isResultDigit = binaryResultFlash?.digit === digit;
-
-                return (
-                  <button
-                    key={digit}
-                    type="button"
-                    onClick={() => setPrediction(digit)}
-                    disabled={Boolean(activeBinaryTrade)}
-                    className={[
-                      "chartDigit",
-                      isHighest ? "highestDigit" : "",
-                      isPicked ? "picked" : "",
-                      isCurrent ? "currentDigit" : "",
-                      isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
-                      isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    <strong>{digit}</strong>
-                    <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
-                    <i className="movingDigitCursor" aria-hidden="true"></i>
-                  </button>
-                );
-              })}
-            </div>
           </div>
         </div>
 
-        <div className="chartTimeRow">
+        <div className="chartTimeRow finalChartTimeRow">
           <span>10:45:30</span>
           <span>10:47:00</span>
           <span>10:48:30</span>
@@ -3378,7 +3356,49 @@ function TradePage({
           <span>10:51:30</span>
         </div>
 
-        <div className="chartToolRow">
+        <div className="finalDigitBoard">
+          <div className="finalDigitBoardHead">
+            <span>Last digit statistics</span>
+            <small>Live · 1.5 second movement</small>
+          </div>
+
+          <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
+            {digitStats.map((percent, digit) => {
+              const isHighest = Math.abs(percent - highestPercent) < 0.01;
+              const isLowest = Math.abs(percent - lowestPercent) < 0.01;
+              const isPicked = digit === prediction;
+              const isCurrent = digit === lastDigit;
+              const isResultDigit = binaryResultFlash?.digit === digit;
+
+              return (
+                <button
+                  key={digit}
+                  type="button"
+                  onClick={() => setPrediction(digit)}
+                  disabled={Boolean(activeBinaryTrade)}
+                  className={[
+                    "chartDigit",
+                    isHighest ? "highestDigit" : "",
+                    isLowest ? "lowestDigit" : "",
+                    isPicked ? "picked" : "",
+                    isCurrent ? "currentDigit" : "",
+                    isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
+                    isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
+                >
+                  <strong>{digit}</strong>
+                  <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
+                  <i className="movingDigitCursor" aria-hidden="true"></i>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="chartToolRow finalChartToolRow">
           <button type="button">⌁</button>
           <button type="button">▥</button>
           <button type="button">▱</button>
@@ -3386,73 +3406,105 @@ function TradePage({
         </div>
       </section>
 
-      <section className="proBinaryOrderCard">
-        <div className="orderInputsTop">
-          <label>
-            Ticks
-            <select
-              value={duration}
-              onChange={(event) => setDuration(Number(event.target.value))}
-              disabled={Boolean(activeBinaryTrade)}
-            >
-              {tickOptions.map((tick) => (
-                <option key={tick} value={tick}>
-                  {tick} tick{tick === 1 ? "" : "s"}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Amount to trade
-            <div className="proStakeBox">
+      <section className="proBinaryOrderCard finalBinaryOrderCard">
+        <div className="orderInputsTop finalOrderInputs">
+          <label className="finalTicksControl">
+            <span>Ticks</span>
+            <div className="finalTicksBox">
               <button
                 type="button"
-                onClick={() =>
-                  setStake((current) =>
-                    Number(Math.max(0.3, (Number(current) || 0) - 1).toFixed(2))
-                  )
-                }
-                disabled={Boolean(activeBinaryTrade)}
+                onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))}
+                disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}
+                aria-label="Reduce ticks"
               >
                 −
               </button>
 
-              <input
-                type="number"
-                min="0.30"
-                step="0.10"
-                inputMode="decimal"
-                value={stake}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setStake(value === "" ? "" : Number(value));
-                }}
+              <select
+                value={duration}
+                onChange={(event) => setDuration(Number(event.target.value))}
                 disabled={Boolean(activeBinaryTrade)}
-                aria-label="Amount to trade in USD"
-              />
+                aria-label="Number of ticks"
+              >
+                {tickOptions.map((tick) => (
+                  <option key={tick} value={tick}>
+                    {tick} tick{tick === 1 ? "" : "s"}
+                  </option>
+                ))}
+              </select>
 
               <button
                 type="button"
-                onClick={() =>
-                  setStake((current) => Number(((Number(current) || 0) + 1).toFixed(2)))
-                }
-                disabled={Boolean(activeBinaryTrade)}
+                onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))}
+                disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}
+                aria-label="Increase ticks"
               >
                 +
               </button>
             </div>
-            <small className="stakeHint">Minimum 0.30 USD</small>
+          </label>
+
+          <label className="finalStakeControl">
+            <span>Amount to trade</span>
+            <div className="proStakeBox finalStakeBox">
+              <button
+                type="button"
+                onClick={() => changeStake(-1)}
+                disabled={Boolean(activeBinaryTrade)}
+                aria-label="Reduce amount"
+              >
+                −
+              </button>
+
+              <div className="finalStakeInputWrap">
+                <input
+                  type="number"
+                  min="0.30"
+                  step="0.10"
+                  inputMode="decimal"
+                  value={stake}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setStake(value === "" ? "" : Number(value));
+                  }}
+                  disabled={Boolean(activeBinaryTrade)}
+                  aria-label="Amount to trade in USD"
+                />
+                <small>USD</small>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => changeStake(1)}
+                disabled={Boolean(activeBinaryTrade)}
+                aria-label="Increase amount"
+              >
+                +
+              </button>
+            </div>
+
+            <div className="quickStakeRow" aria-label="Quick amount buttons">
+              {quickStakeValues.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setStake(value)}
+                  disabled={Boolean(activeBinaryTrade)}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
           </label>
         </div>
 
-        <div className="proTradeButtons">
+        <div className="proTradeButtons finalTradeButtons">
           <button
             className="proGreenTrade"
             onClick={() => runBinaryTrade(tradeType, actions[0])}
             disabled={Boolean(activeBinaryTrade) || rateOne <= 0}
           >
-            <span>{actions[0] === "Even" ? "⌂" : "↗"}</span>
+            <span>⌃</span>
             <div>
               <strong>{actions[0]}</strong>
               <small>
@@ -3470,7 +3522,7 @@ function TradePage({
             onClick={() => runBinaryTrade(tradeType, actions[1])}
             disabled={Boolean(activeBinaryTrade) || rateTwo <= 0}
           >
-            <span>{actions[1] === "Odd" ? "↓" : "↘"}</span>
+            <span>⌄</span>
             <div>
               <strong>{actions[1]}</strong>
               <small>

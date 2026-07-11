@@ -13723,3 +13723,745 @@ button:disabled {
     gap: 9px !important;
   }
 }
+
+/* =========================================================
+   FINAL BLACK DIGIT BOARD + SLOW CURSOR + FULLY VISIBLE ORDER CARD
+   This final block overrides only the binary-trading page.
+   ========================================================= */
+
+.finalBinaryTradePage {
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* All five contract types stay visible without horizontal scrolling. */
+.finalBinaryTradePage .finalContractTabs {
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: auto repeat(5, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 7px !important;
+  padding: 6px !important;
+  overflow: hidden !important;
+}
+
+.finalBinaryTradePage .finalContractTabs > span {
+  align-self: center !important;
+  padding: 0 7px !important;
+  white-space: nowrap !important;
+}
+
+.finalBinaryTradePage .finalContractTabs button {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+.finalBinaryTradePage .finalBinaryChartCard {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.finalBinaryTradePage .finalBinaryChartArea {
+  min-height: 190px !important;
+}
+
+.finalBinaryTradePage .finalDigitBoard {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 8px 11px 13px !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 17px !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(0, 188, 155, 0.08), transparent 43%),
+    #01050a !important;
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.86),
+    0 10px 28px rgba(0, 0, 0, 0.32) !important;
+}
+
+.finalBinaryTradePage .finalDigitBoardHead {
+  min-height: 20px !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  color: #ffffff !important;
+}
+
+.finalBinaryTradePage .finalDigitBoardHead span {
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+.finalBinaryTradePage .finalDigitBoardHead small {
+  color: #8293aa !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+}
+
+/* Dedicated black panel: two rows of five digits, never clipped. */
+.finalBinaryTradePage .finalDigitsGrid,
+.finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
+  position: relative !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, auto) !important;
+  align-items: center !important;
+  justify-items: center !important;
+  gap: 13px 12px !important;
+  margin: 0 !important;
+  padding: 2px 3px 8px !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Outer white ring, black middle ring, clean light centre. */
+.finalBinaryTradePage .chartDigit {
+  position: relative !important;
+  isolation: isolate !important;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  min-height: 52px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-content: center !important;
+  gap: 3px !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: #e8ebef !important;
+  color: #101419 !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.95),
+    0 5px 13px rgba(0, 0, 0, 0.48) !important;
+  transform: translateZ(0) !important;
+  transition:
+    transform 0.42s ease,
+    box-shadow 0.42s ease,
+    filter 0.42s ease !important;
+}
+
+.finalBinaryTradePage .chartDigit::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 4px !important;
+  z-index: 0 !important;
+  border-radius: 50% !important;
+  background: #05090f !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+.finalBinaryTradePage .chartDigit::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 8px !important;
+  z-index: 1 !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #ffffff, #e9edf1) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.07),
+    0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+.finalBinaryTradePage .chartDigit > strong,
+.finalBinaryTradePage .chartDigit > .digitPercent {
+  position: relative !important;
+  z-index: 3 !important;
+  color: #11151a !important;
+  text-shadow: none !important;
+}
+
+.finalBinaryTradePage .chartDigit > strong {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+}
+
+.finalBinaryTradePage .chartDigit > .digitPercent {
+  font-size: 7px !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+}
+
+/* Highest percentage receives the lower teal half-ring. */
+.finalBinaryTradePage .chartDigit.highestDigit:not(.resultWin):not(.resultLoss) {
+  background: conic-gradient(
+    #eef1f4 0deg 120deg,
+    #12aa9d 120deg 240deg,
+    #eef1f4 240deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.96),
+    0 0 0 3px rgba(18, 170, 157, 0.12),
+    0 6px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Lowest percentage receives the lower red half-ring. */
+.finalBinaryTradePage .chartDigit.lowestDigit:not(.resultWin):not(.resultLoss) {
+  background: conic-gradient(
+    #eef1f4 0deg 120deg,
+    #ff554f 120deg 240deg,
+    #eef1f4 240deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.96),
+    0 0 0 3px rgba(255, 85, 79, 0.1),
+    0 6px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+.finalBinaryTradePage .chartDigit.picked:not(.resultWin):not(.resultLoss) {
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 5px rgba(255, 255, 255, 0.22),
+    0 7px 16px rgba(0, 0, 0, 0.52) !important;
+}
+
+/* The current digit triangle is intentionally slower and easy to see. */
+.finalBinaryTradePage .movingDigitCursor {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -12px !important;
+  z-index: 10 !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(2px) scale(0.78) !important;
+  border-left: 7px solid transparent !important;
+  border-right: 7px solid transparent !important;
+  border-bottom: 10px solid #ff654f !important;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)) !important;
+  pointer-events: none !important;
+  transition: opacity 0.48s ease, transform 0.48s ease !important;
+}
+
+.finalBinaryTradePage .chartDigit.currentDigit .movingDigitCursor {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) scale(1) !important;
+  animation: finalCursorBreath 1.2s ease-in-out infinite alternate !important;
+}
+
+.finalBinaryTradePage .chartDigit.currentDigit:not(.resultWin):not(.resultLoss) {
+  transform: translateY(-2px) scale(1.035) !important;
+}
+
+@keyframes finalCursorBreath {
+  from { filter: drop-shadow(0 1px 2px rgba(255, 101, 79, 0.32)); }
+  to { filter: drop-shadow(0 2px 7px rgba(255, 101, 79, 0.78)); }
+}
+
+/* Win and loss flashes are the only states that colour the centre. */
+.finalBinaryTradePage .chartDigit.resultWin {
+  background: #00c67a !important;
+  box-shadow: 0 0 0 2px #baffdf, 0 0 24px rgba(0, 211, 127, 0.82) !important;
+}
+
+.finalBinaryTradePage .chartDigit.resultWin::before,
+.finalBinaryTradePage .chartDigit.resultWin::after {
+  inset: 3px !important;
+  background: linear-gradient(145deg, #18e397, #00965b) !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .chartDigit.resultLoss {
+  background: #ef3f50 !important;
+  box-shadow: 0 0 0 2px #ffd2d7, 0 0 24px rgba(239, 63, 80, 0.8) !important;
+}
+
+.finalBinaryTradePage .chartDigit.resultLoss::before,
+.finalBinaryTradePage .chartDigit.resultLoss::after {
+  inset: 3px !important;
+  background: linear-gradient(145deg, #ff6776, #c91b35) !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .chartDigit.resultWin > strong,
+.finalBinaryTradePage .chartDigit.resultWin > .digitPercent,
+.finalBinaryTradePage .chartDigit.resultLoss > strong,
+.finalBinaryTradePage .chartDigit.resultLoss > .digitPercent {
+  color: #ffffff !important;
+}
+
+/* Controls stay above the two contract buttons and remain fully visible. */
+.finalBinaryTradePage .finalBinaryOrderCard {
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.finalBinaryTradePage .finalOrderInputs {
+  width: 100% !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(260px, 1.2fr) !important;
+  align-items: start !important;
+  gap: 14px !important;
+}
+
+.finalBinaryTradePage .finalOrderInputs > label {
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+}
+
+.finalBinaryTradePage .finalOrderInputs > label > span {
+  color: #aebad0 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.finalBinaryTradePage .finalTicksBox,
+.finalBinaryTradePage .finalStakeBox {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  display: grid !important;
+  grid-template-columns: 48px minmax(0, 1fr) 48px !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 14px !important;
+  background: #07111e !important;
+}
+
+.finalBinaryTradePage .finalTicksBox button,
+.finalBinaryTradePage .finalStakeBox > button {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 48px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  color: #ffffff !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+}
+
+.finalBinaryTradePage .finalTicksBox select {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 48px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border: 0 !important;
+  border-inline: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  background: #07111e !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap {
+  min-width: 0 !important;
+  height: 48px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  border-inline: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: #07111e !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 5px 0 10px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+  text-align: right !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap small {
+  padding-right: 10px !important;
+  color: #aebad0 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+}
+
+.finalBinaryTradePage .quickStakeRow {
+  width: 100% !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
+.finalBinaryTradePage .quickStakeRow button {
+  min-width: 0 !important;
+  height: 28px !important;
+  padding: 0 3px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  color: #dce6f5 !important;
+  font-size: 10px !important;
+  font-weight: 850 !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons {
+  width: 100% !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  margin-top: 12px !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons > button {
+  min-width: 0 !important;
+  min-height: 68px !important;
+  overflow: hidden !important;
+  border-radius: 15px !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons > button > span {
+  font-size: 28px !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons strong {
+  font-size: 20px !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons small {
+  display: block !important;
+  margin-top: 4px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: calc(100dvh - 148px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 8px 9px 92px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+  }
+
+  .finalBinaryTradePage::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs {
+    flex: 0 0 45px !important;
+    height: 45px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+    padding: 5px !important;
+    border-radius: 14px !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs > span {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs button {
+    height: 35px !important;
+    min-height: 35px !important;
+    padding: 0 3px !important;
+    border-radius: 9px !important;
+    font-size: 8.5px !important;
+    line-height: 1.05 !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding: 8px !important;
+    border-radius: 16px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartTitle {
+    flex: 0 0 38px !important;
+    min-height: 38px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto 30px !important;
+    gap: 6px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartTitle h2 {
+    font-size: 13px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartTitle p,
+  .finalBinaryTradePage .finalBinaryChartTitle > strong {
+    font-size: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartTitle > button:first-of-type {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartTitle > button:last-of-type {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartArea {
+    flex: 0 0 218px !important;
+    height: 218px !important;
+    min-height: 218px !important;
+  }
+
+  .finalBinaryTradePage .proChartCanvas .lineChart {
+    padding-bottom: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalChartTimeRow {
+    flex: 0 0 15px !important;
+    height: 15px !important;
+    min-height: 15px !important;
+    font-size: 7px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoard {
+    flex: 0 0 auto !important;
+    padding: 6px 7px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoardHead {
+    min-height: 16px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoardHead span {
+    font-size: 9px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoardHead small {
+    font-size: 7px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitsGrid,
+  .finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
+    gap: 11px 6px !important;
+    padding: 1px 1px 7px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit {
+    width: clamp(43px, 12vw, 49px) !important;
+    height: clamp(43px, 12vw, 49px) !important;
+    min-width: clamp(43px, 12vw, 49px) !important;
+    min-height: clamp(43px, 12vw, 49px) !important;
+  }
+
+  .finalBinaryTradePage .chartDigit::before {
+    inset: 4px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit::after {
+    inset: 8px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit > strong {
+    font-size: 13px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit > .digitPercent {
+    font-size: 6.6px !important;
+  }
+
+  .finalBinaryTradePage .movingDigitCursor {
+    bottom: -10px !important;
+    border-left-width: 6px !important;
+    border-right-width: 6px !important;
+    border-bottom-width: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalChartToolRow {
+    flex: 0 0 29px !important;
+    height: 29px !important;
+    min-height: 29px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.35fr) !important;
+    gap: 9px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs > label {
+    gap: 5px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs > label > span {
+    font-size: 10px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    min-height: 42px !important;
+    grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+    border-radius: 12px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button,
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap {
+    height: 42px !important;
+  }
+
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    height: 40px !important;
+    padding-inline: 3px !important;
+    font-size: 17px !important;
+  }
+
+  .finalBinaryTradePage .finalStakeInputWrap small {
+    padding-right: 6px !important;
+    font-size: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select {
+    padding-inline: 2px !important;
+    font-size: 12px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button {
+    font-size: 21px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow {
+    gap: 4px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow button {
+    height: 25px !important;
+    font-size: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons {
+    gap: 13px !important;
+    margin-top: 10px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 60px !important;
+    height: 60px !important;
+    padding: 8px 9px !important;
+    border-radius: 13px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button > span {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: 19px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons small {
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .finalBinaryTradePage .finalContractTabs button {
+    font-size: 7.7px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit {
+    width: 41px !important;
+    height: 41px !important;
+    min-width: 41px !important;
+    min-height: 41px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitsGrid,
+  .finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
+    gap: 10px 4px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs {
+    gap: 6px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    grid-template-columns: 34px minmax(0, 1fr) 34px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow button:last-child {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) and (max-height: 760px) {
+  .finalBinaryTradePage .finalBinaryChartArea {
+    flex-basis: 185px !important;
+    height: 185px !important;
+    min-height: 185px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoardHead {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .finalDigitsGrid,
+  .finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
+    gap-block: 9px !important;
+  }
+}
