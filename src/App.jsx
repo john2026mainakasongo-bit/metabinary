@@ -12,6 +12,7 @@ const STORE = {
   positions: "mb_positions",
   closed: "mb_closed_positions",
   referral: "mb_referral_profile",
+  notifications: "mb_notifications",
 };
 
 const MARKET_API_KEY =
@@ -112,6 +113,36 @@ const MARKET_TIMEFRAMES = [
   { value: "1h", label: "1 hour", short: "1h", tradingView: "60" },
   { value: "4h", label: "4 hours", short: "4h", tradingView: "240" },
   { value: "1day", label: "1 day", short: "1D", tradingView: "D" },
+];
+
+const DEFAULT_NOTIFICATIONS = [
+  {
+    id: "welcome-notification",
+    type: "info",
+    title: "Welcome to MetaBinary",
+    message: "Your trading dashboard is ready.",
+    time: "Just now",
+    read: false,
+    page: "home",
+  },
+  {
+    id: "security-notification",
+    type: "security",
+    title: "Keep your account secure",
+    message: "Review your password and notification settings.",
+    time: "Today",
+    read: false,
+    page: "settings",
+  },
+  {
+    id: "cashier-notification",
+    type: "wallet",
+    title: "Cashier available",
+    message: "Deposit and withdrawal services are available from your wallet.",
+    time: "Today",
+    read: false,
+    page: "history",
+  },
 ];
 
 const BOT_TEMPLATES = [
@@ -387,6 +418,9 @@ export default function App() {
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [notifications, setNotifications] = useState(() =>
+    readStore(STORE.notifications, DEFAULT_NOTIFICATIONS)
+  );
 
   const [tradeType, setTradeType] = useState("Even/Odd");
   const [stake, setStake] = useState(10);
@@ -439,6 +473,7 @@ export default function App() {
   useEffect(() => saveStore(STORE.closed, closedPositions), [closedPositions]);
   useEffect(() => saveStore(STORE.tx, transactions), [transactions]);
   useEffect(() => saveStore(STORE.referral, referral), [referral]);
+  useEffect(() => saveStore(STORE.notifications, notifications), [notifications]);
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
 
   useEffect(() => {
@@ -690,11 +725,44 @@ export default function App() {
 
   function notify(type, title, message, durationMs = 2200) {
     window.clearTimeout(toastTimerRef.current);
-    const nextToast = { id: uid(), type, title, message };
+    const notificationId = uid();
+    const nextToast = { id: notificationId, type, title, message };
     setToast(nextToast);
+
+    setNotifications((old) => [
+      {
+        id: notificationId,
+        type,
+        title,
+        message,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        read: false,
+        page:
+          /bot/i.test(title) ? "bots" :
+          /deposit|withdraw/i.test(title) ? "history" :
+          /trade|contract/i.test(title) ? "trade" :
+          "history",
+      },
+      ...old,
+    ].slice(0, 30));
+
     toastTimerRef.current = window.setTimeout(() => {
       setToast((current) => (current?.id === nextToast.id ? null : current));
     }, durationMs);
+  }
+
+  function markNotificationRead(id) {
+    setNotifications((old) =>
+      old.map((item) => (item.id === id ? { ...item, read: true } : item))
+    );
+  }
+
+  function markAllNotificationsRead() {
+    setNotifications((old) => old.map((item) => ({ ...item, read: true })));
+  }
+
+  function clearNotifications() {
+    setNotifications([]);
   }
 
   function addTx(tx) {
@@ -1220,9 +1288,14 @@ export default function App() {
         account={account}
         setAccount={setAccount}
         balance={balance}
+        balances={balances}
         setActivePage={setActivePage}
         openMenu={() => setMenuOpen(true)}
         openDeposit={() => setDepositOpen(true)}
+        notifications={notifications}
+        markNotificationRead={markNotificationRead}
+        markAllNotificationsRead={markAllNotificationsRead}
+        clearNotifications={clearNotifications}
       />
 
       <main className="mainScreen">
@@ -1483,11 +1556,39 @@ function AuthScreen({ mode, setMode, login, register }) {
   );
 }
 
-function Header({ user, account, setAccount, balance, setActivePage, openMenu, openDeposit }) {
+function Header({
+  user,
+  account,
+  setAccount,
+  balance,
+  balances,
+  setActivePage,
+  openMenu,
+  openDeposit,
+  notifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  clearNotifications,
+}) {
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
   const isReal = account === "real";
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const unreadCount = safeNotifications.filter((item) => !item.read).length;
+
+  function chooseAccount(nextAccount) {
+    setAccount(nextAccount);
+    setAccountMenuOpen(false);
+  }
+
+  function openNotification(item) {
+    markNotificationRead(item.id);
+    setNotificationOpen(false);
+    if (item.page) setActivePage(item.page);
+  }
 
   return (
-    <header className="topHeader brokerTopHeader">
+    <header className="topHeader brokerTopHeader cleanBrokerHeader">
       <button className="menuBtn brokerMenuBtn" onClick={openMenu} aria-label="Open menu">
         <span></span>
         <span></span>
@@ -1496,43 +1597,37 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
 
       <Logo />
 
-      <div className="brokerHeaderDivider"></div>
+      <button
+        type="button"
+        className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""}`}
+        onClick={() => {
+          setAccountMenuOpen((open) => !open);
+          setNotificationOpen(false);
+        }}
+        aria-haspopup="listbox"
+        aria-expanded={accountMenuOpen}
+        aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
+      >
+        <span className={`accountStatusIcon ${isReal ? "real" : "demo"}`} aria-hidden="true">
+          {isReal ? "R" : "D"}
+        </span>
 
-      <button className="walletBox brokerWallet" onClick={() => setActivePage("profile")}>
-        <small>
-          {isReal ? "LIVE ACCOUNT" : "DEMO ACCOUNT"}
-          <i></i>
-        </small>
+        <span className="accountSelectorText">
+          <small>
+            {isReal ? "LIVE ACCOUNT" : "DEMO ACCOUNT"}
+            <i></i>
+          </small>
+          <strong>
+            {money(balance)} <em>USD</em>
+          </strong>
+        </span>
 
-        <strong>
-          {isReal && <span className="usdFlag">USD</span>}
-          {money(balance)} <em>USD</em>
-        </strong>
+        <span className="accountSelectorChevron" aria-hidden="true">⌄</span>
       </button>
-
-      <div className="accountSwitch brokerAccountSwitch" aria-label="Account type">
-        <button
-          type="button"
-          className={account === "demo" ? "active demoActive" : ""}
-          onClick={() => setAccount("demo")}
-          aria-pressed={account === "demo"}
-        >
-          Demo
-        </button>
-
-        <button
-          type="button"
-          className={account === "real" ? "active realActive" : ""}
-          onClick={() => setAccount("real")}
-          aria-pressed={account === "real"}
-        >
-          <span>🛡</span> Real
-        </button>
-      </div>
 
       <button
         type="button"
-        className="depositTop brokerDepositBtn"
+        className="depositTop brokerDepositBtn compactDepositButton"
         onClick={openDeposit}
         aria-label="Deposit funds"
       >
@@ -1540,16 +1635,117 @@ function Header({ user, account, setAccount, balance, setActivePage, openMenu, o
         <b>＋</b>
       </button>
 
-      <button type="button" className="bellBtn brokerBellBtn" aria-label="Notifications">
-        <i>🔔</i>
-        <b>3</b>
+      <button
+        type="button"
+        className={`bellBtn brokerBellBtn workingBellButton ${notificationOpen ? "active" : ""}`}
+        aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
+        aria-expanded={notificationOpen}
+        onClick={() => {
+          setNotificationOpen((open) => !open);
+          setAccountMenuOpen(false);
+        }}
+      >
+        <i aria-hidden="true">🔔</i>
+        {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
       </button>
 
-      <button className="avatarBtn brokerAvatarBtn" onClick={() => setActivePage("profile")}>
+      <button className="avatarBtn brokerAvatarBtn" onClick={() => setActivePage("profile")} aria-label="Open profile">
         {user.initials}
         <i></i>
-        <span>⌄</span>
       </button>
+
+      {accountMenuOpen && (
+        <div className="accountPickerPanel" role="listbox" aria-label="Choose account">
+          <div className="accountPickerHeading">
+            <strong>Select account</strong>
+            <small>Choose the balance you want to use</small>
+          </div>
+
+          <button
+            type="button"
+            role="option"
+            aria-selected={account === "demo"}
+            className={account === "demo" ? "selected" : ""}
+            onClick={() => chooseAccount("demo")}
+          >
+            <span className="accountChoiceIcon demo">D</span>
+            <span>
+              <strong>Demo Account</strong>
+              <small>{money(balances.demo)} USD</small>
+            </span>
+            <i>{account === "demo" ? "✓" : ""}</i>
+          </button>
+
+          <button
+            type="button"
+            role="option"
+            aria-selected={account === "real"}
+            className={account === "real" ? "selected" : ""}
+            onClick={() => chooseAccount("real")}
+          >
+            <span className="accountChoiceIcon real">R</span>
+            <span>
+              <strong>Real Account</strong>
+              <small>{money(balances.real)} USD</small>
+            </span>
+            <i>{account === "real" ? "✓" : ""}</i>
+          </button>
+        </div>
+      )}
+
+      {notificationOpen && (
+        <section className="notificationPanel" aria-label="Notifications">
+          <header>
+            <div>
+              <strong>Notifications</strong>
+              <small>{unreadCount} unread</small>
+            </div>
+            {unreadCount > 0 && (
+              <button type="button" onClick={markAllNotificationsRead}>Mark all read</button>
+            )}
+          </header>
+
+          <div className="notificationList">
+            {safeNotifications.length === 0 ? (
+              <div className="notificationEmpty">
+                <span>🔔</span>
+                <strong>You are all caught up</strong>
+                <small>New account and trading updates will appear here.</small>
+              </div>
+            ) : (
+              safeNotifications.slice(0, 8).map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  className={`notificationItem ${item.read ? "read" : "unread"} ${item.type || "info"}`}
+                  onClick={() => openNotification(item)}
+                >
+                  <span className="notificationTypeIcon">
+                    {item.type === "win" ? "✓" : item.type === "loss" ? "!" : item.type === "wallet" ? "$" : item.type === "security" ? "◆" : "↗"}
+                  </span>
+                  <span className="notificationCopy">
+                    <strong>{item.title}</strong>
+                    <small>{item.message}</small>
+                    <em>{item.time}</em>
+                  </span>
+                  {!item.read && <i aria-label="Unread"></i>}
+                </button>
+              ))
+            )}
+          </div>
+
+          <footer>
+            <button type="button" onClick={() => { setNotificationOpen(false); setActivePage("history"); }}>
+              View activity
+            </button>
+            {safeNotifications.length > 0 && (
+              <button type="button" className="clearNotifications" onClick={clearNotifications}>
+                Clear
+              </button>
+            )}
+          </footer>
+        </section>
+      )}
     </header>
   );
 }
@@ -2756,7 +2952,8 @@ function TradePage({
                       .join(" ")}
                   >
                     <strong>{digit}</strong>
-                    <span>{Number(percent).toFixed(1)}%</span>
+                    <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
+                    <i className="movingDigitCursor" aria-hidden="true"></i>
                   </button>
                 );
               })}
