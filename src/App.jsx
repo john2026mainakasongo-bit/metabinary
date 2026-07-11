@@ -2,7 +2,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = String(
+  import.meta.env.VITE_API_URL ||
+    (import.meta.env.DEV ? "http://localhost:5000" : "")
+).replace(/\/+$/, "");
+
+const FRONTEND_BUILD = "metabinary-deposit-fix-2026-07-11-v2";
+
+if (typeof window !== "undefined") {
+  window.__METABINARY_BUILD__ = FRONTEND_BUILD;
+  console.info(`MetaBinary frontend build: ${FRONTEND_BUILD}`);
+}
 
 const STORE = {
   user: "mb_user",
@@ -226,26 +236,27 @@ function uid() {
 
 async function readApiResponse(response) {
   const text = await response.text();
+  const contentType = response.headers.get("content-type") || "";
 
   if (!text.trim()) {
-    return {
-      ok: response.ok,
-      message: response.ok
-        ? "The server returned an empty response."
-        : `Server error (${response.status}).`,
-    };
+    throw new Error(
+      `Backend returned an empty response (HTTP ${response.status}).`
+    );
   }
 
   try {
     return JSON.parse(text);
   } catch {
-    return {
-      ok: false,
-      message: response.ok
-        ? "The server returned an invalid response."
-        : `Server error (${response.status}).`,
-      details: text.slice(0, 180),
-    };
+    const preview = text
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 180);
+
+    throw new Error(
+      contentType.includes("text/html")
+        ? `Backend returned an HTML page instead of JSON (HTTP ${response.status}). Check VITE_API_URL.`
+        : `Backend returned invalid JSON (HTTP ${response.status}): ${preview}`
+    );
   }
 }
 
@@ -1228,13 +1239,20 @@ export default function App() {
   }
 
   async function pollDepositStatus(depositId) {
-    if (!depositId) return;
+    if (!depositId || !API_URL) return;
 
     for (let attempt = 0; attempt < 18; attempt += 1) {
       await wait(5000);
 
       try {
-        const res = await fetch(`${API_URL}/api/deposit/${encodeURIComponent(depositId)}/status`);
+        const res = await fetch(
+          `${API_URL}/api/deposit/${encodeURIComponent(depositId)}/status`,
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            cache: "no-store",
+          }
+        );
         const data = await readApiResponse(res);
 
         if (!res.ok || data.ok === false) continue;
@@ -1265,7 +1283,8 @@ export default function App() {
           notify("loss", "Deposit not completed", data.message || `Payment status: ${status}.`);
           return;
         }
-      } catch {
+      } catch (error) {
+        console.warn("Deposit status check failed:", error);
         // Keep polling. A temporary network error should not lose a successful payment.
       }
     }
@@ -1275,40 +1294,63 @@ export default function App() {
 
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
-    const method = String(data.method || "").toLowerCase();
+    const method = String(data.method || "mpesa").toLowerCase();
+    const phone = String(data.phone || "").trim();
+
+    if (!API_URL) {
+      notify(
+        "loss",
+        "Backend not configured",
+        "VITE_API_URL is missing from the frontend environment."
+      );
+      return false;
+    }
 
     if (!Number.isFinite(amountUsd) || amountUsd < 1) {
       notify("loss", "Invalid amount", "Minimum deposit is 1 USD.");
       return false;
     }
 
-    if (method === "mpesa" && !String(data.phone || "").trim()) {
+    if (method === "mpesa" && !phone) {
       notify("loss", "Phone required", "Enter the M-Pesa phone number.");
       return false;
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/deposit`, {
+      const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        cache: "no-store",
         body: JSON.stringify({
-          ...data,
+          method,
           amountUsd,
+          phone,
           email: user.email,
           name: user.name || user.email,
           requestId: uid(),
         }),
       });
 
-      const json = await readApiResponse(res);
+      const result = await readApiResponse(response);
 
-      if (!res.ok || json.ok === false) {
-        throw new Error(json.message || `Deposit failed (${res.status}).`);
+      if (!response.ok || result.ok === false) {
+        throw new Error(
+          result.message || `Deposit failed with HTTP ${response.status}.`
+        );
       }
 
-      if (json.checkoutUrl) {
-        window.location.assign(json.checkoutUrl);
+      if (result.checkoutUrl) {
+        window.location.assign(result.checkoutUrl);
         return true;
+      }
+
+      if (!result.depositId) {
+        throw new Error(
+          result.message || "The backend did not return a deposit reference."
+        );
       }
 
       setDepositOpen(false);
@@ -1320,27 +1362,47 @@ export default function App() {
         account: "real",
         amount: amountUsd,
         status: "Pending",
-        details: data.phone || method,
+        details: phone || method,
       });
 
-      notify("open", "Deposit started", json.message || "Check your phone for the M-Pesa prompt.");
-      void pollDepositStatus(json.depositId);
+      notify(
+        "open",
+        "Deposit started",
+        result.message || "Check your phone for the M-Pesa prompt."
+      );
+
+      void pollDepositStatus(result.depositId);
       return true;
     } catch (error) {
-      notify("loss", "Deposit error", error.message || "Backend not connected.");
+      console.error("Deposit request failed:", error);
+
+      const message =
+        error instanceof Error ? error.message : "Backend connection failed.";
+
+      notify("loss", "Deposit error", message);
       return false;
     }
   }
 
   async function submitWithdraw(data) {
     const amount = Number(data.amountUsd);
+    const phone = String(data.phone || "").trim();
+
+    if (!API_URL) {
+      notify(
+        "loss",
+        "Backend not configured",
+        "VITE_API_URL is missing from the frontend environment."
+      );
+      return false;
+    }
 
     if (!Number.isFinite(amount) || amount < 5) {
       notify("loss", "Minimum withdrawal", "Minimum withdrawal is 5 USD.");
       return false;
     }
 
-    if (!String(data.phone || "").trim()) {
+    if (!phone) {
       notify("loss", "Phone required", "Enter the M-Pesa phone number.");
       return false;
     }
@@ -1351,11 +1413,16 @@ export default function App() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/withdraw`, {
+      const response = await fetch(`${API_URL}/api/withdraw`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        cache: "no-store",
         body: JSON.stringify({
           ...data,
+          phone,
           amountUsd: amount,
           email: user.email,
           name: user.name || user.email,
@@ -1363,14 +1430,16 @@ export default function App() {
         }),
       });
 
-      const json = await readApiResponse(res);
+      const result = await readApiResponse(response);
 
-      if (!res.ok || json.ok === false) {
-        throw new Error(json.message || `Withdrawal failed (${res.status}).`);
+      if (!response.ok || result.ok === false) {
+        throw new Error(
+          result.message || `Withdrawal failed with HTTP ${response.status}.`
+        );
       }
 
-      if (Number.isFinite(Number(json.realBalance))) {
-        setBalances((old) => ({ ...old, real: Number(json.realBalance) }));
+      if (Number.isFinite(Number(result.realBalance))) {
+        setBalances((old) => ({ ...old, real: Number(result.realBalance) }));
       } else {
         await refreshUser();
       }
@@ -1382,14 +1451,23 @@ export default function App() {
         method: "M-Pesa",
         account: "real",
         amount: -amount,
-        status: json.status || "Processing",
-        details: data.phone,
+        status: result.status || "Processing",
+        details: phone,
       });
 
-      notify("open", "Withdrawal requested", json.message || "Your withdrawal is processing.");
+      notify(
+        "open",
+        "Withdrawal requested",
+        result.message || "Your withdrawal is processing."
+      );
       return true;
     } catch (error) {
-      notify("loss", "Withdrawal error", error.message || "Backend not connected.");
+      console.error("Withdrawal request failed:", error);
+
+      const message =
+        error instanceof Error ? error.message : "Backend connection failed.";
+
+      notify("loss", "Withdrawal error", message);
       return false;
     }
   }
