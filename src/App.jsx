@@ -5061,13 +5061,8 @@ function TradePage({
                 const normalWhiteArcPath = centeredRingArcPath(useUpperWhiteArc ? 0 : 180, whiteArcDegrees);
                 const isWinningTarget = Boolean(activeBinaryTrade && digitWinsTrade(activeBinaryTrade, digit, livePrice));
                 return (
-                  <button key={digit} type="button" onClick={() => setPrediction(digit)} disabled={Boolean(activeBinaryTrade)} className={["chartDigit", digit < 5 ? "topDigitRow" : "bottomDigitRow", isHighest ? "highestDigit" : "", isLowest ? "lowestDigit" : "", isPicked ? "picked" : "", isCurrent ? "currentDigit" : "", isWinningTarget ? "winningTarget" : "", isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "", isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : ""].filter(Boolean).join(" ")} aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}>
-                    <svg className="digitRingGraphic" viewBox="0 0 100 100" aria-hidden="true">
-                      <circle className="digitRingGreyBase" cx="50" cy="50" r="42" />
-                      {isHighest && <path className="digitRingHighestGreenArc" d={ringArcPath(270, 450)} />}
-                      {isLowest && <path className="digitRingLowestRedArc" d={centeredRingArcPath(180, 90)} />}
-                      {!isHighest && !isLowest && <path className={`digitRingBalanceArc ${useUpperWhiteArc ? "upperBalanceArc" : "lowerBalanceArc"}`} d={normalWhiteArcPath} />}
-                    </svg>
+                  <button key={digit} type="button" onClick={() => setPrediction(digit)} disabled={Boolean(activeBinaryTrade)} className={["chartDigit", digit < 5 ? "topDigitRow" : "bottomDigitRow", isHighest ? "highestDigit" : "", isLowest ? "lowestDigit" : "", !isHighest && !isLowest ? (useUpperWhiteArc ? "upperBalanceDigit" : "lowerBalanceDigit") : "", isPicked ? "picked" : "", isCurrent ? "currentDigit" : "", isWinningTarget ? "winningTarget" : "", isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "", isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : ""].filter(Boolean).join(" ")} aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}>
+                    <span className="cleanDigitRing" aria-hidden="true"></span>
                     <span className="digitFace"><strong>{digit}</strong><span className="digitPercent">{Number(percent).toFixed(1)}%</span></span>
                     <i className="movingDigitCursor" aria-hidden="true"></i>
                   </button>
