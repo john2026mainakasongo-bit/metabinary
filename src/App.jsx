@@ -543,8 +543,30 @@ function makePrices(start = 1.08564) {
 const DIGIT_MIN_PERCENT = 8.5;
 const DIGIT_MAX_PERCENT = 13;
 
-function makeInitialDigitStats() {
-  return [10.5, 9.8, 11.2, 8.9, 10.1, 9.4, 10.8, 9.7, 10.4, 9.2];
+function makeInitialDigitStats(seed = 0) {
+  const base = [10.5, 9.8, 11.2, 8.9, 10.1, 9.4, 10.8, 9.7, 10.4, 9.2];
+  const offset = Math.abs(Number(seed) || 0) % base.length;
+  return base.map((_, index) => {
+    const value = base[(index + offset) % base.length];
+    const adjustment = (((index * 3 + offset) % 5) - 2) * 0.1;
+    return Number(Math.max(DIGIT_MIN_PERCENT, Math.min(DIGIT_MAX_PERCENT, value + adjustment)).toFixed(1));
+  });
+}
+
+function createBinaryMarketState(market, index = 0) {
+  const start = Number(market?.start || 1.2) + Number(market?.step || 0.0002) * (index + 1) * 5;
+  return {
+    prices: makePrices(start),
+    digitStats: makeInitialDigitStats(index),
+    lastDigit: (index * 3 + 2) % 10,
+    updatedAt: Date.now() - index * 1000,
+  };
+}
+
+function createInitialBinaryMarketStates() {
+  return Object.fromEntries(
+    VOLATILITY_OPTIONS.map((market, index) => [market.id, createBinaryMarketState(market, index)])
+  );
 }
 
 function driftDigitStats(values) {
@@ -730,7 +752,10 @@ function TradingApp() {
   const activeBinaryMarket =
     VOLATILITY_OPTIONS.find((market) => market.id === binaryMarketId) ||
     VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
-  const [prices, setPrices] = useState(() => makePrices(activeBinaryMarket.start));
+  const [binaryMarketStates, setBinaryMarketStates] = useState(createInitialBinaryMarketStates);
+  const activeBinaryState =
+    binaryMarketStates[binaryMarketId] || createBinaryMarketState(activeBinaryMarket, 0);
+  const prices = activeBinaryState.prices;
   const [marketSymbol, setMarketSymbol] = useState("XAU/USD");
   const [marketTimeframe, setMarketTimeframe] = useState("1min");
   const [marketFeed, setMarketFeed] = useState(() => readStore(MARKET_CACHE_KEY, {}));
@@ -750,14 +775,22 @@ function TradingApp() {
   const [stake, setStake] = useState(10);
   const [duration, setDuration] = useState(5);
   const [prediction, setPrediction] = useState(2);
-  const [lastDigit, setLastDigit] = useState(0);
-  const [digitStats, setDigitStats] = useState(makeInitialDigitStats);
+  const lastDigit = Number(activeBinaryState.lastDigit || 0);
+  const digitStats = Array.isArray(activeBinaryState.digitStats)
+    ? activeBinaryState.digitStats
+    : makeInitialDigitStats();
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
   const activeBinaryTradeRef = useRef(null);
   const lastDigitRef = useRef(0);
   const toastTimerRef = useRef(null);
   const resultFlashTimerRef = useRef(null);
+  const pullStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
+  const pullTrackingRef = useRef(false);
+  const pullRefreshingRef = useRef(false);
+  const [pullRefreshDistance, setPullRefreshDistance] = useState(0);
+  const [pullRefreshing, setPullRefreshing] = useState(false);
 
   const [selectedBot, setSelectedBot] = useState(null);
   const [botConfig, setBotConfig] = useState(() =>
@@ -784,8 +817,29 @@ function TradingApp() {
   const [settingsBusy, setSettingsBusy] = useState("");
 
   activeBinaryTradeRef.current = activeBinaryTrade;
+  lastDigitRef.current = lastDigit;
 
-  const livePrice = prices[prices.length - 1] || 1.08564;
+  function updateBinaryMarketState(marketId, updater) {
+    setBinaryMarketStates((currentStates) => {
+      const marketIndex = Math.max(
+        0,
+        VOLATILITY_OPTIONS.findIndex((market) => market.id === marketId)
+      );
+      const market = VOLATILITY_OPTIONS[marketIndex] || activeBinaryMarket;
+      const current = currentStates[marketId] || createBinaryMarketState(market, marketIndex);
+      const updated = typeof updater === "function" ? updater(current) : updater;
+      return {
+        ...currentStates,
+        [marketId]: {
+          ...current,
+          ...(updated || {}),
+          updatedAt: Date.now(),
+        },
+      };
+    });
+  }
+
+  const livePrice = prices[prices.length - 1] || activeBinaryMarket.start || 1.08564;
   const livePriceRef = useRef(livePrice);
   livePriceRef.current = livePrice;
   const activeMarket = MARKET_BY_SYMBOL[marketSymbol] || MARKET_OPTIONS[0];
@@ -908,36 +962,52 @@ function TradingApp() {
   }, [activePage]);
 
   useEffect(() => {
-    setPrices(makePrices(activeBinaryMarket.start));
-    setDigitStats(makeInitialDigitStats());
-    setLastDigit(0);
-    lastDigitRef.current = 0;
-  }, [binaryMarketId]);
+    const timer = window.setInterval(() => {
+      const openTrade = activeBinaryTradeRef.current;
+      const now = Date.now();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPrices((old) => {
-        const last = old[old.length - 1] || activeBinaryMarket.start;
-        const next = Number(
-          (
-            last +
-            (Math.random() - 0.5) * activeBinaryMarket.step +
-            Math.sin(Date.now() / 8400) * activeBinaryMarket.wave
-          ).toFixed(6)
-        );
-        return [...old.slice(-119), next];
+      setBinaryMarketStates((currentStates) => {
+        const nextStates = { ...currentStates };
+
+        VOLATILITY_OPTIONS.forEach((market, index) => {
+          const current = currentStates[market.id] || createBinaryMarketState(market, index);
+          const oldPrices = Array.isArray(current.prices) && current.prices.length
+            ? current.prices
+            : makePrices(market.start);
+          const lastPrice = oldPrices[oldPrices.length - 1] || market.start;
+          const phase = now / (7600 + index * 310) + index * 0.87;
+          const directionBias = index % 2 === 0 ? 0.015 : -0.015;
+          const nextPrice = Number(
+            (
+              lastPrice +
+              (Math.random() - 0.5 + directionBias) * market.step +
+              Math.sin(phase) * market.wave
+            ).toFixed(6)
+          );
+          const serverControlsThisMarket = Boolean(
+            openTrade && (openTrade.marketId || binaryMarketId) === market.id
+          );
+          const nextDigit = serverControlsThisMarket
+            ? Number(current.lastDigit || 0)
+            : Math.floor(Math.random() * 10);
+
+          nextStates[market.id] = {
+            ...current,
+            prices: [...oldPrices.slice(-119), nextPrice],
+            digitStats: serverControlsThisMarket
+              ? current.digitStats
+              : driftDigitStats(current.digitStats || makeInitialDigitStats(index)),
+            lastDigit: nextDigit,
+            updatedAt: now,
+          };
+        });
+
+        return nextStates;
       });
-
-      if (!activeBinaryTradeRef.current) {
-        const nextDigit = Math.floor(Math.random() * 10);
-        lastDigitRef.current = nextDigit;
-        setLastDigit(nextDigit);
-        setDigitStats((old) => driftDigitStats(old));
-      }
     }, DIGIT_TICK_MS);
 
-    return () => clearInterval(timer);
-  }, [binaryMarketId]);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!activeBinaryTrade?.id || !authToken) return undefined;
@@ -959,9 +1029,12 @@ function TradingApp() {
 
     const showTick = (digit, remainingTicks) => {
       if (Number.isInteger(digit) && digit >= 0 && digit <= 9) {
-        lastDigitRef.current = digit;
-        setLastDigit(digit);
-        setDigitStats((old) => driftDigitStats(old));
+        const tradeMarketId = openTrade.marketId || binaryMarketId;
+        updateBinaryMarketState(tradeMarketId, (current) => ({
+          lastDigit: digit,
+          digitStats: driftDigitStats(current.digitStats || makeInitialDigitStats()),
+        }));
+        if (tradeMarketId === binaryMarketId) lastDigitRef.current = digit;
       }
 
       setActiveBinaryTrade((current) =>
@@ -1078,6 +1151,67 @@ function TradingApp() {
       window.clearTimeout(timer);
     };
   }, [activeBinaryTrade?.id, authToken]);
+
+  useEffect(() => {
+    const pageIsAtTop = () => {
+      const main = document.querySelector(".mainScreen");
+      return window.scrollY <= 0 && Number(main?.scrollTop || 0) <= 0;
+    };
+
+    const touchStart = (event) => {
+      if (pullRefreshingRef.current || !pageIsAtTop()) return;
+      const touch = event.touches?.[0];
+      if (!touch) return;
+      pullStartYRef.current = touch.clientY;
+      pullTrackingRef.current = true;
+    };
+
+    const touchMove = (event) => {
+      if (!pullTrackingRef.current || pullStartYRef.current == null || !pageIsAtTop()) return;
+      const touch = event.touches?.[0];
+      if (!touch) return;
+      const rawDistance = touch.clientY - pullStartYRef.current;
+      if (rawDistance <= 0) {
+        pullDistanceRef.current = 0;
+        setPullRefreshDistance(0);
+        return;
+      }
+
+      const easedDistance = Math.min(96, rawDistance * 0.42);
+      pullDistanceRef.current = easedDistance;
+      setPullRefreshDistance(easedDistance);
+      if (rawDistance > 8) event.preventDefault();
+    };
+
+    const touchEnd = () => {
+      if (!pullTrackingRef.current) return;
+      pullTrackingRef.current = false;
+      pullStartYRef.current = null;
+
+      if (pullDistanceRef.current >= 62) {
+        pullRefreshingRef.current = true;
+        setPullRefreshing(true);
+        setPullRefreshDistance(68);
+        window.setTimeout(() => window.location.reload(), 260);
+        return;
+      }
+
+      pullDistanceRef.current = 0;
+      setPullRefreshDistance(0);
+    };
+
+    document.addEventListener("touchstart", touchStart, { passive: true });
+    document.addEventListener("touchmove", touchMove, { passive: false });
+    document.addEventListener("touchend", touchEnd, { passive: true });
+    document.addEventListener("touchcancel", touchEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", touchStart);
+      document.removeEventListener("touchmove", touchMove);
+      document.removeEventListener("touchend", touchEnd);
+      document.removeEventListener("touchcancel", touchEnd);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user?.email) return;
@@ -1744,8 +1878,12 @@ function TradingApp() {
     const profit = Number((settledPayout - settledStake).toFixed(2));
 
     if (Number.isInteger(resultDigit) && resultDigit >= 0 && resultDigit <= 9) {
-      lastDigitRef.current = resultDigit;
-      setLastDigit(resultDigit);
+      const tradeMarketId = openTrade.marketId || binaryMarketId;
+      updateBinaryMarketState(tradeMarketId, (current) => ({
+        lastDigit: resultDigit,
+        digitStats: driftDigitStats(current.digitStats || makeInitialDigitStats()),
+      }));
+      if (tradeMarketId === binaryMarketId) lastDigitRef.current = resultDigit;
     }
 
     if (result.user) {
@@ -1898,6 +2036,7 @@ function TradingApp() {
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
         market: opened.market || activeBinaryMarket.label,
+        marketId: binaryMarketId,
         totalTicks: Number(opened.ticks ?? usedTicks),
         remainingTicks: Number(opened.ticks ?? usedTicks),
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
@@ -2389,6 +2528,15 @@ function TradingApp() {
 
   return (
     <div className="app">
+      <div
+        className={`pullRefreshIndicator ${pullRefreshing ? "refreshing" : ""} ${pullRefreshDistance > 0 ? "visible" : ""}`}
+        style={{ transform: `translate(-50%, ${Math.max(-52, pullRefreshDistance - 52)}px)` }}
+        aria-hidden="true"
+      >
+        <span>{pullRefreshing ? "↻" : pullRefreshDistance >= 62 ? "↑" : "↓"}</span>
+        <small>{pullRefreshing ? "Refreshing…" : pullRefreshDistance >= 62 ? "Release to refresh" : "Pull to refresh"}</small>
+      </div>
+
       <Header
         user={user}
         account={account}
@@ -2772,7 +2920,6 @@ function Header({
           </strong>
         </span>
 
-        <span className="accountSelectorChevron" aria-hidden="true">⌄</span>
       </button>
 
       <button
@@ -4016,6 +4163,12 @@ function TradePage({
   setBinaryMarketId,
   volatilityOptions,
 }) {
+  const [marketMenuOpen, setMarketMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeBinaryTrade) setMarketMenuOpen(false);
+  }, [activeBinaryTrade]);
+
   const actions = actionsFor(tradeType);
   const indexValue = livePrice * Number(binaryMarket?.scale || 800);
   const priceStep = Number(binaryMarket?.priceStep || 2);
@@ -4055,27 +4208,48 @@ function TradePage({
 
       <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
         <div className="proChartTitle finalBinaryChartTitle">
-          <label className="binaryMarketPicker">
-            <span className="binaryMarketBadge">{binaryMarket?.short || "V100 1s"}</span>
-            <span className="binaryMarketSelectText">
-              <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
-              <small>{binaryMarket?.description || "Synthetic volatility market"}</small>
-            </span>
-            <span className="binaryMarketChevron" aria-hidden="true">⌄</span>
-            <select
-              className="binaryMarketNativeSelect"
-              value={binaryMarketId}
-              onChange={(event) => setBinaryMarketId(event.target.value)}
+          <div className={`binaryMarketSelector ${marketMenuOpen ? "open" : ""}`}>
+            <button
+              type="button"
+              className="binaryMarketPicker"
+              onClick={() => setMarketMenuOpen((open) => !open)}
               disabled={Boolean(activeBinaryTrade)}
-              aria-label="Choose volatility index"
+              aria-haspopup="listbox"
+              aria-expanded={marketMenuOpen}
             >
-              {volatilityOptions.map((market) => (
-                <option key={market.id} value={market.id}>
-                  {market.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              <span className="binaryMarketBadge">{binaryMarket?.short || "V100 1s"}</span>
+              <span className="binaryMarketSelectText">
+                <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
+                <small>{binaryMarket?.description || "Synthetic volatility market"}</small>
+              </span>
+              <span className="binaryMarketChevron" aria-hidden="true">⌄</span>
+            </button>
+
+            {marketMenuOpen && (
+              <div className="binaryMarketMenu" role="listbox" aria-label="Volatility markets">
+                {volatilityOptions.map((market) => (
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={market.id === binaryMarketId}
+                    key={market.id}
+                    className={market.id === binaryMarketId ? "active" : ""}
+                    onClick={() => {
+                      setBinaryMarketId(market.id);
+                      setMarketMenuOpen(false);
+                    }}
+                  >
+                    <span>{market.short}</span>
+                    <div>
+                      <strong>{market.label}</strong>
+                      <small>{market.description}</small>
+                    </div>
+                    <i>{market.id === binaryMarketId ? "✓" : ""}</i>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
           <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
