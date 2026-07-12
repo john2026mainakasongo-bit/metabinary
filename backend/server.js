@@ -20,7 +20,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-professional-referrals-settings-2026-07-12";
+const BACKEND_BUILD = "metabinary-marketing-ready-1-to-12-2026-07-12";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
@@ -38,6 +38,12 @@ const SECRET_KEY = String(process.env.INTASEND_SECRET_KEY || "").trim();
 const TWELVE_DATA_API_KEY = String(
   process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
 ).trim();
+const PUBLIC_BACKEND_URL = String(process.env.PUBLIC_BACKEND_URL || "").trim().replace(/\/$/, "");
+const FRONTEND_PUBLIC_URL = String(process.env.FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173").trim().replace(/\/$/, "");
+const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
+const PASSWORD_RESET_FROM_EMAIL = String(process.env.PASSWORD_RESET_FROM_EMAIL || "MetaBinary <noreply@metabinaryfx.com>").trim();
+const PASSWORD_RESET_TTL_MINUTES = Math.max(5, Math.min(60, Number(process.env.PASSWORD_RESET_TTL_MINUTES || 15)));
+const INTASEND_CALLBACK_SECRET = String(process.env.INTASEND_CALLBACK_SECRET || "").trim();
 
 const PASSWORD_ITERATIONS = 120000;
 const PASSWORD_KEY_LENGTH = 32;
@@ -53,6 +59,10 @@ const DEFAULT_USER_PREFERENCES = Object.freeze({
     security: true,
     wallet: true,
     referrals: true,
+    botSounds: true,
+    takeProfitSound: true,
+    stopLossSound: true,
+    soundVolume: 70,
   },
 });
 
@@ -155,6 +165,10 @@ function normalizeUserPreferences(value = {}) {
       security: notifications.security !== false,
       wallet: notifications.wallet !== false,
       referrals: notifications.referrals !== false,
+      botSounds: notifications.botSounds !== false,
+      takeProfitSound: notifications.takeProfitSound !== false,
+      stopLossSound: notifications.stopLossSound !== false,
+      soundVolume: Math.max(0, Math.min(100, Number(notifications.soundVolume ?? 70))),
     },
   };
 }
@@ -250,6 +264,9 @@ async function ensureIndexes() {
     db.collection("forexPositions").createIndex({ id: 1 }, { unique: true }),
     db.collection("forexPositions").createIndex({ email: 1, status: 1, createdAt: -1 }),
     db.collection("adminAudit").createIndex({ createdAt: -1 }),
+    db.collection("passwordResetTokens").createIndex({ tokenHash: 1 }, { unique: true }),
+    db.collection("passwordResetTokens").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
+    db.collection("passwordResetTokens").createIndex({ email: 1, createdAt: -1 }),
   ]);
 
   await ensurePartialRequestIndex(deposits, "uniq_deposit_email_requestId");
@@ -272,6 +289,45 @@ function verifyPassword(password, stored) {
     .toString("hex");
   if (calculated.length !== savedHash.length) return false;
   return crypto.timingSafeEqual(Buffer.from(calculated, "hex"), Buffer.from(savedHash, "hex"));
+}
+
+
+function hashResetToken(token) {
+  return crypto.createHash("sha256").update(String(token || "")).digest("hex");
+}
+
+async function sendPasswordResetEmail(email, resetLink) {
+  if (!RESEND_API_KEY) {
+    console.warn(`Password reset email provider is not configured. Reset requested for ${maskEmail(email)}.`);
+    return false;
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: PASSWORD_RESET_FROM_EMAIL,
+      to: [email],
+      subject: "Reset your MetaBinary password",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:28px;color:#0b1726">
+          <h2>Reset your MetaBinary password</h2>
+          <p>A password reset was requested for your account.</p>
+          <p><a href="${resetLink}" style="display:inline-block;padding:13px 22px;background:#087cff;color:white;text-decoration:none;border-radius:9px;font-weight:700">Create new password</a></p>
+          <p>This secure link expires in ${PASSWORD_RESET_TTL_MINUTES} minutes and can be used once.</p>
+          <p>If you did not request this, you can ignore this email.</p>
+        </div>`,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw httpError(502, `Email delivery failed: ${text.slice(0, 160)}`);
+  }
+  return true;
 }
 
 function assertTokenSecret() {
@@ -318,6 +374,11 @@ async function requireUser(req, _res, next) {
     const db = await getDb();
     const user = await db.collection("users").findOne({ email: cleanEmail(payload.email) });
     if (!user) throw httpError(401, "Account no longer exists.");
+    const tokenSessionVersion = Number(payload.sv || 0);
+    const userSessionVersion = Number(user.sessionVersion || 0);
+    if (tokenSessionVersion !== userSessionVersion) {
+      throw httpError(401, "This session is no longer valid. Login again.");
+    }
     const status = String(user.status || "active").toLowerCase();
     if (status === "banned") throw httpError(403, "This account has been banned. Contact support.");
     if (status === "suspended") throw httpError(403, "This account is suspended. Contact support.");
@@ -394,30 +455,42 @@ function allowedTradeActions(type) {
   return ["Touch", "No Touch"];
 }
 
-function winningDigitCount(type, action, prediction) {
+function estimatedTouchProbability(ticks, barrierDistance) {
+  const safeTicks = Math.max(1, Math.min(10, Number(ticks || 5)));
+  const safeDistance = Math.max(0.5, Number(barrierDistance || 2));
+  return Math.max(0.12, Math.min(0.82, safeTicks / (safeTicks + safeDistance * 2.5)));
+}
+
+function tradeMultiplier(type, action, prediction, options = {}) {
   const digit = Math.max(0, Math.min(9, Number(prediction || 0)));
-  if (type === "Even/Odd" || type === "Rise/Fall") return 5;
-  if (type === "Matches/Differs" || type === "Touch/No Touch") {
-    return action === "Matches" || action === "Touch" ? 1 : 9;
-  }
+  if (type === "Even/Odd" || type === "Rise/Fall") return 1.9;
+  if (type === "Matches/Differs") return action === "Matches" ? 9.5 : 1.056;
   if (type === "Over/Under") {
-    return action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
+    const winningDigits = action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
+    if (!winningDigits) return 0;
+    return Number(Math.max(1.02, Math.min(9.5, 0.95 / (winningDigits / 10))).toFixed(3));
+  }
+  if (type === "Touch/No Touch") {
+    const touchProbability = estimatedTouchProbability(options.ticks, options.barrierDistance);
+    const probability = action === "Touch" ? touchProbability : 1 - touchProbability;
+    return Number(Math.max(1.05, Math.min(8, 0.95 / probability)).toFixed(3));
   }
   return 0;
 }
 
-function tradeMultiplier(type, action, prediction) {
-  const winningDigits = winningDigitCount(type, action, prediction);
-  if (winningDigits <= 0) return 0;
-  return Number(Math.max(1.02, Math.min(8.3, (10 / winningDigits) * 0.91)).toFixed(3));
-}
-
-function tradeWins(type, action, prediction, resultDigit) {
+function tradeWins(trade, resultDigit, closingPrice, touched) {
+  const type = trade.type;
+  const action = trade.action;
+  const prediction = Number(trade.prediction || 0);
   if (type === "Even/Odd") return action === "Even" ? resultDigit % 2 === 0 : resultDigit % 2 !== 0;
   if (type === "Matches/Differs") return action === "Matches" ? resultDigit === prediction : resultDigit !== prediction;
   if (type === "Over/Under") return action === "Over" ? resultDigit > prediction : resultDigit < prediction;
-  if (type === "Touch/No Touch") return action === "Touch" ? resultDigit === prediction : resultDigit !== prediction;
-  if (type === "Rise/Fall") return action === "Rise" ? resultDigit >= 5 : resultDigit < 5;
+  if (type === "Touch/No Touch") return action === "Touch" ? Boolean(touched) : !Boolean(touched);
+  if (type === "Rise/Fall") {
+    return action === "Rise"
+      ? Number(closingPrice) > Number(trade.entryPrice)
+      : Number(closingPrice) < Number(trade.entryPrice);
+  }
   return false;
 }
 
@@ -434,6 +507,10 @@ function publicTrade(trade) {
     multiplier: Number(trade.multiplier),
     payout: roundMoney(trade.payout),
     entryPrice: Number(trade.entryPrice || 0),
+    currentPrice: Number(trade.currentPrice || trade.entryPrice || 0),
+    barrier: Number(trade.barrier || 0),
+    barrierDistance: Number(trade.barrierDistance || 0),
+    touched: Boolean(trade.touched),
     market: trade.market || "Volatility 100 (1s) Index",
     source: trade.source || "manual",
     strategy: trade.strategy || "",
@@ -469,7 +546,9 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
   }
 
   const resultDigit = Math.max(0, Math.min(9, Math.floor(Number(requestedDigit))));
-  const won = tradeWins(trade.type, trade.action, Number(trade.prediction), resultDigit);
+  const closingPrice = Number(trade.currentPrice || trade.entryPrice || 0);
+  const touched = Boolean(trade.touched);
+  const won = tradeWins(trade, resultDigit, closingPrice, touched);
   const profit = won ? roundMoney(trade.payout - trade.stake) : -roundMoney(trade.stake);
   const settledAt = nowIso();
 
@@ -483,6 +562,8 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
         ticksConsumed: Math.max(Number(trade.ticks || 1), Number(trade.ticksConsumed || 0)),
         won,
         profit,
+        currentPrice: closingPrice,
+        touched,
         settledAt,
         updatedAt: settledAt,
       },
@@ -514,7 +595,7 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
     payout: roundMoney(claimed.payout),
     status: won ? "WON" : "LOST",
     reference: claimed.id,
-    details: `${claimed.strategy ? `${claimed.strategy} · ` : ""}${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
+    details: `${claimed.strategy ? `${claimed.strategy} · ` : ""}${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action}${["Even/Odd", "Matches/Differs", "Over/Under"].includes(claimed.type) ? ` · digit ${resultDigit}` : ` · close ${closingPrice}`}`,
     createdAt: settledAt,
   });
 
@@ -967,6 +1048,9 @@ app.get("/api/health", async (_req, res) => {
       database: MONGODB_DB,
       referralCommissionPercent: REFERRAL_COMMISSION_PERCENT,
       tradeTickMs: TRADE_TICK_MS,
+      passwordResetEmailConfigured: Boolean(RESEND_API_KEY),
+      publicBackendUrlConfigured: Boolean(PUBLIC_BACKEND_URL),
+      paymentCallbackProtected: Boolean(INTASEND_CALLBACK_SECRET),
     });
   } catch (error) {
     res.status(503).json({ ok: false, mode: TEST_MODE ? "sandbox" : "live", mongo: "disconnected", message: error.message });
@@ -988,7 +1072,7 @@ app.post("/api/auth/register", async (req, res, next) => {
     if (!fullName || !email || !email.includes("@") || !phone || !password) {
       throw httpError(400, "Fill in your name, email, phone number and password.");
     }
-    if (password.length < 6) throw httpError(400, "Password must be at least 6 characters.");
+    if (password.length < 8) throw httpError(400, "Password must be at least 8 characters.");
 
     const db = await getDb();
     const referrer = suppliedReferralCode
@@ -1030,6 +1114,7 @@ app.post("/api/auth/register", async (req, res, next) => {
       verified: false,
       status: "active",
       role: "user",
+      sessionVersion: 0,
       createdAt,
       updatedAt: createdAt,
     };
@@ -1049,7 +1134,7 @@ app.post("/api/auth/register", async (req, res, next) => {
       createdAt,
     });
 
-    const token = signToken({ role: "user", email }, 60 * 60 * 24 * 7);
+    const token = signToken({ role: "user", email, sv: Number(user.sessionVersion || 0) }, 60 * 60 * 24 * 7);
     res.status(201).json({ ok: true, token, user: publicUser(user), message: `Account ${accountId} created successfully.` });
   } catch (error) {
     if (error?.code === 11000) error = httpError(409, "This email or phone number already has an account.");
@@ -1074,8 +1159,58 @@ app.post("/api/auth/login", async (req, res, next) => {
 
     const lastLoginAt = nowIso();
     await db.collection("users").updateOne({ _id: user._id }, { $set: { lastLoginAt, updatedAt: lastLoginAt } });
-    const token = signToken({ role: "user", email }, 60 * 60 * 24 * 7);
+    const token = signToken({ role: "user", email, sv: Number(user.sessionVersion || 0) }, 60 * 60 * 24 * 7);
     res.json({ ok: true, token, user: publicUser({ ...user, lastLoginAt }), message: `Logged in as ${user.accountId || user.brokerId || email}.` });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/forgot-password", async (req, res, next) => {
+  try {
+    const email = cleanEmail(req.body?.email);
+    const genericMessage = "If an account exists with this email, a password reset link has been sent.";
+    if (!email || !email.includes("@")) return res.json({ ok: true, message: genericMessage });
+
+    const db = await getDb();
+    const user = await db.collection("users").findOne({ email });
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString("base64url");
+      const tokenHash = hashResetToken(rawToken);
+      const createdAt = nowIso();
+      const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MINUTES * 60 * 1000);
+      await db.collection("passwordResetTokens").deleteMany({ email });
+      await db.collection("passwordResetTokens").insertOne({ tokenHash, email, createdAt, expiresAt, usedAt: "" });
+      const resetLink = `${FRONTEND_PUBLIC_URL}/?reset_token=${encodeURIComponent(rawToken)}`;
+      await sendPasswordResetEmail(email, resetLink);
+    }
+    res.json({ ok: true, message: genericMessage });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/reset-password", async (req, res, next) => {
+  try {
+    const token = String(req.body?.token || "");
+    const password = String(req.body?.password || "");
+    if (!token || password.length < 8) throw httpError(400, "Enter a valid reset link and a password with at least 8 characters.");
+
+    const db = await getDb();
+    const tokenHash = hashResetToken(token);
+    const record = await db.collection("passwordResetTokens").findOne({ tokenHash, usedAt: "", expiresAt: { $gt: new Date() } });
+    if (!record) throw httpError(400, "This password reset link is invalid or has expired.");
+
+    const changedAt = nowIso();
+    const updated = await db.collection("users").findOneAndUpdate(
+      { email: record.email },
+      { $set: { passwordHash: hashPassword(password), passwordChangedAt: changedAt, updatedAt: changedAt }, $inc: { sessionVersion: 1 } },
+      { returnDocument: "after" }
+    );
+    if (!updated) throw httpError(404, "Account was not found.");
+    await db.collection("passwordResetTokens").updateOne({ _id: record._id }, { $set: { usedAt: changedAt } });
+    await db.collection("passwordResetTokens").deleteMany({ email: record.email, _id: { $ne: record._id } });
+    res.json({ ok: true, message: "Password updated successfully. You can now log in with your new password." });
   } catch (error) {
     next(error);
   }
@@ -1214,11 +1349,14 @@ app.post("/api/settings/password", requireUser, async (req, res, next) => {
     }
 
     const db = await getDb();
-    await db.collection("users").updateOne(
+    const changedAt = nowIso();
+    const updatedUser = await db.collection("users").findOneAndUpdate(
       { _id: req.user._id },
-      { $set: { passwordHash: hashPassword(newPassword), passwordChangedAt: nowIso(), updatedAt: nowIso() } }
+      { $set: { passwordHash: hashPassword(newPassword), passwordChangedAt: changedAt, updatedAt: changedAt }, $inc: { sessionVersion: 1 } },
+      { returnDocument: "after" }
     );
-    res.json({ ok: true, message: "Password changed successfully." });
+    const token = signToken({ role: "user", email: updatedUser.email, sv: Number(updatedUser.sessionVersion || 0) }, 60 * 60 * 24 * 7);
+    res.json({ ok: true, token, user: publicUser(updatedUser), message: "Password changed successfully." });
   } catch (error) {
     next(error);
   }
@@ -1393,7 +1531,11 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     if (method !== "mpesa") throw httpError(400, "Choose M-Pesa or card deposit.");
     const phone = normalizeKenyanPhone(req.body.phone || user.phone);
     const payload = { phone_number: phone, name, email, amount: amountKes, api_ref: apiRef };
-    if (process.env.INTASEND_CALLBACK_URL) payload.callback_url = process.env.INTASEND_CALLBACK_URL;
+    const generatedCallbackUrl = PUBLIC_BACKEND_URL
+      ? `${PUBLIC_BACKEND_URL}/api/intasend/callback${INTASEND_CALLBACK_SECRET ? `?token=${encodeURIComponent(INTASEND_CALLBACK_SECRET)}` : ""}`
+      : "";
+    const callbackUrl = String(process.env.INTASEND_CALLBACK_URL || generatedCallbackUrl).trim();
+    if (callbackUrl) payload.callback_url = callbackUrl;
 
     const providerResponse = await intasendClient().collection().mpesaStkPush(payload);
     const deposit = {
@@ -1444,16 +1586,57 @@ app.get("/api/deposit/:depositId/status", requireUser, async (req, res, next) =>
 
 async function paymentCallback(req, res, next) {
   try {
+    const suppliedToken = String(req.query?.token || req.headers["x-callback-token"] || "").trim();
+    const callbackProtected = Boolean(INTASEND_CALLBACK_SECRET);
+    if (callbackProtected) {
+      const left = Buffer.from(suppliedToken);
+      const right = Buffer.from(INTASEND_CALLBACK_SECRET);
+      if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) {
+        throw httpError(401, "Invalid payment callback token.");
+      }
+    }
+
     const db = await getDb();
     const invoiceId = extractInvoiceId(req.body);
     const apiRef = extractApiRef(req.body);
     let deposit = await findDepositByProviderReference(db, invoiceId, apiRef);
     if (!deposit) return res.status(202).json({ ok: true, message: "Callback received; no matching local deposit yet." });
+
     if (invoiceId && !deposit.invoiceId) {
       await db.collection("deposits").updateOne({ id: deposit.id }, { $set: { invoiceId, updatedAt: nowIso() } });
       deposit = { ...deposit, invoiceId };
     }
-    deposit = await reconcileDeposit(db, deposit);
+
+    const callbackStatus = normalizeStatus(req.body || {});
+    const callbackAt = nowIso();
+    const statusPatch = PAID_STATUSES.has(callbackStatus) || FAILED_STATUSES.has(callbackStatus)
+      ? { status: callbackStatus }
+      : {};
+
+    await db.collection("deposits").updateOne(
+      { id: deposit.id },
+      {
+        $set: {
+          callbackPayload: req.body,
+          callbackStatus,
+          callbackReceivedAt: callbackAt,
+          updatedAt: callbackAt,
+          ...statusPatch,
+        },
+      }
+    );
+    deposit = { ...deposit, ...statusPatch, callbackStatus, callbackReceivedAt: callbackAt };
+
+    // A protected callback can be credited immediately. Without the shared secret,
+    // verify the invoice with IntaSend before changing a real-money balance.
+    if (callbackProtected && PAID_STATUSES.has(callbackStatus)) {
+      deposit = await creditDepositOnce(db, deposit, callbackStatus);
+    } else if (callbackProtected && FAILED_STATUSES.has(callbackStatus)) {
+      deposit = await db.collection("deposits").findOne({ id: deposit.id });
+    } else {
+      deposit = await reconcileDeposit(db, deposit);
+    }
+
     res.json(await responseForDeposit(db, deposit));
   } catch (error) {
     next(error);
@@ -1776,6 +1959,10 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const ticks = Math.min(10, Math.max(1, Math.floor(Number(req.body?.ticks || 5))));
     const stake = roundMoney(req.body?.stake);
     const entryPrice = Number(req.body?.entryPrice || 0);
+    const currentPrice = Number(req.body?.currentPrice || entryPrice || 0);
+    const barrier = Number(req.body?.barrier || 0);
+    const barrierDistance = Math.max(0, Number(req.body?.barrierDistance || 0));
+    const marketStep = Math.max(0.000001, Number(req.body?.marketStep || 0.0002));
     const market = cleanText(req.body?.market || "Volatility 100 (1s) Index", 100);
     const source = String(req.body?.source || "manual").toLowerCase() === "bot" ? "bot" : "manual";
     const strategy = cleanText(req.body?.strategy || "", 100);
@@ -1783,7 +1970,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
     if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
 
-    const multiplier = tradeMultiplier(type, action, prediction);
+    const multiplier = tradeMultiplier(type, action, prediction, { ticks, barrierDistance });
     if (!multiplier) throw httpError(400, "This contract has no possible winning digit. Choose another prediction.");
 
     const balanceField = account === "real" ? "realBalance" : "demoBalance";
@@ -1811,6 +1998,11 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       multiplier,
       payout: roundMoney(stake * multiplier),
       entryPrice,
+      currentPrice,
+      barrier,
+      barrierDistance,
+      marketStep,
+      touched: false,
       market,
       source,
       strategy,
@@ -1854,86 +2046,36 @@ async function handleTradeTick(req, res, next) {
 
     if (trade.status === "SETTLED") {
       const final = await finalizeTradeWithDigit(db, req.user, trade, trade.resultDigit);
-      return res.json({
-        ok: true,
-        settled: true,
-        digit: final.resultDigit,
-        resultDigit: final.resultDigit,
-        won: final.won,
-        remainingTicks: 0,
-        trade: publicTrade(final.trade),
-        user: publicUser(final.user),
-        balance: final.balance,
-        message: final.won ? "Trade won." : "Trade lost.",
-      });
+      return res.json({ ok: true, settled: true, digit: final.resultDigit, resultDigit: final.resultDigit, won: final.won, remainingTicks: 0, currentPrice: Number(final.trade.currentPrice || final.trade.entryPrice), touched: Boolean(final.trade.touched), trade: publicTrade(final.trade), user: publicUser(final.user), balance: final.balance, message: final.won ? "Trade won." : "Trade lost." });
     }
 
     const totalTicks = Math.min(10, Math.max(1, Number(trade.ticks || 1)));
+    const previousPrice = Number(trade.currentPrice || trade.entryPrice || 1);
+    const movementUnit = Math.max(0.000001, Number(trade.marketStep || 0.0002));
+    const randomFactor = crypto.randomInt(-1000, 1001) / 1000;
+    const nextPrice = Number((previousPrice + randomFactor * movementUnit * 3).toFixed(6));
     const digit = crypto.randomInt(0, 10);
+    const barrier = Number(trade.barrier || 0);
+    const crossedBarrier = barrier > 0 && ((previousPrice <= barrier && nextPrice >= barrier) || (previousPrice >= barrier && nextPrice <= barrier));
+    const touched = Boolean(trade.touched || crossedBarrier);
+
     const advanced = await db.collection("trades").findOneAndUpdate(
-      {
-        _id: trade._id,
-        status: "RUNNING",
-        $or: [
-          { ticksConsumed: { $exists: false } },
-          { ticksConsumed: { $lt: totalTicks } },
-        ],
-      },
-      {
-        $inc: { ticksConsumed: 1 },
-        $set: { lastTickDigit: digit, updatedAt: nowIso() },
-      },
+      { _id: trade._id, status: "RUNNING", $or: [{ ticksConsumed: { $exists: false } }, { ticksConsumed: { $lt: totalTicks } }] },
+      { $inc: { ticksConsumed: 1 }, $set: { lastTickDigit: digit, currentPrice: nextPrice, touched, updatedAt: nowIso() } },
       { returnDocument: "after" }
     );
 
-    if (!advanced) {
-      trade = await db.collection("trades").findOne({ _id: trade._id });
-      if (trade?.status === "SETTLED") {
-        const final = await finalizeTradeWithDigit(db, req.user, trade, trade.resultDigit);
-        return res.json({
-          ok: true,
-          settled: true,
-          digit: final.resultDigit,
-          resultDigit: final.resultDigit,
-          won: final.won,
-          remainingTicks: 0,
-          trade: publicTrade(final.trade),
-          user: publicUser(final.user),
-          balance: final.balance,
-        });
-      }
-      throw httpError(409, "This tick has already been counted.");
-    }
-
+    if (!advanced) throw httpError(409, "This tick has already been counted.");
     const consumed = Math.max(0, Number(advanced.ticksConsumed || 0));
     const remainingTicks = Math.max(0, totalTicks - consumed);
+    const touchFinishedEarly = advanced.type === "Touch/No Touch" && touched;
 
-    if (remainingTicks > 0) {
-      return res.json({
-        ok: true,
-        settled: false,
-        digit,
-        remainingTicks,
-        totalTicks,
-        trade: publicTrade(advanced),
-        message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.`,
-      });
+    if (remainingTicks > 0 && !touchFinishedEarly) {
+      return res.json({ ok: true, settled: false, digit, currentPrice: nextPrice, touched, remainingTicks, totalTicks, trade: publicTrade(advanced), message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.` });
     }
 
     const final = await finalizeTradeWithDigit(db, req.user, advanced, digit);
-    return res.json({
-      ok: true,
-      settled: true,
-      digit: final.resultDigit,
-      resultDigit: final.resultDigit,
-      won: final.won,
-      remainingTicks: 0,
-      totalTicks,
-      trade: publicTrade(final.trade),
-      user: publicUser(final.user),
-      balance: final.balance,
-      message: final.won ? "Trade won." : "Trade lost.",
-    });
+    return res.json({ ok: true, settled: true, digit: final.resultDigit, resultDigit: final.resultDigit, won: final.won, currentPrice: Number(final.trade.currentPrice || nextPrice), touched: Boolean(final.trade.touched), remainingTicks: 0, totalTicks, trade: publicTrade(final.trade), user: publicUser(final.user), balance: final.balance, message: final.won ? "Trade won." : "Trade lost." });
   } catch (error) {
     next(error);
   }
@@ -1961,6 +2103,18 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
       }
     }
 
+    if (trade.status !== "SETTLED" && Number(trade.ticksConsumed || 0) === 0 && !["Even/Odd", "Matches/Differs", "Over/Under"].includes(trade.type)) {
+      const step = Math.max(0.000001, Number(trade.marketStep || 0.0002));
+      const movement = (crypto.randomInt(-1000, 1001) / 1000) * step * Math.max(2, Number(trade.ticks || 1));
+      const simulatedPrice = Number((Number(trade.entryPrice || 1) + movement).toFixed(6));
+      const touchProbability = estimatedTouchProbability(trade.ticks, trade.barrierDistance);
+      const simulatedTouched = trade.type === "Touch/No Touch"
+        ? crypto.randomInt(0, 10000) < Math.round(touchProbability * 10000)
+        : false;
+      await db.collection("trades").updateOne({ _id: trade._id }, { $set: { currentPrice: simulatedPrice, touched: simulatedTouched, updatedAt: nowIso() } });
+      trade.currentPrice = simulatedPrice;
+      trade.touched = simulatedTouched;
+    }
     const resultDigit = Number.isInteger(trade.lastTickDigit)
       ? trade.lastTickDigit
       : Number.isInteger(trade.resultDigit)

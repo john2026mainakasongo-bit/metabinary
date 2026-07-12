@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-professional-referrals-settings-2026-07-12";
+const FRONTEND_BUILD = "metabinary-marketing-ready-1-to-12-2026-07-12";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -146,6 +146,7 @@ const STORE = {
   notifications: "mb_notifications",
   binaryMarket: "mb_binary_market",
   botConfig: "mb_bot_config",
+  aiPosition: "mb_ai_position",
 };
 
 const MARKET_API_KEY =
@@ -335,6 +336,7 @@ const BOT_TEMPLATES = [
 
 const TRADING_PAGES = new Set([
   "home",
+  "markets",
   "forex",
   "openTrades",
   "trade",
@@ -457,6 +459,67 @@ function ringArcPath(startAngle, endAngle, radius = 42) {
 function centeredRingArcPath(centerAngle, sweepAngle, radius = 42) {
   const halfSweep = Math.max(1, Math.min(359, Number(sweepAngle))) / 2;
   return ringArcPath(Number(centerAngle) - halfSweep, Number(centerAngle) + halfSweep, radius);
+}
+
+
+function isDigitContract(type) {
+  return ["Even/Odd", "Matches/Differs", "Over/Under"].includes(type);
+}
+
+function estimatedTouchProbability({ ticks = 5, barrierDistance = 2 } = {}) {
+  const safeTicks = Math.max(1, Math.min(10, Number(ticks || 5)));
+  const safeDistance = Math.max(0.5, Number(barrierDistance || 2));
+  return Math.max(0.12, Math.min(0.82, safeTicks / (safeTicks + safeDistance * 2.5)));
+}
+
+function estimatedContractMultiplier(type, action, prediction = 2, options = {}) {
+  const digit = Math.max(0, Math.min(9, Number(prediction ?? 0)));
+
+  if (type === "Even/Odd" || type === "Rise/Fall") return 1.9;
+  if (type === "Matches/Differs") return action === "Matches" ? 9.5 : 1.056;
+  if (type === "Over/Under") {
+    const winningDigits = action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
+    if (!winningDigits) return 0;
+    return Number(Math.max(1.02, Math.min(9.5, 0.95 / (winningDigits / 10))).toFixed(3));
+  }
+  if (type === "Touch/No Touch") {
+    const touchProbability = estimatedTouchProbability(options);
+    const probability = action === "Touch" ? touchProbability : 1 - touchProbability;
+    return Number(Math.max(1.05, Math.min(8, 0.95 / probability)).toFixed(3));
+  }
+  return 0;
+}
+
+function playPlatformTone(kind = "success", preferences = {}) {
+  const enabled = preferences.botSounds !== false;
+  if (!enabled) return;
+  if (kind === "target" && preferences.takeProfitSound === false) return;
+  if (kind === "stop" && preferences.stopLossSound === false) return;
+
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const volume = Math.max(0, Math.min(1, Number(preferences.soundVolume ?? 70) / 100));
+    const notes = kind === "target" ? [659, 784, 988] : [392, 294, 220];
+    notes.forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const start = context.currentTime + index * 0.16;
+      oscillator.type = kind === "target" ? "sine" : "square";
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume * 0.13), start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.15);
+    });
+    window.setTimeout(() => context.close().catch(() => {}), 900);
+  } catch {
+    // Browsers may block sound until the trader has interacted with the page.
+  }
 }
 
 async function readApiResponse(response) {
@@ -738,7 +801,9 @@ async function fetchMarketCandles(market, timeframe, signal) {
 function TradingApp() {
   const [user, setUser] = useState(() => readStore(STORE.user, null));
   const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
-  const [authMode, setAuthMode] = useState("login");
+  const [authMode, setAuthMode] = useState(() =>
+    new URLSearchParams(window.location.search).get("reset_token") ? "reset" : "login"
+  );
 
   const [activePage, setActivePage] = useState(initialTradingPage);
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
@@ -815,6 +880,7 @@ function TradingApp() {
   const [referralDashboard, setReferralDashboard] = useState(null);
   const [referralLoading, setReferralLoading] = useState(false);
   const [settingsBusy, setSettingsBusy] = useState("");
+  const [aiForexSetup, setAiForexSetup] = useState(null);
 
   activeBinaryTradeRef.current = activeBinaryTrade;
   lastDigitRef.current = lastDigit;
@@ -1027,19 +1093,30 @@ function TradingApp() {
       if (!cancelled) timer = window.setTimeout(runTick, Math.max(0, delay));
     };
 
-    const showTick = (digit, remainingTicks) => {
-      if (Number.isInteger(digit) && digit >= 0 && digit <= 9) {
-        const tradeMarketId = openTrade.marketId || binaryMarketId;
-        updateBinaryMarketState(tradeMarketId, (current) => ({
-          lastDigit: digit,
-          digitStats: driftDigitStats(current.digitStats || makeInitialDigitStats()),
-        }));
-        if (tradeMarketId === binaryMarketId) lastDigitRef.current = digit;
-      }
+    const showTick = (digit, remainingTicks, tickResult = {}) => {
+      const tradeMarketId = openTrade.marketId || binaryMarketId;
+      const nextPrice = Number(tickResult.currentPrice || tickResult.trade?.currentPrice || 0);
+      updateBinaryMarketState(tradeMarketId, (current) => ({
+        ...(Number.isInteger(digit) && digit >= 0 && digit <= 9
+          ? {
+              lastDigit: digit,
+              digitStats: driftDigitStats(current.digitStats || makeInitialDigitStats()),
+            }
+          : {}),
+        ...(Number.isFinite(nextPrice) && nextPrice > 0
+          ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
+          : {}),
+      }));
+      if (tradeMarketId === binaryMarketId && Number.isInteger(digit)) lastDigitRef.current = digit;
 
       setActiveBinaryTrade((current) =>
         current?.id === openTrade.id
-          ? { ...current, remainingTicks: Math.max(0, Number(remainingTicks || 0)) }
+          ? {
+              ...current,
+              remainingTicks: Math.max(0, Number(remainingTicks || 0)),
+              currentPrice: nextPrice || current.currentPrice,
+              touched: Boolean(tickResult.touched ?? tickResult.trade?.touched ?? current.touched),
+            }
           : current
       );
     };
@@ -1119,7 +1196,7 @@ function TradingApp() {
 
         const tickDigit = Number(result.digit ?? result.resultDigit);
         const remainingTicks = Math.max(0, Number(result.remainingTicks || 0));
-        showTick(tickDigit, remainingTicks);
+        showTick(tickDigit, remainingTicks, result);
 
         if (result.settled || result.trade?.status === "SETTLED") {
           setActiveBinaryTrade(null);
@@ -1560,6 +1637,10 @@ function TradingApp() {
       if (!response.ok || result.ok === false) {
         throw new Error(result.message || "Password could not be changed.");
       }
+      if (result.token) {
+        localStorage.setItem(STORE.token, result.token);
+        setAuthToken(result.token);
+      }
       notify("win", "Password changed", result.message || "Your password was changed successfully.");
       return true;
     } catch (error) {
@@ -1567,6 +1648,46 @@ function TradingApp() {
       return false;
     } finally {
       setSettingsBusy("");
+    }
+  }
+
+  async function requestPasswordReset(email) {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, ""),
+        cache: "no-store",
+        body: JSON.stringify({ email }),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) throw new Error(result.message || "Unable to request a reset link.");
+      notify("win", "Check your email", result.message || "If the account exists, a reset link has been sent.", 5000);
+      return true;
+    } catch (error) {
+      notify("loss", "Reset request failed", error instanceof Error ? error.message : "Unable to request a reset link.", 4500);
+      return false;
+    }
+  }
+
+  async function resetPasswordWithEmail({ token, password }) {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, ""),
+        cache: "no-store",
+        body: JSON.stringify({ token, password }),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) throw new Error(result.message || "Unable to reset the password.");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("reset_token");
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}#home`);
+      setAuthMode("login");
+      notify("win", "Password updated", result.message || "Login with your new password.", 5000);
+      return true;
+    } catch (error) {
+      notify("loss", "Password reset failed", error instanceof Error ? error.message : "Unable to reset the password.", 4500);
+      return false;
     }
   }
 
@@ -1847,27 +1968,8 @@ function TradingApp() {
     return ["Touch", "No Touch"];
   }
 
-  function getWinningDigitCount(type, action, predictionValue = prediction) {
-    const digit = Math.max(0, Math.min(9, Number(predictionValue ?? 0)));
-
-    if (type === "Even/Odd" || type === "Rise/Fall") return 5;
-    if (type === "Matches/Differs" || type === "Touch/No Touch") {
-      return action === "Matches" || action === "Touch" ? 1 : 9;
-    }
-    if (type === "Over/Under") {
-      return action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
-    }
-    return 0;
-  }
-
-  function payoutRate(type, action, predictionValue = prediction) {
-    const winningDigits = getWinningDigitCount(type, action, predictionValue);
-    if (winningDigits <= 0) return 0;
-
-    // Probability-based payout with a built-in house margin.
-    // The backend calculates the same value and remains the source of truth.
-    const rawMultiplier = (10 / winningDigits) * 0.91;
-    return Number(Math.max(1.02, Math.min(8.3, rawMultiplier)).toFixed(3));
+  function payoutRate(type, action, predictionValue = prediction, options = {}) {
+    return estimatedContractMultiplier(type, action, predictionValue, options);
   }
 
   async function applyBinaryTradeSettlement(openTrade, result) {
@@ -1905,7 +2007,9 @@ function TradingApp() {
       account: openTrade.account,
       amount: won ? profit : -settledStake,
       status: won ? "WON" : "LOST",
-      details: `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`,
+      details: isDigitContract(openTrade.type)
+        ? `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`
+        : `${openTrade.type} · ${openTrade.action} · ${Number(result.trade?.currentPrice ?? openTrade.currentPrice ?? openTrade.entryPrice).toFixed(5)}`,
     });
 
     window.clearTimeout(resultFlashTimerRef.current);
@@ -1918,7 +2022,7 @@ function TradingApp() {
     notify(
       won ? "win" : "loss",
       won ? "Trade won" : "Trade lost",
-      `${openTrade.type} · ${openTrade.action} · digit ${resultDigit} · ${
+      `${openTrade.type} · ${openTrade.action}${isDigitContract(openTrade.type) ? ` · digit ${resultDigit}` : ""} · ${
         won ? "+" : "-"
       }${money(won ? profit : settledStake)} USD`,
       2800
@@ -1968,10 +2072,13 @@ function TradingApp() {
     }
   }
 
-  async function runBinaryTrade(type, action) {
+  async function runBinaryTrade(type, action, options = {}) {
     const usedStake = Number(stake);
     const usedTicks = Math.min(10, Math.max(1, Number(duration || 5)));
-    const multiplier = payoutRate(type, action, prediction);
+    const multiplier = payoutRate(type, action, prediction, {
+      ticks: usedTicks,
+      barrierDistance: Number(options.barrierDistance || 2),
+    });
 
     if (activeBinaryTrade) {
       notify(
@@ -2015,6 +2122,10 @@ function TradingApp() {
           prediction,
           ticks: usedTicks,
           entryPrice: livePrice,
+          currentPrice: livePrice,
+          barrier: Number(options.barrier || 0),
+          barrierDistance: Number(options.barrierDistance || 0),
+          marketStep: Number(activeBinaryMarket.step || 0.0002),
           market: activeBinaryMarket.label,
         }),
       });
@@ -2035,6 +2146,9 @@ function TradingApp() {
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
+        currentPrice: Number(opened.currentPrice ?? opened.entryPrice ?? livePrice),
+        barrier: Number(opened.barrier ?? options.barrier ?? 0),
+        touched: Boolean(opened.touched),
         market: opened.market || activeBinaryMarket.label,
         marketId: binaryMarketId,
         totalTicks: Number(opened.ticks ?? usedTicks),
@@ -2071,6 +2185,44 @@ function TradingApp() {
         4500
       );
       await refreshUser();
+    }
+  }
+
+  function applyAiSetup(result) {
+    if (!result) return;
+
+    if (result.mode === "trade") {
+      setBinaryMarketId(result.marketId || binaryMarketId);
+      setTradeType(result.type || "Over/Under");
+      setPrediction(Number(result.prediction ?? 2));
+      setDuration(Number(result.ticks || 5));
+      setStake(Number(result.stake || stake || 1));
+      setActivePage("trade");
+      notify("win", "AI setup prepared", `${result.marketLabel} · ${result.type} · ${result.action}`);
+      return;
+    }
+
+    if (result.mode === "forex") {
+      setMarketSymbol(result.symbol || "EUR/USD");
+      setAiForexSetup({ ...result, preparedAt: Date.now() });
+      setActivePage("forex");
+      notify("win", "Forex setup prepared", `${result.symbol} · ${result.side}`);
+      return;
+    }
+
+    if (result.mode === "bot") {
+      const template = BOT_TEMPLATES.find((item) => item.id === result.botId) || BOT_TEMPLATES[0];
+      const prepared = {
+        ...createBotConfig(template),
+        ...result.config,
+        botId: template.id,
+        name: template.name,
+      };
+      setSelectedBot({ ...template, ...prepared });
+      setBotConfig(prepared);
+      setBotRunning(false);
+      setActivePage("botSetup");
+      notify("win", "AI bot prepared", `${template.name} is ready for your confirmation.`);
     }
   }
 
@@ -2119,6 +2271,13 @@ function TradingApp() {
           prediction: Number(bot.prediction || 0),
           ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
           entryPrice: livePriceRef.current,
+          currentPrice: livePriceRef.current,
+          barrier:
+            bot.type === "Touch/No Touch"
+              ? Number((livePriceRef.current + Number(market.step || 0.0002) * 8).toFixed(6))
+              : 0,
+          barrierDistance: 3,
+          marketStep: Number(market.step || 0.0002),
           market: market.label,
           source: "bot",
           strategy: bot.name,
@@ -2218,9 +2377,14 @@ function TradingApp() {
       if ((takeProfit > 0 && nextPnl >= takeProfit) || (stopLoss > 0 && nextPnl <= -stopLoss)) {
         botRunningRef.current = false;
         setBotRunning(false);
+        const targetReached = nextPnl >= 0;
+        playPlatformTone(
+          targetReached ? "target" : "stop",
+          user?.preferences?.notifications || {}
+        );
         notify(
-          nextPnl >= 0 ? "win" : "loss",
-          nextPnl >= 0 ? "Bot take profit reached" : "Bot stop loss reached",
+          targetReached ? "win" : "loss",
+          targetReached ? "Bot take profit reached" : "Bot stop loss reached",
           `${nextPnl >= 0 ? "+" : ""}${money(nextPnl)} USD`
         );
       }
@@ -2292,8 +2456,12 @@ function TradingApp() {
   async function pollDepositStatus(depositId) {
     if (!depositId || !API_URL) return;
 
-    for (let attempt = 0; attempt < 36; attempt += 1) {
-      await wait(2500);
+    const successful = new Set(["COMPLETE", "COMPLETED", "PAID", "SUCCESS", "SUCCESSFUL"]);
+    const failed = new Set(["FAILED", "CANCELLED", "CANCELED", "REVERSED", "EXPIRED"]);
+
+    // Check immediately, then every second. The server callback remains the source of truth.
+    for (let attempt = 0; attempt < 90; attempt += 1) {
+      if (attempt > 0) await wait(1000);
 
       try {
         const res = await fetch(
@@ -2309,10 +2477,11 @@ function TradingApp() {
         if (!res.ok || data.ok === false) continue;
 
         const status = String(data.status || "").toUpperCase();
-
-        if (["COMPLETE", "COMPLETED", "PAID", "SUCCESS", "SUCCESSFUL"].includes(status)) {
+        if (successful.has(status) && data.credited !== false) {
           if (Number.isFinite(Number(data.realBalance))) {
-            setBalances((old) => ({ ...old, real: Number(data.realBalance) }));
+            const nextRealBalance = Number(data.realBalance);
+            balancesRef.current = { ...balancesRef.current, real: nextRealBalance };
+            setBalances((old) => ({ ...old, real: nextRealBalance }));
           } else {
             await refreshUser();
           }
@@ -2326,20 +2495,24 @@ function TradingApp() {
             details: data.phone || "M-Pesa",
           });
 
-          notify("win", "Deposit completed", `${money(data.amountUsd)} USD added to your real account.`);
+          notify(
+            "win",
+            "Deposit successful",
+            `${money(data.amountUsd)} USD has been added to your Real Account.`
+          );
           return;
         }
 
-        if (["FAILED", "CANCELLED", "CANCELED", "REVERSED", "EXPIRED"].includes(status)) {
+        if (failed.has(status)) {
           notify("loss", "Deposit not completed", data.message || `Payment status: ${status}.`);
           return;
         }
       } catch (error) {
         console.warn("Deposit status check failed:", error);
-        // Keep polling. A temporary network error should not lose a successful payment.
       }
     }
 
+    await refreshUser();
     notify("open", "Deposit still pending", "Open History later to confirm the final payment status.");
   }
 
@@ -2520,7 +2693,14 @@ function TradingApp() {
   if (!user || !authToken) {
     return (
       <>
-        <AuthScreen mode={authMode} setMode={setAuthMode} login={login} register={register} />
+        <AuthScreen
+          mode={authMode}
+          setMode={setAuthMode}
+          login={login}
+          register={register}
+          requestPasswordReset={requestPasswordReset}
+          resetPassword={resetPasswordWithEmail}
+        />
         {toast && <Toast toast={toast} />}
       </>
     );
@@ -2572,6 +2752,17 @@ function TradingApp() {
           />
         )}
 
+        {activePage === "markets" && (
+          <MarketsPage
+            marketStates={binaryMarketStates}
+            volatilityOptions={VOLATILITY_OPTIONS}
+            marketFeed={marketFeed}
+            setBinaryMarketId={setBinaryMarketId}
+            setMarketSymbol={setMarketSymbol}
+            setActivePage={setActivePage}
+          />
+        )}
+
         {activePage === "forex" && (
           <ForexPage
             account={account}
@@ -2588,6 +2779,7 @@ function TradingApp() {
             placeForexOrder={placeForexOrder}
             setActivePage={setActivePage}
             openDeposit={() => setDepositOpen(true)}
+            preparedSetup={aiForexSetup}
           />
         )}
 
@@ -2710,6 +2902,18 @@ function TradingApp() {
 
       <BottomNav activePage={activePage} setActivePage={setActivePage} />
 
+      <DraggableAIAssistant
+        activePage={activePage}
+        account={account}
+        binaryMarketStates={binaryMarketStates}
+        volatilityOptions={VOLATILITY_OPTIONS}
+        marketFeed={marketFeed}
+        forexMarkets={MARKET_OPTIONS}
+        botTemplates={BOT_TEMPLATES}
+        currentStake={Number(stake || 1)}
+        onApply={applyAiSetup}
+      />
+
       {menuOpen && (
         <SideMenu
           user={user}
@@ -2753,8 +2957,32 @@ function Logo() {
   );
 }
 
-function AuthScreen({ mode, setMode, login, register }) {
+function PasswordField({ value, onChange, placeholder, autoComplete, minLength, required = true }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="passwordFieldWrap">
+      <input
+        type={visible ? "text" : "password"}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+        minLength={minLength}
+        required={required}
+      />
+      <button type="button" onClick={() => setVisible((shown) => !shown)} aria-label={visible ? "Hide password" : "Show password"}>
+        {visible ? "◉" : "◎"}
+      </button>
+    </div>
+  );
+}
+
+function AuthScreen({ mode, setMode, login, register, requestPasswordReset, resetPassword }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetData, setResetData] = useState({ password: "", confirmPassword: "" });
+  const [busy, setBusy] = useState(false);
+  const resetToken = new URLSearchParams(window.location.search).get("reset_token") || "";
 
   const [regData, setRegData] = useState({
     firstName: "",
@@ -2765,93 +2993,72 @@ function AuthScreen({ mode, setMode, login, register }) {
     confirmPassword: "",
   });
 
+  async function submitResetRequest() {
+    if (!resetEmail || busy) return;
+    setBusy(true);
+    await requestPasswordReset(resetEmail);
+    setBusy(false);
+  }
+
+  async function submitNewPassword() {
+    if (!resetToken || resetData.password !== resetData.confirmPassword || busy) return;
+    setBusy(true);
+    await resetPassword({ token: resetToken, password: resetData.password });
+    setBusy(false);
+  }
+
   return (
     <div className="authPage">
-      {mode === "login" ? (
+      {mode === "forgot" ? (
         <section className="authCard loginCard">
           <Logo />
-
+          <h1>Reset Password</h1>
+          <p>Enter the email connected to your MetaBinary account.</p>
+          <label>Email Address</label>
+          <input type="email" placeholder="Enter your registered email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
+          <button className="primaryBtn" onClick={submitResetRequest} disabled={busy}>{busy ? "Sending…" : "Send Reset Link"}</button>
+          <small><button onClick={() => setMode("login")}>‹ Back to Login</button></small>
+        </section>
+      ) : mode === "reset" ? (
+        <section className="authCard loginCard">
+          <Logo />
+          <h1>Create New Password</h1>
+          <p>Choose a secure password with at least eight characters.</p>
+          <label>New Password</label>
+          <PasswordField value={resetData.password} onChange={(e) => setResetData((old) => ({ ...old, password: e.target.value }))} placeholder="New password" autoComplete="new-password" minLength="8" />
+          <label>Confirm Password</label>
+          <PasswordField value={resetData.confirmPassword} onChange={(e) => setResetData((old) => ({ ...old, confirmPassword: e.target.value }))} placeholder="Confirm password" autoComplete="new-password" minLength="8" />
+          {resetData.confirmPassword && resetData.password !== resetData.confirmPassword && <small className="authErrorText">Passwords do not match.</small>}
+          <button className="primaryBtn" onClick={submitNewPassword} disabled={busy || !resetToken || resetData.password !== resetData.confirmPassword}>{busy ? "Updating…" : "Update Password"}</button>
+        </section>
+      ) : mode === "login" ? (
+        <section className="authCard loginCard">
+          <Logo />
           <h1>Welcome Back</h1>
           <p>Login to your account and continue trading.</p>
-
           <label>Email Address</label>
-          <input
-            placeholder="Enter your email"
-            value={loginData.email}
-            onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-          />
-
+          <input type="email" placeholder="Enter your email" value={loginData.email} onChange={(e) => setLoginData({ ...loginData, email: e.target.value })} />
           <label>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={loginData.password}
-            onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-          />
-
-          <button className="primaryBtn" onClick={() => login(loginData)}>
-            Login →
-          </button>
-
-          <small>
-            Don’t have an account?{" "}
-            <button onClick={() => setMode("register")}>Create Account</button>
-          </small>
+          <PasswordField value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} placeholder="Enter your password" autoComplete="current-password" />
+          <button type="button" className="forgotPasswordLink" onClick={() => setMode("forgot")}>Forgot password?</button>
+          <button className="primaryBtn" onClick={() => login(loginData)}>Login →</button>
+          <small>Don’t have an account? <button onClick={() => setMode("register")}>Create Account</button></small>
         </section>
       ) : (
         <section className="authCard registerCard">
           <Logo />
-
           <h1>Create Your Account</h1>
           <p>Join MetaBinary and start your trading journey.</p>
-
           <div className="registerGrid">
-            <input
-              placeholder="First name"
-              value={regData.firstName}
-              onChange={(e) => setRegData({ ...regData, firstName: e.target.value })}
-            />
-
-            <input
-              placeholder="Last name"
-              value={regData.lastName}
-              onChange={(e) => setRegData({ ...regData, lastName: e.target.value })}
-            />
-
-            <input
-              placeholder="Email address"
-              value={regData.email}
-              onChange={(e) => setRegData({ ...regData, email: e.target.value })}
-            />
-
-            <input
-              placeholder="+254 phone number"
-              value={regData.phone}
-              onChange={(e) => setRegData({ ...regData, phone: e.target.value })}
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={regData.password}
-              onChange={(e) => setRegData({ ...regData, password: e.target.value })}
-            />
-
-            <input
-              type="password"
-              placeholder="Confirm password"
-              value={regData.confirmPassword}
-              onChange={(e) => setRegData({ ...regData, confirmPassword: e.target.value })}
-            />
+            <input placeholder="First name" value={regData.firstName} onChange={(e) => setRegData({ ...regData, firstName: e.target.value })} />
+            <input placeholder="Last name" value={regData.lastName} onChange={(e) => setRegData({ ...regData, lastName: e.target.value })} />
+            <input type="email" placeholder="Email address" value={regData.email} onChange={(e) => setRegData({ ...regData, email: e.target.value })} />
+            <input placeholder="+254 phone number" value={regData.phone} onChange={(e) => setRegData({ ...regData, phone: e.target.value })} />
+            <PasswordField value={regData.password} onChange={(e) => setRegData({ ...regData, password: e.target.value })} placeholder="Password" autoComplete="new-password" minLength="8" />
+            <PasswordField value={regData.confirmPassword} onChange={(e) => setRegData({ ...regData, confirmPassword: e.target.value })} placeholder="Confirm password" autoComplete="new-password" minLength="8" />
           </div>
-
-          <button className="primaryBtn" onClick={() => register(regData)}>
-            Create Account
-          </button>
-
-          <small>
-            Already have an account? <button onClick={() => setMode("login")}>Login</button>
-          </small>
+          <button className="primaryBtn" onClick={() => register(regData)}>Create Account</button>
+          <small>Already have an account? <button onClick={() => setMode("login")}>Login</button></small>
         </section>
       )}
     </div>
@@ -2912,8 +3119,8 @@ function Header({
       >
         <span className="accountSelectorText">
           <small>
-            {isReal ? "LIVE ACCOUNT" : "DEMO ACCOUNT"}
-            {isReal && <i aria-label="Live account online"></i>}
+            {isReal ? "REAL ACCOUNT" : "DEMO ACCOUNT"}
+            {isReal && <i aria-label="Real account online"></i>}
           </small>
           <strong>
             {money(balance)} <em>USD</em>
@@ -3083,10 +3290,10 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
         <div className="heroText">
           <h1>
             Trade Smarter.
-            <span>Earn Consistently.</span>
+            <span>Trade With Clarity.</span>
           </h1>
 
-          <p>AI-powered trading, binary options, forex and bots in one intelligent platform.</p>
+          <p>Trading tools, market views, risk controls and automation in one platform.</p>
 
           <button onClick={() => setActivePage("trade")}>Start Trading →</button>
 
@@ -3128,10 +3335,10 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
       </section>
 
       <section className="homeStats">
-        <Stat icon="📈" value="$2,456,789" label="Total Trades" spark="blue" />
-        <Stat icon="👥" value="15,342" label="Active Traders" spark="purple" />
-        <Stat icon="💵" value="$892,456" label="Payouts" spark="green" />
-        <Stat icon="🏆" value="98.62%" label="Success Rate" spark="yellow" />
+        <Stat icon="📈" value="10" label="Volatility Markets" spark="blue" />
+        <Stat icon="↕" value="5" label="Contract Types" spark="purple" />
+        <Stat icon="🤖" value="4" label="Bot Templates" spark="green" />
+        <Stat icon="🛡" value="24/7" label="Risk Controls" spark="yellow" />
       </section>
 
       <section className="marketTicker">
@@ -3201,7 +3408,7 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
         <div className="featureList">
           <h3>Platform Features</h3>
-          <FeatureLine icon="🔁" title="Binary Options" text="High returns with low risk" />
+          <FeatureLine icon="🔁" title="Binary Options" text="Flexible digit contracts" />
           <FeatureLine icon="🧠" title="Forex Trading" text="Trade major currency pairs" />
           <FeatureLine icon="🤖" title="Automated Bots" text="24/7 algorithmic trading" />
           <FeatureLine icon="💰" title="Risk Management" text="Advanced risk controls" />
@@ -3209,9 +3416,9 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
       </section>
 
       <section className="homeFooter">
-        <span>🛡 Your funds are secure with us</span>
-        <span>🏦 Licensed & Regulated Broker</span>
-        <span>🎧 24/7 Customer Support</span>
+        <span>🛡 Account security controls</span>
+        <span>⚠ Trading involves financial risk</span>
+        <span>🎧 Customer support</span>
         <span>✉ support@metabinary.com</span>
       </section>
     </div>
@@ -3348,6 +3555,65 @@ function MiniSpark({ type = "blue" }) {
   );
 }
 
+function MarketsPage({ marketStates, volatilityOptions, marketFeed, setBinaryMarketId, setMarketSymbol, setActivePage }) {
+  function openVolatility(market) {
+    setBinaryMarketId(market.id);
+    setActivePage("trade");
+  }
+
+  function openForex(market) {
+    setMarketSymbol(market.symbol);
+    setActivePage("forex");
+  }
+
+  return (
+    <div className="page marketsPage professionalMarketsPage">
+      <header className="marketsPageHero">
+        <div><small>SELECT A MARKET</small><h1>Markets</h1><p>Touch any market to open its dedicated trading screen.</p></div>
+        <span>Independent live feeds</span>
+      </header>
+
+      <section className="marketCategoryPanel">
+        <header><div><small>SYNTHETIC MARKETS</small><h2>Volatility Indices</h2></div><span>{volatilityOptions.length} markets</span></header>
+        <div className="volatilityMarketGrid">
+          {volatilityOptions.map((market, index) => {
+            const state = marketStates?.[market.id] || {};
+            const price = Number(state.prices?.[state.prices.length - 1] || market.start) * Number(market.scale || 800);
+            const previous = Number(state.prices?.[state.prices.length - 2] || market.start) * Number(market.scale || 800);
+            const good = price >= previous;
+            return (
+              <button key={market.id} type="button" className="volatilityMarketCard" onClick={() => openVolatility(market)}>
+                <span className="marketCardBadge">{market.short}</span>
+                <div><strong>{market.label}</strong><small>{market.description}</small></div>
+                <b>{price.toFixed(2)}</b>
+                <em className={good ? "green" : "red"}>{good ? "▲" : "▼"} LIVE</em>
+                <i>›</i>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="marketCategoryPanel">
+        <header><div><small>GLOBAL MARKETS</small><h2>Forex, Metals & Crypto</h2></div><span>{MARKET_OPTIONS.length} markets</span></header>
+        <div className="forexMarketGrid">
+          {MARKET_OPTIONS.map((market) => {
+            const feed = marketFeed?.[market.symbol] || {};
+            return (
+              <button key={market.symbol} type="button" className="forexMarketCard" onClick={() => openForex(market)}>
+                <span>{market.category === "Crypto" ? "₿" : market.category === "Metals" ? "◆" : "FX"}</span>
+                <div><strong>{market.label}</strong><small>{market.symbol} · {feed.isOpen === false ? "CLOSED" : "OPEN"}</small></div>
+                <b>{formatMarketPrice(feed.price || market.defaultPrice, market)}</b>
+                <i>›</i>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function ForexPage({
   account,
   balance,
@@ -3363,6 +3629,7 @@ function ForexPage({
   placeForexOrder,
   setActivePage,
   openDeposit,
+  preparedSetup,
 }) {
   const [volume, setVolume] = useState(0.01);
   const [leverage, setLeverage] = useState("1:100");
@@ -3400,6 +3667,13 @@ function ForexPage({
   const currentTimeframe =
     MARKET_TIMEFRAMES.find((item) => item.value === timeframe) ||
     MARKET_TIMEFRAMES[0];
+
+  useEffect(() => {
+    if (!preparedSetup?.preparedAt || preparedSetup.symbol !== symbol) return;
+    if (Number.isFinite(Number(preparedSetup.volume))) setVolume(Number(preparedSetup.volume));
+    if (Number.isFinite(Number(preparedSetup.stopLoss))) setStopLoss(Number(preparedSetup.stopLoss));
+    if (Number.isFinite(Number(preparedSetup.takeProfit))) setTakeProfit(Number(preparedSetup.takeProfit));
+  }, [preparedSetup?.preparedAt, preparedSetup?.symbol, symbol]);
 
   useEffect(() => {
     if (!priceReady || seededSymbolRef.current === symbol) return;
@@ -3746,21 +4020,14 @@ function OpenTradesPage({
 }) {
   const [tab, setTab] = useState("open");
   const [market, setMarket] = useState("All markets");
+  const [expandedId, setExpandedId] = useState("");
 
   const open = positions.filter((p) => p.account === account);
   const closed = closedPositions.filter((p) => p.account === account);
   const winning = open.filter((p) => Number(p.pl || 0) >= 0);
   const losing = open.filter((p) => Number(p.pl || 0) < 0);
-
-  const selectedRows =
-    tab === "winning" ? winning :
-    tab === "losing" ? losing :
-    tab === "history" ? closed : open;
-
-  const rows = market === "All markets"
-    ? selectedRows
-    : selectedRows.filter((p) => p.instrument === market);
-
+  const selectedRows = tab === "winning" ? winning : tab === "losing" ? losing : tab === "history" ? closed : open;
+  const rows = market === "All markets" ? selectedRows : selectedRows.filter((p) => p.instrument === market);
   const markets = Array.from(new Set([...open, ...closed].map((p) => p.instrument))).filter(Boolean);
   const floatingPl = open.reduce((sum, p) => sum + Number(p.pl || 0), 0);
   const usedMargin = open.reduce((sum, p) => sum + Number(p.margin || 0), 0);
@@ -3768,14 +4035,16 @@ function OpenTradesPage({
   const freeMargin = Math.max(0, equity - usedMargin);
   const isHistory = tab === "history";
 
+  async function confirmClose(position) {
+    const approved = window.confirm(`Close ${position.side} ${position.instrument} position?`);
+    if (approved) await closePosition(position.id);
+  }
+
   return (
-    <div className="page openTradesFullPage">
+    <div className="page openTradesFullPage compactOpenTradesPage">
       <header className="openTradesHeader">
         <button type="button" onClick={back} aria-label="Back to market">‹</button>
-        <div>
-          <small>Markets</small>
-          <h1>{isHistory ? "Trade History" : "Open Trades"}</h1>
-        </div>
+        <div><small>Markets</small><h1>{isHistory ? "Trade History" : "Open Trades"}</h1></div>
         <span className={`accountPill ${account}`}>{account === "real" ? "Real" : "Demo"}</span>
       </header>
 
@@ -3794,95 +4063,43 @@ function OpenTradesPage({
       </nav>
 
       <section className="openTradesControls">
-        <label>
-          <span>Market</span>
-          <select value={market} onChange={(e) => setMarket(e.target.value)}>
-            <option>All markets</option>
-            {markets.map((item) => <option key={item}>{item}</option>)}
-          </select>
-        </label>
-
-        {!isHistory && (
-          <button
-            type="button"
-            className="closeAllTradesBtn"
-            disabled={open.length === 0}
-            onClick={() => closeAllPositions({ account })}
-          >
-            Close all
-          </button>
-        )}
+        <label><span>Market</span><select value={market} onChange={(e) => setMarket(e.target.value)}><option>All markets</option>{markets.map((item) => <option key={item}>{item}</option>)}</select></label>
+        {!isHistory && <button type="button" className="closeAllTradesBtn" disabled={open.length === 0} onClick={() => window.confirm("Close all open positions?") && closeAllPositions({ account })}>Close all</button>}
       </section>
 
-      <section className="openTradeCardList">
-        {rows.length === 0 && (
-          <div className="openTradesEmpty">
-            <b>{isHistory ? "No closed trades yet" : "No open trades"}</b>
-            <span>{isHistory ? "Your completed positions will appear here." : "Go back to Markets and place a Buy or Sell order."}</span>
-            {!isHistory && <button type="button" onClick={back}>Go to market</button>}
-          </div>
-        )}
+      <section className="openTradeCardList compactTradeLineList">
+        {rows.length === 0 && <div className="openTradesEmpty"><b>{isHistory ? "No closed trades yet" : "No open trades"}</b><span>{isHistory ? "Your completed positions will appear here." : "Go back to Markets and place a Buy or Sell order."}</span>{!isHistory && <button type="button" onClick={back}>Go to market</button>}</div>}
+        {rows.map((p) => {
+          const expanded = expandedId === p.id;
+          return (
+            <article className={`compactTradePosition ${expanded ? "expanded" : ""}`} key={p.id}>
+              <button type="button" className="compactTradeSummary" onClick={() => setExpandedId(expanded ? "" : p.id)}>
+                <span><strong>{p.instrument}</strong><small className={p.side === "Buy" ? "green" : "red"}>{p.side}</small></span>
+                <span><small>Volume</small><b>{p.volume} lot</b></span>
+                <span><small>P/L</small><b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>{Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)} USD</b></span>
+                <i>{expanded ? "⌃" : "⌄"}</i>
+              </button>
 
-        {rows.map((p) => (
-          <article className="fullTradeCard" key={p.id}>
-            <div className="fullTradeTop">
-              <div>
-                <small>{p.instrument}</small>
-                <strong className={p.side === "Buy" ? "green" : "red"}>{p.side} · {p.volume} lot</strong>
-              </div>
-              <div className="fullTradeProfit">
-                <span>Profit / Loss</span>
-                <b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>
-                  {Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)} USD
-                </b>
-              </div>
-            </div>
-
-            <div className="fullTradeGrid">
-              <p><span>Open price</span><b>{Number(p.openPrice || 0).toFixed(5)}</b></p>
-              <p><span>Current price</span><b>{Number(p.currentPrice || p.openPrice || 0).toFixed(5)}</b></p>
-              <p><span>Leverage</span><b>{p.leverage || "1:100"}</b></p>
-              <p><span>Margin</span><b>{money(p.margin)} USD</b></p>
-              <p><span>Opened</span><b>{p.openedAt || "—"}</b></p>
-              <p><span>Status</span><b>{isHistory ? "Closed" : "Live"}</b></p>
-            </div>
-
-            <div className="tradeProtectionGrid">
-              <label>
-                <span>Stop Loss</span>
-                {isHistory ? (
-                  <b>{Number(p.stopLoss || 0).toFixed(5)}</b>
-                ) : (
-                  <input
-                    type="number"
-                    step="0.00001"
-                    value={p.stopLoss ?? ""}
-                    onChange={(e) => updatePosition(p.id, { stopLoss: e.target.value })}
-                  />
-                )}
-              </label>
-
-              <label>
-                <span>Take Profit</span>
-                {isHistory ? (
-                  <b>{Number(p.takeProfit || 0).toFixed(5)}</b>
-                ) : (
-                  <input
-                    type="number"
-                    step="0.00001"
-                    value={p.takeProfit ?? ""}
-                    onChange={(e) => updatePosition(p.id, { takeProfit: e.target.value })}
-                  />
-                )}
-              </label>
-            </div>
-
-            <div className="fullTradeFooter">
-              <small>Ticket {String(p.id).slice(-8)} {isHistory && p.closedAt ? `· Closed ${p.closedAt}` : "· Updating live"}</small>
-              {!isHistory && <button type="button" onClick={() => closePosition(p.id)}>Close trade</button>}
-            </div>
-          </article>
-        ))}
+              {expanded && (
+                <div className="compactTradeDetails">
+                  <div className="fullTradeGrid">
+                    <p><span>Open price</span><b>{formatMarketPrice(p.openPrice, p.instrument)}</b></p>
+                    <p><span>Current price</span><b>{formatMarketPrice(p.currentPrice || p.openPrice, p.instrument)}</b></p>
+                    <p><span>Leverage</span><b>{p.leverage || "1:100"}</b></p>
+                    <p><span>Margin</span><b>{money(p.margin)} USD</b></p>
+                    <p><span>Opened</span><b>{p.openedAt || "—"}</b></p>
+                    <p><span>Status</span><b>{isHistory ? "Closed" : "Live"}</b></p>
+                  </div>
+                  <div className="tradeProtectionGrid">
+                    <label><span>Stop Loss</span>{isHistory ? <b>{formatMarketPrice(p.stopLoss, p.instrument)}</b> : <input type="number" step="0.00001" value={p.stopLoss ?? ""} onChange={(e) => updatePosition(p.id, { stopLoss: e.target.value })} />}</label>
+                    <label><span>Take Profit</span>{isHistory ? <b>{formatMarketPrice(p.takeProfit, p.instrument)}</b> : <input type="number" step="0.00001" value={p.takeProfit ?? ""} onChange={(e) => updatePosition(p.id, { takeProfit: e.target.value })} />}</label>
+                  </div>
+                  <div className="fullTradeFooter"><small>Ticket {String(p.id).slice(-8)} {isHistory && p.closedAt ? `· Closed ${p.closedAt}` : "· Updating live"}</small>{!isHistory && <button type="button" onClick={() => confirmClose(p)}>Close Trade</button>}</div>
+                </div>
+              )}
+            </article>
+          );
+        })}
       </section>
     </div>
   );
@@ -4164,17 +4381,31 @@ function TradePage({
   volatilityOptions,
 }) {
   const [marketMenuOpen, setMarketMenuOpen] = useState(false);
+  const [barrierDirection, setBarrierDirection] = useState("above");
+  const [barrierDistance, setBarrierDistance] = useState(2);
 
   useEffect(() => {
     if (activeBinaryTrade) setMarketMenuOpen(false);
   }, [activeBinaryTrade]);
 
   const actions = actionsFor(tradeType);
+  const digitMode = isDigitContract(tradeType);
+  const riseMode = tradeType === "Rise/Fall";
+  const touchMode = tradeType === "Touch/No Touch";
   const indexValue = livePrice * Number(binaryMarket?.scale || 800);
   const priceStep = Number(binaryMarket?.priceStep || 2);
   const safeStake = Math.max(0, Number(stake) || 0);
-  const rateOne = payoutRate(tradeType, actions[0], prediction);
-  const rateTwo = payoutRate(tradeType, actions[1], prediction);
+  const safeBarrierDistance = Math.max(0.5, Number(barrierDistance || 2));
+  const rawBarrier = Number(
+    (
+      livePrice +
+      (barrierDirection === "above" ? 1 : -1) *
+        (safeBarrierDistance / Number(binaryMarket?.scale || 800))
+    ).toFixed(6)
+  );
+  const payoutOptions = { ticks: duration, barrierDistance: safeBarrierDistance };
+  const rateOne = payoutRate(tradeType, actions[0], prediction, payoutOptions);
+  const rateTwo = payoutRate(tradeType, actions[1], prediction, payoutOptions);
   const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
   const payoutTwo = rateTwo > 0 ? money(safeStake * rateTwo) : "—";
   const highestPercent = Math.max(...digitStats);
@@ -4183,345 +4414,119 @@ function TradePage({
   const quickStakeValues = [1, 5, 10, 50, 100];
 
   const changeStake = (difference) => {
-    setStake((current) =>
-      Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2))
-    );
+    setStake((current) => Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2)));
   };
 
+  const placeContract = (action) =>
+    runBinaryTrade(tradeType, action, {
+      barrier: touchMode ? rawBarrier : 0,
+      barrierDistance: safeBarrierDistance,
+    });
+
   return (
-    <div className="page tradePage tradePagePro finalBinaryTradePage">
+    <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"}`}>
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
-
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
-          <button
-            key={type}
-            type="button"
-            className={tradeType === type ? "active" : ""}
-            onClick={() => setTradeType(type)}
-            disabled={Boolean(activeBinaryTrade)}
-          >
-            {type}
-          </button>
+          <button key={type} type="button" className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)} disabled={Boolean(activeBinaryTrade)}>{type}</button>
         ))}
       </section>
 
       <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
         <div className="proChartTitle finalBinaryChartTitle">
           <div className={`binaryMarketSelector ${marketMenuOpen ? "open" : ""}`}>
-            <button
-              type="button"
-              className="binaryMarketPicker"
-              onClick={() => setMarketMenuOpen((open) => !open)}
-              disabled={Boolean(activeBinaryTrade)}
-              aria-haspopup="listbox"
-              aria-expanded={marketMenuOpen}
-            >
+            <button type="button" className="binaryMarketPicker" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
               <span className="binaryMarketBadge">{binaryMarket?.short || "V100 1s"}</span>
-              <span className="binaryMarketSelectText">
-                <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
-                <small>{binaryMarket?.description || "Synthetic volatility market"}</small>
-              </span>
+              <span className="binaryMarketSelectText"><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong><small>{binaryMarket?.description || "Synthetic volatility market"}</small></span>
               <span className="binaryMarketChevron" aria-hidden="true">⌄</span>
             </button>
-
             {marketMenuOpen && (
               <div className="binaryMarketMenu" role="listbox" aria-label="Volatility markets">
                 {volatilityOptions.map((market) => (
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={market.id === binaryMarketId}
-                    key={market.id}
-                    className={market.id === binaryMarketId ? "active" : ""}
-                    onClick={() => {
-                      setBinaryMarketId(market.id);
-                      setMarketMenuOpen(false);
-                    }}
-                  >
-                    <span>{market.short}</span>
-                    <div>
-                      <strong>{market.label}</strong>
-                      <small>{market.description}</small>
-                    </div>
-                    <i>{market.id === binaryMarketId ? "✓" : ""}</i>
+                  <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
+                    <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : ""}</i>
                   </button>
                 ))}
               </div>
             )}
           </div>
-
           <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
           <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
           <button className="binaryFullscreenButton" type="button">⛶</button>
         </div>
 
         <div className="proChartArea finalBinaryChartArea">
-          <div className="priceScale">
-            <span>{(indexValue + priceStep * 2).toFixed(2)}</span>
-            <span>{(indexValue + priceStep).toFixed(2)}</span>
-            <span>{indexValue.toFixed(2)}</span>
-            <span>{(indexValue - priceStep).toFixed(2)}</span>
-            <span>{(indexValue - priceStep * 2).toFixed(2)}</span>
-          </div>
-
+          <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
           <div className="proChartCanvas">
-            <LineChart
-              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
-            />
+            <LineChart data={prices.map((value) => value * Number(binaryMarket?.scale || 800))} />
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
+            {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
+            {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
+            {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
+          </div>
+        </div>
 
-            {activeBinaryTrade && (
-              <div className="binaryTradeStatus" role="status">
-                <span className="binaryTradePulse"></span>
-                <strong>{activeBinaryTrade.action}</strong>
-                <small>
-                  {activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining
-                </small>
-              </div>
+        <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
+
+        {digitMode ? (
+          <div className={`finalDigitBoard ${activeBinaryTrade ? "isTrading" : ""}`}>
+            <div className="finalDigitBoardHead"><span>Last digit statistics</span><small>{binaryMarket?.short || "V100 1s"} · live cursor</small></div>
+            <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
+              {digitStats.map((percent, digit) => {
+                const isHighest = Math.abs(percent - highestPercent) < 0.01;
+                const isLowest = Math.abs(percent - lowestPercent) < 0.01;
+                const isPicked = digit === prediction;
+                const isCurrent = digit === lastDigit;
+                const isResultDigit = binaryResultFlash?.digit === digit;
+                const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
+                const percentageLevel = Math.max(0, Math.min(1, (Number(percent) - lowestPercent) / percentageRange));
+                const useUpperWhiteArc = percentageLevel >= 0.55;
+                const whiteArcDegrees = useUpperWhiteArc ? 76 + percentageLevel * 104 : 20 + percentageLevel * 78;
+                const normalWhiteArcPath = centeredRingArcPath(useUpperWhiteArc ? 0 : 180, whiteArcDegrees);
+                const isWinningTarget = Boolean(activeBinaryTrade && digitWinsTrade(activeBinaryTrade, digit, livePrice));
+                return (
+                  <button key={digit} type="button" onClick={() => setPrediction(digit)} disabled={Boolean(activeBinaryTrade)} className={["chartDigit", digit < 5 ? "topDigitRow" : "bottomDigitRow", isHighest ? "highestDigit" : "", isLowest ? "lowestDigit" : "", isPicked ? "picked" : "", isCurrent ? "currentDigit" : "", isWinningTarget ? "winningTarget" : "", isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "", isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : ""].filter(Boolean).join(" ")} aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}>
+                    <svg className="digitRingGraphic" viewBox="0 0 100 100" aria-hidden="true">
+                      <circle className="digitRingGreyBase" cx="50" cy="50" r="42" />
+                      {isHighest && <path className="digitRingHighestGreenArc" d={ringArcPath(270, 450)} />}
+                      {isLowest && <path className="digitRingLowestRedArc" d={centeredRingArcPath(180, 90)} />}
+                      {!isHighest && !isLowest && <path className={`digitRingBalanceArc ${useUpperWhiteArc ? "upperBalanceArc" : "lowerBalanceArc"}`} d={normalWhiteArcPath} />}
+                    </svg>
+                    <span className="digitFace"><strong>{digit}</strong><span className="digitPercent">{Number(percent).toFixed(1)}%</span></span>
+                    <i className="movingDigitCursor" aria-hidden="true"></i>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="priceContractInfoPanel">
+            {riseMode ? (
+              <><span className="contractInfoIcon">↕</span><div><strong>Rise / Fall price contract</strong><small>The exit price is compared with the entry price after the selected ticks. Digit statistics are not used.</small></div><b>{activeBinaryTrade ? `${activeBinaryTrade.remainingTicks} ticks left` : "Ready"}</b></>
+            ) : (
+              <><span className="contractInfoIcon">◎</span><div><strong>Touch / No Touch barrier</strong><small>The contract watches whether the live price reaches the barrier before expiry.</small></div><b>{(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></>
             )}
           </div>
-        </div>
+        )}
 
-        <div className="chartTimeRow finalChartTimeRow">
-          <span>10:45:30</span>
-          <span>10:47:00</span>
-          <span>10:48:30</span>
-          <span>10:50:00</span>
-          <span>10:51:30</span>
-        </div>
-
-        <div className={`finalDigitBoard ${activeBinaryTrade ? "isTrading" : ""}`}>
-          <div className="finalDigitBoardHead">
-            <span>Last digit statistics</span>
-            <small>{binaryMarket?.short || "V100 1s"} · live 1-second cursor</small>
-          </div>
-
-          <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
-            {digitStats.map((percent, digit) => {
-              const isHighest = Math.abs(percent - highestPercent) < 0.01;
-              const isLowest = Math.abs(percent - lowestPercent) < 0.01;
-              const isPicked = digit === prediction;
-              const isCurrent = digit === lastDigit;
-              const isResultDigit = binaryResultFlash?.digit === digit;
-              const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
-              const percentageLevel = Math.max(
-                0,
-                Math.min(1, (Number(percent) - lowestPercent) / percentageRange)
-              );
-              const useUpperWhiteArc = percentageLevel >= 0.55;
-              const whiteArcDegrees = useUpperWhiteArc
-                ? 100 + percentageLevel * 80
-                : 24 + percentageLevel * 92;
-              const normalWhiteArcPath = centeredRingArcPath(
-                useUpperWhiteArc ? 0 : 180,
-                whiteArcDegrees
-              );
-              const canShowWinningTargets =
-                activeBinaryTrade &&
-                ["Even/Odd", "Matches/Differs", "Over/Under", "Touch/No Touch"].includes(
-                  activeBinaryTrade.type
-                );
-              const isWinningTarget = Boolean(
-                canShowWinningTargets &&
-                  digitWinsTrade(activeBinaryTrade, digit, livePrice)
-              );
-
-              return (
-                <button
-                  key={digit}
-                  type="button"
-                  onClick={() => setPrediction(digit)}
-                  disabled={Boolean(activeBinaryTrade)}
-                  className={[
-                    "chartDigit",
-                    digit < 5 ? "topDigitRow" : "bottomDigitRow",
-                    isHighest ? "highestDigit" : "",
-                    isLowest ? "lowestDigit" : "",
-                    isPicked ? "picked" : "",
-                    isCurrent ? "currentDigit" : "",
-                    isWinningTarget ? "winningTarget" : "",
-                    isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
-                    isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
-                >
-                  <svg className="digitRingGraphic" viewBox="0 0 100 100" aria-hidden="true">
-                    <circle className="digitRingGreyBase" cx="50" cy="50" r="42" />
-
-                    {isHighest && (
-                      <path
-                        className="digitRingHighestGreenArc"
-                        d={ringArcPath(270, 450)}
-                      />
-                    )}
-
-                    {isLowest && (
-                      <path
-                        className="digitRingLowestRedArc"
-                        d={centeredRingArcPath(180, 90)}
-                      />
-                    )}
-
-                    {!isHighest && !isLowest && (
-                      <path
-                        className={`digitRingBalanceArc ${
-                          useUpperWhiteArc ? "upperBalanceArc" : "lowerBalanceArc"
-                        }`}
-                        d={normalWhiteArcPath}
-                      />
-                    )}
-                  </svg>
-                  <span className="digitFace">
-                    <strong>{digit}</strong>
-                    <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
-                  </span>
-                  <i className="movingDigitCursor" aria-hidden="true"></i>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="chartToolRow finalChartToolRow">
-          <button type="button">⌁</button>
-          <button type="button">▥</button>
-          <button type="button">▱</button>
-          <button type="button">⛶</button>
-        </div>
+        <div className="chartToolRow finalChartToolRow"><button type="button">⌁</button><button type="button">▥</button><button type="button">▱</button><button type="button">⛶</button></div>
       </section>
 
       <section className="proBinaryOrderCard finalBinaryOrderCard">
+        {touchMode && (
+          <div className="barrierControlRow">
+            <label><span>Barrier direction</span><select value={barrierDirection} onChange={(event) => setBarrierDirection(event.target.value)} disabled={Boolean(activeBinaryTrade)}><option value="above">Above current price</option><option value="below">Below current price</option></select></label>
+            <label><span>Barrier distance</span><div><button type="button" onClick={() => setBarrierDistance((value) => Math.max(0.5, Number(value) - 0.5))}>−</button><input type="number" min="0.5" step="0.5" value={barrierDistance} onChange={(event) => setBarrierDistance(Number(event.target.value))} /><button type="button" onClick={() => setBarrierDistance((value) => Number(value) + 0.5)}>+</button></div></label>
+          </div>
+        )}
         <div className="orderInputsTop finalOrderInputs">
-          <label className="finalTicksControl">
-            <span>Ticks</span>
-            <div className="finalTicksBox">
-              <button
-                type="button"
-                onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))}
-                disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}
-                aria-label="Reduce ticks"
-              >
-                −
-              </button>
-
-              <select
-                value={duration}
-                onChange={(event) => setDuration(Number(event.target.value))}
-                disabled={Boolean(activeBinaryTrade)}
-                aria-label="Number of ticks"
-              >
-                {tickOptions.map((tick) => (
-                  <option key={tick} value={tick}>
-                    {tick} tick{tick === 1 ? "" : "s"}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))}
-                disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}
-                aria-label="Increase ticks"
-              >
-                +
-              </button>
-            </div>
-          </label>
-
-          <label className="finalStakeControl">
-            <span>Amount to trade</span>
-            <div className="proStakeBox finalStakeBox">
-              <button
-                type="button"
-                onClick={() => changeStake(-1)}
-                disabled={Boolean(activeBinaryTrade)}
-                aria-label="Reduce amount"
-              >
-                −
-              </button>
-
-              <div className="finalStakeInputWrap">
-                <input
-                  type="number"
-                  min="0.30"
-                  step="0.10"
-                  inputMode="decimal"
-                  value={stake}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setStake(value === "" ? "" : Number(value));
-                  }}
-                  disabled={Boolean(activeBinaryTrade)}
-                  aria-label="Amount to trade in USD"
-                />
-                <small>USD</small>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => changeStake(1)}
-                disabled={Boolean(activeBinaryTrade)}
-                aria-label="Increase amount"
-              >
-                +
-              </button>
-            </div>
-
-            <div className="quickStakeRow" aria-label="Quick amount buttons">
-              {quickStakeValues.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setStake(value)}
-                  disabled={Boolean(activeBinaryTrade)}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          </label>
+          <label className="finalTicksControl"><span>Ticks</span><div className="finalTicksBox"><button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button><select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>{tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}</select><button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button></div></label>
+          <label className="finalStakeControl"><span>Amount to trade</span><div className="proStakeBox finalStakeBox"><button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button><div className="finalStakeInputWrap"><input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} /><small>USD</small></div><button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button></div><div className="quickStakeRow">{quickStakeValues.map((value) => <button key={value} type="button" onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div></label>
         </div>
-
         <div className="proTradeButtons finalTradeButtons">
-          <button
-            className="proGreenTrade"
-            onClick={() => runBinaryTrade(tradeType, actions[0])}
-            disabled={Boolean(activeBinaryTrade) || rateOne <= 0}
-          >
-            <span>⌃</span>
-            <div>
-              <strong>{actions[0]}</strong>
-              <small>
-                {activeBinaryTrade
-                  ? `${activeBinaryTrade.remainingTicks} ticks remaining`
-                  : rateOne > 0
-                  ? `Payout ${payoutOne} USD · ${rateOne.toFixed(3)}×`
-                  : "Unavailable for this digit"}
-              </small>
-            </div>
-          </button>
-
-          <button
-            className="proRedTrade"
-            onClick={() => runBinaryTrade(tradeType, actions[1])}
-            disabled={Boolean(activeBinaryTrade) || rateTwo <= 0}
-          >
-            <span>⌄</span>
-            <div>
-              <strong>{actions[1]}</strong>
-              <small>
-                {activeBinaryTrade
-                  ? `${activeBinaryTrade.remainingTicks} ticks remaining`
-                  : rateTwo > 0
-                  ? `Payout ${payoutTwo} USD · ${rateTwo.toFixed(3)}×`
-                  : "Unavailable for this digit"}
-              </small>
-            </div>
-          </button>
+          <button className="proGreenTrade" onClick={() => placeContract(actions[0])} disabled={Boolean(activeBinaryTrade) || rateOne <= 0}><span>⌃</span><div><strong>{actions[0]}</strong><small>{activeBinaryTrade ? `${activeBinaryTrade.remainingTicks} ticks remaining` : rateOne > 0 ? `Estimated payout ${payoutOne} USD · ${rateOne.toFixed(3)}×` : "Unavailable"}</small></div></button>
+          <button className="proRedTrade" onClick={() => placeContract(actions[1])} disabled={Boolean(activeBinaryTrade) || rateTwo <= 0}><span>⌄</span><div><strong>{actions[1]}</strong><small>{activeBinaryTrade ? `${activeBinaryTrade.remainingTicks} ticks remaining` : rateTwo > 0 ? `Estimated payout ${payoutTwo} USD · ${rateTwo.toFixed(3)}×` : "Unavailable"}</small></div></button>
         </div>
       </section>
     </div>
@@ -4560,7 +4565,7 @@ function BotsPage({ bots, configureBot }) {
             </div>
             <div className="botMetrics compactBotMetrics">
               <p><span>Example stake</span><strong>{money(bot.stake)} USD</strong></p>
-              <p><span>Template win rate</span><strong>{bot.winRate}%</strong></p>
+              <p><span>Template score</span><strong>{bot.winRate}/100</strong></p>
               <p><span>Previous runs</span><strong>{bot.trades}</strong></p>
             </div>
             <button className="botAction" onClick={() => configureBot(bot)}>Configure Bot</button>
@@ -4632,7 +4637,7 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
           </select>
         </label>
 
-        {!['Even/Odd', 'Rise/Fall'].includes(config.type) && (
+        {['Matches/Differs', 'Over/Under'].includes(config.type) && (
           <label>
             <span>Prediction digit</span>
             <select value={config.prediction} onChange={(event) => update({ prediction: Number(event.target.value) })}>
@@ -5123,191 +5128,31 @@ function ToggleSetting({ label, description, checked, onChange }) {
 }
 
 function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword }) {
-  const defaultNotifications = {
-    push: true,
-    security: true,
-    wallet: true,
-    referrals: true,
-  };
+  const defaultNotifications = { push: true, security: true, wallet: true, referrals: true, botSounds: true, takeProfitSound: true, stopLossSound: true, soundVolume: 70 };
   const [section, setSection] = useState("profile");
-  const [profile, setProfile] = useState({
-    fullName: user?.fullName || user?.name || "",
-    phone: user?.phone || "",
-    country: user?.country || "Kenya",
-  });
-  const [notificationPrefs, setNotificationPrefs] = useState({
-    ...defaultNotifications,
-    ...(user?.preferences?.notifications || {}),
-  });
+  const [profile, setProfile] = useState({ fullName: user?.fullName || user?.name || "", phone: user?.phone || "", country: user?.country || "Kenya" });
+  const [notificationPrefs, setNotificationPrefs] = useState({ ...defaultNotifications, ...(user?.preferences?.notifications || {}) });
   const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
   useEffect(() => {
-    setProfile({
-      fullName: user?.fullName || user?.name || "",
-      phone: user?.phone || "",
-      country: user?.country || "Kenya",
-    });
-    setNotificationPrefs({
-      ...defaultNotifications,
-      ...(user?.preferences?.notifications || {}),
-    });
+    setProfile({ fullName: user?.fullName || user?.name || "", phone: user?.phone || "", country: user?.country || "Kenya" });
+    setNotificationPrefs({ ...defaultNotifications, ...(user?.preferences?.notifications || {}) });
   }, [user?.fullName, user?.name, user?.phone, user?.country, user?.preferences]);
 
-  async function submitProfile(event) {
-    event.preventDefault();
-    await saveProfile(profile);
-  }
-
-  async function submitPassword(event) {
-    event.preventDefault();
-    if (passwords.newPassword !== passwords.confirmPassword) return;
-    const saved = await changePassword({
-      currentPassword: passwords.currentPassword,
-      newPassword: passwords.newPassword,
-    });
-    if (saved) setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
-  }
-
-  async function submitNotifications() {
-    await saveNotifications({ notifications: notificationPrefs });
-  }
-
-  const passwordMismatch = Boolean(
-    passwords.confirmPassword && passwords.newPassword !== passwords.confirmPassword
-  );
+  async function submitProfile(event) { event.preventDefault(); await saveProfile(profile); }
+  async function submitPassword(event) { event.preventDefault(); if (passwords.newPassword !== passwords.confirmPassword) return; const saved = await changePassword({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword }); if (saved) setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" }); }
+  async function submitNotifications() { await saveNotifications({ notifications: notificationPrefs }); }
+  const passwordMismatch = Boolean(passwords.confirmPassword && passwords.newPassword !== passwords.confirmPassword);
 
   return (
     <div className="page settingsPage professionalSettingsPage">
-      <section className="professionalSettingsHero">
-        <div className="settingsHeroIcon">⚙</div>
-        <div>
-          <small>ACCOUNT CONTROL CENTER</small>
-          <h1>Settings</h1>
-          <p>Manage only your identity, account security and communication preferences.</p>
-        </div>
-        <div className="settingsAccountBadge">
-          <span>{user?.verified ? "Verified account" : "Verification pending"}</span>
-          <strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong>
-        </div>
-      </section>
-
+      <section className="professionalSettingsHero"><div className="settingsHeroIcon">⚙</div><div><small>ACCOUNT CONTROL CENTER</small><h1>Settings</h1><p>Manage identity, security and important alerts. Trading values are kept on trading screens.</p></div><div className="settingsAccountBadge"><span>{user?.verified ? "Verified account" : "Verification pending"}</span><strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong></div></section>
       <section className="professionalSettingsLayout">
-        <nav className="settingsSectionNav" aria-label="Settings sections">
-          <button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}>
-            <b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span>
-          </button>
-          <button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}>
-            <b>◆</b><span><strong>Security</strong><small>Change your password</small></span>
-          </button>
-          <button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}>
-            <b>🔔</b><span><strong>Notifications</strong><small>Choose important alerts</small></span>
-          </button>
-        </nav>
-
+        <nav className="settingsSectionNav"><button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}><b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span></button><button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}><b>◆</b><span><strong>Security</strong><small>Change your password</small></span></button><button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}><b>🔔</b><span><strong>Notifications & sounds</strong><small>Important alerts only</small></span></button></nav>
         <div className="settingsContentPanel">
-          {section === "profile" && (
-            <form className="settingsFormCard" onSubmit={submitProfile}>
-              <header>
-                <div><small>PERSONAL DETAILS</small><h2>Profile information</h2></div>
-                <span className="settingsSecurePill">Protected</span>
-              </header>
-
-              <div className="settingsReadOnlyGrid">
-                <label><span>Email address</span><strong>{user?.email || "—"}</strong><small>Email changes require support verification.</small></label>
-                <label><span>Broker account ID</span><strong>{user?.accountId || user?.brokerId || "—"}</strong><small>Your permanent MetaBinary account number.</small></label>
-              </div>
-
-              <div className="settingsInputGrid">
-                <label>
-                  <span>Full legal name</span>
-                  <input value={profile.fullName} onChange={(event) => setProfile((old) => ({ ...old, fullName: event.target.value }))} required />
-                </label>
-                <label>
-                  <span>Phone number</span>
-                  <input value={profile.phone} onChange={(event) => setProfile((old) => ({ ...old, phone: event.target.value }))} placeholder="07XXXXXXXX" inputMode="tel" required />
-                </label>
-                <label>
-                  <span>Country</span>
-                  <select value={profile.country} onChange={(event) => setProfile((old) => ({ ...old, country: event.target.value }))}>
-                    <option>Kenya</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Verification</span>
-                  <div className={user?.verified ? "settingsVerification verified" : "settingsVerification"}>
-                    {user?.verified ? "✓ Identity verified" : "Verification pending"}
-                  </div>
-                </label>
-              </div>
-
-              <footer>
-                <small>These details are used for account ownership and payment verification.</small>
-                <button className="settingsSaveButton" disabled={busy === "profile"}>
-                  {busy === "profile" ? "Saving…" : "Save profile"}
-                </button>
-              </footer>
-            </form>
-          )}
-
-          {section === "security" && (
-            <form className="settingsFormCard" onSubmit={submitPassword}>
-              <header>
-                <div><small>ACCOUNT SECURITY</small><h2>Change password</h2></div>
-                <span className="settingsSecurePill">Encrypted</span>
-              </header>
-
-              <div className="settingsSecurityNotice">
-                <b>Security recommendation</b>
-                <span>Use at least 8 characters and do not reuse a password from another website.</span>
-              </div>
-
-              <div className="settingsPasswordGrid">
-                <label>
-                  <span>Current password</span>
-                  <input type="password" autoComplete="current-password" value={passwords.currentPassword} onChange={(event) => setPasswords((old) => ({ ...old, currentPassword: event.target.value }))} required />
-                </label>
-                <label>
-                  <span>New password</span>
-                  <input type="password" minLength="8" autoComplete="new-password" value={passwords.newPassword} onChange={(event) => setPasswords((old) => ({ ...old, newPassword: event.target.value }))} required />
-                </label>
-                <label>
-                  <span>Confirm new password</span>
-                  <input type="password" minLength="8" autoComplete="new-password" value={passwords.confirmPassword} onChange={(event) => setPasswords((old) => ({ ...old, confirmPassword: event.target.value }))} required />
-                  {passwordMismatch && <small className="settingsFieldError">Passwords do not match.</small>}
-                </label>
-              </div>
-
-              <footer>
-                <small>You will continue using the current session after changing the password.</small>
-                <button className="settingsSaveButton" disabled={busy === "password" || passwordMismatch}>
-                  {busy === "password" ? "Changing…" : "Change password"}
-                </button>
-              </footer>
-            </form>
-          )}
-
-          {section === "notifications" && (
-            <section className="settingsFormCard notificationSettingsCard">
-              <header>
-                <div><small>COMMUNICATIONS</small><h2>Notification preferences</h2></div>
-                <span className="settingsSecurePill">Account alerts</span>
-              </header>
-
-              <div className="settingsToggleList">
-                <ToggleSetting label="In-app notifications" description="Show account updates in the MetaBinary notification center." checked={notificationPrefs.push} onChange={(value) => setNotificationPrefs((old) => ({ ...old, push: value }))} />
-                <ToggleSetting label="Security alerts" description="Login and password security events. Recommended." checked={notificationPrefs.security} onChange={(value) => setNotificationPrefs((old) => ({ ...old, security: value }))} />
-                <ToggleSetting label="Wallet updates" description="Successful deposits, withdrawals and reversals." checked={notificationPrefs.wallet} onChange={(value) => setNotificationPrefs((old) => ({ ...old, wallet: value }))} />
-                <ToggleSetting label="Referral updates" description="New referrals and earned 5% commissions." checked={notificationPrefs.referrals} onChange={(value) => setNotificationPrefs((old) => ({ ...old, referrals: value }))} />
-              </div>
-
-              <footer>
-                <small>Essential legal and security messages may still be delivered.</small>
-                <button type="button" className="settingsSaveButton" onClick={submitNotifications} disabled={busy === "notifications"}>
-                  {busy === "notifications" ? "Saving…" : "Save notifications"}
-                </button>
-              </footer>
-            </section>
-          )}
+          {section === "profile" && <form className="settingsFormCard" onSubmit={submitProfile}><header><div><small>PERSONAL DETAILS</small><h2>Profile information</h2></div><span className="settingsSecurePill">Protected</span></header><div className="settingsReadOnlyGrid"><label><span>Email address</span><strong>{user?.email || "—"}</strong><small>Email changes require support verification.</small></label><label><span>Broker account ID</span><strong>{user?.accountId || user?.brokerId || "—"}</strong><small>Your permanent account number.</small></label></div><div className="settingsInputGrid"><label><span>Full legal name</span><input value={profile.fullName} onChange={(event) => setProfile((old) => ({ ...old, fullName: event.target.value }))} required /></label><label><span>Phone number</span><input value={profile.phone} onChange={(event) => setProfile((old) => ({ ...old, phone: event.target.value }))} placeholder="07XXXXXXXX" inputMode="tel" required /></label><label><span>Country</span><select value={profile.country} onChange={(event) => setProfile((old) => ({ ...old, country: event.target.value }))}><option>Kenya</option></select></label><label><span>Verification</span><div className={user?.verified ? "settingsVerification verified" : "settingsVerification"}>{user?.verified ? "✓ Identity verified" : "Verification pending"}</div></label></div><footer><small>Used for ownership and payment verification.</small><button className="settingsSaveButton" disabled={busy === "profile"}>{busy === "profile" ? "Saving…" : "Save profile"}</button></footer></form>}
+          {section === "security" && <form className="settingsFormCard" onSubmit={submitPassword}><header><div><small>ACCOUNT SECURITY</small><h2>Change password</h2></div><span className="settingsSecurePill">Encrypted</span></header><div className="settingsSecurityNotice"><b>Security recommendation</b><span>Use at least 8 characters. Password fields include show/hide controls.</span></div><div className="settingsPasswordGrid"><label><span>Current password</span><PasswordField value={passwords.currentPassword} onChange={(event) => setPasswords((old) => ({ ...old, currentPassword: event.target.value }))} autoComplete="current-password" /></label><label><span>New password</span><PasswordField value={passwords.newPassword} onChange={(event) => setPasswords((old) => ({ ...old, newPassword: event.target.value }))} autoComplete="new-password" minLength="8" /></label><label><span>Confirm new password</span><PasswordField value={passwords.confirmPassword} onChange={(event) => setPasswords((old) => ({ ...old, confirmPassword: event.target.value }))} autoComplete="new-password" minLength="8" />{passwordMismatch && <small className="settingsFieldError">Passwords do not match.</small>}</label></div><footer><small>Forgotten passwords can be reset from the Login page by email.</small><button className="settingsSaveButton" disabled={busy === "password" || passwordMismatch}>{busy === "password" ? "Changing…" : "Change password"}</button></footer></form>}
+          {section === "notifications" && <section className="settingsFormCard notificationSettingsCard"><header><div><small>COMMUNICATIONS</small><h2>Notifications and bot sounds</h2></div><span className="settingsSecurePill">Account alerts</span></header><div className="settingsToggleList"><ToggleSetting label="In-app notifications" description="Show account updates in the notification center." checked={notificationPrefs.push} onChange={(value) => setNotificationPrefs((old) => ({ ...old, push: value }))} /><ToggleSetting label="Security alerts" description="Login and password events." checked={notificationPrefs.security} onChange={(value) => setNotificationPrefs((old) => ({ ...old, security: value }))} /><ToggleSetting label="Wallet updates" description="Deposits, withdrawals and reversals." checked={notificationPrefs.wallet} onChange={(value) => setNotificationPrefs((old) => ({ ...old, wallet: value }))} /><ToggleSetting label="Referral updates" description="New traders and earned 5% commissions." checked={notificationPrefs.referrals} onChange={(value) => setNotificationPrefs((old) => ({ ...old, referrals: value }))} /><ToggleSetting label="Bot sounds" description="Allow bot target and stop-loss sounds." checked={notificationPrefs.botSounds} onChange={(value) => setNotificationPrefs((old) => ({ ...old, botSounds: value }))} /><ToggleSetting label="Take-profit sound" description="Positive sound when the target is reached." checked={notificationPrefs.takeProfitSound} onChange={(value) => setNotificationPrefs((old) => ({ ...old, takeProfitSound: value }))} /><ToggleSetting label="Stop-loss warning" description="Warning alarm when stop loss is reached." checked={notificationPrefs.stopLossSound} onChange={(value) => setNotificationPrefs((old) => ({ ...old, stopLossSound: value }))} /><label className="soundVolumeSetting"><span><strong>Sound volume</strong><small>{Number(notificationPrefs.soundVolume || 0)}%</small></span><input type="range" min="0" max="100" value={notificationPrefs.soundVolume} onChange={(event) => setNotificationPrefs((old) => ({ ...old, soundVolume: Number(event.target.value) }))} /></label></div><footer><small>Browser sound begins after your first interaction.</small><button type="button" className="settingsSaveButton" onClick={submitNotifications} disabled={busy === "notifications"}>{busy === "notifications" ? "Saving…" : "Save preferences"}</button></footer></section>}
         </div>
       </section>
     </div>
@@ -5471,7 +5316,7 @@ function ReportsPage({ transactions, closedPositions, botTrades }) {
 function BottomNav({ activePage, setActivePage }) {
   const items = [
     ["home", "Home", "⌂"],
-    ["forex", "Markets", "▥"],
+    ["markets", "Markets", "▥"],
     ["trade", "Trade", "↕"],
     ["bots", "Bots", "🤖"],
     ["profile", "Profile", "♙"],
@@ -5485,14 +5330,14 @@ function BottomNav({ activePage, setActivePage }) {
           className={
             activePage === key ||
             (key === "bots" && ["botSetup", "botLive"].includes(activePage)) ||
-            (key === "forex" && activePage === "openTrades")
+            (key === "markets" && ["forex", "openTrades"].includes(activePage))
               ? "active"
               : ""
           }
           onClick={() => setActivePage(key)}
           aria-label={label}
           aria-current={
-            activePage === key || (key === "forex" && activePage === "openTrades")
+            activePage === key || (key === "markets" && ["forex", "openTrades"].includes(activePage))
               ? "page"
               : undefined
           }
@@ -5546,7 +5391,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
             <DrawerButton icon="⌂" label="Trader’s Hub" onClick={() => go("home")} />
-            <DrawerButton icon="▥" label="Markets" onClick={() => go("forex")} />
+            <DrawerButton icon="▥" label="Markets" onClick={() => go("markets")} />
             <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
           </DrawerBlock>
 
@@ -5614,6 +5459,105 @@ function DrawerButton({ icon, label, badge, onClick }) {
   );
 }
 
+function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, marketFeed, forexMarkets, botTemplates, currentStake, onApply }) {
+  const [open, setOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState(null);
+  const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
+  const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10, risk: "Medium" });
+  const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0 });
+
+  useEffect(() => saveStore(STORE.aiPosition, position), [position]);
+
+  function pageMode() {
+    if (["forex", "openTrades"].includes(activePage)) return "forex";
+    if (["bots", "botSetup", "botLive"].includes(activePage)) return "bot";
+    return "trade";
+  }
+
+  function buildResult() {
+    const confidence = 77 + Math.floor(Math.random() * 17);
+    const mode = pageMode();
+    if (mode === "forex") {
+      const openMarkets = forexMarkets.filter((market) => marketFeed?.[market.symbol]?.isOpen !== false);
+      const market = openMarkets[Math.floor(Math.random() * Math.max(1, openMarkets.length))] || forexMarkets[2];
+      const price = Number(marketFeed?.[market.symbol]?.price || market.defaultPrice);
+      const momentum = Number(marketFeed?.[market.symbol]?.change || 0);
+      const side = momentum >= 0 ? "Buy" : "Sell";
+      const sl = side === "Buy" ? price - market.slDistance : price + market.slDistance;
+      const tp = side === "Buy" ? price + market.tpDistance : price - market.tpDistance;
+      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: 0.01, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), risk: config.risk };
+    }
+    if (mode === "bot") {
+      const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
+      const market = volatilityOptions[Math.floor(Math.random() * volatilityOptions.length)] || volatilityOptions[0];
+      const type = template.type === "Rise/Fall" ? "Rise/Fall" : Math.random() > 0.45 ? "Over/Under" : template.type;
+      const action = defaultBotAction(type);
+      return { mode, confidence, botId: template.id, marketLabel: market.label, config: { marketId: market.id, type, action, prediction: type === "Over/Under" ? 2 : 0, stake: config.stake, ticks: 3 + Math.floor(Math.random() * 3), martingaleEnabled: true, martingaleMultiplier: 2, martingaleSteps: 3, takeProfit: config.takeProfit, stopLoss: config.stopLoss } };
+    }
+    const scored = volatilityOptions.map((market, index) => {
+      const state = binaryMarketStates?.[market.id] || {};
+      const values = state.prices || [];
+      const recent = values.slice(-10);
+      const trend = recent.length > 1 ? recent[recent.length - 1] - recent[0] : 0;
+      const spread = Math.max(...(state.digitStats || [10])) - Math.min(...(state.digitStats || [10]));
+      return { market, score: Math.abs(trend) * 100000 + spread + Math.random() * 2 + index * 0.01 };
+    }).sort((a, b) => b.score - a.score);
+    const market = scored[0]?.market || volatilityOptions[0];
+    const typeChoices = ["Even/Odd", "Over/Under", "Matches/Differs"];
+    const type = typeChoices[Math.floor(Math.random() * typeChoices.length)];
+    const prediction = type === "Over/Under" ? 2 : Math.floor(Math.random() * 10);
+    const action = type === "Even/Odd" ? (Math.random() > 0.5 ? "Even" : "Odd") : type === "Matches/Differs" ? "Differs" : "Over";
+    return { mode, confidence, marketId: market.id, marketLabel: market.label, type, action, prediction, ticks: 3 + Math.floor(Math.random() * 4), stake: config.stake, takeProfit: config.takeProfit, stopLoss: config.stopLoss, risk: config.risk };
+  }
+
+  function scan() {
+    if (scanning) return;
+    setScanning(true); setProgress(4); setResult(null);
+    let value = 4;
+    const timer = window.setInterval(() => {
+      value = Math.min(96, value + 6 + Math.floor(Math.random() * 9));
+      setProgress(value);
+      if (value >= 96) {
+        window.clearInterval(timer);
+        window.setTimeout(() => { setProgress(100); setResult(buildResult()); setScanning(false); }, 280);
+      }
+    }, 180);
+  }
+
+  function pointerDown(event) {
+    dragRef.current = { dragging: true, moved: false, offsetX: event.clientX - position.x, offsetY: event.clientY - position.y };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+  function pointerMove(event) {
+    if (!dragRef.current.dragging) return;
+    dragRef.current.moved = true;
+    setPosition({ x: Math.max(8, Math.min(window.innerWidth - 74, event.clientX - dragRef.current.offsetX)), y: Math.max(90, Math.min(window.innerHeight - 92, event.clientY - dragRef.current.offsetY)) });
+  }
+  function pointerUp() {
+    const moved = dragRef.current.moved;
+    dragRef.current.dragging = false;
+    if (!moved) setOpen((shown) => !shown);
+  }
+
+  const mode = pageMode();
+  return (
+    <>
+      <button className={`floatingAiButton ${scanning ? "scanning" : ""}`} style={{ left: position.x, top: position.y }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} aria-label="Open AI market scanner"><span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : "SCAN"}</b></button>
+      {open && <section className="aiScannerPanel" style={{ left: Math.min(position.x, Math.max(8, window.innerWidth - 390)), top: Math.min(position.y + 76, Math.max(90, window.innerHeight - 590)) }}>
+        <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={() => setOpen(false)}>×</button></header>
+        <div className="aiContextPill">Scanning mode: <strong>{mode === "trade" ? "Volatility contracts" : mode === "forex" ? "Forex markets" : "Trading bots"}</strong></div>
+        <div className="aiScannerInputs"><label><span>Starting amount</span><input type="number" min="0.3" step="0.1" value={config.stake} onChange={(e) => setConfig((old) => ({ ...old, stake: Number(e.target.value) }))} /><small>USD</small></label><label><span>Target profit</span><input type="number" min="0" value={config.takeProfit} onChange={(e) => setConfig((old) => ({ ...old, takeProfit: Number(e.target.value) }))} /><small>USD</small></label><label><span>Stop loss</span><input type="number" min="0" value={config.stopLoss} onChange={(e) => setConfig((old) => ({ ...old, stopLoss: Number(e.target.value) }))} /><small>USD</small></label><label><span>Risk</span><select value={config.risk} onChange={(e) => setConfig((old) => ({ ...old, risk: e.target.value }))}><option>Low</option><option>Medium</option><option>High</option></select></label></div>
+        {scanning && <div className="aiScanningState"><div><span style={{ width: `${progress}%` }}></span></div><strong>{progress}%</strong><small>{progress < 28 ? "Reading markets…" : progress < 55 ? "Comparing momentum and payouts…" : progress < 82 ? "Calculating risk…" : "Preparing signal…"}</small></div>}
+        {result && <div className="aiSignalResult"><div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div><div className="aiSignalCopy"><small>RECOMMENDED SETUP</small><h3>{result.marketLabel || result.symbol}</h3>{result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}{result.mode === "forex" && <p>{result.side} · Entry {formatMarketPrice(result.entry, result.symbol)} · SL {formatMarketPrice(result.stopLoss, result.symbol)} · TP {formatMarketPrice(result.takeProfit, result.symbol)}</p>}{result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}<em>Signal confidence is an estimate, not a guaranteed win rate.</em></div></div>}
+        <footer><button className="aiScanAgain" onClick={scan} disabled={scanning}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>{result && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use This Setup</button>}</footer>
+        <small className="aiSafetyNote">Real-account trades always require your final confirmation.</small>
+      </section>}
+    </>
+  );
+}
+
 function DepositModal({ close, submit }) {
   const [method, setMethod] = useState("");
   const [amountUsd, setAmountUsd] = useState(10);
@@ -5662,7 +5606,7 @@ function DepositModal({ close, submit }) {
             )}
 
             <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? "Please wait…" : method === "mpesa" ? "Send STK Push" : "Continue to secure checkout"}
+              {submitting ? "Confirming deposit…" : method === "mpesa" ? "Deposit Now" : "Continue to secure checkout"}
             </button>
           </>
         )}
