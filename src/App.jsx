@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-marketing-ready-1-to-12-2026-07-12";
+const FRONTEND_BUILD = "metabinary-s22-performance-trade-lines-2026-07-12";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -376,7 +376,7 @@ function createBotConfig(bot = BOT_TEMPLATES[0]) {
     action: defaultBotAction(bot?.type || "Even/Odd"),
     marketId: matchedMarket.id,
     prediction: 2,
-    stake: Number(bot?.stake || 1),
+    stake: Math.max(0.3, Math.min(1, Number(bot?.stake || 1))),
     ticks: Math.min(10, Math.max(1, Number(bot?.duration || 5))),
     martingaleEnabled: true,
     martingaleMultiplier: 2,
@@ -2406,18 +2406,52 @@ function TradingApp() {
   }
 
   function startBot(config = botConfig) {
+    if (!authToken) {
+      notify("loss", "Login required", "Log in before starting a trading bot.");
+      return;
+    }
+
+    const currentAccount = accountRef.current;
+    const availableBalance = Math.max(0, Number(balancesRef.current?.[currentAccount] || 0));
+    if (availableBalance < 0.3) {
+      notify("loss", "Bot cannot start", `Your ${currentAccount} balance must be at least 0.30 USD.`);
+      return;
+    }
+
+    const recoverySteps = config.martingaleEnabled
+      ? Math.max(0, Math.min(6, Number(config.martingaleSteps || 0)))
+      : 0;
+    const recoveryMultiplier = config.martingaleEnabled
+      ? Math.max(1, Math.min(3, Number(config.martingaleMultiplier || 2)))
+      : 1;
+    const recoveryReserve = Array.from({ length: recoverySteps + 1 }, (_, index) => Math.pow(recoveryMultiplier, index))
+      .reduce((sum, value) => sum + value, 0);
+    const maxSafeBaseStake = Math.max(0.3, Math.floor((availableBalance / Math.max(1, recoveryReserve)) * 100) / 100);
+    const requestedStake = Math.max(0.3, Number(config.stake || 1));
+    const effectiveStake = Number(Math.min(requestedStake, maxSafeBaseStake).toFixed(2));
+    const preparedConfig = { ...config, stake: effectiveStake };
+
     const market =
-      VOLATILITY_OPTIONS.find((item) => item.id === config.marketId) ||
+      VOLATILITY_OPTIONS.find((item) => item.id === preparedConfig.marketId) ||
       VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
     const prepared = {
       ...(selectedBot || BOT_TEMPLATES[0]),
-      ...config,
+      ...preparedConfig,
       market: market.label,
       configuredAt: Date.now(),
     };
 
+    if (effectiveStake < requestedStake) {
+      notify(
+        "open",
+        "Bot stake adjusted",
+        `${money(requestedStake)} USD was reduced to ${money(effectiveStake)} USD so recovery can run within your ${currentAccount} balance.`,
+        5200
+      );
+    }
+
     setSelectedBot(prepared);
-    setBotConfig(config);
+    setBotConfig(preparedConfig);
     botSessionVersionRef.current += 1;
     botSessionPnlRef.current = 0;
     botMartingaleStepRef.current = 0;
@@ -2427,7 +2461,7 @@ function TradingApp() {
     setBotRunning(true);
     setBotTab("transactions");
     setActivePage("botLive");
-    notify("open", "Bot started", `${prepared.name} · ${market.short}`);
+    notify("open", "Bot started", `${prepared.name} · ${market.short} · ${money(effectiveStake)} USD`);
   }
 
   function stopBot() {
@@ -3555,47 +3589,28 @@ function MiniSpark({ type = "blue" }) {
   );
 }
 
-function MarketsPage({ marketStates, volatilityOptions, marketFeed, setBinaryMarketId, setMarketSymbol, setActivePage }) {
-  function openVolatility(market) {
-    setBinaryMarketId(market.id);
-    setActivePage("trade");
-  }
-
+function MarketsPage({ marketFeed, setMarketSymbol, setActivePage }) {
   function openForex(market) {
     setMarketSymbol(market.symbol);
     setActivePage("forex");
   }
 
   return (
-    <div className="page marketsPage professionalMarketsPage">
+    <div className="page marketsPage professionalMarketsPage forexOnlyMarketsPage">
       <header className="marketsPageHero">
-        <div><small>SELECT A MARKET</small><h1>Markets</h1><p>Touch any market to open its dedicated trading screen.</p></div>
-        <span>Independent live feeds</span>
+        <div>
+          <small>FOREX, METALS & CRYPTO</small>
+          <h1>Markets</h1>
+          <p>Select a market to open its live chart and Buy/Sell controls.</p>
+        </div>
+        <span>Live global markets</span>
       </header>
 
-      <section className="marketCategoryPanel">
-        <header><div><small>SYNTHETIC MARKETS</small><h2>Volatility Indices</h2></div><span>{volatilityOptions.length} markets</span></header>
-        <div className="volatilityMarketGrid">
-          {volatilityOptions.map((market, index) => {
-            const state = marketStates?.[market.id] || {};
-            const price = Number(state.prices?.[state.prices.length - 1] || market.start) * Number(market.scale || 800);
-            const previous = Number(state.prices?.[state.prices.length - 2] || market.start) * Number(market.scale || 800);
-            const good = price >= previous;
-            return (
-              <button key={market.id} type="button" className="volatilityMarketCard" onClick={() => openVolatility(market)}>
-                <span className="marketCardBadge">{market.short}</span>
-                <div><strong>{market.label}</strong><small>{market.description}</small></div>
-                <b>{price.toFixed(2)}</b>
-                <em className={good ? "green" : "red"}>{good ? "▲" : "▼"} LIVE</em>
-                <i>›</i>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="marketCategoryPanel">
-        <header><div><small>GLOBAL MARKETS</small><h2>Forex, Metals & Crypto</h2></div><span>{MARKET_OPTIONS.length} markets</span></header>
+      <section className="marketCategoryPanel forexOnlyMarketPanel">
+        <header>
+          <div><small>GLOBAL MARKETS</small><h2>Forex, Metals & Crypto</h2></div>
+          <span>{MARKET_OPTIONS.length} markets</span>
+        </header>
         <div className="forexMarketGrid">
           {MARKET_OPTIONS.map((market) => {
             const feed = marketFeed?.[market.symbol] || {};
@@ -3636,6 +3651,7 @@ function ForexPage({
   const [stopLoss, setStopLoss] = useState(0);
   const [takeProfit, setTakeProfit] = useState(0);
   const [orderBusy, setOrderBusy] = useState(false);
+  const [expandedLiveTradeId, setExpandedLiveTradeId] = useState("");
   const seededSymbolRef = useRef("");
 
   const accountPositions = positions.filter((position) => position.account === account);
@@ -3867,6 +3883,38 @@ function ForexPage({
           marketOpen={marketOpen}
         />
       </section>
+
+      {visiblePositions.length > 0 && (
+        <section className="forexLiveTradeLines" aria-label="Open positions on this market">
+          <header>
+            <div><small>OPEN POSITION{visiblePositions.length === 1 ? "" : "S"}</small><strong>{symbol}</strong></div>
+            <button type="button" onClick={() => setActivePage("openTrades")}>View all ({accountPositions.length})</button>
+          </header>
+          {visiblePositions.map((position) => {
+            const expanded = expandedLiveTradeId === position.id;
+            const positive = Number(position.pl || 0) >= 0;
+            return (
+              <article className={`forexLiveTradeLine ${expanded ? "expanded" : ""}`} key={position.id}>
+                <button type="button" className="forexLiveTradeSummary" onClick={() => setExpandedLiveTradeId(expanded ? "" : position.id)}>
+                  <span><strong>{position.instrument}</strong><small className={position.side === "Buy" ? "green" : "red"}>{position.side}</small></span>
+                  <span><small>Volume</small><b>{position.volume} lot</b></span>
+                  <span><small>Entry</small><b>{formatMarketPrice(position.openPrice, position.instrument)}</b></span>
+                  <span><small>Live P/L</small><b className={positive ? "green" : "red"}>{positive ? "+" : ""}{money(position.pl)} USD</b></span>
+                  <i>{expanded ? "⌃" : "⌄"}</i>
+                </button>
+                {expanded && (
+                  <div className="forexLiveTradeDetails">
+                    <p><span>Current price</span><b>{formatMarketPrice(position.currentPrice || position.openPrice, position.instrument)}</b></p>
+                    <p><span>Stop loss</span><b>{formatMarketPrice(position.stopLoss, position.instrument)}</b></p>
+                    <p><span>Take profit</span><b>{formatMarketPrice(position.takeProfit, position.instrument)}</b></p>
+                    <p><span>Leverage</span><b>{position.leverage || "1:100"}</b></p>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </section>
+      )}
 
       <section className="proOrderPanel forexOrderCard marketOrderStack">
         <div className="tradeActionColumn marketActionColumn">
@@ -4408,6 +4456,22 @@ function TradePage({
   const rateTwo = payoutRate(tradeType, actions[1], prediction, payoutOptions);
   const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
   const payoutTwo = rateTwo > 0 ? money(safeStake * rateTwo) : "—";
+  const activeTradeEntry = Number(activeBinaryTrade?.entryPrice || livePrice || 0);
+  const activeTradeCurrent = Number(activeBinaryTrade?.currentPrice || livePrice || activeTradeEntry);
+  const activePriceWinning = riseMode && activeBinaryTrade
+    ? activeBinaryTrade.action === "Rise"
+      ? activeTradeCurrent > activeTradeEntry
+      : activeTradeCurrent < activeTradeEntry
+    : touchMode && activeBinaryTrade
+      ? activeBinaryTrade.action === "Touch"
+        ? Boolean(activeBinaryTrade.touched)
+        : !activeBinaryTrade.touched
+      : false;
+  const activePotentialPayout = Number(activeBinaryTrade?.payout || 0);
+  const activeStake = Number(activeBinaryTrade?.stake || safeStake || 0);
+  const activePreviewNet = activePriceWinning
+    ? Number((activePotentialPayout - activeStake).toFixed(2))
+    : -activeStake;
   const highestPercent = Math.max(...digitStats);
   const lowestPercent = Math.min(...digitStats);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -4468,6 +4532,16 @@ function TradePage({
         </div>
 
         <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
+
+        {!digitMode && activeBinaryTrade && (
+          <div className={`priceContractLiveLine ${activePriceWinning ? "winning" : "losing"}`} role="status">
+            <span><strong>{activeBinaryTrade.action}</strong><small>{binaryMarket?.short || "Volatility"}</small></span>
+            <span><small>Entry</small><b>{(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
+            <span><small>Current</small><b>{(activeTradeCurrent * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
+            <span><small>Live position</small><b>{activePriceWinning ? "Winning" : "Losing"} {activePreviewNet >= 0 ? "+" : ""}{money(activePreviewNet)} USD</b></span>
+            <span><small>Time</small><b>{activeBinaryTrade.remainingTicks} tick{activeBinaryTrade.remainingTicks === 1 ? "" : "s"}</b></span>
+          </div>
+        )}
 
         {digitMode ? (
           <div className={`finalDigitBoard ${activeBinaryTrade ? "isTrading" : ""}`}>
@@ -5463,12 +5537,26 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
   const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
   const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10, risk: "Medium" });
-  const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0 });
+  const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
 
   useEffect(() => saveStore(STORE.aiPosition, position), [position]);
+
+  useEffect(() => {
+    const clampToScreen = () => {
+      if (window.innerWidth <= 760) return;
+      setPosition((old) => ({
+        x: Math.max(8, Math.min(window.innerWidth - 76, Number(old?.x || 18))),
+        y: Math.max(76, Math.min(window.innerHeight - 96, Number(old?.y || 130))),
+      }));
+    };
+    clampToScreen();
+    window.addEventListener("resize", clampToScreen, { passive: true });
+    return () => window.removeEventListener("resize", clampToScreen);
+  }, []);
 
   function pageMode() {
     if (["forex", "openTrades"].includes(activePage)) return "forex";
@@ -5501,7 +5589,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const values = state.prices || [];
       const recent = values.slice(-10);
       const trend = recent.length > 1 ? recent[recent.length - 1] - recent[0] : 0;
-      const spread = Math.max(...(state.digitStats || [10])) - Math.min(...(state.digitStats || [10]));
+      const stats = state.digitStats || [10];
+      const spread = Math.max(...stats) - Math.min(...stats);
       return { market, score: Math.abs(trend) * 100000 + spread + Math.random() * 2 + index * 0.01 };
     }).sort((a, b) => b.score - a.score);
     const market = scored[0]?.market || volatilityOptions[0];
@@ -5514,27 +5603,56 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   function scan() {
     if (scanning) return;
-    setScanning(true); setProgress(4); setResult(null);
-    let value = 4;
+    setScanning(true);
+    setProgress(3);
+    setResult(null);
+    setScanMessage("Connecting to market feeds…");
+    let value = 3;
     const timer = window.setInterval(() => {
-      value = Math.min(96, value + 6 + Math.floor(Math.random() * 9));
+      value = Math.min(96, value + 7 + Math.floor(Math.random() * 8));
       setProgress(value);
+      setScanMessage(
+        value < 24 ? "Connecting to market feeds…" :
+        value < 43 ? "Reading price movement and momentum…" :
+        value < 62 ? "Comparing payouts and volatility…" :
+        value < 81 ? "Checking risk, stop loss and recovery…" :
+        "Ranking the strongest market setup…"
+      );
       if (value >= 96) {
         window.clearInterval(timer);
-        window.setTimeout(() => { setProgress(100); setResult(buildResult()); setScanning(false); }, 280);
+        window.setTimeout(() => {
+          setProgress(100);
+          setScanMessage("Strongest setup found");
+          setResult(buildResult());
+          setScanning(false);
+        }, 220);
       }
-    }, 180);
+    }, 150);
   }
 
   function pointerDown(event) {
-    dragRef.current = { dragging: true, moved: false, offsetX: event.clientX - position.x, offsetY: event.clientY - position.y };
+    dragRef.current = {
+      dragging: true,
+      moved: false,
+      offsetX: event.clientX - position.x,
+      offsetY: event.clientY - position.y,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
     event.currentTarget.setPointerCapture?.(event.pointerId);
   }
+
   function pointerMove(event) {
-    if (!dragRef.current.dragging) return;
+    if (!dragRef.current.dragging || window.innerWidth <= 760) return;
+    const distance = Math.hypot(event.clientX - dragRef.current.startX, event.clientY - dragRef.current.startY);
+    if (distance < 6 && !dragRef.current.moved) return;
     dragRef.current.moved = true;
-    setPosition({ x: Math.max(8, Math.min(window.innerWidth - 74, event.clientX - dragRef.current.offsetX)), y: Math.max(90, Math.min(window.innerHeight - 92, event.clientY - dragRef.current.offsetY)) });
+    setPosition({
+      x: Math.max(8, Math.min(window.innerWidth - 76, event.clientX - dragRef.current.offsetX)),
+      y: Math.max(76, Math.min(window.innerHeight - 96, event.clientY - dragRef.current.offsetY)),
+    });
   }
+
   function pointerUp() {
     const moved = dragRef.current.moved;
     dragRef.current.dragging = false;
@@ -5542,18 +5660,66 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   }
 
   const mode = pageMode();
+  const mobileViewport = typeof window !== "undefined" && window.innerWidth <= 760;
+  const panelStyle = mobileViewport ? undefined : {
+    left: Math.min(position.x, Math.max(8, window.innerWidth - 390)),
+    top: Math.min(position.y + 76, Math.max(90, window.innerHeight - 590)),
+  };
+
   return (
     <>
-      <button className={`floatingAiButton ${scanning ? "scanning" : ""}`} style={{ left: position.x, top: position.y }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} aria-label="Open AI market scanner"><span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : "SCAN"}</b></button>
-      {open && <section className="aiScannerPanel" style={{ left: Math.min(position.x, Math.max(8, window.innerWidth - 390)), top: Math.min(position.y + 76, Math.max(90, window.innerHeight - 590)) }}>
-        <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={() => setOpen(false)}>×</button></header>
-        <div className="aiContextPill">Scanning mode: <strong>{mode === "trade" ? "Volatility contracts" : mode === "forex" ? "Forex markets" : "Trading bots"}</strong></div>
-        <div className="aiScannerInputs"><label><span>Starting amount</span><input type="number" min="0.3" step="0.1" value={config.stake} onChange={(e) => setConfig((old) => ({ ...old, stake: Number(e.target.value) }))} /><small>USD</small></label><label><span>Target profit</span><input type="number" min="0" value={config.takeProfit} onChange={(e) => setConfig((old) => ({ ...old, takeProfit: Number(e.target.value) }))} /><small>USD</small></label><label><span>Stop loss</span><input type="number" min="0" value={config.stopLoss} onChange={(e) => setConfig((old) => ({ ...old, stopLoss: Number(e.target.value) }))} /><small>USD</small></label><label><span>Risk</span><select value={config.risk} onChange={(e) => setConfig((old) => ({ ...old, risk: e.target.value }))}><option>Low</option><option>Medium</option><option>High</option></select></label></div>
-        {scanning && <div className="aiScanningState"><div><span style={{ width: `${progress}%` }}></span></div><strong>{progress}%</strong><small>{progress < 28 ? "Reading markets…" : progress < 55 ? "Comparing momentum and payouts…" : progress < 82 ? "Calculating risk…" : "Preparing signal…"}</small></div>}
-        {result && <div className="aiSignalResult"><div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div><div className="aiSignalCopy"><small>RECOMMENDED SETUP</small><h3>{result.marketLabel || result.symbol}</h3>{result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}{result.mode === "forex" && <p>{result.side} · Entry {formatMarketPrice(result.entry, result.symbol)} · SL {formatMarketPrice(result.stopLoss, result.symbol)} · TP {formatMarketPrice(result.takeProfit, result.symbol)}</p>}{result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}<em>Signal confidence is an estimate, not a guaranteed win rate.</em></div></div>}
-        <footer><button className="aiScanAgain" onClick={scan} disabled={scanning}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>{result && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use This Setup</button>}</footer>
-        <small className="aiSafetyNote">Real-account trades always require your final confirmation.</small>
-      </section>}
+      <button
+        className={`floatingAiButton ${scanning ? "scanning" : ""}`}
+        style={mobileViewport ? undefined : { left: position.x, top: position.y }}
+        onPointerDown={pointerDown}
+        onPointerMove={pointerMove}
+        onPointerUp={pointerUp}
+        aria-label="Open AI market scanner"
+      >
+        <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : "SCAN"}</b>
+      </button>
+
+      {open && (
+        <section className="aiScannerPanel" style={panelStyle}>
+          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={() => setOpen(false)}>×</button></header>
+          <div className="aiContextPill">Scanning mode: <strong>{mode === "trade" ? "Volatility contracts" : mode === "forex" ? "Forex markets" : "Trading bots"}</strong></div>
+          <div className="aiScannerInputs">
+            <label><span>Starting amount</span><input type="number" min="0.3" step="0.1" value={config.stake} onChange={(e) => setConfig((old) => ({ ...old, stake: Number(e.target.value) }))} /><small>USD</small></label>
+            <label><span>Target profit</span><input type="number" min="0" value={config.takeProfit} onChange={(e) => setConfig((old) => ({ ...old, takeProfit: Number(e.target.value) }))} /><small>USD</small></label>
+            <label><span>Stop loss</span><input type="number" min="0" value={config.stopLoss} onChange={(e) => setConfig((old) => ({ ...old, stopLoss: Number(e.target.value) }))} /><small>USD</small></label>
+            <label><span>Risk</span><select value={config.risk} onChange={(e) => setConfig((old) => ({ ...old, risk: e.target.value }))}><option>Low</option><option>Medium</option><option>High</option></select></label>
+          </div>
+
+          {scanning && (
+            <div className="aiScanningState" aria-live="polite">
+              <div className="aiRadarScanner"><span></span><i></i><b>AI</b></div>
+              <div className="aiScanProgress"><div><span style={{ width: `${progress}%` }}></span></div><strong>{progress}%</strong><small>{scanMessage}</small></div>
+              <ul className="aiDataFindingList">
+                <li className={progress >= 20 ? "done" : "active"}>Market feed connected</li>
+                <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Momentum and distribution analysed</li>
+                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Risk and payout compared</li>
+                <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Recommended market selected</li>
+              </ul>
+            </div>
+          )}
+
+          {result && (
+            <div className="aiSignalResult">
+              <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div>
+              <div className="aiSignalCopy">
+                <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
+                {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
+                {result.mode === "forex" && <p>{result.side} · Entry {formatMarketPrice(result.entry, result.symbol)} · SL {formatMarketPrice(result.stopLoss, result.symbol)} · TP {formatMarketPrice(result.takeProfit, result.symbol)}</p>}
+                {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}
+                <em>Signal confidence is an estimate, not a guaranteed win rate.</em>
+              </div>
+            </div>
+          )}
+
+          <footer><button className="aiScanAgain" onClick={scan} disabled={scanning}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>{result && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use This Setup</button>}</footer>
+          <small className="aiSafetyNote">Real-account trades always require your final confirmation.</small>
+        </section>
+      )}
     </>
   );
 }
