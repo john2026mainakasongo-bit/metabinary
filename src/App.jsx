@@ -7,8 +7,8 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-bot-speed-reset-digit-rings-2026-07-12";
-const DIGIT_TICK_MS = 2400;
+const FRONTEND_BUILD = "metabinary-ranked-percentage-rings-2026-07-12";
+const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 
 const VOLATILITY_OPTIONS = [
@@ -404,6 +404,42 @@ function uid() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function ringPoint(angleDegrees, radius = 42, center = 50) {
+  const radians = ((Number(angleDegrees) - 90) * Math.PI) / 180;
+  return {
+    x: center + radius * Math.cos(radians),
+    y: center + radius * Math.sin(radians),
+  };
+}
+
+function ringArcPath(startAngle, endAngle, radius = 42) {
+  const safeStart = Number(startAngle);
+  const safeEnd = Number(endAngle);
+  const start = ringPoint(safeStart, radius);
+  const end = ringPoint(safeEnd, radius);
+  const sweep = Math.max(0.01, safeEnd - safeStart);
+  const largeArcFlag = sweep > 180 ? 1 : 0;
+
+  return [
+    "M",
+    start.x.toFixed(3),
+    start.y.toFixed(3),
+    "A",
+    radius,
+    radius,
+    0,
+    largeArcFlag,
+    1,
+    end.x.toFixed(3),
+    end.y.toFixed(3),
+  ].join(" ");
+}
+
+function centeredRingArcPath(centerAngle, sweepAngle, radius = 42) {
+  const halfSweep = Math.max(1, Math.min(359, Number(sweepAngle))) / 2;
+  return ringArcPath(Number(centerAngle) - halfSweep, Number(centerAngle) + halfSweep, radius);
+}
+
 async function readApiResponse(response) {
   const text = await response.text();
   const contentType = response.headers.get("content-type") || "";
@@ -699,6 +735,7 @@ function TradingApp() {
   const [digitStats, setDigitStats] = useState(makeInitialDigitStats);
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
+  const activeBinaryTradeRef = useRef(null);
   const lastDigitRef = useRef(0);
   const toastTimerRef = useRef(null);
   const resultFlashTimerRef = useRef(null);
@@ -723,6 +760,8 @@ function TradingApp() {
   const historyReadyRef = useRef(false);
   const closingForexIdsRef = useRef(new Set());
   const [referral, setReferral] = useState(() => readStore(STORE.referral, null));
+
+  activeBinaryTradeRef.current = activeBinaryTrade;
 
   const livePrice = prices[prices.length - 1] || 1.08564;
   const livePriceRef = useRef(livePrice);
@@ -836,33 +875,96 @@ function TradingApp() {
         return [...old.slice(-119), next];
       });
 
-      const nextDigit = Math.floor(Math.random() * 10);
-      lastDigitRef.current = nextDigit;
-      setLastDigit(nextDigit);
-      setDigitStats((old) => driftDigitStats(old));
+      if (!activeBinaryTradeRef.current) {
+        const nextDigit = Math.floor(Math.random() * 10);
+        lastDigitRef.current = nextDigit;
+        setLastDigit(nextDigit);
+        setDigitStats((old) => driftDigitStats(old));
+      }
     }, DIGIT_TICK_MS);
 
     return () => clearInterval(timer);
   }, [binaryMarketId]);
 
   useEffect(() => {
-    if (!activeBinaryTrade?.id) return undefined;
+    if (!activeBinaryTrade?.id || !authToken) return undefined;
 
-    const timer = window.setInterval(() => {
-      setActiveBinaryTrade((current) => {
-        if (!current) return null;
+    let cancelled = false;
+    let timer = 0;
+    let requestBusy = false;
+    const openTrade = { ...activeBinaryTrade };
 
-        const remainingTicks = Number(current.remainingTicks || 0) - 1;
-        if (remainingTicks > 0) return { ...current, remainingTicks };
+    const schedule = (delay = DIGIT_TICK_MS) => {
+      window.clearTimeout(timer);
+      if (!cancelled) timer = window.setTimeout(runTick, Math.max(0, delay));
+    };
 
-        const finishedTrade = { ...current, remainingTicks: 0 };
-        window.setTimeout(() => void settleBinaryTrade(finishedTrade), 0);
-        return null;
-      });
-    }, DIGIT_TICK_MS);
+    const runTick = async () => {
+      if (cancelled || requestBusy) return;
+      requestBusy = true;
 
-    return () => window.clearInterval(timer);
-  }, [activeBinaryTrade?.id]);
+      try {
+        const response = await fetch(
+          `${API_URL}/api/trades/${encodeURIComponent(openTrade.id)}/tick`,
+          {
+            method: "POST",
+            headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+            cache: "no-store",
+            body: JSON.stringify({}),
+          }
+        );
+        const result = await readApiResponse(response);
+
+        if (response.status === 409 && Number(result.remainingMs) > 0) {
+          schedule(Math.min(DIGIT_TICK_MS, Math.max(80, Number(result.remainingMs) + 20)));
+          return;
+        }
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "The next trade tick could not be loaded.");
+        }
+
+        const tickDigit = Number(result.digit ?? result.resultDigit);
+        if (Number.isInteger(tickDigit) && tickDigit >= 0 && tickDigit <= 9) {
+          lastDigitRef.current = tickDigit;
+          setLastDigit(tickDigit);
+          setDigitStats((old) => driftDigitStats(old));
+        }
+
+        if (result.settled || result.trade?.status === "SETTLED") {
+          setActiveBinaryTrade(null);
+          await applyBinaryTradeSettlement(openTrade, result);
+          return;
+        }
+
+        const remainingTicks = Math.max(0, Number(result.remainingTicks || 0));
+        setActiveBinaryTrade((current) =>
+          current?.id === openTrade.id ? { ...current, remainingTicks } : current
+        );
+        schedule(DIGIT_TICK_MS);
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Trade tick failed:", error);
+        setActiveBinaryTrade(null);
+        notify(
+          "loss",
+          "Trade tick failed",
+          error instanceof Error ? error.message : "The trade could not continue.",
+          4500
+        );
+        await refreshUser();
+      } finally {
+        requestBusy = false;
+      }
+    };
+
+    schedule(DIGIT_TICK_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [activeBinaryTrade?.id, authToken]);
 
   useEffect(() => () => {
     window.clearTimeout(toastTimerRef.current);
@@ -1516,6 +1618,57 @@ function TradingApp() {
     return Number(Math.max(1.02, Math.min(8.3, rawMultiplier)).toFixed(3));
   }
 
+  async function applyBinaryTradeSettlement(openTrade, result) {
+    const resultDigit = Number(result.resultDigit ?? result.digit);
+    const won = Boolean(result.won);
+    const settledStake = Number(result.trade?.stake ?? openTrade.stake ?? 0);
+    const settledPayout = Number(result.trade?.payout ?? openTrade.payout ?? 0);
+    const profit = Number((settledPayout - settledStake).toFixed(2));
+
+    if (Number.isInteger(resultDigit) && resultDigit >= 0 && resultDigit <= 9) {
+      lastDigitRef.current = resultDigit;
+      setLastDigit(resultDigit);
+    }
+
+    if (result.user) {
+      const updatedUser = normalizeApiUser(result.user);
+      setUser((old) => ({ ...old, ...updatedUser }));
+      setBalances((old) => ({
+        demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+        real: Number(updatedUser.realBalance ?? old.real ?? 0),
+      }));
+    } else if (Number.isFinite(Number(result.balance))) {
+      setBalances((old) => ({ ...old, [openTrade.account]: Number(result.balance) }));
+    } else {
+      await refreshUser();
+    }
+
+    addTx({
+      type: won ? "Profit amount" : "Loss amount",
+      method: "Manual",
+      account: openTrade.account,
+      amount: won ? profit : -settledStake,
+      status: won ? "WON" : "LOST",
+      details: `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`,
+    });
+
+    window.clearTimeout(resultFlashTimerRef.current);
+    setBinaryResultFlash({ id: uid(), digit: resultDigit, result: won ? "win" : "loss" });
+    resultFlashTimerRef.current = window.setTimeout(
+      () => setBinaryResultFlash(null),
+      1800
+    );
+
+    notify(
+      won ? "win" : "loss",
+      won ? "Trade won" : "Trade lost",
+      `${openTrade.type} · ${openTrade.action} · digit ${resultDigit} · ${
+        won ? "+" : "-"
+      }${money(won ? profit : settledStake)} USD`,
+      2800
+    );
+  }
+
   async function settleBinaryTrade(openTrade) {
     if (!openTrade?.id || !authToken) return;
 
@@ -1535,7 +1688,7 @@ function TradingApp() {
       if (response.status === 409 && Number(result.remainingMs) > 0) {
         window.setTimeout(
           () => void settleBinaryTrade(openTrade),
-          Math.min(1800, Math.max(250, Number(result.remainingMs) + 120))
+          Math.min(1200, Math.max(100, Number(result.remainingMs) + 20))
         );
         return;
       }
@@ -1544,54 +1697,7 @@ function TradingApp() {
         throw new Error(result.message || "Trade could not be settled.");
       }
 
-      const resultDigit = Number(result.resultDigit);
-      const won = Boolean(result.won);
-      const settledStake = Number(result.trade?.stake ?? openTrade.stake ?? 0);
-      const settledPayout = Number(result.trade?.payout ?? openTrade.payout ?? 0);
-      const profit = Number((settledPayout - settledStake).toFixed(2));
-
-      if (Number.isInteger(resultDigit) && resultDigit >= 0 && resultDigit <= 9) {
-        lastDigitRef.current = resultDigit;
-        setLastDigit(resultDigit);
-      }
-
-      if (result.user) {
-        const updatedUser = normalizeApiUser(result.user);
-        setUser((old) => ({ ...old, ...updatedUser }));
-        setBalances((old) => ({
-          demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
-          real: Number(updatedUser.realBalance ?? old.real ?? 0),
-        }));
-      } else if (Number.isFinite(Number(result.balance))) {
-        setBalances((old) => ({ ...old, [openTrade.account]: Number(result.balance) }));
-      } else {
-        await refreshUser();
-      }
-
-      addTx({
-        type: won ? "Profit amount" : "Loss amount",
-        method: "Manual",
-        account: openTrade.account,
-        amount: won ? profit : -settledStake,
-        status: won ? "WON" : "LOST",
-        details: `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`,
-      });
-
-      window.clearTimeout(resultFlashTimerRef.current);
-      setBinaryResultFlash({ id: uid(), digit: resultDigit, result: won ? "win" : "loss" });
-      resultFlashTimerRef.current = window.setTimeout(
-        () => setBinaryResultFlash(null),
-        1800
-      );
-
-      notify(
-        won ? "win" : "loss",
-        won ? "Trade won" : "Trade lost",
-        `${openTrade.type} · ${openTrade.action} · digit ${resultDigit} · ${
-          won ? "+" : "-"
-        }${money(won ? profit : settledStake)} USD`,
-        2800
-      );
+      await applyBinaryTradeSettlement(openTrade, result);
     } catch (error) {
       console.error("Trade settlement failed:", error);
       notify(
@@ -3883,7 +3989,7 @@ function TradePage({
         <div className={`finalDigitBoard ${activeBinaryTrade ? "isTrading" : ""}`}>
           <div className="finalDigitBoardHead">
             <span>Last digit statistics</span>
-            <small>{binaryMarket?.short || "V100 1s"} · smooth 2.2 second cursor</small>
+            <small>{binaryMarket?.short || "V100 1s"} · live 1-second cursor</small>
           </div>
 
           <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
@@ -3893,6 +3999,19 @@ function TradePage({
               const isPicked = digit === prediction;
               const isCurrent = digit === lastDigit;
               const isResultDigit = binaryResultFlash?.digit === digit;
+              const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
+              const percentageLevel = Math.max(
+                0,
+                Math.min(1, (Number(percent) - lowestPercent) / percentageRange)
+              );
+              const useUpperWhiteArc = percentageLevel >= 0.55;
+              const whiteArcDegrees = useUpperWhiteArc
+                ? 100 + percentageLevel * 80
+                : 24 + percentageLevel * 92;
+              const normalWhiteArcPath = centeredRingArcPath(
+                useUpperWhiteArc ? 0 : 180,
+                whiteArcDegrees
+              );
               const canShowWinningTargets =
                 activeBinaryTrade &&
                 ["Even/Odd", "Matches/Differs", "Over/Under", "Touch/No Touch"].includes(
@@ -3911,6 +4030,7 @@ function TradePage({
                   disabled={Boolean(activeBinaryTrade)}
                   className={[
                     "chartDigit",
+                    digit < 5 ? "topDigitRow" : "bottomDigitRow",
                     isHighest ? "highestDigit" : "",
                     isLowest ? "lowestDigit" : "",
                     isPicked ? "picked" : "",
@@ -3923,8 +4043,36 @@ function TradePage({
                     .join(" ")}
                   aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                 >
-                  <strong>{digit}</strong>
-                  <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
+                  <svg className="digitRingGraphic" viewBox="0 0 100 100" aria-hidden="true">
+                    <circle className="digitRingGreyBase" cx="50" cy="50" r="42" />
+
+                    {isHighest && (
+                      <path
+                        className="digitRingHighestGreenArc"
+                        d={ringArcPath(270, 450)}
+                      />
+                    )}
+
+                    {isLowest && (
+                      <path
+                        className="digitRingLowestRedArc"
+                        d={centeredRingArcPath(180, 90)}
+                      />
+                    )}
+
+                    {!isHighest && !isLowest && (
+                      <path
+                        className={`digitRingBalanceArc ${
+                          useUpperWhiteArc ? "upperBalanceArc" : "lowerBalanceArc"
+                        }`}
+                        d={normalWhiteArcPath}
+                      />
+                    )}
+                  </svg>
+                  <span className="digitFace">
+                    <strong>{digit}</strong>
+                    <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
+                  </span>
                   <i className="movingDigitCursor" aria-hidden="true"></i>
                 </button>
               );
