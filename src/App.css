@@ -17006,3 +17006,192 @@ body {
   .finalBinaryTradePage .digitFace > strong { font-size: 14px !important; }
   .finalBinaryTradePage .digitFace > .digitPercent { font-size: 7px !important; }
 }
+
+
+/* =========================================================
+   FINAL THIN DIGIT RINGS + CLEAN VOLATILITY SELECTOR
+   This block is intentionally last so older hotfixes cannot
+   make the rings bold or break the market header layout.
+   ========================================================= */
+
+.finalBinaryTradePage .digitRingGraphic circle,
+.finalBinaryTradePage .digitRingGraphic path {
+  stroke-width: 4.8px !important;
+  stroke-linecap: butt !important;
+}
+
+.finalBinaryTradePage .digitRingHighestGreenArc {
+  stroke-width: 5.2px !important;
+}
+
+.finalBinaryTradePage .digitRingLowestRedArc {
+  stroke-width: 5.2px !important;
+  stroke-linecap: round !important;
+}
+
+.finalBinaryTradePage .digitRingBalanceArc {
+  stroke-width: 4.8px !important;
+}
+
+.finalBinaryTradePage .digitFace {
+  inset: 6px !important;
+}
+
+.finalBinaryTradePage .binaryMarketPicker {
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  display: grid !important;
+  grid-template-columns: 48px minmax(0, 1fr) 24px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 8px 0 0 !important;
+  border-radius: 14px !important;
+  background: rgba(3, 14, 25, 0.58) !important;
+  border: 1px solid rgba(61, 132, 203, 0.18) !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+}
+
+.finalBinaryTradePage .binaryMarketBadge {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 13px !important;
+  font-size: 10px !important;
+}
+
+.finalBinaryTradePage .binaryMarketSelectText {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 2px !important;
+}
+
+.finalBinaryTradePage .binaryMarketSelectText > strong {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.finalBinaryTradePage .binaryMarketSelectText > small {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: #7f91aa !important;
+  font-size: 9px !important;
+  font-weight: 750 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.finalBinaryTradePage .binaryMarketChevron {
+  position: relative !important;
+  z-index: 2 !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #c3d1e4 !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .binaryMarketNativeSelect {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 5 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+.finalBinaryTradePage .binaryMarketNativeSelect:disabled {
+  cursor: not-allowed !important;
+}
+
+.finalBinaryTradePage .binaryLivePrice {
+  color: #1fe49f !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+.referralStatsBox {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .finalBinaryChartTitle {
+    grid-template-columns: minmax(0, 1fr) auto auto !important;
+    gap: 5px !important;
+    padding: 3px 5px !important;
+  }
+
+  .finalBinaryTradePage .binaryMarketPicker {
+    min-height: 34px !important;
+    grid-template-columns: 34px minmax(0, 1fr) 16px !important;
+    gap: 5px !important;
+    padding-right: 4px !important;
+    border-radius: 10px !important;
+  }
+
+  .finalBinaryTradePage .binaryMarketBadge {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+    font-size: 7px !important;
+  }
+
+  .finalBinaryTradePage .binaryMarketSelectText > strong {
+    font-size: 9px !important;
+  }
+
+  .finalBinaryTradePage .binaryMarketSelectText > small {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .binaryMarketChevron {
+    font-size: 13px !important;
+  }
+
+  .finalBinaryTradePage .binaryLivePrice {
+    font-size: 7.5px !important;
+  }
+
+  .finalBinaryTradePage .binaryDurationButton {
+    height: 27px !important;
+    padding: 0 5px !important;
+    font-size: 7px !important;
+  }
+
+  .finalBinaryTradePage .binaryFullscreenButton {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .digitRingGraphic circle,
+  .finalBinaryTradePage .digitRingGraphic path {
+    stroke-width: 4.5px !important;
+  }
+
+  .finalBinaryTradePage .digitRingHighestGreenArc {
+    stroke-width: 5px !important;
+  }
+
+  .finalBinaryTradePage .digitRingLowestRedArc {
+    stroke-width: 5.2px !important;
+  }
+
+  .finalBinaryTradePage .digitFace {
+    inset: 5.5px !important;
+  }
+
+  .referralStatsBox {
+    grid-template-columns: 1fr !important;
+  }
+}

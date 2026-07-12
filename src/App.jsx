@@ -7,9 +7,13 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-ranked-percentage-rings-2026-07-12";
+const FRONTEND_BUILD = "metabinary-thin-rings-selector-referral-tickfix-2026-07-12";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
+const REFERRAL_COMMISSION_PERCENT = Math.max(
+  0,
+  Math.min(100, Number(import.meta.env.VITE_REFERRAL_COMMISSION_PERCENT || 5))
+);
 
 const VOLATILITY_OPTIONS = [
   {
@@ -402,6 +406,20 @@ function money(value) {
 
 function uid() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function referralCodeFromLocation() {
+  if (typeof window === "undefined") return "";
+
+  const queryCode = new URLSearchParams(window.location.search).get("ref") || "";
+  const pathMatch = window.location.pathname.match(/\/ref\/([^/?#]+)/i);
+  const raw = queryCode || pathMatch?.[1] || "";
+
+  try {
+    return decodeURIComponent(raw).trim().toUpperCase().slice(0, 80);
+  } catch {
+    return String(raw).trim().toUpperCase().slice(0, 80);
+  }
 }
 
 function ringPoint(angleDegrees, radius = 42, center = 50) {
@@ -801,6 +819,32 @@ function TradingApp() {
   useEffect(() => saveStore(STORE.botConfig, botConfig), [botConfig]);
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
   useEffect(() => {
+    if (!user?.referralCode) return;
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://metabinary.com";
+    const nextReferral = {
+      status: "approved",
+      code: user.referralCode,
+      link: `${origin}/ref/${user.referralCode}`,
+      commissionRate: Number(user.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT),
+      totalEarned: Number(user.partnerBalance ?? 0),
+      totalReferrals: Number(user.referralCount ?? 0),
+      appliedAt: user.referralAppliedAt || referral?.appliedAt || "",
+    };
+
+    setReferral((current) => {
+      const currentKey = JSON.stringify(current || {});
+      const nextKey = JSON.stringify(nextReferral);
+      return currentKey === nextKey ? current : nextReferral;
+    });
+  }, [
+    user?.referralCode,
+    user?.referralCommissionRate,
+    user?.partnerBalance,
+    user?.referralCount,
+    user?.referralAppliedAt,
+  ]);
+  useEffect(() => {
     balancesRef.current = balances;
   }, [balances]);
   useEffect(() => {
@@ -892,11 +936,76 @@ function TradingApp() {
     let cancelled = false;
     let timer = 0;
     let requestBusy = false;
+    let localCompatibilityMode = false;
     const openTrade = { ...activeBinaryTrade };
+    let localRemainingTicks = Math.max(
+      1,
+      Number(openTrade.remainingTicks || openTrade.totalTicks || 1)
+    );
 
     const schedule = (delay = DIGIT_TICK_MS) => {
       window.clearTimeout(timer);
       if (!cancelled) timer = window.setTimeout(runTick, Math.max(0, delay));
+    };
+
+    const showTick = (digit, remainingTicks) => {
+      if (Number.isInteger(digit) && digit >= 0 && digit <= 9) {
+        lastDigitRef.current = digit;
+        setLastDigit(digit);
+        setDigitStats((old) => driftDigitStats(old));
+      }
+
+      setActiveBinaryTrade((current) =>
+        current?.id === openTrade.id
+          ? { ...current, remainingTicks: Math.max(0, Number(remainingTicks || 0)) }
+          : current
+      );
+    };
+
+    const requestServerTick = async () => {
+      const encodedId = encodeURIComponent(openTrade.id);
+      const candidates = [
+        `${API_URL}/api/trades/${encodedId}/tick`,
+        `${API_URL}/api/trades/${encodedId}`,
+      ];
+
+      let lastRouteError = null;
+
+      for (const url of candidates) {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+          cache: "no-store",
+          body: JSON.stringify({}),
+        });
+        const result = await readApiResponse(response);
+        const routeMissing =
+          response.status === 404 &&
+          /route not found|cannot post/i.test(String(result.message || result.error || ""));
+
+        if (routeMissing) {
+          lastRouteError = result;
+          continue;
+        }
+
+        return { response, result };
+      }
+
+      return { response: null, result: lastRouteError, routeMissing: true };
+    };
+
+    const runCompatibilityTick = async () => {
+      const tickDigit = Math.floor(Math.random() * 10);
+      localRemainingTicks = Math.max(0, localRemainingTicks - 1);
+      showTick(tickDigit, localRemainingTicks);
+
+      if (localRemainingTicks > 0) {
+        schedule(DIGIT_TICK_MS);
+        return;
+      }
+
+      setActiveBinaryTrade(null);
+      await settleBinaryTrade(openTrade, { forceTickSettlement: true });
     };
 
     const runTick = async () => {
@@ -904,16 +1013,18 @@ function TradingApp() {
       requestBusy = true;
 
       try {
-        const response = await fetch(
-          `${API_URL}/api/trades/${encodeURIComponent(openTrade.id)}/tick`,
-          {
-            method: "POST",
-            headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-            cache: "no-store",
-            body: JSON.stringify({}),
-          }
-        );
-        const result = await readApiResponse(response);
+        if (localCompatibilityMode) {
+          await runCompatibilityTick();
+          return;
+        }
+
+        const { response, result, routeMissing } = await requestServerTick();
+
+        if (routeMissing || !response) {
+          localCompatibilityMode = true;
+          await runCompatibilityTick();
+          return;
+        }
 
         if (response.status === 409 && Number(result.remainingMs) > 0) {
           schedule(Math.min(DIGIT_TICK_MS, Math.max(80, Number(result.remainingMs) + 20)));
@@ -925,11 +1036,8 @@ function TradingApp() {
         }
 
         const tickDigit = Number(result.digit ?? result.resultDigit);
-        if (Number.isInteger(tickDigit) && tickDigit >= 0 && tickDigit <= 9) {
-          lastDigitRef.current = tickDigit;
-          setLastDigit(tickDigit);
-          setDigitStats((old) => driftDigitStats(old));
-        }
+        const remainingTicks = Math.max(0, Number(result.remainingTicks || 0));
+        showTick(tickDigit, remainingTicks);
 
         if (result.settled || result.trade?.status === "SETTLED") {
           setActiveBinaryTrade(null);
@@ -937,10 +1045,6 @@ function TradingApp() {
           return;
         }
 
-        const remainingTicks = Math.max(0, Number(result.remainingTicks || 0));
-        setActiveBinaryTrade((current) =>
-          current?.id === openTrade.id ? { ...current, remainingTicks } : current
-        );
         schedule(DIGIT_TICK_MS);
       } catch (error) {
         if (cancelled) return;
@@ -965,164 +1069,6 @@ function TradingApp() {
       window.clearTimeout(timer);
     };
   }, [activeBinaryTrade?.id, authToken]);
-
-  useEffect(() => () => {
-    window.clearTimeout(toastTimerRef.current);
-    window.clearTimeout(resultFlashTimerRef.current);
-  }, []);
-
-  useEffect(() => {
-    setPositions((old) =>
-      old.map((position) => {
-        const market = MARKET_BY_SYMBOL[position.instrument] || MARKET_BY_SYMBOL["EUR/USD"];
-        const quote = Number(marketFeed[position.instrument]?.price);
-
-        if (!Number.isFinite(quote) || quote <= 0) return position;
-
-        const contractSize = Number(position.contractSize || market.contractSize || 100000);
-        const pl =
-          position.side === "Buy"
-            ? (quote - position.openPrice) * contractSize * position.volume
-            : (position.openPrice - quote) * contractSize * position.volume;
-
-        const marginBase = Number(position.margin || 0);
-
-        return {
-          ...position,
-          currentPrice: quote,
-          contractSize,
-          pl: Number(pl.toFixed(2)),
-          plPercent: Number(
-            (marginBase > 0 ? (pl / marginBase) * 100 : 0).toFixed(2)
-          ),
-        };
-      })
-    );
-  }, [marketFeed]);
-
-  useEffect(() => {
-    positions.forEach((position) => {
-      const quote = Number(marketFeed[position.instrument]?.price);
-      if (!Number.isFinite(quote) || quote <= 0) return;
-
-      const hitStop = position.side === "Buy"
-        ? quote <= Number(position.stopLoss)
-        : quote >= Number(position.stopLoss);
-      const hitTarget = position.side === "Buy"
-        ? quote >= Number(position.takeProfit)
-        : quote <= Number(position.takeProfit);
-
-      if ((hitStop || hitTarget) && !closingForexIdsRef.current.has(position.id)) {
-        void closePosition(position.id);
-      }
-    });
-  }, [marketFeed]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    let cancelled = false;
-
-    async function refreshQuotes() {
-      if (!quotedMarketSymbols.length) return;
-
-      const results = await Promise.allSettled(
-        quotedMarketSymbols.map(async (symbol) => {
-          const market = MARKET_BY_SYMBOL[symbol];
-          const quote = await fetchMarketQuote(market, controller.signal);
-          return { symbol, quote };
-        })
-      );
-
-      if (cancelled) return;
-
-      setMarketFeed((old) => {
-        const next = { ...old };
-
-        results.forEach((result, index) => {
-          const symbol = quotedMarketSymbols[index];
-          const market = MARKET_BY_SYMBOL[symbol];
-
-          if (result.status === "fulfilled") {
-            next[symbol] = {
-              ...(next[symbol] || {}),
-              ...result.value.quote,
-            };
-          } else if (result.reason?.name !== "AbortError") {
-            const previous = next[symbol] || {};
-            next[symbol] = {
-              ...previous,
-              isOpen: parseMarketOpen(previous.isOpen, likelyMarketOpen(market)),
-              status: previous.price ? "cached" : "error",
-              error: result.reason?.message || "Live quote temporarily unavailable.",
-            };
-          }
-        });
-
-        return next;
-      });
-    }
-
-    refreshQuotes();
-    const timer = window.setInterval(refreshQuotes, 15000);
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-      window.clearInterval(timer);
-    };
-  }, [quotedMarketSymbolsKey]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    let cancelled = false;
-
-    async function refreshCandles() {
-      if (!MARKET_API_KEY) return;
-
-      try {
-        const candles = await fetchMarketCandles(
-          activeMarket,
-          marketTimeframe,
-          controller.signal
-        );
-
-        if (cancelled) return;
-
-        const last = candles[candles.length - 1];
-
-        setMarketFeed((old) => ({
-          ...old,
-          [marketSymbol]: {
-            ...(old[marketSymbol] || {}),
-            candles,
-            price: Number(old[marketSymbol]?.price || last?.close || 0),
-            status: old[marketSymbol]?.status || "live",
-            error: "",
-          },
-        }));
-      } catch (error) {
-        if (cancelled || error?.name === "AbortError") return;
-
-        setMarketFeed((old) => ({
-          ...old,
-          [marketSymbol]: {
-            ...(old[marketSymbol] || {}),
-            status: old[marketSymbol]?.price ? "cached" : "error",
-            error: error?.message || "Unable to load live candles.",
-          },
-        }));
-      }
-    }
-
-    refreshCandles();
-    const timer = window.setInterval(refreshCandles, 60000);
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-      window.clearInterval(timer);
-    };
-  }, [marketSymbol, marketTimeframe]);
 
   useEffect(() => {
     if (!user?.email) return;
@@ -1287,36 +1233,68 @@ function TradingApp() {
     }));
   }
 
-  function applyReferralProgram() {
-    const baseName = String(user?.name || user?.email || "metabinary")
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "")
-      .slice(0, 12);
+  async function applyReferralProgram() {
+    if (!authToken) {
+      notify("loss", "Login required", "Login again before creating a referral link.");
+      return;
+    }
 
-    const code = `MB-${baseName || "user"}-${String(user?.brokerId || "000000").slice(-4)}`.toUpperCase();
+    try {
+      const response = await fetch(`${API_URL}/api/referrals/apply`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({}),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Referral link could not be created.");
+      }
 
-    const profile = {
-      status: "approved",
-      code,
-      link: `https://metabinary.com/ref/${code}`,
-      commissionRate: 30,
-      totalEarned: referral?.totalEarned || 0,
-      totalReferrals: referral?.totalReferrals || 0,
-      appliedAt: new Date().toLocaleString(),
-    };
+      const profile = {
+        status: "approved",
+        code: result.referral?.code || result.user?.referralCode || "",
+        link:
+          result.referral?.link ||
+          `${window.location.origin}/ref/${result.referral?.code || result.user?.referralCode || ""}`,
+        commissionRate: Number(
+          result.referral?.commissionRate ??
+            result.user?.referralCommissionRate ??
+            REFERRAL_COMMISSION_PERCENT
+        ),
+        totalEarned: Number(result.referral?.totalEarned ?? result.user?.partnerBalance ?? 0),
+        totalReferrals: Number(result.referral?.totalReferrals ?? result.user?.referralCount ?? 0),
+        appliedAt: result.referral?.appliedAt || new Date().toLocaleString(),
+      };
 
-    setReferral(profile);
+      setReferral(profile);
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+      }
 
-    addTx({
-      type: "Referral application approved",
-      method: "Referral",
-      account,
-      amount: 0,
-      status: "Approved",
-      details: code,
-    });
+      addTx({
+        type: "Referral application approved",
+        method: "Referral",
+        account,
+        amount: 0,
+        status: "Approved",
+        details: `${profile.code} · ${profile.commissionRate}% commission`,
+      });
 
-    notify("win", "Referral link created", "You can now invite traders and earn commissions.");
+      notify(
+        "win",
+        "Referral link created",
+        `Your referral commission is ${profile.commissionRate}%.`
+      );
+    } catch (error) {
+      notify(
+        "loss",
+        "Referral setup failed",
+        error instanceof Error ? error.message : "Unable to create the referral link.",
+        4500
+      );
+    }
   }
 
   async function login(data) {
@@ -1377,6 +1355,7 @@ function TradingApp() {
           password: data.password,
           country: "Kenya",
           documentType: "National ID",
+          referralCode: referralCodeFromLocation(),
         }),
       });
       const result = await readApiResponse(response);
@@ -1669,7 +1648,7 @@ function TradingApp() {
     );
   }
 
-  async function settleBinaryTrade(openTrade) {
+  async function settleBinaryTrade(openTrade, options = {}) {
     if (!openTrade?.id || !authToken) return;
 
     try {
@@ -1679,7 +1658,9 @@ function TradingApp() {
           method: "POST",
           headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
           cache: "no-store",
-          body: JSON.stringify({}),
+          body: JSON.stringify({
+            forceTickSettlement: Boolean(options.forceTickSettlement),
+          }),
         }
       );
 
@@ -1687,7 +1668,7 @@ function TradingApp() {
 
       if (response.status === 409 && Number(result.remainingMs) > 0) {
         window.setTimeout(
-          () => void settleBinaryTrade(openTrade),
+          () => void settleBinaryTrade(openTrade, options),
           Math.min(1200, Math.max(100, Number(result.remainingMs) + 20))
         );
         return;
@@ -3929,25 +3910,28 @@ function TradePage({
           <label className="binaryMarketPicker">
             <span className="binaryMarketBadge">{binaryMarket?.short || "V100 1s"}</span>
             <span className="binaryMarketSelectText">
-              <select
-                value={binaryMarketId}
-                onChange={(event) => setBinaryMarketId(event.target.value)}
-                disabled={Boolean(activeBinaryTrade)}
-                aria-label="Choose volatility index"
-              >
-                {volatilityOptions.map((market) => (
-                  <option key={market.id} value={market.id}>
-                    {market.label}
-                  </option>
-                ))}
-              </select>
+              <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
               <small>{binaryMarket?.description || "Synthetic volatility market"}</small>
             </span>
+            <span className="binaryMarketChevron" aria-hidden="true">⌄</span>
+            <select
+              className="binaryMarketNativeSelect"
+              value={binaryMarketId}
+              onChange={(event) => setBinaryMarketId(event.target.value)}
+              disabled={Boolean(activeBinaryTrade)}
+              aria-label="Choose volatility index"
+            >
+              {volatilityOptions.map((market) => (
+                <option key={market.id} value={market.id}>
+                  {market.label}
+                </option>
+              ))}
+            </select>
           </label>
 
-          <strong>{indexValue.toFixed(2)} · LIVE</strong>
-          <button type="button">{duration} ticks⌄</button>
-          <button type="button">⛶</button>
+          <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
+          <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
+          <button className="binaryFullscreenButton" type="button">⛶</button>
         </div>
 
         <div className="proChartArea finalBinaryChartArea">
@@ -4568,8 +4552,11 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
   const referralCode = referral?.code || "";
   const referralLink = referral?.link || "";
   const referralApproved = referral?.status === "approved";
-  const referralEarned = referral?.totalEarned || 0;
-  const referralCount = referral?.totalReferrals || 0;
+  const referralEarned = Number(referral?.totalEarned ?? user?.partnerBalance ?? 0);
+  const referralCount = Number(referral?.totalReferrals ?? user?.referralCount ?? 0);
+  const referralRate = Number(
+    referral?.commissionRate ?? user?.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT
+  );
   const accountLabel = account === "real" ? "Real Account" : "Demo Account";
   const tradeTransactions = (transactions || []).filter(
     (tx) => ["Manual", "Bot", "Forex"].includes(tx.method) && Number(tx.amount) !== 0
@@ -4719,13 +4706,13 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
           <h2>Referral Program</h2>
           <p>
             {referralApproved
-              ? "Your referral account is active. Invite traders and earn up to 30% commission from referred deposits."
+              ? `Your referral account is active. Earn ${referralRate}% commission from each completed referred deposit.`
               : "Apply once to receive your personal referral link and start earning commissions."}
           </p>
 
           <div className={referralApproved ? "referralStatus approved" : "referralStatus pending"}>
             <b>{referralApproved ? "Approved Partner" : "Not Applied Yet"}</b>
-            <span>{referralApproved ? `Code: ${referralCode}` : "Create your link in one click"}</span>
+            <span>{referralApproved ? `Code: ${referralCode} · ${referralRate}% commission` : "Create your link in one click"}</span>
           </div>
 
           {referralApproved ? (
@@ -4747,6 +4734,11 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
                 <div>
                   <small>TOTAL REFERRALS</small>
                   <strong>{referralCount}</strong>
+                </div>
+
+                <div>
+                  <small>COMMISSION RATE</small>
+                  <strong>{referralRate}%</strong>
                 </div>
               </div>
 

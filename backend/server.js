@@ -16,7 +16,12 @@ const USD_RATE = Number(process.env.USD_RATE || 130);
 const MIN_DEPOSIT_USD = Number(process.env.MIN_DEPOSIT_USD || 1);
 const MIN_WITHDRAW_USD = Number(process.env.MIN_WITHDRAW_USD || 5);
 const MAX_WITHDRAW_USD = Number(process.env.MAX_WITHDRAW_USD || 150000);
-const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 2400);
+const REFERRAL_COMMISSION_PERCENT = Math.max(
+  0,
+  Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
+);
+const BACKEND_BUILD = "metabinary-thin-rings-selector-referral-tickfix-2026-07-12";
+const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
@@ -113,6 +118,18 @@ function createAccountId() {
   return `MB${Date.now().toString().slice(-8)}${Math.floor(100 + Math.random() * 900)}`;
 }
 
+function createReferralCode(user = {}) {
+  const base = cleanText(user.fullName || user.name || cleanEmail(user.email).split("@")[0], 40)
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(0, 8)
+    .toUpperCase() || "TRADER";
+  const suffix = String(user.accountId || user.brokerId || crypto.randomBytes(3).toString("hex"))
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(-6)
+    .toUpperCase();
+  return `MB-${base}-${suffix}`;
+}
+
 function roundMoney(value) {
   return Number(Number(value || 0).toFixed(2));
 }
@@ -186,6 +203,7 @@ async function ensureIndexes() {
   await Promise.all([
     db.collection("users").createIndex({ email: 1 }, { unique: true }),
     db.collection("users").createIndex({ accountId: 1 }, { unique: true, sparse: true }),
+    db.collection("users").createIndex({ referralCode: 1 }, { unique: true, sparse: true }),
     deposits.createIndex({ id: 1 }, { unique: true }),
     deposits.createIndex({ invoiceId: 1 }, { sparse: true }),
     deposits.createIndex({ apiRef: 1 }, { sparse: true }),
@@ -305,6 +323,12 @@ function publicUser(user) {
     demoBalance: roundMoney(user.demoBalance ?? 10000),
     realBalance: roundMoney(user.realBalance ?? 0),
     partnerBalance: roundMoney(user.partnerBalance ?? 0),
+    referralCode: user.referralCode || "",
+    referralCommissionRate: Number(user.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT),
+    referralCount: Number(user.referralCount || 0),
+    referredBy: user.referredByEmail || "",
+    referralCodeUsed: user.referralCodeUsed || "",
+    referralAppliedAt: user.referralAppliedAt || "",
     status: String(user.status || "active").toLowerCase(),
     role: user.role || "user",
     createdAt: user.createdAt || "",
@@ -378,12 +402,96 @@ function publicTrade(trade) {
     source: trade.source || "manual",
     strategy: trade.strategy || "",
     resultDigit: Number.isInteger(trade.resultDigit) ? trade.resultDigit : null,
+    lastTickDigit: Number.isInteger(trade.lastTickDigit) ? trade.lastTickDigit : null,
+    ticksConsumed: Math.max(0, Number(trade.ticksConsumed || 0)),
+    remainingTicks: Math.max(0, Number(trade.ticks || 0) - Number(trade.ticksConsumed || 0)),
+    tickMs: Math.max(1, Number(trade.tickMs || TRADE_TICK_MS)),
     won: typeof trade.won === "boolean" ? trade.won : null,
     profit: Number.isFinite(Number(trade.profit)) ? roundMoney(trade.profit) : null,
     status: trade.status,
     createdAt: trade.createdAt,
     settleAt: trade.settleAt,
     settledAt: trade.settledAt || "",
+  };
+}
+
+
+async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
+  if (!trade) throw httpError(404, "Trade was not found.");
+
+  if (trade.status === "SETTLED") {
+    const currentUser = await db.collection("users").findOne({ _id: user._id });
+    const balanceField = trade.account === "real" ? "realBalance" : "demoBalance";
+    return {
+      trade,
+      resultDigit: trade.resultDigit,
+      won: trade.won,
+      user: currentUser,
+      balance: roundMoney(currentUser?.[balanceField]),
+      alreadySettled: true,
+    };
+  }
+
+  const resultDigit = Math.max(0, Math.min(9, Math.floor(Number(requestedDigit))));
+  const won = tradeWins(trade.type, trade.action, Number(trade.prediction), resultDigit);
+  const profit = won ? roundMoney(trade.payout - trade.stake) : -roundMoney(trade.stake);
+  const settledAt = nowIso();
+
+  const claimed = await db.collection("trades").findOneAndUpdate(
+    { _id: trade._id, status: "RUNNING" },
+    {
+      $set: {
+        status: "SETTLED",
+        resultDigit,
+        lastTickDigit: resultDigit,
+        ticksConsumed: Math.max(Number(trade.ticks || 1), Number(trade.ticksConsumed || 0)),
+        won,
+        profit,
+        settledAt,
+        updatedAt: settledAt,
+      },
+    },
+    { returnDocument: "after" }
+  );
+
+  if (!claimed) {
+    const existing = await db.collection("trades").findOne({ _id: trade._id });
+    return finalizeTradeWithDigit(db, user, existing, existing?.resultDigit ?? resultDigit);
+  }
+
+  const balanceField = claimed.account === "real" ? "realBalance" : "demoBalance";
+  if (won) {
+    await db.collection("users").updateOne(
+      { _id: user._id },
+      { $inc: { [balanceField]: roundMoney(claimed.payout) }, $set: { updatedAt: settledAt } }
+    );
+  }
+
+  await db.collection("transactions").insertOne({
+    id: makeId("tx"),
+    email: user.email,
+    type: won ? "trade-profit" : "trade-loss",
+    method: claimed.source === "bot" ? "bot" : "manual",
+    account: claimed.account,
+    amount: profit,
+    stake: roundMoney(claimed.stake),
+    payout: roundMoney(claimed.payout),
+    status: won ? "WON" : "LOST",
+    reference: claimed.id,
+    details: `${claimed.strategy ? `${claimed.strategy} · ` : ""}${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
+    createdAt: settledAt,
+  });
+
+  const updatedUser = await db.collection("users").findOne({ _id: user._id });
+  const settledTrade = await db.collection("trades").findOne({ _id: claimed._id });
+
+  return {
+    trade: settledTrade,
+    resultDigit,
+    won,
+    user: updatedUser,
+    balance: roundMoney(updatedUser?.[balanceField]),
+    alreadySettled: false,
   };
 }
 
@@ -670,6 +778,47 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
     { email: deposit.email },
     { $inc: { realBalance: Number(deposit.amountUsd) }, $set: { updatedAt: completedAt } }
   );
+
+  const depositor = await db.collection("users").findOne({ email: deposit.email });
+  let referralCommissionAmount = 0;
+  let referralCommissionRate = 0;
+  let referralPartnerEmail = "";
+
+  if (depositor?.referredByEmail && depositor.referredByEmail !== deposit.email) {
+    const partner = await db.collection("users").findOne({ email: depositor.referredByEmail });
+    if (partner) {
+      referralCommissionRate = Math.max(
+        0,
+        Math.min(100, Number(partner.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT))
+      );
+      referralCommissionAmount = roundMoney(
+        Number(deposit.amountUsd) * (referralCommissionRate / 100)
+      );
+      referralPartnerEmail = partner.email;
+
+      if (referralCommissionAmount > 0) {
+        await db.collection("users").updateOne(
+          { _id: partner._id },
+          {
+            $inc: { partnerBalance: referralCommissionAmount },
+            $set: { updatedAt: completedAt },
+          }
+        );
+        await db.collection("transactions").insertOne({
+          id: makeId("tx"),
+          email: partner.email,
+          type: "referral-commission",
+          method: "Referral",
+          amount: referralCommissionAmount,
+          status: "COMPLETED",
+          reference: deposit.invoiceId || deposit.apiRef || deposit.id,
+          details: `${referralCommissionRate}% commission from ${deposit.email}`,
+          createdAt: completedAt,
+        });
+      }
+    }
+  }
+
   await db.collection("deposits").updateOne(
     { id: deposit.id },
     {
@@ -677,6 +826,9 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
         credited: true,
         status: "COMPLETED",
         completedAt,
+        referralCommissionAmount,
+        referralCommissionRate,
+        referralPartnerEmail,
         updatedAt: completedAt,
       },
     }
@@ -769,7 +921,15 @@ app.get("/api/health", async (_req, res) => {
   try {
     const db = await getDb();
     await db.command({ ping: 1 });
-    res.json({ ok: true, mode: TEST_MODE ? "sandbox" : "live", mongo: "connected", database: MONGODB_DB });
+    res.json({
+      ok: true,
+      build: BACKEND_BUILD,
+      mode: TEST_MODE ? "sandbox" : "live",
+      mongo: "connected",
+      database: MONGODB_DB,
+      referralCommissionPercent: REFERRAL_COMMISSION_PERCENT,
+      tradeTickMs: TRADE_TICK_MS,
+    });
   } catch (error) {
     res.status(503).json({ ok: false, mode: TEST_MODE ? "sandbox" : "live", mongo: "disconnected", message: error.message });
   }
@@ -785,6 +945,7 @@ app.post("/api/auth/register", async (req, res, next) => {
     const password = String(body.password || "");
     const country = cleanText(body.country || "Kenya", 80);
     const documentType = cleanText(body.documentType || "National ID", 80);
+    const suppliedReferralCode = cleanText(body.referralCode || "", 80).toUpperCase();
 
     if (!fullName || !email || !email.includes("@") || !phone || !password) {
       throw httpError(400, "Fill in your name, email, phone number and password.");
@@ -792,6 +953,13 @@ app.post("/api/auth/register", async (req, res, next) => {
     if (password.length < 6) throw httpError(400, "Password must be at least 6 characters.");
 
     const db = await getDb();
+    const referrer = suppliedReferralCode
+      ? await db.collection("users").findOne({ referralCode: suppliedReferralCode })
+      : null;
+    if (suppliedReferralCode && !referrer) {
+      throw httpError(400, "The referral code is not valid.");
+    }
+
     const clauses = [{ email }];
     if (phone) clauses.push({ phone });
     const existing = await db.collection("users").findOne({ $or: clauses });
@@ -814,6 +982,11 @@ app.post("/api/auth/register", async (req, res, next) => {
       demoBalance: 10000,
       realBalance: 0,
       partnerBalance: 0,
+      referralCode: "",
+      referralCommissionRate: REFERRAL_COMMISSION_PERCENT,
+      referralCount: 0,
+      referredByEmail: referrer?.email || "",
+      referralCodeUsed: referrer?.referralCode || "",
       emailVerified: false,
       verified: false,
       status: "active",
@@ -822,6 +995,12 @@ app.post("/api/auth/register", async (req, res, next) => {
       updatedAt: createdAt,
     };
     await db.collection("users").insertOne(user);
+    if (referrer?.email) {
+      await db.collection("users").updateOne(
+        { email: referrer.email },
+        { $inc: { referralCount: 1 }, $set: { updatedAt: createdAt } }
+      );
+    }
     await db.collection("transactions").insertOne({
       id: makeId("tx"),
       email,
@@ -865,6 +1044,52 @@ app.post("/api/auth/login", async (req, res, next) => {
 
 app.get("/api/auth/me", requireUser, (req, res) => {
   res.json({ ok: true, user: publicUser(req.user) });
+});
+
+app.post("/api/referrals/apply", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    let code = req.user.referralCode || createReferralCode(req.user);
+
+    if (!req.user.referralCode) {
+      let suffix = 0;
+      while (await db.collection("users").findOne({ referralCode: code })) {
+        suffix += 1;
+        code = `${createReferralCode(req.user)}-${suffix}`.slice(0, 80);
+      }
+    }
+
+    const appliedAt = req.user.referralAppliedAt || nowIso();
+    await db.collection("users").updateOne(
+      { _id: req.user._id },
+      {
+        $set: {
+          referralCode: code,
+          referralCommissionRate: REFERRAL_COMMISSION_PERCENT,
+          referralAppliedAt: appliedAt,
+          updatedAt: nowIso(),
+        },
+      }
+    );
+
+    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+    const origin = FRONTEND_URLS[0] || "https://metabinary.com";
+    res.json({
+      ok: true,
+      referral: {
+        code,
+        link: `${origin}/ref/${code}`,
+        commissionRate: Number(updatedUser.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT),
+        totalEarned: roundMoney(updatedUser.partnerBalance || 0),
+        totalReferrals: Number(updatedUser.referralCount || 0),
+        appliedAt,
+      },
+      user: publicUser(updatedUser),
+      message: `Referral account active at ${REFERRAL_COMMISSION_PERCENT}% commission.`,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get("/api/user/:email", requireUser, async (req, res, next) => {
@@ -1363,6 +1588,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       createdAt,
       settleAt,
       tickMs: tradeTickMs,
+      ticksConsumed: 0,
+      lastTickDigit: null,
       settledAt: "",
     };
 
@@ -1388,7 +1615,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
   }
 });
 
-app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
+async function handleTradeTick(req, res, next) {
   try {
     const db = await getDb();
     const id = cleanText(req.params.id, 100);
@@ -1396,95 +1623,130 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
     if (!trade) throw httpError(404, "Trade was not found.");
 
     if (trade.status === "SETTLED") {
-      const currentUser = await db.collection("users").findOne({ _id: req.user._id });
-      const balanceField = trade.account === "real" ? "realBalance" : "demoBalance";
+      const final = await finalizeTradeWithDigit(db, req.user, trade, trade.resultDigit);
       return res.json({
         ok: true,
-        trade: publicTrade(trade),
-        resultDigit: trade.resultDigit,
-        won: trade.won,
-        user: publicUser(currentUser),
-        balance: roundMoney(currentUser?.[balanceField]),
-        message: "Trade already settled.",
+        settled: true,
+        digit: final.resultDigit,
+        resultDigit: final.resultDigit,
+        won: final.won,
+        remainingTicks: 0,
+        trade: publicTrade(final.trade),
+        user: publicUser(final.user),
+        balance: final.balance,
+        message: final.won ? "Trade won." : "Trade lost.",
       });
     }
 
-    const remainingMs = new Date(trade.settleAt).getTime() - Date.now();
-    if (remainingMs > 0) {
-      return res.status(409).json({
-        ok: false,
-        remainingMs,
-        message: "Trade is still running.",
-      });
-    }
-
-    const resultDigit = crypto.randomInt(0, 10);
-    const won = tradeWins(trade.type, trade.action, Number(trade.prediction), resultDigit);
-    const profit = won ? roundMoney(trade.payout - trade.stake) : -roundMoney(trade.stake);
-    const settledAt = nowIso();
-
-    const claimed = await db.collection("trades").findOneAndUpdate(
-      { _id: trade._id, status: "RUNNING" },
+    const totalTicks = Math.min(10, Math.max(1, Number(trade.ticks || 1)));
+    const digit = crypto.randomInt(0, 10);
+    const advanced = await db.collection("trades").findOneAndUpdate(
       {
-        $set: {
-          status: "SETTLED",
-          resultDigit,
-          won,
-          profit,
-          settledAt,
-        },
+        _id: trade._id,
+        status: "RUNNING",
+        $or: [
+          { ticksConsumed: { $exists: false } },
+          { ticksConsumed: { $lt: totalTicks } },
+        ],
+      },
+      {
+        $inc: { ticksConsumed: 1 },
+        $set: { lastTickDigit: digit, updatedAt: nowIso() },
       },
       { returnDocument: "after" }
     );
 
-    if (!claimed) {
+    if (!advanced) {
       trade = await db.collection("trades").findOne({ _id: trade._id });
-      const currentUser = await db.collection("users").findOne({ _id: req.user._id });
-      const balanceField = trade.account === "real" ? "realBalance" : "demoBalance";
+      if (trade?.status === "SETTLED") {
+        const final = await finalizeTradeWithDigit(db, req.user, trade, trade.resultDigit);
+        return res.json({
+          ok: true,
+          settled: true,
+          digit: final.resultDigit,
+          resultDigit: final.resultDigit,
+          won: final.won,
+          remainingTicks: 0,
+          trade: publicTrade(final.trade),
+          user: publicUser(final.user),
+          balance: final.balance,
+        });
+      }
+      throw httpError(409, "This tick has already been counted.");
+    }
+
+    const consumed = Math.max(0, Number(advanced.ticksConsumed || 0));
+    const remainingTicks = Math.max(0, totalTicks - consumed);
+
+    if (remainingTicks > 0) {
       return res.json({
         ok: true,
-        trade: publicTrade(trade),
-        resultDigit: trade.resultDigit,
-        won: trade.won,
-        user: publicUser(currentUser),
-        balance: roundMoney(currentUser?.[balanceField]),
+        settled: false,
+        digit,
+        remainingTicks,
+        totalTicks,
+        trade: publicTrade(advanced),
+        message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.`,
       });
     }
 
-    const balanceField = claimed.account === "real" ? "realBalance" : "demoBalance";
-    if (won) {
-      await db.collection("users").updateOne(
-        { _id: req.user._id },
-        { $inc: { [balanceField]: roundMoney(claimed.payout) }, $set: { updatedAt: nowIso() } }
-      );
+    const final = await finalizeTradeWithDigit(db, req.user, advanced, digit);
+    return res.json({
+      ok: true,
+      settled: true,
+      digit: final.resultDigit,
+      resultDigit: final.resultDigit,
+      won: final.won,
+      remainingTicks: 0,
+      totalTicks,
+      trade: publicTrade(final.trade),
+      user: publicUser(final.user),
+      balance: final.balance,
+      message: final.won ? "Trade won." : "Trade lost.",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+app.post("/api/trades/:id/tick", requireUser, handleTradeTick);
+app.post("/api/trades/:id", requireUser, handleTradeTick);
+
+app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const id = cleanText(req.params.id, 100);
+    const trade = await db.collection("trades").findOne({ id, email: req.user.email });
+    if (!trade) throw httpError(404, "Trade was not found.");
+
+    const forceTickSettlement = req.body?.forceTickSettlement === true;
+    if (trade.status !== "SETTLED") {
+      const remainingMs = new Date(trade.settleAt).getTime() - Date.now();
+      if (remainingMs > 0 && !forceTickSettlement) {
+        return res.status(409).json({
+          ok: false,
+          remainingMs,
+          message: "Trade is still running.",
+        });
+      }
     }
 
-    await db.collection("transactions").insertOne({
-      id: makeId("tx"),
-      email: req.user.email,
-      type: won ? "trade-profit" : "trade-loss",
-      method: claimed.source === "bot" ? "bot" : "manual",
-      account: claimed.account,
-      amount: profit,
-      stake: roundMoney(claimed.stake),
-      payout: roundMoney(claimed.payout),
-      status: won ? "WON" : "LOST",
-      reference: claimed.id,
-      details: `${claimed.strategy ? `${claimed.strategy} · ` : ""}${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action} · digit ${resultDigit}`,
-      createdAt: settledAt,
-    });
+    const resultDigit = Number.isInteger(trade.lastTickDigit)
+      ? trade.lastTickDigit
+      : Number.isInteger(trade.resultDigit)
+      ? trade.resultDigit
+      : crypto.randomInt(0, 10);
+    const final = await finalizeTradeWithDigit(db, req.user, trade, resultDigit);
 
-    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
-    trade = await db.collection("trades").findOne({ _id: claimed._id });
-
-    res.json({
+    return res.json({
       ok: true,
-      trade: publicTrade(trade),
-      resultDigit,
-      won,
-      user: publicUser(updatedUser),
-      balance: roundMoney(updatedUser?.[balanceField]),
-      message: won ? "Trade won." : "Trade lost.",
+      trade: publicTrade(final.trade),
+      resultDigit: final.resultDigit,
+      digit: final.resultDigit,
+      won: final.won,
+      user: publicUser(final.user),
+      balance: final.balance,
+      message: final.won ? "Trade won." : "Trade lost.",
     });
   } catch (error) {
     next(error);
