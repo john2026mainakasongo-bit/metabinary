@@ -21241,3 +21241,230 @@ body {
     height: 62px !important;
   }
 }
+
+/* ======================================================================
+   FINAL CHART-UP + TEN-DIGIT BOARD RESTORE
+   Fixes the extra empty grid row introduced when the separate volatility
+   selector was added. The chart now follows the selector immediately and
+   the 0–9 board remains fully visible in two rows of five.
+   ====================================================================== */
+
+/* Desktop/tablet: four real children = tabs, volatility, chart, order card. */
+@media (min-width: 761px) {
+  .finalBinaryTradePage {
+    display: grid !important;
+    grid-template-rows: 42px 58px minmax(0, 1fr) 116px !important;
+    align-content: stretch !important;
+    gap: 6px !important;
+  }
+
+  .finalBinaryTradePage .volatilitySwitchBar {
+    grid-row: 2 !important;
+    align-self: stretch !important;
+    margin: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard {
+    grid-row: 3 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    grid-row: 4 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Phones: use normal document flow so no child can create a huge blank row. */
+@media (max-width: 760px) {
+  .finalBinaryTradePage,
+  .finalBinaryTradePage.digitContractPage,
+  .finalBinaryTradePage.priceContractPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: calc(100dvh - 138px) !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 8px 9px 96px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs,
+  .finalBinaryTradePage .volatilitySwitchBar,
+  .finalBinaryTradePage .finalBinaryChartCard,
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    position: relative !important;
+    inset: auto !important;
+    margin: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs {
+    height: 45px !important;
+    min-height: 45px !important;
+  }
+
+  .finalBinaryTradePage .volatilitySwitchBar {
+    z-index: 12000 !important;
+  }
+
+  /* Chart begins immediately after the volatility selector. */
+  .finalBinaryTradePage .finalBinaryChartCard,
+  .finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 7px !important;
+    overflow: visible !important;
+    border-radius: 15px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartTitle {
+    flex: 0 0 36px !important;
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartArea,
+  .finalBinaryTradePage .proChartArea {
+    flex: 0 0 210px !important;
+    width: 100% !important;
+    height: 210px !important;
+    min-height: 210px !important;
+    max-height: 210px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBinaryTradePage .proChartCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalChartTimeRow,
+  .finalBinaryTradePage .chartTimeRow {
+    flex: 0 0 15px !important;
+    width: 100% !important;
+    height: 15px !important;
+    min-height: 15px !important;
+    margin: 0 !important;
+  }
+
+  /* Restore 0–9 directly below the chart in two complete rows. */
+  .finalBinaryTradePage .finalDigitBoard {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 132px !important;
+    display: block !important;
+    margin: 2px 0 0 !important;
+    padding: 7px 8px 10px !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoardHead {
+    min-height: 18px !important;
+    margin: 0 0 6px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitsGrid,
+  .finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
+    width: 100% !important;
+    min-height: 101px !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 46px) !important;
+    place-items: center !important;
+    gap: 8px 7px !important;
+    padding: 1px 2px 8px !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .finalBinaryTradePage .chartDigit {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: grid !important;
+    place-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .finalBinaryTradePage .chartDigit .digitFace {
+    display: grid !important;
+    place-content: center !important;
+    gap: 2px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit .digitFace > strong {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  .finalBinaryTradePage .chartDigit .digitFace > .digitPercent {
+    font-size: 6.5px !important;
+    line-height: 1 !important;
+  }
+
+  .finalBinaryTradePage .finalChartToolRow {
+    flex: 0 0 25px !important;
+    width: 100% !important;
+    min-height: 25px !important;
+    margin: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 8px 9px 9px !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .finalBinaryTradePage .finalBinaryChartArea,
+  .finalBinaryTradePage .proChartArea {
+    flex-basis: 190px !important;
+    height: 190px !important;
+    min-height: 190px !important;
+    max-height: 190px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitBoard {
+    min-height: 122px !important;
+  }
+
+  .finalBinaryTradePage .finalDigitsGrid,
+  .finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
+    min-height: 93px !important;
+    grid-template-rows: repeat(2, 42px) !important;
+    gap: 7px 5px !important;
+  }
+
+  .finalBinaryTradePage .chartDigit {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+}
