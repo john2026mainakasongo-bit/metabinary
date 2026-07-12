@@ -393,6 +393,9 @@ function createAiAutoSession(overrides = {}) {
     mode: "",
     status: "Idle",
     pnl: 0,
+    lastNet: 0,
+    lastResult: "",
+    lastResultAt: 0,
     trades: 0,
     wins: 0,
     losses: 0,
@@ -1392,6 +1395,9 @@ function TradingApp() {
       if (pullRefreshingRef.current || !pageIsAtTop()) return;
       const touch = event.touches?.[0];
       if (!touch) return;
+      // Refresh starts only from the browser/header edge, never from inside the chart or order panel.
+      if (touch.clientY > Math.max(86, Number(window.visualViewport?.offsetTop || 0) + 86)) return;
+      if (event.target?.closest?.("button, input, select, textarea, [role='dialog'], .volatilitySwitchMenu")) return;
       pullStartYRef.current = touch.clientY;
       pullTrackingRef.current = true;
     };
@@ -2524,6 +2530,9 @@ function TradingApp() {
     const next = {
       ...current,
       pnl: nextPnl,
+      lastNet: net,
+      lastResult: outcome.won ? "win" : "loss",
+      lastResultAt: Date.now(),
       trades: Number(current.trades || 0) + 1,
       wins: Number(current.wins || 0) + (outcome.won ? 1 : 0),
       losses: Number(current.losses || 0) + (outcome.won ? 0 : 1),
@@ -3245,6 +3254,7 @@ function TradingApp() {
         markNotificationRead={markNotificationRead}
         markAllNotificationsRead={markAllNotificationsRead}
         clearNotifications={clearNotifications}
+        autoSession={aiAutoSession}
       />
 
       <main className="mainScreen">
@@ -3596,12 +3606,15 @@ function Header({
   markNotificationRead,
   markAllNotificationsRead,
   clearNotifications,
+  autoSession,
 }) {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const isReal = account === "real";
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
   const unreadCount = safeNotifications.filter((item) => !item.read).length;
+  const aiLastNet = Number(autoSession?.lastNet || 0);
+  const aiBalanceClass = aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
 
   function chooseAccount(nextAccount) {
     setAccount(nextAccount);
@@ -3626,7 +3639,7 @@ function Header({
 
       <button
         type="button"
-        className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""}`}
+        className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""} ${autoSession?.running ? "aiTradingBalance" : ""} ${aiBalanceClass}`}
         onClick={() => {
           setAccountMenuOpen((open) => !open);
           setNotificationOpen(false);
@@ -4980,24 +4993,27 @@ function TradePage({
         ))}
       </section>
 
+      <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
+        <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
+          <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
+          <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
+          <span className="volatilitySwitchLive"><i></i> LIVE</span>
+          <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
+        </button>
+        {marketMenuOpen && (
+          <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
+            {volatilityOptions.map((market) => (
+              <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
+                <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
         <div className="proChartTitle finalBinaryChartTitle">
-          <div className={`binaryMarketSelector ${marketMenuOpen ? "open" : ""}`}>
-            <button type="button" className="binaryMarketPicker" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
-              <span className="binaryMarketBadge">{binaryMarket?.short || "V100 1s"}</span>
-              <span className="binaryMarketSelectText"><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong><small>{binaryMarket?.description || "Synthetic volatility market"}</small></span>
-              <span className="binaryMarketChevron" aria-hidden="true">⌄</span>
-            </button>
-            {marketMenuOpen && (
-              <div className="binaryMarketMenu" role="listbox" aria-label="Volatility markets">
-                {volatilityOptions.map((market) => (
-                  <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
-                    <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : ""}</i>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <div className="binarySelectedMarketMini"><span>{binaryMarket?.short || "V100 1s"}</span><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></div>
           <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
           <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
           <button className="binaryFullscreenButton" type="button">⛶</button>
@@ -5040,7 +5056,8 @@ function TradePage({
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(0, Math.min(1, (Number(percent) - lowestPercent) / percentageRange));
                 const useUpperWhiteArc = percentageLevel >= 0.55;
-                const whiteArcDegrees = useUpperWhiteArc ? 76 + percentageLevel * 104 : 20 + percentageLevel * 78;
+                // Short thin arcs only; the old three-quarter white/grey wheel is removed.
+                const whiteArcDegrees = 26 + percentageLevel * 78;
                 const normalWhiteArcPath = centeredRingArcPath(useUpperWhiteArc ? 0 : 180, whiteArcDegrees);
                 const isWinningTarget = Boolean(activeBinaryTrade && digitWinsTrade(activeBinaryTrade, digit, livePrice));
                 return (
@@ -6031,15 +6048,21 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   useEffect(() => {
     const clampToScreen = () => {
-      if (window.innerWidth <= 760) return;
+      const buttonSize = window.innerWidth <= 760 ? 58 : 66;
+      const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
+      const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
       setPosition((old) => ({
-        x: Math.max(8, Math.min(window.innerWidth - 76, Number(old?.x || 18))),
-        y: Math.max(76, Math.min(window.innerHeight - 96, Number(old?.y || 130))),
+        x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, Number(old?.x || window.innerWidth - buttonSize - 16))),
+        y: Math.max(minY, Math.min(viewportHeight - buttonSize - 8, Number(old?.y || 130))),
       }));
     };
     clampToScreen();
     window.addEventListener("resize", clampToScreen, { passive: true });
-    return () => window.removeEventListener("resize", clampToScreen);
+    window.visualViewport?.addEventListener("resize", clampToScreen, { passive: true });
+    return () => {
+      window.removeEventListener("resize", clampToScreen);
+      window.visualViewport?.removeEventListener("resize", clampToScreen);
+    };
   }, []);
 
   function pageMode() {
@@ -6127,13 +6150,16 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   }
 
   function pointerMove(event) {
-    if (!dragRef.current.dragging || window.innerWidth <= 760) return;
+    if (!dragRef.current.dragging) return;
     const distance = Math.hypot(event.clientX - dragRef.current.startX, event.clientY - dragRef.current.startY);
-    if (distance < 6 && !dragRef.current.moved) return;
+    if (distance < 5 && !dragRef.current.moved) return;
     dragRef.current.moved = true;
+    const buttonSize = window.innerWidth <= 760 ? 58 : 66;
+    const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
+    const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
     setPosition({
-      x: Math.max(8, Math.min(window.innerWidth - 76, event.clientX - dragRef.current.offsetX)),
-      y: Math.max(76, Math.min(window.innerHeight - 96, event.clientY - dragRef.current.offsetY)),
+      x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, event.clientX - dragRef.current.offsetX)),
+      y: Math.max(minY, Math.min(viewportHeight - buttonSize - 8, event.clientY - dragRef.current.offsetY)),
     });
   }
 
@@ -6145,6 +6171,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   const mode = pageMode();
   const mobileViewport = typeof window !== "undefined" && window.innerWidth <= 760;
+  const buttonStyle = {
+    "--ai-x": `${Math.round(position.x)}px`,
+    "--ai-y": `${Math.round(position.y)}px`,
+  };
   const panelStyle = mobileViewport ? undefined : {
     left: Math.min(position.x, Math.max(8, window.innerWidth - 390)),
     top: Math.min(position.y + 76, Math.max(90, window.innerHeight - 590)),
@@ -6155,7 +6185,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       {!open && (
         <button
           className={`floatingAiButton ${scanning ? "scanning" : ""} ${autoSession?.running ? "autoRunning" : ""}`}
-          style={mobileViewport ? undefined : { left: position.x, top: position.y }}
+          style={buttonStyle}
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
           onPointerUp={pointerUp}
