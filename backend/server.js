@@ -20,9 +20,10 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-s22-performance-trade-lines-2026-07-12";
+const BACKEND_BUILD = "metabinary-ai-autotrade-s22-v2-2026-07-12";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
+const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
@@ -747,6 +748,8 @@ function publicForexPosition(position) {
     takeProfit: Number(position.takeProfit),
     pl: roundMoney(position.pl || 0),
     plPercent: Number(position.plPercent || 0),
+    source: position.source || "manual",
+    strategy: position.strategy || "",
     status: position.status,
     openedAt: position.openedAt || position.createdAt,
     createdAt: position.createdAt,
@@ -1048,6 +1051,8 @@ app.get("/api/health", async (_req, res) => {
       database: MONGODB_DB,
       referralCommissionPercent: REFERRAL_COMMISSION_PERCENT,
       tradeTickMs: TRADE_TICK_MS,
+      botTradeTickMs: BOT_TRADE_TICK_MS,
+      aiTradeTickMs: AI_TRADE_TICK_MS,
       passwordResetEmailConfigured: Boolean(RESEND_API_KEY),
       publicBackendUrlConfigured: Boolean(PUBLIC_BACKEND_URL),
       paymentCallbackProtected: Boolean(INTASEND_CALLBACK_SECRET),
@@ -1790,6 +1795,9 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
     const stopLoss = Number(req.body?.stopLoss);
     const takeProfit = Number(req.body?.takeProfit);
     const clientPrice = Number(req.body?.marketPrice || 0);
+    const requestedSource = String(req.body?.source || "manual").trim().toLowerCase();
+    const source = requestedSource === "ai" ? "ai" : "manual";
+    const strategy = cleanText(req.body?.strategy || "", 100);
 
     if (!["Buy", "Sell"].includes(side)) throw httpError(400, "Choose Buy or Sell.");
     if (!Number.isFinite(volume) || volume < 0.01 || volume > 10) throw httpError(400, "Volume must be between 0.01 and 10 lots.");
@@ -1844,6 +1852,8 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
       takeProfit,
       pl: 0,
       plPercent: 0,
+      source,
+      strategy,
       status: "OPEN",
       openedAt: createdAt,
       createdAt,
@@ -1855,7 +1865,7 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
       id: makeId("tx"),
       email: req.user.email,
       type: "forex-open",
-      method: "forex",
+      method: source === "ai" ? "ai-forex" : "forex",
       account,
       amount: 0,
       status: "OPEN",
@@ -1964,7 +1974,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const barrierDistance = Math.max(0, Number(req.body?.barrierDistance || 0));
     const marketStep = Math.max(0.000001, Number(req.body?.marketStep || 0.0002));
     const market = cleanText(req.body?.market || "Volatility 100 (1s) Index", 100);
-    const source = String(req.body?.source || "manual").toLowerCase() === "bot" ? "bot" : "manual";
+    const requestedSource = String(req.body?.source || "manual").trim().toLowerCase();
+    const source = ["bot", "ai"].includes(requestedSource) ? requestedSource : "manual";
     const strategy = cleanText(req.body?.strategy || "", 100);
 
     if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
@@ -1984,7 +1995,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
 
     const id = makeId("trade");
     const createdAt = nowIso();
-    const tradeTickMs = source === "bot" ? BOT_TRADE_TICK_MS : TRADE_TICK_MS;
+    const tradeTickMs = source === "bot" ? BOT_TRADE_TICK_MS : source === "ai" ? AI_TRADE_TICK_MS : TRADE_TICK_MS;
     const settleAt = new Date(Date.now() + ticks * tradeTickMs).toISOString();
     const trade = {
       id,

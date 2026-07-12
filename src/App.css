@@ -20599,3 +20599,218 @@ body {
     animation-duration: 2.5s !important;
   }
 }
+
+
+/* ========================================================================
+   METABINARY AI AUTO-TRADE + CLEAN DIGIT PATCH
+   Build: metabinary-ai-autotrade-s22-v2-2026-07-12
+   ======================================================================== */
+
+/* Remove every old pie/three-quarter visual: only a thin outer SVG ring remains. */
+.finalBinaryTradePage .chartDigit {
+  overflow: visible !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .chartDigit::before,
+.finalBinaryTradePage .chartDigit::after,
+.finalBinaryTradePage .digitFace::before,
+.finalBinaryTradePage .digitFace::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+.finalBinaryTradePage .digitFace,
+.finalBinaryTradePage .chartDigit:not(.picked):not(.resultWin):not(.resultLoss) .digitFace {
+  position: relative !important;
+  z-index: 5 !important;
+  width: 76% !important;
+  height: 76% !important;
+  background: #010409 !important;
+  background-image: none !important;
+  border: 1px solid rgba(255,255,255,.06) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.95) !important;
+}
+
+.finalBinaryTradePage .chartDigit.picked:not(.resultWin):not(.resultLoss) .digitFace {
+  background: #f4f7fa !important;
+  background-image: none !important;
+  border-color: #bfe0f6 !important;
+  box-shadow: 0 0 0 2px rgba(114,190,240,.34) !important;
+}
+
+.finalBinaryTradePage .digitRingGraphic {
+  z-index: 2 !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitRingGraphic circle,
+.finalBinaryTradePage .digitRingGraphic path {
+  stroke-width: 3 !important;
+  stroke-linecap: butt !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitRingGreyBase { stroke: #69737f !important; }
+.finalBinaryTradePage .digitRingBalanceArc { stroke: #f4f6f8 !important; }
+.finalBinaryTradePage .digitRingHighestGreenArc { stroke: #20cdae !important; }
+.finalBinaryTradePage .digitRingLowestRedArc { stroke: #ff4058 !important; }
+
+/* AI Auto-Trade controls and live session card. */
+.aiScannerPanel footer {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+
+.aiStartAuto,
+.aiStopAuto {
+  min-height: 44px !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+}
+
+.aiStartAuto {
+  color: #00160d !important;
+  background: linear-gradient(135deg,#20e6a7,#00b978) !important;
+  box-shadow: 0 8px 22px rgba(0,210,135,.2) !important;
+}
+
+.aiStopAuto {
+  width: 100% !important;
+  margin-top: 10px !important;
+  color: #fff !important;
+  background: #cf2742 !important;
+}
+
+.aiAutoRunCard {
+  margin-top: 10px !important;
+  padding: 12px !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  border-radius: 14px !important;
+  background: #061321 !important;
+}
+
+.aiAutoRunCard.running {
+  border-color: rgba(32,230,167,.35) !important;
+  box-shadow: inset 0 0 22px rgba(0,190,125,.06) !important;
+}
+
+.aiAutoRunHead,
+.aiAutoRunHead > span {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+.aiAutoRunHead > span > i {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #20e6a7 !important;
+  box-shadow: 0 0 10px rgba(32,230,167,.75) !important;
+  animation: aiAutoPulse 1s ease-in-out infinite alternate !important;
+}
+
+.aiAutoRunCard.finished .aiAutoRunHead > span > i {
+  background: #8793a3 !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.aiAutoRunHead strong {
+  font-size: 10px !important;
+  letter-spacing: .7px !important;
+}
+
+.aiAutoRunHead > b {
+  color: #20e6a7 !important;
+  font-size: 14px !important;
+}
+
+.aiAutoRunCard > p {
+  margin: 8px 0 !important;
+  color: #b6c5d7 !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+.aiAutoMetrics {
+  display: grid !important;
+  grid-template-columns: repeat(5,minmax(0,1fr)) !important;
+  gap: 5px !important;
+}
+
+.aiAutoMetrics span {
+  min-width: 0 !important;
+  padding: 7px 4px !important;
+  text-align: center !important;
+  border-radius: 8px !important;
+  background: rgba(255,255,255,.035) !important;
+}
+
+.aiAutoMetrics small,
+.aiAutoMetrics strong {
+  display: block !important;
+  white-space: nowrap !important;
+}
+
+.aiAutoMetrics small { color: #718197 !important; font-size: 8px !important; }
+.aiAutoMetrics strong { margin-top: 3px !important; color: #f5f8fb !important; font-size: 10px !important; }
+
+.floatingAiButton.autoRunning {
+  border-color: rgba(32,230,167,.65) !important;
+  box-shadow: 0 0 0 4px rgba(32,230,167,.08), 0 10px 24px rgba(0,0,0,.45) !important;
+}
+
+.floatingAiButton.autoRunning > i {
+  animation-duration: .95s !important;
+}
+
+@keyframes aiAutoPulse {
+  from { opacity: .45; transform: scale(.82); }
+  to { opacity: 1; transform: scale(1.14); }
+}
+
+@media (max-width: 760px) {
+  .aiScannerPanel footer {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .aiStartAuto {
+    grid-column: 1 / -1 !important;
+  }
+
+  .aiAutoMetrics {
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+  }
+
+  .aiScannerPanel {
+    max-height: min(78dvh, 640px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@media (max-width: 760px), (pointer: coarse) and (max-width: 900px) {
+  .aiRadarScanner > span,
+  .aiRadarScanner > i,
+  .floatingAiButton > i {
+    will-change: transform !important;
+  }
+
+  .aiScannerPanel,
+  .aiAutoRunCard,
+  .aiSignalResult {
+    box-shadow: none !important;
+  }
+}

@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-s22-performance-trade-lines-2026-07-12";
+const FRONTEND_BUILD = "metabinary-ai-autotrade-s22-v2-2026-07-12";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -386,6 +386,25 @@ function createBotConfig(bot = BOT_TEMPLATES[0]) {
   };
 }
 
+function createAiAutoSession(overrides = {}) {
+  return {
+    id: "",
+    running: false,
+    mode: "",
+    status: "Idle",
+    pnl: 0,
+    trades: 0,
+    wins: 0,
+    losses: 0,
+    targetProfit: 0,
+    stopLoss: 0,
+    startedAt: 0,
+    completedAt: 0,
+    positionId: "",
+    signal: null,
+    ...overrides,
+  };
+}
 
 function readStore(key, fallback) {
   try {
@@ -881,9 +900,17 @@ function TradingApp() {
   const [referralLoading, setReferralLoading] = useState(false);
   const [settingsBusy, setSettingsBusy] = useState("");
   const [aiForexSetup, setAiForexSetup] = useState(null);
+  const [aiAutoSession, setAiAutoSession] = useState(() => createAiAutoSession());
+  const aiAutoSessionRef = useRef(aiAutoSession);
+  const aiAutoTimerRef = useRef(0);
+  const binaryMarketStatesRef = useRef(binaryMarketStates);
+  const positionsRef = useRef(positions);
 
   activeBinaryTradeRef.current = activeBinaryTrade;
   lastDigitRef.current = lastDigit;
+  aiAutoSessionRef.current = aiAutoSession;
+  binaryMarketStatesRef.current = binaryMarketStates;
+  positionsRef.current = positions;
 
   function updateBinaryMarketState(marketId, updater) {
     setBinaryMarketStates((currentStates) => {
@@ -982,6 +1009,128 @@ function TradingApp() {
   useEffect(() => {
     botRunningRef.current = botRunning;
   }, [botRunning]);
+
+  useEffect(() => {
+    aiAutoSessionRef.current = aiAutoSession;
+  }, [aiAutoSession]);
+
+  useEffect(() => {
+    binaryMarketStatesRef.current = binaryMarketStates;
+  }, [binaryMarketStates]);
+
+  useEffect(() => {
+    positionsRef.current = positions;
+  }, [positions]);
+
+  useEffect(() => () => {
+    window.clearTimeout(aiAutoTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (!positions.length) return;
+
+    setPositions((current) => {
+      let changed = false;
+      const next = current.map((position) => {
+        const quote = Number(marketFeed?.[position.instrument]?.price || 0);
+        if (!Number.isFinite(quote) || quote <= 0) return position;
+        const contractSize = Math.max(1, Number(position.contractSize || MARKET_BY_SYMBOL[position.instrument]?.contractSize || 1));
+        const volume = Math.max(0.01, Number(position.volume || 0.01));
+        const rawPl = position.side === "Buy"
+          ? (quote - Number(position.openPrice || quote)) * contractSize * volume
+          : (Number(position.openPrice || quote) - quote) * contractSize * volume;
+        const pl = Number(rawPl.toFixed(2));
+        const margin = Math.max(0.01, Number(position.margin || 0.01));
+        const plPercent = Number(((pl / margin) * 100).toFixed(2));
+
+        if (
+          Number(position.currentPrice) === quote &&
+          Number(position.pl || 0) === pl &&
+          Number(position.plPercent || 0) === plPercent
+        ) return position;
+
+        changed = true;
+        return { ...position, currentPrice: quote, pl, plPercent };
+      });
+      return changed ? next : current;
+    });
+  }, [marketFeed]);
+
+  useEffect(() => {
+    positions.forEach((position) => {
+      if (closingForexIdsRef.current.has(position.id)) return;
+      const quote = Number(marketFeed?.[position.instrument]?.price || position.currentPrice || 0);
+      const stopLoss = Number(position.stopLoss || 0);
+      const takeProfit = Number(position.takeProfit || 0);
+      if (!Number.isFinite(quote) || quote <= 0 || stopLoss <= 0 || takeProfit <= 0) return;
+
+      const takeHit = position.side === "Buy" ? quote >= takeProfit : quote <= takeProfit;
+      const stopHit = position.side === "Buy" ? quote <= stopLoss : quote >= stopLoss;
+      if (takeHit || stopHit) void closePosition(position.id);
+    });
+  }, [positions, marketFeed]);
+
+  useEffect(() => {
+    const session = aiAutoSessionRef.current;
+    if (!session.running || session.mode !== "forex" || !session.positionId) return;
+
+    const openPosition = positions.find((item) => item.id === session.positionId);
+    if (openPosition) {
+      const next = {
+        ...session,
+        pnl: Number(Number(openPosition.pl || 0).toFixed(2)),
+        status: `${openPosition.side || "Trade"} position running`,
+      };
+      aiAutoSessionRef.current = next;
+      setAiAutoSession(next);
+      return;
+    }
+
+    if (Date.now() - Number(session.startedAt || 0) > 1800) {
+      const next = {
+        ...session,
+        running: false,
+        completedAt: Date.now(),
+        status: "Forex position closed at take profit, stop loss, or manual close",
+      };
+      aiAutoSessionRef.current = next;
+      setAiAutoSession(next);
+    }
+  }, [positions]);
+
+  useEffect(() => {
+    const session = aiAutoSessionRef.current;
+    if (session.mode !== "bot" || !session.startedAt) return;
+
+    const pnl = Number(Number(botSessionPnl || 0).toFixed(2));
+    const targetReached = Number(session.targetProfit || 0) > 0 && pnl >= Number(session.targetProfit);
+    const stopReached = Number(session.stopLoss || 0) > 0 && pnl <= -Number(session.stopLoss);
+    const justFinished = !botRunning && session.running && Date.now() - session.startedAt > 1000;
+    const next = {
+      ...session,
+      running: Boolean(botRunning),
+      pnl,
+      trades: botTrades.length,
+      wins: botTrades.filter((item) => item.won).length,
+      losses: botTrades.filter((item) => !item.won).length,
+      status: botRunning
+        ? "AI bot is trading until target profit or stop loss"
+        : targetReached
+        ? `Target profit reached at +${money(pnl)} USD`
+        : stopReached
+        ? `Stop loss reached at ${money(pnl)} USD`
+        : justFinished
+        ? "AI bot stopped before another contract was opened"
+        : session.status,
+      ...(justFinished ? { running: false, completedAt: Date.now() } : {}),
+    };
+
+    const changed = JSON.stringify(next) !== JSON.stringify(session);
+    if (changed) {
+      aiAutoSessionRef.current = next;
+      setAiAutoSession(next);
+    }
+  }, [botRunning, botSessionPnl, botTrades]);
 
   useEffect(() => {
     const onPopState = (event) => {
@@ -1083,12 +1232,13 @@ function TradingApp() {
     let requestBusy = false;
     let localCompatibilityMode = false;
     const openTrade = { ...activeBinaryTrade };
+    const tradeTickDelay = Math.max(250, Number(openTrade.tickMs || DIGIT_TICK_MS));
     let localRemainingTicks = Math.max(
       1,
       Number(openTrade.remainingTicks || openTrade.totalTicks || 1)
     );
 
-    const schedule = (delay = DIGIT_TICK_MS) => {
+    const schedule = (delay = tradeTickDelay) => {
       window.clearTimeout(timer);
       if (!cancelled) timer = window.setTimeout(runTick, Math.max(0, delay));
     };
@@ -1159,10 +1309,11 @@ function TradingApp() {
       showTick(tickDigit, localRemainingTicks);
 
       if (localRemainingTicks > 0) {
-        schedule(DIGIT_TICK_MS);
+        schedule(tradeTickDelay);
         return;
       }
 
+      activeBinaryTradeRef.current = null;
       setActiveBinaryTrade(null);
       await settleBinaryTrade(openTrade, { forceTickSettlement: true });
     };
@@ -1186,7 +1337,7 @@ function TradingApp() {
         }
 
         if (response.status === 409 && Number(result.remainingMs) > 0) {
-          schedule(Math.min(DIGIT_TICK_MS, Math.max(80, Number(result.remainingMs) + 20)));
+          schedule(Math.min(tradeTickDelay, Math.max(80, Number(result.remainingMs) + 20)));
           return;
         }
 
@@ -1199,15 +1350,17 @@ function TradingApp() {
         showTick(tickDigit, remainingTicks, result);
 
         if (result.settled || result.trade?.status === "SETTLED") {
+          activeBinaryTradeRef.current = null;
           setActiveBinaryTrade(null);
           await applyBinaryTradeSettlement(openTrade, result);
           return;
         }
 
-        schedule(DIGIT_TICK_MS);
+        schedule(tradeTickDelay);
       } catch (error) {
         if (cancelled) return;
         console.error("Trade tick failed:", error);
+        activeBinaryTradeRef.current = null;
         setActiveBinaryTrade(null);
         notify(
           "loss",
@@ -1791,6 +1944,8 @@ function TradingApp() {
     takeProfit,
     marketPrice: submittedMarketPrice,
     marketOpen,
+    source = "manual",
+    strategy = "",
   }) {
     const market = MARKET_BY_SYMBOL[symbol] || MARKET_BY_SYMBOL["EUR/USD"];
     const lots = Number(volume);
@@ -1830,6 +1985,8 @@ function TradingApp() {
           stopLoss: Number(stopLoss),
           takeProfit: Number(takeProfit),
           marketPrice: quote,
+          source,
+          strategy,
         }),
       });
 
@@ -1856,7 +2013,7 @@ function TradingApp() {
 
       addTx({
         type: `${side} ${symbol}`,
-        method: "Forex",
+        method: source === "ai" ? "AI Forex" : "Forex",
         account,
         amount: 0,
         status: "Open",
@@ -1868,7 +2025,7 @@ function TradingApp() {
         `${side} order placed`,
         `${market.label} · ${lots} lot · ${money(result.position?.margin || 0)} USD margin`
       );
-      return true;
+      return result.position || true;
     } catch (error) {
       notify(
         "loss",
@@ -2001,11 +2158,13 @@ function TradingApp() {
       await refreshUser();
     }
 
+    const settlementNet = won ? profit : -settledStake;
+
     addTx({
       type: won ? "Profit amount" : "Loss amount",
-      method: "Manual",
+      method: openTrade.source === "ai" ? "AI Auto-Trade" : "Manual",
       account: openTrade.account,
-      amount: won ? profit : -settledStake,
+      amount: settlementNet,
       status: won ? "WON" : "LOST",
       details: isDigitContract(openTrade.type)
         ? `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`
@@ -2027,6 +2186,12 @@ function TradingApp() {
       }${money(won ? profit : settledStake)} USD`,
       2800
     );
+
+    handleAiBinarySettlement(openTrade, {
+      won,
+      net: settlementNet,
+      resultDigit,
+    });
   }
 
   async function settleBinaryTrade(openTrade, options = {}) {
@@ -2186,6 +2351,322 @@ function TradingApp() {
       );
       await refreshUser();
     }
+  }
+
+  function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
+    window.clearTimeout(aiAutoTimerRef.current);
+    const current = aiAutoSessionRef.current;
+
+    if (current.mode === "bot" && botRunningRef.current) {
+      botRunningRef.current = false;
+      setBotRunning(false);
+    }
+
+    if (current.mode === "forex" && current.positionId) {
+      const openPosition = positionsRef.current.find((item) => item.id === current.positionId);
+      if (openPosition) void closePosition(openPosition.id);
+    }
+
+    const next = {
+      ...current,
+      running: false,
+      completedAt: Date.now(),
+      status: reason,
+    };
+    aiAutoSessionRef.current = next;
+    setAiAutoSession(next);
+
+    if (showMessage) notify("open", "AI Auto-Trade stopped", reason, 3200);
+  }
+
+  async function openAiBinaryTrade(signal) {
+    const session = aiAutoSessionRef.current;
+    if (!session.running || session.mode !== "trade" || session.id !== signal?.sessionId) return false;
+    if (activeBinaryTradeRef.current) return false;
+
+    const market =
+      VOLATILITY_OPTIONS.find((item) => item.id === signal.marketId) ||
+      VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
+    const marketState =
+      binaryMarketStatesRef.current?.[market.id] ||
+      createBinaryMarketState(market, Math.max(0, VOLATILITY_OPTIONS.findIndex((item) => item.id === market.id)));
+    const marketPrices = Array.isArray(marketState.prices) ? marketState.prices : [];
+    const entryPrice = Number(marketPrices[marketPrices.length - 1] || market.start || 1);
+    const usedStake = Math.max(0.3, Number(signal.stake || 0.3));
+    const usedTicks = Math.min(10, Math.max(1, Number(signal.ticks || 5)));
+    const usedPrediction = Math.max(0, Math.min(9, Number(signal.prediction ?? 2)));
+    const multiplier = estimatedContractMultiplier(signal.type, signal.action, usedPrediction, {
+      ticks: usedTicks,
+      barrierDistance: Number(signal.barrierDistance || 2),
+    });
+    const currentAccount = accountRef.current;
+    const availableBalance = Number(balancesRef.current?.[currentAccount] || 0);
+
+    if (!authToken) {
+      stopAiAutoTrade("Login expired. Sign in again before AI Auto-Trade can continue.", false);
+      notify("loss", "AI Auto-Trade stopped", "Login again before continuing.", 4500);
+      return false;
+    }
+
+    if (!Number.isFinite(multiplier) || multiplier <= 0) {
+      stopAiAutoTrade("The recommended contract has no valid payout.", false);
+      notify("loss", "AI Auto-Trade stopped", "Scan again for another contract.", 4200);
+      return false;
+    }
+
+    if (availableBalance < usedStake) {
+      stopAiAutoTrade(`Low ${currentAccount} balance for the next ${money(usedStake)} USD trade.`, false);
+      notify("loss", "AI Auto-Trade stopped", "The available balance is below the next stake.", 4500);
+      return false;
+    }
+
+    try {
+      setBinaryMarketId(market.id);
+      setTradeType(signal.type);
+      setPrediction(usedPrediction);
+      setDuration(usedTicks);
+      setStake(usedStake);
+      setActivePage("trade");
+
+      const response = await fetch(`${API_URL}/api/trades/open`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({
+          account: currentAccount,
+          type: signal.type,
+          action: signal.action,
+          stake: usedStake,
+          prediction: usedPrediction,
+          ticks: usedTicks,
+          entryPrice,
+          currentPrice: entryPrice,
+          barrier: Number(signal.barrier || 0),
+          barrierDistance: Number(signal.barrierDistance || 0),
+          marketStep: Number(market.step || 0.0002),
+          market: market.label,
+          source: "ai",
+          strategy: "MetaBinary AI Auto-Trade",
+        }),
+      });
+
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "AI trade could not be opened.");
+      }
+
+      const opened = result.trade || {};
+      const openTrade = {
+        id: opened.id,
+        account: opened.account || currentAccount,
+        type: opened.type || signal.type,
+        action: opened.action || signal.action,
+        stake: Number(opened.stake ?? usedStake),
+        prediction: Number(opened.prediction ?? usedPrediction),
+        payout: Number(opened.payout ?? usedStake * multiplier),
+        multiplier: Number(opened.multiplier ?? multiplier),
+        entryPrice: Number(opened.entryPrice ?? entryPrice),
+        currentPrice: Number(opened.currentPrice ?? opened.entryPrice ?? entryPrice),
+        barrier: Number(opened.barrier ?? signal.barrier ?? 0),
+        touched: Boolean(opened.touched),
+        market: opened.market || market.label,
+        marketId: market.id,
+        totalTicks: Number(opened.ticks ?? usedTicks),
+        remainingTicks: Number(opened.ticks ?? usedTicks),
+        openedAt: opened.createdAt || new Date().toLocaleTimeString(),
+        status: "RUNNING",
+        tickMs: Math.max(250, Number(opened.tickMs || 750)),
+        source: "ai",
+        aiSessionId: session.id,
+      };
+
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+        setBalances((old) => ({
+          demo: Number(updatedUser.demoBalance ?? old.demo ?? 10000),
+          real: Number(updatedUser.realBalance ?? old.real ?? 0),
+        }));
+      } else if (Number.isFinite(Number(result.balance))) {
+        setBalances((old) => ({ ...old, [currentAccount]: Number(result.balance) }));
+      }
+
+      setBinaryResultFlash(null);
+      activeBinaryTradeRef.current = openTrade;
+      setActiveBinaryTrade(openTrade);
+
+      const next = {
+        ...session,
+        status: `${market.short} · ${signal.type} · ${signal.action} · trade ${session.trades + 1} running`,
+      };
+      aiAutoSessionRef.current = next;
+      setAiAutoSession(next);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "The AI trade could not be opened.";
+      stopAiAutoTrade(message, false);
+      notify("loss", "AI Auto-Trade stopped", message, 5000);
+      await refreshUser();
+      return false;
+    }
+  }
+
+  function handleAiBinarySettlement(openTrade, outcome) {
+    if (openTrade?.source !== "ai" || !openTrade?.aiSessionId) return;
+
+    const current = aiAutoSessionRef.current;
+    if (!current.running || current.id !== openTrade.aiSessionId) return;
+
+    const net = Number(Number(outcome.net || 0).toFixed(2));
+    const nextPnl = Number((Number(current.pnl || 0) + net).toFixed(2));
+    const targetReached = Number(current.targetProfit || 0) > 0 && nextPnl >= Number(current.targetProfit);
+    const stopReached = Number(current.stopLoss || 0) > 0 && nextPnl <= -Number(current.stopLoss);
+    const next = {
+      ...current,
+      pnl: nextPnl,
+      trades: Number(current.trades || 0) + 1,
+      wins: Number(current.wins || 0) + (outcome.won ? 1 : 0),
+      losses: Number(current.losses || 0) + (outcome.won ? 0 : 1),
+      running: !(targetReached || stopReached),
+      completedAt: targetReached || stopReached ? Date.now() : 0,
+      status: targetReached
+        ? `Target profit reached at +${money(nextPnl)} USD`
+        : stopReached
+        ? `Stop loss reached at ${money(nextPnl)} USD`
+        : `${outcome.won ? "Won" : "Lost"} ${money(Math.abs(net))} USD · preparing next trade`,
+    };
+
+    aiAutoSessionRef.current = next;
+    setAiAutoSession(next);
+
+    if (targetReached || stopReached) {
+      playBotAlert(targetReached ? "takeProfit" : "stopLoss", user?.preferences?.notifications);
+      notify(
+        targetReached ? "win" : "loss",
+        targetReached ? "AI target profit reached" : "AI stop loss reached",
+        `${next.trades} trades · session P/L ${nextPnl >= 0 ? "+" : ""}${money(nextPnl)} USD`,
+        5200
+      );
+      return;
+    }
+
+    window.clearTimeout(aiAutoTimerRef.current);
+    aiAutoTimerRef.current = window.setTimeout(() => {
+      const latest = aiAutoSessionRef.current;
+      if (!latest.running || latest.id !== current.id || latest.mode !== "trade") return;
+      void openAiBinaryTrade(latest.signal);
+    }, 650);
+  }
+
+  async function startAiAutoTrade(result) {
+    if (!result || !authToken) {
+      notify("loss", "Login required", "Log in before starting AI Auto-Trade.", 4200);
+      return false;
+    }
+
+    if (activeBinaryTradeRef.current && result.mode === "trade") {
+      notify("open", "Trade already open", "Wait for the current contract to finish before starting AI Auto-Trade.", 4200);
+      return false;
+    }
+
+    window.clearTimeout(aiAutoTimerRef.current);
+    if (botRunningRef.current) {
+      botRunningRef.current = false;
+      setBotRunning(false);
+    }
+
+    const targetProfit = Math.max(0.3, Number(result.sessionTakeProfit ?? result.config?.takeProfit ?? result.takeProfit ?? 20));
+    const stopLoss = Math.max(0.3, Number(result.sessionStopLoss ?? result.config?.stopLoss ?? result.stopLoss ?? 10));
+    const id = uid();
+    const baseSession = createAiAutoSession({
+      id,
+      running: true,
+      mode: result.mode,
+      status: "Starting AI Auto-Trade…",
+      targetProfit,
+      stopLoss,
+      startedAt: Date.now(),
+      signal: null,
+    });
+
+    if (result.mode === "trade") {
+      const signal = {
+        ...result,
+        sessionId: id,
+        stake: Math.max(0.3, Number(result.stake || stake || 0.3)),
+        ticks: Math.min(10, Math.max(1, Number(result.ticks || 5))),
+      };
+      const next = { ...baseSession, signal, status: "Opening the first AI contract…" };
+      aiAutoSessionRef.current = next;
+      setAiAutoSession(next);
+      setActivePage("trade");
+      window.setTimeout(() => void openAiBinaryTrade(signal), 180);
+      notify("open", "AI Auto-Trade started", `Runs until +${money(targetProfit)} USD or -${money(stopLoss)} USD.`, 4200);
+      return true;
+    }
+
+    if (result.mode === "forex") {
+      const market = MARKET_BY_SYMBOL[result.symbol] || MARKET_OPTIONS[0];
+      const quote = Number(result.entry || marketFeed?.[market.symbol]?.price || market.defaultPrice || 0);
+      const next = { ...baseSession, status: `Opening ${result.side} ${market.symbol}…` };
+      aiAutoSessionRef.current = next;
+      setAiAutoSession(next);
+      setMarketSymbol(market.symbol);
+      setAiForexSetup({ ...result, preparedAt: Date.now() });
+      setActivePage("forex");
+
+      const opened = await placeForexOrder({
+        side: result.side || "Buy",
+        symbol: market.symbol,
+        volume: Math.max(0.01, Number(result.volume || 0.01)),
+        leverage: 100,
+        stopLoss: Number(result.stopLoss),
+        takeProfit: Number(result.takeProfit),
+        marketPrice: quote,
+        marketOpen: marketFeed?.[market.symbol]?.isOpen !== false,
+        source: "ai",
+        strategy: "MetaBinary AI Auto-Trade",
+      });
+
+      if (!opened) {
+        stopAiAutoTrade("The recommended Forex position could not be opened.", false);
+        return false;
+      }
+
+      const positionId = typeof opened === "object" ? opened.id : "";
+      const running = {
+        ...aiAutoSessionRef.current,
+        positionId,
+        status: `${result.side || "Buy"} ${market.symbol} is running with broker take profit and stop loss`,
+      };
+      aiAutoSessionRef.current = running;
+      setAiAutoSession(running);
+      notify("open", "AI Forex trade started", `${market.symbol} will remain open until TP, SL, or manual close.`, 4800);
+      return true;
+    }
+
+    const template = BOT_TEMPLATES.find((item) => item.id === result.botId) || BOT_TEMPLATES[0];
+    const preparedConfig = {
+      ...createBotConfig(template),
+      ...result.config,
+      botId: template.id,
+      name: template.name,
+      takeProfit: targetProfit,
+      stopLoss,
+    };
+    const next = {
+      ...baseSession,
+      mode: "bot",
+      signal: { ...result, config: preparedConfig },
+      status: `${template.name} is starting…`,
+    };
+    aiAutoSessionRef.current = next;
+    setAiAutoSession(next);
+    setSelectedBot({ ...template, ...preparedConfig });
+    setBotConfig(preparedConfig);
+    startBot(preparedConfig);
+    notify("open", "AI bot started", `Runs until +${money(targetProfit)} USD or -${money(stopLoss)} USD.`, 4500);
+    return true;
   }
 
   function applyAiSetup(result) {
@@ -2946,6 +3427,9 @@ function TradingApp() {
         botTemplates={BOT_TEMPLATES}
         currentStake={Number(stake || 1)}
         onApply={applyAiSetup}
+        onAutoTrade={startAiAutoTrade}
+        onStopAutoTrade={stopAiAutoTrade}
+        autoSession={aiAutoSession}
       />
 
       {menuOpen && (
@@ -5533,7 +6017,7 @@ function DrawerButton({ icon, label, badge, onClick }) {
   );
 }
 
-function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, marketFeed, forexMarkets, botTemplates, currentStake, onApply }) {
+function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, marketFeed, forexMarkets, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession }) {
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -5575,7 +6059,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const side = momentum >= 0 ? "Buy" : "Sell";
       const sl = side === "Buy" ? price - market.slDistance : price + market.slDistance;
       const tp = side === "Buy" ? price + market.tpDistance : price - market.tpDistance;
-      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: 0.01, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), risk: config.risk };
+      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: 0.01, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: Math.max(0.3, Number(config.takeProfit || 20)), sessionStopLoss: Math.max(0.3, Number(config.stopLoss || 10)), risk: config.risk };
     }
     if (mode === "bot") {
       const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
@@ -5668,16 +6152,18 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   return (
     <>
-      <button
-        className={`floatingAiButton ${scanning ? "scanning" : ""}`}
-        style={mobileViewport ? undefined : { left: position.x, top: position.y }}
-        onPointerDown={pointerDown}
-        onPointerMove={pointerMove}
-        onPointerUp={pointerUp}
-        aria-label="Open AI market scanner"
-      >
-        <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : "SCAN"}</b>
-      </button>
+      {!open && (
+        <button
+          className={`floatingAiButton ${scanning ? "scanning" : ""} ${autoSession?.running ? "autoRunning" : ""}`}
+          style={mobileViewport ? undefined : { left: position.x, top: position.y }}
+          onPointerDown={pointerDown}
+          onPointerMove={pointerMove}
+          onPointerUp={pointerUp}
+          aria-label="Open AI market scanner"
+        >
+          <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : autoSession?.running ? `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}` : "SCAN"}</b>
+        </button>
+      )}
 
       {open && (
         <section className="aiScannerPanel" style={panelStyle}>
@@ -5716,8 +6202,21 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
             </div>
           )}
 
-          <footer><button className="aiScanAgain" onClick={scan} disabled={scanning}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>{result && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use This Setup</button>}</footer>
-          <small className="aiSafetyNote">Real-account trades always require your final confirmation.</small>
+          {autoSession?.id && (
+            <div className={`aiAutoRunCard ${autoSession.running ? "running" : "finished"}`}>
+              <div className="aiAutoRunHead"><span><i></i><strong>{autoSession.running ? "AI AUTO-TRADE RUNNING" : "AI AUTO-TRADE SESSION"}</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
+              <p>{autoSession.status}</p>
+              <div className="aiAutoMetrics"><span><small>Trades</small><strong>{autoSession.trades || 0}</strong></span><span><small>Wins</small><strong>{autoSession.wins || 0}</strong></span><span><small>Losses</small><strong>{autoSession.losses || 0}</strong></span><span><small>Target</small><strong>+{money(autoSession.targetProfit || 0)}</strong></span><span><small>Stop</small><strong>-{money(autoSession.stopLoss || 0)}</strong></span></div>
+              {autoSession.running && <button type="button" className="aiStopAuto" onClick={() => onStopAutoTrade("Stopped manually by the trader")}>Stop AI Auto-Trade</button>}
+            </div>
+          )}
+
+          <footer>
+            <button className="aiScanAgain" onClick={scan} disabled={scanning || autoSession?.running}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>
+            {result && !autoSession?.running && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use Setup</button>}
+            {result && !autoSession?.running && <button className="aiStartAuto" onClick={() => void onAutoTrade(result)}>Start AI Auto-Trade</button>}
+          </footer>
+          <small className="aiSafetyNote">Pressing Start AI Auto-Trade is your confirmation. It continues until the target profit, stop loss, insufficient balance, an error, or manual stop. Results are not guaranteed.</small>
         </section>
       )}
     </>
