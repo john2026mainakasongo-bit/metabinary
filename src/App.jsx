@@ -7,8 +7,9 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-final-public-trading-2026-07-12";
+const FRONTEND_BUILD = "metabinary-bot-speed-reset-digit-rings-2026-07-12";
 const DIGIT_TICK_MS = 2400;
+const BOT_CYCLE_DELAY_MS = 250;
 
 const VOLATILITY_OPTIONS = [
   {
@@ -715,6 +716,7 @@ function TradingApp() {
   const botMartingaleStepRef = useRef(0);
   const botBusyRef = useRef(false);
   const botRunningRef = useRef(false);
+  const botSessionVersionRef = useRef(0);
   const balancesRef = useRef(balances);
   const accountRef = useRef(account);
   const historyPopRef = useRef(false);
@@ -1051,7 +1053,7 @@ function TradingApp() {
       }
 
       if (!cancelled && botRunningRef.current) {
-        timer = window.setTimeout(cycle, 900);
+        timer = window.setTimeout(cycle, BOT_CYCLE_DELAY_MS);
       }
     };
 
@@ -1719,6 +1721,7 @@ function TradingApp() {
   async function runBotTrade(bot) {
     if (!bot || !authToken || !botRunningRef.current) return null;
 
+    const sessionVersion = botSessionVersionRef.current;
     const market =
       VOLATILITY_OPTIONS.find((item) => item.id === bot.marketId) ||
       VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
@@ -1785,6 +1788,11 @@ function TradingApp() {
       const settled = await readApiResponse(settleResponse);
       if (!settleResponse.ok || settled.ok === false) {
         throw new Error(settled.message || "Bot trade could not be settled.");
+      }
+
+      if (sessionVersion !== botSessionVersionRef.current) {
+        await refreshUser();
+        return null;
       }
 
       const won = Boolean(settled.won);
@@ -1881,6 +1889,7 @@ function TradingApp() {
 
     setSelectedBot(prepared);
     setBotConfig(config);
+    botSessionVersionRef.current += 1;
     botSessionPnlRef.current = 0;
     botMartingaleStepRef.current = 0;
     setBotSessionPnl(0);
@@ -1896,6 +1905,23 @@ function TradingApp() {
     botRunningRef.current = false;
     setBotRunning(false);
     notify("open", "Bot stopped", "No new contracts will be bought.");
+  }
+
+  function resetBotSession() {
+    botSessionVersionRef.current += 1;
+    botRunningRef.current = false;
+    setBotRunning(false);
+    setBotTrades([]);
+    botSessionPnlRef.current = 0;
+    botMartingaleStepRef.current = 0;
+    setBotSessionPnl(0);
+    setBotMartingaleStep(0);
+    setBotTab("transactions");
+    notify(
+      "open",
+      "Bot session reset",
+      "Transactions, summary and journal were cleared."
+    );
   }
 
   async function pollDepositStatus(depositId) {
@@ -2255,6 +2281,7 @@ function TradingApp() {
             setBotTab={setBotTab}
             sessionPnl={botSessionPnl}
             martingaleStep={botMartingaleStep}
+            resetSession={resetBotSession}
             edit={() => {
               setBotRunning(false);
               setActivePage("botSetup");
@@ -4232,12 +4259,16 @@ function BotLivePage({
   setBotTab,
   sessionPnl,
   martingaleStep,
+  resetSession,
   edit,
   back,
 }) {
   const last = trades[0];
   const wins = trades.filter((trade) => trade.won).length;
   const losses = trades.length - wins;
+  const totalStake = trades.reduce((sum, trade) => sum + Number(trade.stake || 0), 0);
+  const totalPayout = trades.reduce((sum, trade) => sum + Number(trade.payout || 0), 0);
+  const winRate = trades.length ? (wins / trades.length) * 100 : 0;
 
   if (!bot) {
     return (
@@ -4273,37 +4304,97 @@ function BotLivePage({
         <div><span>Next base stake</span><strong>{money(bot.stake)} USD</strong></div>
       </section>
 
-      <section className="runnerTabs">
+      <section className="runnerTabs runnerTabsWithReset">
         {["transactions", "summary", "journal"].map((tab) => (
-          <button key={tab} className={botTab === tab ? "active" : ""} onClick={() => setBotTab(tab)}>{tab}</button>
+          <button
+            type="button"
+            key={tab}
+            className={botTab === tab ? "active" : ""}
+            onClick={() => setBotTab(tab)}
+          >
+            {tab}
+          </button>
         ))}
+        <button
+          type="button"
+          className="resetBotSessionBtn"
+          onClick={resetSession}
+          title="Clear bot transactions, summary and journal"
+        >
+          ↻ Reset
+        </button>
       </section>
 
       <section className="runnerBody">
         {botTab === "transactions" && (
           <div className="runnerList finalRunnerList">
-            {trades.length === 0 && <div className="runnerEmpty">The first transaction will appear here.</div>}
-            {trades.slice(0, 10).map((trade) => (
+            {trades.length === 0 && (
+              <div className="runnerEmpty">
+                {running ? "The bot is buying its first contract…" : "The first transaction will appear here."}
+              </div>
+            )}
+            {trades.slice(0, 30).map((trade) => (
               <p key={trade.id}>
-                <span><b>{trade.market?.replace("Volatility ", "V")}</b><small>{trade.type} · {trade.action} · digit {trade.resultDigit}</small></span>
-                <span className="transactionStake"><small>Stake {money(trade.stake)}</small><b className={trade.won ? "green" : "red"}>{trade.net >= 0 ? "+" : ""}{money(trade.net)}</b></span>
+                <span>
+                  <b>{trade.market?.replace("Volatility ", "V")}</b>
+                  <small>
+                    {trade.type} · {trade.action} · digit {trade.resultDigit} · MG {trade.martingaleStep}
+                  </small>
+                </span>
+                <span className="transactionStake">
+                  <small>Stake {money(trade.stake)}</small>
+                  <b className={trade.won ? "green" : "red"}>
+                    {trade.net >= 0 ? "+" : ""}{money(trade.net)}
+                  </b>
+                </span>
               </p>
             ))}
           </div>
         )}
 
         {botTab === "summary" && (
-          <div className={last?.won ? "runnerResult won" : last ? "runnerResult lost" : "runnerResult"}>
-            <strong>{last ? last.status : "Ready"}</strong>
-            <h2>{last ? `${last.net >= 0 ? "+" : ""}${money(last.net)} USD` : "Start the bot"}</h2>
-            <small>{last ? `${last.market} · step ${last.martingaleStep}` : "Configured limits protect the session."}</small>
+          <div className="runnerSummaryPanel">
+            <div className={last?.won ? "runnerResult won" : last ? "runnerResult lost" : "runnerResult"}>
+              <strong>{last ? last.status : running ? "RUNNING" : "READY"}</strong>
+              <h2>{last ? `${last.net >= 0 ? "+" : ""}${money(last.net)} USD` : "Start the bot"}</h2>
+              <small>
+                {last
+                  ? `${last.market} · ${last.type} · ${last.action} · step ${last.martingaleStep}`
+                  : "Your complete session totals will update after every contract."}
+              </small>
+            </div>
+
+            <div className="runnerSummaryGrid">
+              <p><span>Total runs</span><strong>{trades.length}</strong></p>
+              <p><span>Win rate</span><strong>{winRate.toFixed(1)}%</strong></p>
+              <p><span>Total stake</span><strong>{money(totalStake)}</strong></p>
+              <p><span>Total payout</span><strong>{money(totalPayout)}</strong></p>
+            </div>
           </div>
         )}
 
         {botTab === "journal" && (
-          <div className="runnerList finalRunnerList">
-            {trades.slice(0, 10).map((trade) => (
-              <p key={trade.id}><span>{trade.won ? "Winning contract" : "Losing contract"}</span><small>{trade.time}</small></p>
+          <div className="runnerList finalRunnerList botJournalList">
+            {trades.length === 0 && (
+              <div className="runnerEmpty">
+                Bot decisions and contract results will be recorded here.
+              </div>
+            )}
+            {trades.slice(0, 30).map((trade, index) => (
+              <p className="journalEntry" key={trade.id}>
+                <span>
+                  <b>{trade.won ? "Winning contract" : "Losing contract"}</b>
+                  <small>
+                    #{trades.length - index} · {trade.market?.replace("Volatility ", "V")} · {trade.type} · {trade.action}
+                  </small>
+                </span>
+                <span className="journalMeta">
+                  <b className={trade.won ? "green" : "red"}>
+                    {trade.net >= 0 ? "+" : ""}{money(trade.net)}
+                  </b>
+                  <small>{trade.time}</small>
+                </span>
+              </p>
             ))}
           </div>
         )}
