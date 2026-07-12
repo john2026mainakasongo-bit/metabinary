@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-thin-rings-selector-referral-tickfix-2026-07-12";
+const FRONTEND_BUILD = "metabinary-professional-referrals-settings-2026-07-12";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -343,6 +343,7 @@ const TRADING_PAGES = new Set([
   "botLive",
   "profile",
   "settings",
+  "referrals",
   "history",
   "reports",
 ]);
@@ -778,6 +779,9 @@ function TradingApp() {
   const historyReadyRef = useRef(false);
   const closingForexIdsRef = useRef(new Set());
   const [referral, setReferral] = useState(() => readStore(STORE.referral, null));
+  const [referralDashboard, setReferralDashboard] = useState(null);
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [settingsBusy, setSettingsBusy] = useState("");
 
   activeBinaryTradeRef.current = activeBinaryTrade;
 
@@ -825,7 +829,7 @@ function TradingApp() {
     const nextReferral = {
       status: "approved",
       code: user.referralCode,
-      link: `${origin}/ref/${user.referralCode}`,
+      link: `${origin}/?ref=${encodeURIComponent(user.referralCode)}`,
       commissionRate: Number(user.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT),
       totalEarned: Number(user.partnerBalance ?? 0),
       totalReferrals: Number(user.referralCount ?? 0),
@@ -844,6 +848,11 @@ function TradingApp() {
     user?.referralCount,
     user?.referralAppliedAt,
   ]);
+  useEffect(() => {
+    if (activePage === "referrals" && authToken) {
+      void loadReferralDashboard();
+    }
+  }, [activePage, authToken]);
   useEffect(() => {
     balancesRef.current = balances;
   }, [balances]);
@@ -1179,22 +1188,35 @@ function TradingApp() {
     const nextToast = { id: notificationId, type, title, message };
     setToast(nextToast);
 
-    setNotifications((old) => [
-      {
-        id: notificationId,
-        type,
-        title,
-        message,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        read: false,
-        page:
-          /bot/i.test(title) ? "bots" :
-          /deposit|withdraw/i.test(title) ? "history" :
-          /trade|contract/i.test(title) ? "trade" :
-          "history",
-      },
-      ...old,
-    ].slice(0, 30));
+    const notificationPrefs = user?.preferences?.notifications || {};
+    const notificationText = `${title} ${message}`;
+    const isSecurity = /login|password|security|account access|blocked/i.test(notificationText);
+    const isWallet = /deposit|withdraw|payment|wallet|cashier/i.test(notificationText);
+    const isReferral = /referral|commission|partner/i.test(notificationText);
+    const categoryAllowed =
+      (!isSecurity || notificationPrefs.security !== false) &&
+      (!isWallet || notificationPrefs.wallet !== false) &&
+      (!isReferral || notificationPrefs.referrals !== false);
+
+    if (notificationPrefs.push !== false && categoryAllowed) {
+      setNotifications((old) => [
+        {
+          id: notificationId,
+          type,
+          title,
+          message,
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          read: false,
+          page:
+            /bot/i.test(title) ? "bots" :
+            /referral|commission|partner/i.test(notificationText) ? "referrals" :
+            /deposit|withdraw/i.test(title) ? "history" :
+            /trade|contract/i.test(title) ? "trade" :
+            "history",
+        },
+        ...old,
+      ].slice(0, 30));
+    }
 
     toastTimerRef.current = window.setTimeout(() => {
       setToast((current) => (current?.id === nextToast.id ? null : current));
@@ -1256,7 +1278,7 @@ function TradingApp() {
         code: result.referral?.code || result.user?.referralCode || "",
         link:
           result.referral?.link ||
-          `${window.location.origin}/ref/${result.referral?.code || result.user?.referralCode || ""}`,
+          `${window.location.origin}/?ref=${encodeURIComponent(result.referral?.code || result.user?.referralCode || "")}`,
         commissionRate: Number(
           result.referral?.commissionRate ??
             result.user?.referralCommissionRate ??
@@ -1287,6 +1309,7 @@ function TradingApp() {
         "Referral link created",
         `Your referral commission is ${profile.commissionRate}%.`
       );
+      await loadReferralDashboard();
     } catch (error) {
       notify(
         "loss",
@@ -1294,6 +1317,122 @@ function TradingApp() {
         error instanceof Error ? error.message : "Unable to create the referral link.",
         4500
       );
+    }
+  }
+
+
+  async function loadReferralDashboard() {
+    if (!authToken || referralLoading) return null;
+    setReferralLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/referrals/dashboard`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Referral dashboard could not be loaded.");
+      }
+      setReferralDashboard(result);
+      if (result.active) {
+        setReferral((old) => ({
+          ...(old || {}),
+          status: "approved",
+          code: result.code,
+          link: result.link,
+          commissionRate: result.commissionRate,
+          totalEarned: result.totalEarned,
+          totalReferrals: result.totalReferrals,
+        }));
+      }
+      return result;
+    } catch (error) {
+      notify(
+        "loss",
+        "Referral dashboard unavailable",
+        error instanceof Error ? error.message : "Unable to load referral information.",
+        4500
+      );
+      return null;
+    } finally {
+      setReferralLoading(false);
+    }
+  }
+
+  async function saveProfileSettings(profile) {
+    if (!authToken) return false;
+    setSettingsBusy("profile");
+    try {
+      const response = await fetch(`${API_URL}/api/settings/profile`, {
+        method: "PATCH",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify(profile),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Profile settings could not be saved.");
+      }
+      if (result.user) {
+        const updatedUser = normalizeApiUser(result.user);
+        setUser((old) => ({ ...old, ...updatedUser }));
+      }
+      notify("win", "Profile updated", result.message || "Your profile settings were saved.");
+      return true;
+    } catch (error) {
+      notify("loss", "Profile update failed", error instanceof Error ? error.message : "Unable to save your profile.", 4500);
+      return false;
+    } finally {
+      setSettingsBusy("");
+    }
+  }
+
+  async function saveNotificationSettings(preferences) {
+    if (!authToken) return false;
+    setSettingsBusy("notifications");
+    try {
+      const response = await fetch(`${API_URL}/api/settings/preferences`, {
+        method: "PATCH",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify({ preferences }),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Notification settings could not be saved.");
+      }
+      setUser((old) => ({ ...old, preferences: result.preferences || preferences }));
+      notify("win", "Notifications updated", result.message || "Notification preferences were saved.");
+      return true;
+    } catch (error) {
+      notify("loss", "Settings update failed", error instanceof Error ? error.message : "Unable to save notification preferences.", 4500);
+      return false;
+    } finally {
+      setSettingsBusy("");
+    }
+  }
+
+  async function changeAccountPassword(passwords) {
+    if (!authToken) return false;
+    setSettingsBusy("password");
+    try {
+      const response = await fetch(`${API_URL}/api/settings/password`, {
+        method: "POST",
+        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+        cache: "no-store",
+        body: JSON.stringify(passwords),
+      });
+      const result = await readApiResponse(response);
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || "Password could not be changed.");
+      }
+      notify("win", "Password changed", result.message || "Your password was changed successfully.");
+      return true;
+    } catch (error) {
+      notify("loss", "Password change failed", error instanceof Error ? error.message : "Unable to change your password.", 4500);
+      return false;
+    } finally {
+      setSettingsBusy("");
     }
   }
 
@@ -2392,12 +2531,21 @@ function TradingApp() {
 
         {activePage === "settings" && (
           <SettingsPage
-            account={account}
-            setAccount={setAccount}
-            tradeType={tradeType}
-            setTradeType={setTradeType}
-            stake={stake}
-            setStake={setStake}
+            user={user}
+            busy={settingsBusy}
+            saveProfile={saveProfileSettings}
+            saveNotifications={saveNotificationSettings}
+            changePassword={changeAccountPassword}
+          />
+        )}
+
+        {activePage === "referrals" && (
+          <ReferralDashboardPage
+            dashboard={referralDashboard}
+            loading={referralLoading}
+            applyReferralProgram={applyReferralProgram}
+            refresh={loadReferralDashboard}
+            setActivePage={setActivePage}
           />
         )}
 
@@ -4706,7 +4854,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
           <h2>Referral Program</h2>
           <p>
             {referralApproved
-              ? `Your referral account is active. Earn ${referralRate}% commission from each completed referred deposit.`
+              ? `Your link is active. Earn ${referralRate}% commission whenever a trader who registered through your link completes a real-money deposit.`
               : "Apply once to receive your personal referral link and start earning commissions."}
           </p>
 
@@ -4742,7 +4890,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
                 </div>
               </div>
 
-              <button className="referralDashboardBtn">View Referral Dashboard ›</button>
+              <button className="referralDashboardBtn" onClick={() => setActivePage("referrals")}>Open Referral Dashboard ›</button>
             </>
           ) : (
             <button className="referralApplyBtn" onClick={applyReferralProgram}>
@@ -4781,55 +4929,326 @@ function ProfileBalanceCard({ icon, label, value, color }) {
   );
 }
 
-function SettingsPage({ account, setAccount, tradeType, setTradeType, stake, setStake }) {
+function ToggleSetting({ label, description, checked, onChange }) {
   return (
-    <div className="page settingsPage">
-      <section className="settingsHero">
-        <h1>Settings</h1>
-        <p>Manage your account preferences and platform settings.</p>
-      </section>
+    <label className="settingsToggleRow">
+      <span>
+        <strong>{label}</strong>
+        <small>{description}</small>
+      </span>
+      <button
+        type="button"
+        className={checked ? "settingsSwitch on" : "settingsSwitch"}
+        onClick={() => onChange(!checked)}
+        aria-pressed={checked}
+      >
+        <i></i>
+      </button>
+    </label>
+  );
+}
 
-      <section className="settingsPanel">
-        <h2>Platform Preferences</h2>
+function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword }) {
+  const defaultNotifications = {
+    push: true,
+    security: true,
+    wallet: true,
+    referrals: true,
+  };
+  const [section, setSection] = useState("profile");
+  const [profile, setProfile] = useState({
+    fullName: user?.fullName || user?.name || "",
+    phone: user?.phone || "",
+    country: user?.country || "Kenya",
+  });
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    ...defaultNotifications,
+    ...(user?.preferences?.notifications || {}),
+  });
+  const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
-        <label>
-          <span>Default Account</span>
-          <select value={account} onChange={(e) => setAccount(e.target.value)}>
-            <option value="demo">Demo Account</option>
-            <option value="real">Real Account</option>
-          </select>
-        </label>
+  useEffect(() => {
+    setProfile({
+      fullName: user?.fullName || user?.name || "",
+      phone: user?.phone || "",
+      country: user?.country || "Kenya",
+    });
+    setNotificationPrefs({
+      ...defaultNotifications,
+      ...(user?.preferences?.notifications || {}),
+    });
+  }, [user?.fullName, user?.name, user?.phone, user?.country, user?.preferences]);
 
-        <label>
-          <span>Default Trade Type</span>
-          <select value={tradeType} onChange={(e) => setTradeType(e.target.value)}>
-            <option>Even/Odd</option>
-            <option>Matches/Differs</option>
-            <option>Over/Under</option>
-            <option>Rise/Fall</option>
-            <option>Touch/No Touch</option>
-          </select>
-        </label>
+  async function submitProfile(event) {
+    event.preventDefault();
+    await saveProfile(profile);
+  }
 
-        <label>
-          <span>Default Stake</span>
+  async function submitPassword(event) {
+    event.preventDefault();
+    if (passwords.newPassword !== passwords.confirmPassword) return;
+    const saved = await changePassword({
+      currentPassword: passwords.currentPassword,
+      newPassword: passwords.newPassword,
+    });
+    if (saved) setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  }
 
-          <div className="stakeBox">
-            <button onClick={() => setStake((x) => Math.max(0.3, Number(x) - 1))}>−</button>
-            <strong>{money(stake)}</strong>
-            <button onClick={() => setStake((x) => Number(x) + 1)}>+</button>
-          </div>
-        </label>
+  async function submitNotifications() {
+    await saveNotifications({ notifications: notificationPrefs });
+  }
 
-        <div className="toggleGrid">
-          {["Confirm before trading", "Quick Trade", "Sound Alerts", "Compact Mode"].map((item) => (
-            <p key={item}>
-              <span>{item}</span>
-              <b></b>
-            </p>
-          ))}
+  const passwordMismatch = Boolean(
+    passwords.confirmPassword && passwords.newPassword !== passwords.confirmPassword
+  );
+
+  return (
+    <div className="page settingsPage professionalSettingsPage">
+      <section className="professionalSettingsHero">
+        <div className="settingsHeroIcon">⚙</div>
+        <div>
+          <small>ACCOUNT CONTROL CENTER</small>
+          <h1>Settings</h1>
+          <p>Manage only your identity, account security and communication preferences.</p>
+        </div>
+        <div className="settingsAccountBadge">
+          <span>{user?.verified ? "Verified account" : "Verification pending"}</span>
+          <strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong>
         </div>
       </section>
+
+      <section className="professionalSettingsLayout">
+        <nav className="settingsSectionNav" aria-label="Settings sections">
+          <button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}>
+            <b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span>
+          </button>
+          <button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}>
+            <b>◆</b><span><strong>Security</strong><small>Change your password</small></span>
+          </button>
+          <button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}>
+            <b>🔔</b><span><strong>Notifications</strong><small>Choose important alerts</small></span>
+          </button>
+        </nav>
+
+        <div className="settingsContentPanel">
+          {section === "profile" && (
+            <form className="settingsFormCard" onSubmit={submitProfile}>
+              <header>
+                <div><small>PERSONAL DETAILS</small><h2>Profile information</h2></div>
+                <span className="settingsSecurePill">Protected</span>
+              </header>
+
+              <div className="settingsReadOnlyGrid">
+                <label><span>Email address</span><strong>{user?.email || "—"}</strong><small>Email changes require support verification.</small></label>
+                <label><span>Broker account ID</span><strong>{user?.accountId || user?.brokerId || "—"}</strong><small>Your permanent MetaBinary account number.</small></label>
+              </div>
+
+              <div className="settingsInputGrid">
+                <label>
+                  <span>Full legal name</span>
+                  <input value={profile.fullName} onChange={(event) => setProfile((old) => ({ ...old, fullName: event.target.value }))} required />
+                </label>
+                <label>
+                  <span>Phone number</span>
+                  <input value={profile.phone} onChange={(event) => setProfile((old) => ({ ...old, phone: event.target.value }))} placeholder="07XXXXXXXX" inputMode="tel" required />
+                </label>
+                <label>
+                  <span>Country</span>
+                  <select value={profile.country} onChange={(event) => setProfile((old) => ({ ...old, country: event.target.value }))}>
+                    <option>Kenya</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Verification</span>
+                  <div className={user?.verified ? "settingsVerification verified" : "settingsVerification"}>
+                    {user?.verified ? "✓ Identity verified" : "Verification pending"}
+                  </div>
+                </label>
+              </div>
+
+              <footer>
+                <small>These details are used for account ownership and payment verification.</small>
+                <button className="settingsSaveButton" disabled={busy === "profile"}>
+                  {busy === "profile" ? "Saving…" : "Save profile"}
+                </button>
+              </footer>
+            </form>
+          )}
+
+          {section === "security" && (
+            <form className="settingsFormCard" onSubmit={submitPassword}>
+              <header>
+                <div><small>ACCOUNT SECURITY</small><h2>Change password</h2></div>
+                <span className="settingsSecurePill">Encrypted</span>
+              </header>
+
+              <div className="settingsSecurityNotice">
+                <b>Security recommendation</b>
+                <span>Use at least 8 characters and do not reuse a password from another website.</span>
+              </div>
+
+              <div className="settingsPasswordGrid">
+                <label>
+                  <span>Current password</span>
+                  <input type="password" autoComplete="current-password" value={passwords.currentPassword} onChange={(event) => setPasswords((old) => ({ ...old, currentPassword: event.target.value }))} required />
+                </label>
+                <label>
+                  <span>New password</span>
+                  <input type="password" minLength="8" autoComplete="new-password" value={passwords.newPassword} onChange={(event) => setPasswords((old) => ({ ...old, newPassword: event.target.value }))} required />
+                </label>
+                <label>
+                  <span>Confirm new password</span>
+                  <input type="password" minLength="8" autoComplete="new-password" value={passwords.confirmPassword} onChange={(event) => setPasswords((old) => ({ ...old, confirmPassword: event.target.value }))} required />
+                  {passwordMismatch && <small className="settingsFieldError">Passwords do not match.</small>}
+                </label>
+              </div>
+
+              <footer>
+                <small>You will continue using the current session after changing the password.</small>
+                <button className="settingsSaveButton" disabled={busy === "password" || passwordMismatch}>
+                  {busy === "password" ? "Changing…" : "Change password"}
+                </button>
+              </footer>
+            </form>
+          )}
+
+          {section === "notifications" && (
+            <section className="settingsFormCard notificationSettingsCard">
+              <header>
+                <div><small>COMMUNICATIONS</small><h2>Notification preferences</h2></div>
+                <span className="settingsSecurePill">Account alerts</span>
+              </header>
+
+              <div className="settingsToggleList">
+                <ToggleSetting label="In-app notifications" description="Show account updates in the MetaBinary notification center." checked={notificationPrefs.push} onChange={(value) => setNotificationPrefs((old) => ({ ...old, push: value }))} />
+                <ToggleSetting label="Security alerts" description="Login and password security events. Recommended." checked={notificationPrefs.security} onChange={(value) => setNotificationPrefs((old) => ({ ...old, security: value }))} />
+                <ToggleSetting label="Wallet updates" description="Successful deposits, withdrawals and reversals." checked={notificationPrefs.wallet} onChange={(value) => setNotificationPrefs((old) => ({ ...old, wallet: value }))} />
+                <ToggleSetting label="Referral updates" description="New referrals and earned 5% commissions." checked={notificationPrefs.referrals} onChange={(value) => setNotificationPrefs((old) => ({ ...old, referrals: value }))} />
+              </div>
+
+              <footer>
+                <small>Essential legal and security messages may still be delivered.</small>
+                <button type="button" className="settingsSaveButton" onClick={submitNotifications} disabled={busy === "notifications"}>
+                  {busy === "notifications" ? "Saving…" : "Save notifications"}
+                </button>
+              </footer>
+            </section>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ReferralDashboardPage({ dashboard, loading, applyReferralProgram, refresh, setActivePage }) {
+  const [copied, setCopied] = useState(false);
+  const active = Boolean(dashboard?.active);
+  const rate = Number(dashboard?.commissionRate ?? REFERRAL_COMMISSION_PERCENT);
+  const referrals = Array.isArray(dashboard?.referrals) ? dashboard.referrals : [];
+  const commissions = Array.isArray(dashboard?.commissions) ? dashboard.commissions : [];
+
+  async function copyLink() {
+    if (!dashboard?.link) return;
+    await navigator.clipboard?.writeText(dashboard.link);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  }
+
+  async function shareLink() {
+    if (!dashboard?.link) return;
+    if (navigator.share) {
+      await navigator.share({
+        title: "Join MetaBinary",
+        text: `Create your MetaBinary account using my referral link.`,
+        url: dashboard.link,
+      });
+    } else {
+      await copyLink();
+    }
+  }
+
+  return (
+    <div className="page referralDashboardPage">
+      <section className="referralDashboardHero">
+        <button className="referralBackButton" onClick={() => setActivePage("profile")}>‹ Profile</button>
+        <div className="referralHeroCopy">
+          <small>METABINARY PARTNER PROGRAM</small>
+          <h1>Invite traders. Earn {rate}%.</h1>
+          <p>When someone creates an account through your personal link, their account is connected to you. You receive {rate}% commission on every successful real-money deposit they complete.</p>
+        </div>
+        <div className="referralRateOrb"><strong>{rate}%</strong><span>commission</span></div>
+      </section>
+
+      {!dashboard && loading && (
+        <section className="referralActivationCard referralLoadingCard">
+          <div className="referralActivationIcon">↻</div>
+          <div><small>PARTNER ACCOUNT</small><h2>Loading your referral dashboard</h2><p>Checking your referral link, network and commission journal.</p></div>
+        </section>
+      )}
+
+      {!loading && !active && (
+        <section className="referralActivationCard">
+          <div className="referralActivationIcon">👥</div>
+          <div><small>PARTNER ACCOUNT</small><h2>Activate your referral link</h2><p>Create one permanent referral link. No trading amount, stake or trade settings are required.</p></div>
+          <button onClick={applyReferralProgram}>Activate 5% Referral Program</button>
+        </section>
+      )}
+
+      {active && (
+        <>
+          <section className="referralLinkCard">
+            <div><small>YOUR PERSONAL REFERRAL LINK</small><strong>{dashboard.link}</strong><span>Referral code: {dashboard.code}</span></div>
+            <button onClick={copyLink}>{copied ? "Copied ✓" : "Copy link"}</button>
+            <button className="referralShareButton" onClick={shareLink}>Share</button>
+            <button className="referralRefreshButton" onClick={refresh} disabled={loading}>{loading ? "…" : "↻"}</button>
+          </section>
+
+          <section className="referralMetricGrid">
+            <article><span>👥</span><small>Total referrals</small><strong>{Number(dashboard.totalReferrals || 0)}</strong><em>Registered through your link</em></article>
+            <article><span>✓</span><small>Active depositors</small><strong>{Number(dashboard.activeDepositors || 0)}</strong><em>Referrals with completed deposits</em></article>
+            <article><span>▣</span><small>Referred deposits</small><strong>{money(dashboard.totalReferredDeposits || 0)} USD</strong><em>Total successful deposit volume</em></article>
+            <article><span>★</span><small>Total commission</small><strong>{money(dashboard.totalEarned || 0)} USD</strong><em>{rate}% earned from deposits</em></article>
+            <article><span>$</span><small>Referral balance</small><strong>{money(dashboard.referralBalance || 0)} USD</strong><em>Separate from trading balances</em></article>
+          </section>
+
+          <section className="referralDashboardGrid">
+            <article className="referralDataPanel">
+              <header><div><small>REFERRED TRADERS</small><h2>Your referral network</h2></div><span>{referrals.length} accounts</span></header>
+              <div className="referralTable referralTradersTable">
+                <div className="referralTableHead"><span>Trader</span><span>Joined</span><span>Deposits</span><span>Total deposited</span></div>
+                {referrals.length === 0 && <div className="referralEmptyState">No one has registered through your link yet.</div>}
+                {referrals.map((item) => (
+                  <div className="referralTableRow" key={item.id || item.email}>
+                    <span><b>{item.name}</b><small>{item.email}</small></span>
+                    <span>{item.joinedAt ? new Date(item.joinedAt).toLocaleDateString() : "—"}</span>
+                    <span>{item.depositCount}</span>
+                    <span>{money(item.totalDeposited)} USD</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <article className="referralDataPanel">
+              <header><div><small>COMMISSION JOURNAL</small><h2>Recent earnings</h2></div><span>{rate}% rate</span></header>
+              <div className="referralCommissionList">
+                {commissions.length === 0 && <div className="referralEmptyState">Commission entries appear after a referred trader completes a deposit.</div>}
+                {commissions.slice(0, 20).map((item) => (
+                  <div key={item.id}>
+                    <span><b>Referral commission</b><small>{item.sourceEmail || "Referred trader"} · {item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</small></span>
+                    <strong>+{money(item.amount)} USD</strong>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+
+          <section className="referralRulesCard">
+            <div><b>1</b><span><strong>Share your unique link</strong><small>The referral code is recorded when the new trader registers.</small></span></div>
+            <div><b>2</b><span><strong>The trader deposits</strong><small>Only completed real-money deposits qualify. Test, cancelled and reversed payments do not.</small></span></div>
+            <div><b>3</b><span><strong>You receive {rate}%</strong><small>Commission is credited once per successful deposit into your separate referral balance.</small></span></div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
@@ -4987,6 +5406,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
 
           <DrawerBlock title="ACCOUNT">
             <DrawerButton icon="♙" label="Profile" onClick={() => go("profile")} />
+            <DrawerButton icon="👥" label="Referrals" onClick={() => go("referrals")} />
             <DrawerButton icon="⚙" label="Settings" onClick={() => go("settings")} />
             <DrawerButton icon="🔔" label="Notifications" badge="3" onClick={() => go("settings")} />
           </DrawerBlock>

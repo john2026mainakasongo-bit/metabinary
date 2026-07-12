@@ -20,7 +20,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-thin-rings-selector-referral-tickfix-2026-07-12";
+const BACKEND_BUILD = "metabinary-professional-referrals-settings-2026-07-12";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
@@ -44,6 +44,17 @@ const PASSWORD_KEY_LENGTH = 32;
 const PASSWORD_DIGEST = "sha256";
 const PAID_STATUSES = new Set(["COMPLETE", "COMPLETED", "PAID", "SUCCESS", "SUCCESSFUL"]);
 const FAILED_STATUSES = new Set(["FAILED", "FAILURE", "CANCELLED", "CANCELED", "REVERSED", "EXPIRED"]);
+
+const DEFAULT_USER_PREFERENCES = Object.freeze({
+  notifications: {
+    email: true,
+    sms: true,
+    push: true,
+    security: true,
+    wallet: true,
+    referrals: true,
+  },
+});
 
 const FOREX_MARKETS = {
   "XAU/USD": {
@@ -134,6 +145,28 @@ function roundMoney(value) {
   return Number(Number(value || 0).toFixed(2));
 }
 
+function normalizeUserPreferences(value = {}) {
+  const notifications = value?.notifications || {};
+  return {
+    notifications: {
+      email: notifications.email !== false,
+      sms: notifications.sms !== false,
+      push: notifications.push !== false,
+      security: notifications.security !== false,
+      wallet: notifications.wallet !== false,
+      referrals: notifications.referrals !== false,
+    },
+  };
+}
+
+function maskEmail(value) {
+  const email = cleanEmail(value);
+  const [name = "", domain = ""] = email.split("@");
+  if (!domain) return email;
+  const visible = name.slice(0, Math.min(2, name.length));
+  return `${visible}${"*".repeat(Math.max(2, name.length - visible.length))}@${domain}`;
+}
+
 function cleanEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -204,7 +237,9 @@ async function ensureIndexes() {
     db.collection("users").createIndex({ email: 1 }, { unique: true }),
     db.collection("users").createIndex({ accountId: 1 }, { unique: true, sparse: true }),
     db.collection("users").createIndex({ referralCode: 1 }, { unique: true, sparse: true }),
+    db.collection("users").createIndex({ referredByEmail: 1, createdAt: -1 }),
     deposits.createIndex({ id: 1 }, { unique: true }),
+    deposits.createIndex({ email: 1, status: 1, completedAt: -1 }),
     deposits.createIndex({ invoiceId: 1 }, { sparse: true }),
     deposits.createIndex({ apiRef: 1 }, { sparse: true }),
     withdrawals.createIndex({ id: 1 }, { unique: true }),
@@ -329,6 +364,7 @@ function publicUser(user) {
     referredBy: user.referredByEmail || "",
     referralCodeUsed: user.referralCodeUsed || "",
     referralAppliedAt: user.referralAppliedAt || "",
+    preferences: normalizeUserPreferences(user.preferences),
     status: String(user.status || "active").toLowerCase(),
     role: user.role || "user",
     createdAt: user.createdAt || "",
@@ -813,6 +849,8 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
           status: "COMPLETED",
           reference: deposit.invoiceId || deposit.apiRef || deposit.id,
           details: `${referralCommissionRate}% commission from ${deposit.email}`,
+          sourceEmail: deposit.email,
+          depositId: deposit.id,
           createdAt: completedAt,
         });
       }
@@ -987,6 +1025,7 @@ app.post("/api/auth/register", async (req, res, next) => {
       referralCount: 0,
       referredByEmail: referrer?.email || "",
       referralCodeUsed: referrer?.referralCode || "",
+      preferences: normalizeUserPreferences(),
       emailVerified: false,
       verified: false,
       status: "active",
@@ -1078,7 +1117,7 @@ app.post("/api/referrals/apply", requireUser, async (req, res, next) => {
       ok: true,
       referral: {
         code,
-        link: `${origin}/ref/${code}`,
+        link: `${origin}/?ref=${encodeURIComponent(code)}`,
         commissionRate: Number(updatedUser.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT),
         totalEarned: roundMoney(updatedUser.partnerBalance || 0),
         totalReferrals: Number(updatedUser.referralCount || 0),
@@ -1086,6 +1125,197 @@ app.post("/api/referrals/apply", requireUser, async (req, res, next) => {
       },
       user: publicUser(updatedUser),
       message: `Referral account active at ${REFERRAL_COMMISSION_PERCENT}% commission.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+app.get("/api/settings", requireUser, (req, res) => {
+  res.json({
+    ok: true,
+    user: publicUser(req.user),
+    preferences: normalizeUserPreferences(req.user.preferences),
+  });
+});
+
+app.patch("/api/settings/profile", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const fullName = cleanText(req.body?.fullName, 120);
+    const country = cleanText(req.body?.country || req.user.country || "Kenya", 80);
+    const rawPhone = cleanText(req.body?.phone, 30);
+    const phone = rawPhone ? normalizeKenyanPhone(rawPhone) : req.user.phone || "";
+
+    if (!fullName || fullName.length < 2) {
+      throw httpError(400, "Enter your full legal name.");
+    }
+
+    if (phone && phone !== req.user.phone) {
+      const existing = await db.collection("users").findOne({ phone, _id: { $ne: req.user._id } });
+      if (existing) throw httpError(409, "This phone number is already used by another account.");
+    }
+
+    const updatedAt = nowIso();
+    await db.collection("users").updateOne(
+      { _id: req.user._id },
+      {
+        $set: {
+          fullName,
+          name: fullName,
+          phone,
+          country,
+          updatedAt,
+        },
+      }
+    );
+
+    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+    res.json({ ok: true, user: publicUser(updatedUser), message: "Profile settings saved." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch("/api/settings/preferences", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const preferences = normalizeUserPreferences(req.body?.preferences || req.body || {});
+    await db.collection("users").updateOne(
+      { _id: req.user._id },
+      { $set: { preferences, updatedAt: nowIso() } }
+    );
+    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+    res.json({
+      ok: true,
+      preferences,
+      user: publicUser(updatedUser),
+      message: "Notification preferences saved.",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/settings/password", requireUser, async (req, res, next) => {
+  try {
+    const currentPassword = String(req.body?.currentPassword || "");
+    const newPassword = String(req.body?.newPassword || "");
+
+    if (!verifyPassword(currentPassword, req.user.passwordHash)) {
+      throw httpError(401, "Your current password is not correct.");
+    }
+    if (newPassword.length < 8) {
+      throw httpError(400, "The new password must contain at least 8 characters.");
+    }
+    if (currentPassword === newPassword) {
+      throw httpError(400, "Choose a new password that is different from the current password.");
+    }
+
+    const db = await getDb();
+    await db.collection("users").updateOne(
+      { _id: req.user._id },
+      { $set: { passwordHash: hashPassword(newPassword), passwordChangedAt: nowIso(), updatedAt: nowIso() } }
+    );
+    res.json({ ok: true, message: "Password changed successfully." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/referrals/dashboard", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const partner = await db.collection("users").findOne({ _id: req.user._id });
+    const code = partner?.referralCode || "";
+    const origin = FRONTEND_URLS[0] || "https://metabinary.com";
+
+    if (!code) {
+      return res.json({
+        ok: true,
+        active: false,
+        commissionRate: REFERRAL_COMMISSION_PERCENT,
+        totalEarned: 0,
+        referralBalance: roundMoney(partner?.partnerBalance || 0),
+        totalReferrals: 0,
+        activeDepositors: 0,
+        totalReferredDeposits: 0,
+        referrals: [],
+        commissions: [],
+      });
+    }
+
+    const referredUsers = await db.collection("users")
+      .find({ referredByEmail: partner.email })
+      .project({ fullName: 1, name: 1, email: 1, createdAt: 1, status: 1 })
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .toArray();
+
+    const referredEmails = referredUsers.map((item) => cleanEmail(item.email)).filter(Boolean);
+    const depositTotals = referredEmails.length
+      ? await db.collection("deposits").aggregate([
+          { $match: { email: { $in: referredEmails }, status: "COMPLETED", credited: true } },
+          {
+            $group: {
+              _id: "$email",
+              totalDeposited: { $sum: "$amountUsd" },
+              depositCount: { $sum: 1 },
+              lastDepositAt: { $max: "$completedAt" },
+            },
+          },
+        ]).toArray()
+      : [];
+
+    const depositByEmail = new Map(depositTotals.map((item) => [cleanEmail(item._id), item]));
+    const commissions = await db.collection("transactions")
+      .find({ email: partner.email, method: "Referral", type: "referral-commission", status: "COMPLETED" })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .toArray();
+
+    const totalEarned = roundMoney(
+      commissions.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+    );
+    const totalReferredDeposits = roundMoney(
+      depositTotals.reduce((sum, item) => sum + Number(item.totalDeposited || 0), 0)
+    );
+
+    const referrals = referredUsers.map((item) => {
+      const deposits = depositByEmail.get(cleanEmail(item.email)) || {};
+      return {
+        id: String(item._id || ""),
+        name: item.fullName || item.name || "MetaBinary trader",
+        email: maskEmail(item.email),
+        joinedAt: item.createdAt || "",
+        status: String(item.status || "active").toLowerCase(),
+        depositCount: Number(deposits.depositCount || 0),
+        totalDeposited: roundMoney(deposits.totalDeposited || 0),
+        lastDepositAt: deposits.lastDepositAt || "",
+      };
+    });
+
+    res.json({
+      ok: true,
+      active: true,
+      code,
+      link: `${origin}/?ref=${encodeURIComponent(code)}`,
+      commissionRate: Number(partner.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT),
+      totalEarned,
+      referralBalance: roundMoney(partner.partnerBalance || 0),
+      totalReferrals: referredUsers.length,
+      activeDepositors: depositTotals.length,
+      totalReferredDeposits,
+      referrals,
+      commissions: commissions.map((item) => ({
+        id: item.id || String(item._id || ""),
+        amount: roundMoney(item.amount || 0),
+        sourceEmail: maskEmail(item.sourceEmail || String(item.details || "").split(" from ")[1] || ""),
+        reference: item.reference || "",
+        createdAt: item.createdAt || "",
+        status: item.status || "COMPLETED",
+      })),
     });
   } catch (error) {
     next(error);
