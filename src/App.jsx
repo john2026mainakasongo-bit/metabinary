@@ -5092,23 +5092,20 @@ function TradePage({
                   Math.min(1, (Number(percent) - lowestPercent) / percentageRange)
                 );
 
+                // Highest: fixed green upper half. Lowest: red bottom arc.
+                // Other digits: a white arc that grows with the percentage.
                 const ringFill = isHighest
                   ? 180
                   : isLowest
-                    ? 86
-                    : Math.round(70 + percentageLevel * 180);
+                    ? 82
+                    : Math.round(54 + percentageLevel * 210);
 
-                const ringStart = isHighest
-                  ? -180
-                  : isLowest
-                    ? 110
-                    : -90;
-
+                const ringStart = isHighest ? -90 : isLowest ? 139 : -90;
                 const ringColor = isHighest
-                  ? "#39dc7d"
+                  ? "#22d486"
                   : isLowest
-                    ? "#ff4358"
-                    : "#ffffff";
+                    ? "#ff3853"
+                    : "#f4f7fb";
 
                 return (
                   <button
@@ -5126,9 +5123,7 @@ function TradePage({
                       isWinningTarget ? "winningTarget" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
+                    ].filter(Boolean).join(" ")}
                     style={{
                       "--ring-fill": `${ringFill}deg`,
                       "--ring-start": `${ringStart}deg`,
@@ -5136,12 +5131,12 @@ function TradePage({
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                   >
-                    <span className="cleanDigitRing" aria-hidden="true"></span>
+                    <span className="cleanDigitRing" aria-hidden="true" />
                     <span className="digitFace">
                       <strong>{digit}</strong>
                       <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
                     </span>
-                    <i className="movingDigitCursor" aria-hidden="true"></i>
+                    <i className="movingDigitCursor" aria-hidden="true" />
                   </button>
                 );
               })}
