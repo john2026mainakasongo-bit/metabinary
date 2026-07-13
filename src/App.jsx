@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-wallet-selector-v10-2026-07-13";
+const FRONTEND_BUILD = "metabinary-wallet-selector-v11-2026-07-13";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -3648,12 +3648,11 @@ function Header({
         aria-expanded={accountMenuOpen}
         aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
       >
-        <div className="usdWalletSelectorV10">
-          <span className="usdFlagCircleV10" aria-hidden="true">
-            <span className="usdFlagStarsV10"></span>
+        <div className="usdWalletSelectorV11">
+          <span className="usdFlagCircleV11" aria-hidden="true">
+            <span className="usdFlagStarsV11"></span>
           </span>
-          <span className="usdWalletInlineV10">{money(balance)} USD</span>
-          <span className="usdWalletChevronV10" aria-hidden="true">⌄</span>
+          <span className="usdWalletInlineV11">{money(balance)} USD</span>
         </div>
 
       </button>
