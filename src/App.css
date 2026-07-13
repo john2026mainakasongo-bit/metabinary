@@ -22834,3 +22834,268 @@ body {
     min-height: 52px !important;
   }
 }
+
+
+/* =====================================================================
+   METABINARY V8 — THIN RINGS, CONSISTENT MOBILE FLOW, INLINE USD WALLET
+   This final override intentionally comes last. It does not change trading
+   logic; it only corrects the header, ranked rings, trade-result emphasis,
+   and the tall-phone blank space caused by a fixed order card.
+   ===================================================================== */
+
+/* The wallet contents must remain on one horizontal line. The older
+   .brokerWallet > span positioning rule must not move this row below. */
+.cleanBrokerHeader .brokerWallet.accountSelectorButton {
+  overflow: hidden !important;
+}
+
+.cleanBrokerHeader .brokerWallet > .usdAccountSelectorV8 {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
+}
+
+/* Device-independent cropped US flag. This avoids different emoji rendering
+   between Samsung, Xiaomi and other Android phones. */
+.cleanBrokerHeader .usdFlagCropV8 {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  width: 27px !important;
+  height: 27px !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  background: repeating-linear-gradient(
+    to bottom,
+    #b22234 0 2.2px,
+    #ffffff 2.2px 4.4px
+  ) !important;
+  border: 1px solid rgba(255,255,255,.62) !important;
+  box-shadow: 0 2px 7px rgba(0,0,0,.34) !important;
+}
+
+.cleanBrokerHeader .usdFlagCropV8::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -2px !important;
+  top: -2px !important;
+  width: 58% !important;
+  height: 58% !important;
+  border-radius: 2px !important;
+  background:
+    radial-gradient(circle, #fff 0 0.65px, transparent .75px) 0 0 / 4px 4px,
+    #3c3b6e !important;
+}
+
+.cleanBrokerHeader .usdBalanceV8,
+.cleanBrokerHeader .brokerWallet .usdBalanceV8 {
+  position: static !important;
+  display: inline !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  color: #62d7d5 !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -.25px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.cleanBrokerHeader .usdCurrencyV8 {
+  position: static !important;
+  display: inline !important;
+  margin: 0 !important;
+  color: #62d7d5 !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  font-style: normal !important;
+  font-weight: 900 !important;
+}
+
+.cleanBrokerHeader .usdAccountChevronV8 {
+  position: static !important;
+  display: inline-block !important;
+  margin: 0 0 0 auto !important;
+  color: #8fa3bf !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+/* Thinner ring: grow the black core so the outer band is no longer bold. */
+.finalBinaryTradePage .mbDigitCoreV7 {
+  width: 79% !important;
+  height: 79% !important;
+}
+
+.finalBinaryTradePage .mbDigitRingV7 {
+  box-shadow: 0 1px 4px rgba(0,0,0,.34) !important;
+}
+
+.finalBinaryTradePage .mbDigitHighestV7 .mbDigitRingV7 {
+  background: conic-gradient(
+    from 270deg,
+    #25d99a 0deg 180deg,
+    #566270 180deg 360deg
+  ) !important;
+  box-shadow: 0 0 6px rgba(37,217,154,.24) !important;
+}
+
+.finalBinaryTradePage .mbDigitLowestV7 .mbDigitRingV7 {
+  background: conic-gradient(
+    from 145deg,
+    #ff4058 0deg 70deg,
+    #566270 70deg 360deg
+  ) !important;
+  box-shadow: 0 0 5px rgba(255,64,88,.22) !important;
+}
+
+/* Prediction remains very readable on every phone. */
+.finalBinaryTradePage .mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  transform: scale(1.045) !important;
+}
+
+.finalBinaryTradePage .mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #f5f8fb !important;
+  border-color: #8fd0ff !important;
+  box-shadow: 0 0 0 2px rgba(95,181,247,.28), 0 0 10px rgba(95,181,247,.18) !important;
+}
+
+/* During a live digit trade, all digits that can win stay clearly lit. */
+.finalBinaryTradePage .mbDigitBoardV7.isTrading .mbDigitWinningV7 .mbDigitCoreV7 {
+  background: #0a3027 !important;
+  border-color: rgba(47,232,157,.72) !important;
+  box-shadow: inset 0 0 0 1px rgba(47,232,157,.28), 0 0 8px rgba(47,232,157,.2) !important;
+}
+
+.finalBinaryTradePage .mbDigitBoardV7.isTrading .mbDigitWinningV7 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .mbDigitBoardV7.isTrading .mbDigitWinningV7 .mbDigitPercentV7 {
+  color: #d8fff0 !important;
+}
+
+.finalBinaryTradePage .mbDigitBoardV7.isTrading .mbDigitLosingV8 {
+  opacity: .62 !important;
+}
+
+/* Settlement result is unmistakable: win is brighter green, loss bright red. */
+.finalBinaryTradePage .mbDigitResultWinV7 {
+  z-index: 30 !important;
+  transform: scale(1.12) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultWinV7 .mbDigitRingV7 {
+  background: #31ec9f !important;
+  box-shadow: 0 0 16px rgba(49,236,159,.82) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultWinV7 .mbDigitCoreV7 {
+  background: #075237 !important;
+  border-color: #8affca !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.24), 0 0 18px rgba(49,236,159,.65) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultLossV7 {
+  z-index: 30 !important;
+  transform: scale(1.1) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultLossV7 .mbDigitRingV7 {
+  background: #ff3f59 !important;
+  box-shadow: 0 0 15px rgba(255,63,89,.75) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultLossV7 .mbDigitCoreV7 {
+  background: #681124 !important;
+  border-color: #ff9aaa !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 17px rgba(255,63,89,.58) !important;
+}
+
+@media (max-width: 760px) {
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    width: 116px !important;
+    max-width: 116px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 5px 7px !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet > .usdAccountSelectorV8 {
+    gap: 4px !important;
+  }
+
+  .cleanBrokerHeader .usdFlagCropV8 {
+    width: 23px !important;
+    height: 23px !important;
+  }
+
+  .cleanBrokerHeader .usdBalanceV8,
+  .cleanBrokerHeader .brokerWallet .usdBalanceV8 {
+    font-size: 13px !important;
+  }
+
+  .cleanBrokerHeader .usdCurrencyV8 {
+    font-size: 7px !important;
+  }
+
+  /* Cancel the older fixed order card. A normal-flow card prevents the huge
+     blank gap seen on taller phones while staying directly below the digits. */
+  .finalBinaryTradePage,
+  .finalBinaryTradePage.digitContractPage,
+  .finalBinaryTradePage.priceContractPage {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    z-index: 20 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 176px !important;
+    max-height: none !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    gap: 8px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCoreV7 {
+    width: 79% !important;
+    height: 79% !important;
+  }
+
+  /* Keep the draggable AI clear of the fixed navigation and trade buttons. */
+  .floatingAiButton {
+    top: clamp(115px, var(--ai-y, 55vh), calc(100dvh - 270px)) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    width: 108px !important;
+    max-width: 108px !important;
+    padding-inline: 5px !important;
+  }
+
+  .cleanBrokerHeader .usdFlagCropV8 {
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  .cleanBrokerHeader .usdBalanceV8,
+  .cleanBrokerHeader .brokerWallet .usdBalanceV8 {
+    font-size: 12px !important;
+  }
+}

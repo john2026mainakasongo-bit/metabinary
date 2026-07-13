@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-rings-usd-v7-2026-07-13";
+const FRONTEND_BUILD = "metabinary-thin-rings-usd-v8-2026-07-13";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -3648,13 +3648,11 @@ function Header({
         aria-expanded={accountMenuOpen}
         aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
       >
-        <span className="usdAccountSelectorV7">
-          <span className="usdFlagCircleV7" aria-hidden="true">🇺🇸</span>
-          <span className="usdAmountV7">
-            <strong>{money(balance)}</strong>
-            <em>USD</em>
-          </span>
-          <span className="usdAccountChevronV7" aria-hidden="true">⌄</span>
+        <span className="usdAccountSelectorV8">
+          <span className="usdFlagCropV8" aria-hidden="true"></span>
+          <strong className="usdBalanceV8">{money(balance)}</strong>
+          <em className="usdCurrencyV8">USD</em>
+          <span className="usdAccountChevronV8" aria-hidden="true">⌄</span>
         </span>
 
       </button>
@@ -5084,6 +5082,7 @@ function TradePage({
                 const isWinningTarget = Boolean(
                   activeBinaryTrade && digitWinsTrade(activeBinaryTrade, digit, livePrice)
                 );
+                const isLosingTarget = Boolean(activeBinaryTrade && !isWinningTarget);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -5110,6 +5109,7 @@ function TradePage({
                       isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningTarget ? "mbDigitWinningV7" : "",
+                      isLosingTarget ? "mbDigitLosingV8" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
