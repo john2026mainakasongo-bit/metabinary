@@ -147,6 +147,7 @@ const STORE = {
   binaryMarket: "mb_binary_market",
   botConfig: "mb_bot_config",
   aiPosition: "mb_ai_position",
+  supportTicket: "mb_support_ticket",
 };
 
 const MARKET_API_KEY =
@@ -3588,6 +3589,12 @@ function TradingApp() {
         autoSession={aiAutoSession}
       />
 
+      <SupportChat
+        user={user}
+        activePage={activePage}
+        account={account}
+      />
+
       {menuOpen && (
         <SideMenu
           user={user}
@@ -3667,6 +3674,20 @@ function AuthScreen({ mode, setMode, login, register, requestPasswordReset, rese
     confirmPassword: "",
   });
 
+  async function submitLogin() {
+    if (busy) return;
+    setBusy(true);
+    await login(loginData);
+    setBusy(false);
+  }
+
+  async function submitRegister() {
+    if (busy) return;
+    setBusy(true);
+    await register(regData);
+    setBusy(false);
+  }
+
   async function submitResetRequest() {
     if (!resetEmail || busy) return;
     setBusy(true);
@@ -3715,7 +3736,7 @@ function AuthScreen({ mode, setMode, login, register, requestPasswordReset, rese
           <label>Password</label>
           <PasswordField value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} placeholder="Enter your password" autoComplete="current-password" />
           <button type="button" className="forgotPasswordLink" onClick={() => setMode("forgot")}>Forgot password?</button>
-          <button className="primaryBtn" onClick={() => login(loginData)}>Login →</button>
+          <button className="primaryBtn" onClick={submitLogin} disabled={busy}>{busy ? "Signing in…" : "Login →"}</button>
           <small>Don’t have an account? <button onClick={() => setMode("register")}>Create Account</button></small>
         </section>
       ) : (
@@ -3731,7 +3752,7 @@ function AuthScreen({ mode, setMode, login, register, requestPasswordReset, rese
             <PasswordField value={regData.password} onChange={(e) => setRegData({ ...regData, password: e.target.value })} placeholder="Password" autoComplete="new-password" minLength="8" />
             <PasswordField value={regData.confirmPassword} onChange={(e) => setRegData({ ...regData, confirmPassword: e.target.value })} placeholder="Confirm password" autoComplete="new-password" minLength="8" />
           </div>
-          <button className="primaryBtn" onClick={() => register(regData)}>Create Account</button>
+          <button className="primaryBtn" onClick={submitRegister} disabled={busy}>{busy ? "Creating account…" : "Create Account"}</button>
           <small>Already have an account? <button onClick={() => setMode("login")}>Login</button></small>
         </section>
       )}
@@ -6568,6 +6589,234 @@ function PaymentButton({ icon, title, text, onClick }) {
 }
 
 
+function SupportChat({ user, activePage, account }) {
+  const categories = [
+    ["wallet", "Deposit or withdrawal"],
+    ["trading", "Trading or Forex"],
+    ["ai", "AI or bot help"],
+    ["account", "Account or password"],
+    ["other", "Something else"],
+  ];
+  const [open, setOpen] = useState(false);
+  const [stage, setStage] = useState("topic");
+  const [category, setCategory] = useState("");
+  const [details, setDetails] = useState("");
+  const [ticket, setTicket] = useState(() => readStore(STORE.supportTicket, null));
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
+  const messagesEndRef = useRef(null);
+
+  const token = currentUserToken();
+  const firstName = String(user?.fullName || user?.name || "Trader").split(" ")[0] || "Trader";
+
+  function supportHeaders(extra = {}) {
+    return apiHeaders({ "Content-Type": "application/json", ...extra }, token);
+  }
+
+  async function supportRequest(path, options = {}) {
+    const response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: supportHeaders(options.headers || {}),
+      cache: "no-store",
+    });
+    const result = await readApiResponse(response);
+    if (!response.ok || result.ok === false) {
+      throw new Error(result.message || `Support request failed (${response.status}).`);
+    }
+    return result;
+  }
+
+  async function loadCurrentTicket({ quiet = false } = {}) {
+    if (!token) return;
+    if (!quiet) setBusy(true);
+    try {
+      const result = await supportRequest("/api/support/current", { method: "GET", headers: {} });
+      const nextTicket = result.ticket || null;
+      setTicket(nextTicket);
+      setMessages(Array.isArray(nextTicket?.messages) ? nextTicket.messages : []);
+      if (nextTicket) {
+        saveStore(STORE.supportTicket, { id: nextTicket.id, status: nextTicket.status });
+        setStage("connected");
+      } else {
+        localStorage.removeItem(STORE.supportTicket);
+        setStage("topic");
+      }
+    } catch (error) {
+      if (!quiet) setNotice(error instanceof Error ? error.message : "Support is temporarily unavailable.");
+    } finally {
+      if (!quiet) setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!open || !token) return;
+    void loadCurrentTicket();
+  }, [open, token]);
+
+  useEffect(() => {
+    if (!open || !ticket?.id || !token) return undefined;
+    const timer = window.setInterval(() => void loadCurrentTicket({ quiet: true }), 6000);
+    return () => window.clearInterval(timer);
+  }, [open, ticket?.id, token]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView?.({ block: "end", behavior: "smooth" });
+  }, [messages.length, open]);
+
+  function chooseCategory(value) {
+    setCategory(value);
+    setStage("details");
+    setNotice("");
+  }
+
+  async function createTicket() {
+    const body = details.trim();
+    if (!category || body.length < 5 || busy) {
+      setNotice("Tell the assistant what you need help with.");
+      return;
+    }
+    setBusy(true);
+    setNotice("");
+    try {
+      const result = await supportRequest("/api/support/tickets", {
+        method: "POST",
+        body: JSON.stringify({
+          category,
+          message: body,
+          page: activePage,
+          account,
+          metadata: {
+            screen: `${window.screen?.width || window.innerWidth}x${window.screen?.height || window.innerHeight}`,
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+            userAgent: navigator.userAgent,
+            build: FRONTEND_BUILD,
+          },
+        }),
+      });
+      setTicket(result.ticket);
+      setMessages(result.ticket?.messages || []);
+      saveStore(STORE.supportTicket, { id: result.ticket?.id, status: result.ticket?.status });
+      setStage("connected");
+      setDetails("");
+      setNotice("Your conversation has been sent to an agent.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Unable to start the conversation.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendMessage() {
+    const body = message.trim();
+    if (!ticket?.id || !body || busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      const result = await supportRequest(`/api/support/tickets/${encodeURIComponent(ticket.id)}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ message: body }),
+      });
+      setTicket(result.ticket);
+      setMessages(result.ticket?.messages || []);
+      setMessage("");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Message could not be sent.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function startAnotherConversation() {
+    localStorage.removeItem(STORE.supportTicket);
+    setTicket(null);
+    setMessages([]);
+    setCategory("");
+    setDetails("");
+    setMessage("");
+    setNotice("");
+    setStage("topic");
+  }
+
+  return (
+    <>
+      {!open && (
+        <button type="button" className="supportChatLauncher" onClick={() => setOpen(true)} aria-label="Open help chat">
+          <span>?</span><b>Help</b>
+        </button>
+      )}
+
+      {open && (
+        <section className="supportChatPanel" role="dialog" aria-modal="true" aria-label="MetaBinary support chat">
+          <header>
+            <div><small>METABINARY SUPPORT</small><h2>Help &amp; live agent</h2></div>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close support chat">×</button>
+          </header>
+
+          <div className="supportAiGreeting">
+            <span>AI</span>
+            <p>Hi {firstName}. What do you need help with? I’ll collect the details and connect you to an agent.</p>
+          </div>
+
+          {stage === "topic" && (
+            <div className="supportTopicGrid">
+              {categories.map(([value, label]) => (
+                <button type="button" key={value} onClick={() => chooseCategory(value)}>{label}<i>›</i></button>
+              ))}
+            </div>
+          )}
+
+          {stage === "details" && (
+            <div className="supportDetailsStep">
+              <button type="button" className="supportBack" onClick={() => setStage("topic")}>‹ Change topic</button>
+              <label>Explain what happened</label>
+              <textarea
+                value={details}
+                onChange={(event) => setDetails(event.target.value)}
+                placeholder="Include what you clicked, what you expected and any error message."
+                maxLength={1200}
+              />
+              <small>We attach your account email, current page, device size and app version so the agent can help faster. Never share your password or M-Pesa PIN.</small>
+              <button type="button" className="supportPrimary" onClick={createTicket} disabled={busy}>{busy ? "Connecting…" : "Chat with an agent"}</button>
+            </div>
+          )}
+
+          {stage === "connected" && ticket && (
+            <>
+              <div className="supportTicketStatus">
+                <span><i></i>{ticket.status === "closed" ? "Conversation closed" : ticket.agentRepliedAt ? "Agent replied" : "Waiting for an agent"}</span>
+                <small>Ticket {ticket.id}</small>
+              </div>
+              <div className="supportMessages">
+                {(messages || []).map((item) => (
+                  <div key={item.id || `${item.createdAt}-${item.sender}`} className={`supportMessage ${item.sender || "user"}`}>
+                    <strong>{item.sender === "agent" ? "MetaBinary Agent" : item.sender === "assistant" ? "AI Assistant" : "You"}</strong>
+                    <p>{item.body}</p>
+                    <time>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</time>
+                  </div>
+                ))}
+                <div ref={messagesEndRef}></div>
+              </div>
+              {ticket.status !== "closed" ? (
+                <div className="supportComposer">
+                  <textarea value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Write a message…" maxLength={1200} />
+                  <button type="button" onClick={sendMessage} disabled={busy || !message.trim()}>{busy ? "…" : "Send"}</button>
+                </div>
+              ) : (
+                <button type="button" className="supportPrimary" onClick={startAnotherConversation}>Start a new conversation</button>
+              )}
+            </>
+          )}
+
+          {notice && <div className="supportNotice">{notice}</div>}
+        </section>
+      )}
+    </>
+  );
+}
+
 function AdminPortal() {
   const [token, setToken] = useState(() => currentAdminToken());
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -6580,12 +6829,34 @@ function AdminPortal() {
   const [statusReason, setStatusReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [supportTickets, setSupportTickets] = useState([]);
+  const [selectedSupport, setSelectedSupport] = useState(null);
+  const [supportReply, setSupportReply] = useState("");
+  const [supportBusy, setSupportBusy] = useState(false);
 
   const adminHeaders = (extra = {}) => apiHeaders(extra, token);
 
   useEffect(() => {
     if (!token) return;
     void loadAdminData();
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+    const timer = window.setInterval(async () => {
+      try {
+        const result = await adminRequest("/api/admin/support?status=all");
+        const nextTickets = result.tickets || [];
+        setSupportTickets(nextTickets);
+        setSelectedSupport((current) => {
+          if (!current?.id) return current;
+          return nextTickets.find((item) => item.id === current.id) || current;
+        });
+      } catch {
+        // The visible Refresh button remains available if polling is interrupted.
+      }
+    }, 8000);
+    return () => window.clearInterval(timer);
   }, [token]);
 
   async function adminRequest(path, options = {}) {
@@ -6630,14 +6901,32 @@ function AdminPortal() {
     setMessage("");
     try {
       const q = encodeURIComponent(query.trim());
-      const [usersResult, statsResult] = await Promise.all([
-        adminRequest(`/api/admin/users?limit=100&search=${q}`),
+      const [firstUsersResult, statsResult, supportResult] = await Promise.all([
+        adminRequest(`/api/admin/users?limit=250&page=1&search=${q}`),
         adminRequest("/api/admin/stats"),
+        adminRequest("/api/admin/support?status=all"),
       ]);
-      setUsers(usersResult.users || []);
+      const pageCount = Math.max(1, Number(firstUsersResult.pages || 1));
+      const extraPages = pageCount > 1
+        ? await Promise.all(
+            Array.from({ length: pageCount - 1 }, (_, index) =>
+              adminRequest(`/api/admin/users?limit=250&page=${index + 2}&search=${q}`)
+            )
+          )
+        : [];
+      const allUsers = [
+        ...(firstUsersResult.users || []),
+        ...extraPages.flatMap((page) => page.users || []),
+      ];
+      setUsers(allUsers);
       setStats(statsResult.stats || null);
+      setSupportTickets(supportResult.tickets || []);
+      if (selectedSupport) {
+        const freshTicket = (supportResult.tickets || []).find((item) => item.id === selectedSupport.id);
+        if (freshTicket) setSelectedSupport(freshTicket);
+      }
       if (selected) {
-        const fresh = (usersResult.users || []).find((item) => item.id === selected.id);
+        const fresh = allUsers.find((item) => item.id === selected.id);
         if (fresh) setSelected(fresh);
       }
     } catch (error) {
@@ -6721,6 +7010,62 @@ function AdminPortal() {
     }
   }
 
+  async function openSupportTicket(ticket) {
+    setSupportBusy(true);
+    setMessage("");
+    try {
+      const result = await adminRequest(`/api/admin/support/${encodeURIComponent(ticket.id)}`);
+      setSelectedSupport(result.ticket);
+      setSupportReply("");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to open the support conversation.");
+    } finally {
+      setSupportBusy(false);
+    }
+  }
+
+  async function sendSupportReply(event) {
+    event.preventDefault();
+    if (!selectedSupport?.id || !supportReply.trim() || supportBusy) return;
+    setSupportBusy(true);
+    setMessage("");
+    try {
+      const result = await adminRequest(`/api/admin/support/${encodeURIComponent(selectedSupport.id)}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: supportReply.trim() }),
+      });
+      setSelectedSupport(result.ticket);
+      setSupportReply("");
+      setMessage("Support reply sent.");
+      await loadAdminData();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Support reply failed.");
+    } finally {
+      setSupportBusy(false);
+    }
+  }
+
+  async function setSupportTicketStatus(status) {
+    if (!selectedSupport?.id || supportBusy) return;
+    setSupportBusy(true);
+    setMessage("");
+    try {
+      const result = await adminRequest(`/api/admin/support/${encodeURIComponent(selectedSupport.id)}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      setSelectedSupport(result.ticket);
+      setMessage(result.message || "Support status updated.");
+      await loadAdminData();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Support status update failed.");
+    } finally {
+      setSupportBusy(false);
+    }
+  }
+
   function logoutAdmin() {
     localStorage.removeItem(STORE.adminToken);
     setToken("");
@@ -6780,6 +7125,7 @@ function AdminPortal() {
           <AdminStat title="Banned accounts" value={stats?.bannedUsers ?? "—"} />
           <AdminStat title="Completed deposits" value={`$${money(stats?.totalDeposits || 0)}`} />
           <AdminStat title="Withdrawals" value={`$${money(stats?.totalWithdrawals || 0)}`} />
+          <AdminStat title="Open support" value={stats?.openSupportTickets ?? 0} />
         </section>
 
         {message && <div className="adminMessage adminMessageWide">{message}</div>}
@@ -6908,6 +7254,84 @@ function AdminPortal() {
                     {!transactions.length && <div className="adminEmpty">No transactions yet.</div>}
                   </div>
                 </div>
+              </>
+            )}
+          </div>
+        </section>
+        <section className="adminSupportWorkspace">
+          <div className="adminSupportListPanel">
+            <div className="adminPanelTitle">
+              <div>
+                <h2>Support Conversations</h2>
+                <p>AI-triaged conversations waiting for an agent.</p>
+              </div>
+              <button onClick={() => loadAdminData()} disabled={busy || supportBusy}>Refresh</button>
+            </div>
+            <div className="adminSupportList">
+              {supportTickets.map((ticket) => (
+                <button
+                  type="button"
+                  key={ticket.id}
+                  className={`adminSupportRow ${selectedSupport?.id === ticket.id ? "selected" : ""}`}
+                  onClick={() => openSupportTicket(ticket)}
+                >
+                  <span className={`adminSupportDot ${ticket.status || "waiting"}`}></span>
+                  <span>
+                    <strong>{ticket.fullName || ticket.email}</strong>
+                    <small>{ticket.category} · {ticket.email}</small>
+                    <em>{ticket.updatedAt ? new Date(ticket.updatedAt).toLocaleString() : ""}</em>
+                  </span>
+                  <b>{ticket.status || "waiting"}</b>
+                </button>
+              ))}
+              {!supportTickets.length && !busy && <div className="adminEmpty">No support conversations yet.</div>}
+            </div>
+          </div>
+
+          <div className="adminSupportDetailPanel">
+            {!selectedSupport ? (
+              <div className="adminEmpty adminSelectPrompt">Select a support conversation to reply.</div>
+            ) : (
+              <>
+                <header className="adminSupportDetailHeader">
+                  <div>
+                    <h2>{selectedSupport.fullName || selectedSupport.email}</h2>
+                    <p>{selectedSupport.email} · {selectedSupport.accountId || "No broker ID"}</p>
+                    <small>{selectedSupport.category} · page {selectedSupport.page || "unknown"} · {selectedSupport.account || "unknown"} account</small>
+                  </div>
+                  <span className={`adminStatus ${selectedSupport.status || "waiting"}`}>{selectedSupport.status || "waiting"}</span>
+                </header>
+
+                <div className="adminSupportMessages">
+                  {(selectedSupport.messages || []).map((item) => (
+                    <div key={item.id || `${item.createdAt}-${item.sender}`} className={`adminSupportMessage ${item.sender || "user"}`}>
+                      <strong>{item.sender === "agent" ? "Agent" : item.sender === "assistant" ? "AI Assistant" : "User"}</strong>
+                      <p>{item.body}</p>
+                      <time>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</time>
+                    </div>
+                  ))}
+                </div>
+
+                <form className="adminSupportComposer" onSubmit={sendSupportReply}>
+                  <textarea
+                    value={supportReply}
+                    onChange={(event) => setSupportReply(event.target.value)}
+                    placeholder="Reply to the user…"
+                    maxLength={1200}
+                  />
+                  <button className="adminPrimary" disabled={supportBusy || !supportReply.trim()}>{supportBusy ? "Sending…" : "Send reply"}</button>
+                </form>
+
+                <div className="adminSupportStatusActions">
+                  <button onClick={() => setSupportTicketStatus("waiting")} disabled={supportBusy}>Waiting</button>
+                  <button onClick={() => setSupportTicketStatus("agent-replied")} disabled={supportBusy}>Agent replied</button>
+                  <button className="close" onClick={() => setSupportTicketStatus("closed")} disabled={supportBusy}>Close conversation</button>
+                </div>
+
+                <details className="adminSupportMetadata">
+                  <summary>Technical details collected with consent</summary>
+                  <pre>{JSON.stringify(selectedSupport.metadata || {}, null, 2)}</pre>
+                </details>
               </>
             )}
           </div>

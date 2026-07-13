@@ -23813,3 +23813,389 @@ body {
     font-size: 12px !important;
   }
 }
+
+/* ======================================================================
+   METABINARY V13 — RESPONSIVE AI, SUPPORT CHAT, ADMIN SUPPORT
+   ====================================================================== */
+
+/* Compact help launcher stays away from the draggable AI and bottom nav. */
+.supportChatLauncher {
+  position: fixed !important;
+  left: 14px !important;
+  bottom: calc(78px + env(safe-area-inset-bottom)) !important;
+  z-index: 20100 !important;
+  min-width: 58px !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(87, 173, 255, .55) !important;
+  border-radius: 999px !important;
+  background: #07192d !important;
+  color: #fff !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 18px rgba(8,124,255,.18) !important;
+  font-weight: 900 !important;
+}
+
+.supportChatLauncher > span {
+  width: 24px !important;
+  height: 24px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: #087cff !important;
+  font-size: 14px !important;
+}
+
+.supportChatLauncher > b { font-size: 11px !important; }
+
+.supportChatPanel {
+  position: fixed !important;
+  left: 14px !important;
+  bottom: calc(78px + env(safe-area-inset-bottom)) !important;
+  z-index: 22000 !important;
+  width: min(390px, calc(100vw - 28px)) !important;
+  max-height: min(650px, calc(100dvh - 100px)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  padding: 13px !important;
+  border: 1px solid rgba(72,159,255,.48) !important;
+  border-radius: 18px !important;
+  background: #041321 !important;
+  color: #fff !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.7) !important;
+}
+
+.supportChatPanel > header {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.supportChatPanel > header small {
+  color: #5eaefe !important;
+  font-size: 8px !important;
+  letter-spacing: .7px !important;
+  font-weight: 900 !important;
+}
+
+.supportChatPanel > header h2 {
+  margin: 2px 0 0 !important;
+  font-size: 19px !important;
+}
+
+.supportChatPanel > header button {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,.07) !important;
+  color: #fff !important;
+  font-size: 20px !important;
+}
+
+.supportAiGreeting {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: 34px minmax(0,1fr) !important;
+  gap: 9px !important;
+  align-items: start !important;
+  padding: 10px !important;
+  border-radius: 12px !important;
+  background: rgba(8,124,255,.08) !important;
+}
+
+.supportAiGreeting > span {
+  width: 34px !important;
+  height: 34px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg,#19bfff,#0757e9) !important;
+  font-size: 11px !important;
+  font-weight: 1000 !important;
+}
+
+.supportAiGreeting p {
+  margin: 0 !important;
+  color: #c8d7e9 !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+}
+
+.supportTopicGrid {
+  display: grid !important;
+  gap: 7px !important;
+}
+
+.supportTopicGrid button {
+  min-height: 43px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(255,255,255,.075) !important;
+  border-radius: 10px !important;
+  background: #071a2d !important;
+  color: #e8f2ff !important;
+  text-align: left !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+.supportTopicGrid button i { color: #57aaff !important; font-style: normal !important; }
+
+.supportDetailsStep {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.supportBack {
+  justify-self: start !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: #70b8ff !important;
+  font-size: 10px !important;
+}
+
+.supportDetailsStep label { color: #d8e8f8 !important; font-size: 10px !important; font-weight: 850 !important; }
+
+.supportDetailsStep textarea,
+.supportComposer textarea,
+.adminSupportComposer textarea {
+  width: 100% !important;
+  resize: vertical !important;
+  min-height: 86px !important;
+  padding: 10px !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 10px !important;
+  background: #06101d !important;
+  color: #fff !important;
+  font: inherit !important;
+  line-height: 1.4 !important;
+}
+
+.supportDetailsStep > small {
+  color: #8195ad !important;
+  font-size: 8px !important;
+  line-height: 1.45 !important;
+}
+
+.supportPrimary {
+  min-height: 43px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg,#087cff,#0b63d8) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+}
+
+.supportTicketStatus {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 7px 9px !important;
+  border-radius: 9px !important;
+  background: rgba(39,221,176,.07) !important;
+  color: #9fb4c9 !important;
+  font-size: 8px !important;
+}
+
+.supportTicketStatus span { display: flex !important; align-items: center !important; gap: 6px !important; color: #39ddb1 !important; font-weight: 850 !important; }
+.supportTicketStatus i { width: 7px !important; height: 7px !important; border-radius: 50% !important; background: #27ddb0 !important; box-shadow: 0 0 8px #27ddb0 !important; }
+
+.supportMessages {
+  flex: 1 1 auto !important;
+  min-height: 120px !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 4px 2px !important;
+  overscroll-behavior: contain !important;
+}
+
+.supportMessage {
+  width: min(88%, 300px) !important;
+  padding: 8px 10px !important;
+  border-radius: 12px !important;
+  background: #0a2035 !important;
+  align-self: flex-start !important;
+}
+
+.supportMessage.user {
+  align-self: flex-end !important;
+  background: #075caf !important;
+}
+
+.supportMessage.agent { border: 1px solid rgba(39,221,176,.24) !important; }
+.supportMessage.assistant { background: rgba(110,134,164,.15) !important; }
+.supportMessage strong { display: block !important; margin-bottom: 3px !important; font-size: 8px !important; color: #7fc5ff !important; }
+.supportMessage p { margin: 0 !important; color: #f0f6fd !important; font-size: 10px !important; line-height: 1.4 !important; white-space: pre-wrap !important; }
+.supportMessage time { display: block !important; margin-top: 4px !important; color: rgba(255,255,255,.48) !important; font-size: 7px !important; }
+
+.supportComposer {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) 56px !important;
+  gap: 7px !important;
+}
+
+.supportComposer textarea { min-height: 48px !important; max-height: 100px !important; resize: none !important; }
+.supportComposer button { border-radius: 9px !important; background: #087cff !important; color: #fff !important; font-weight: 900 !important; }
+.supportNotice { flex: 0 0 auto !important; padding: 7px 9px !important; border-radius: 8px !important; background: rgba(255,173,48,.09) !important; color: #ffc879 !important; font-size: 8px !important; }
+
+/* Admin support inbox */
+.adminSupportWorkspace {
+  display: grid !important;
+  grid-template-columns: minmax(320px,.8fr) minmax(440px,1.2fr) !important;
+  gap: 16px !important;
+  margin-top: 18px !important;
+}
+
+.adminSupportListPanel,
+.adminSupportDetailPanel {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(119,154,196,.18) !important;
+  border-radius: 16px !important;
+  background: #071525 !important;
+}
+
+.adminSupportListPanel .adminPanelTitle,
+.adminSupportDetailHeader { padding: 16px !important; }
+.adminSupportList { max-height: 620px !important; overflow-y: auto !important; }
+.adminSupportRow {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 10px minmax(0,1fr) auto !important;
+  gap: 10px !important;
+  align-items: center !important;
+  padding: 12px 14px !important;
+  border-top: 1px solid rgba(255,255,255,.055) !important;
+  background: transparent !important;
+  color: #fff !important;
+  text-align: left !important;
+}
+.adminSupportRow.selected { background: rgba(8,124,255,.12) !important; }
+.adminSupportDot { width: 8px !important; height: 8px !important; border-radius: 50% !important; background: #ffb140 !important; }
+.adminSupportDot.agent-replied { background: #27ddb0 !important; }
+.adminSupportDot.closed { background: #66768a !important; }
+.adminSupportRow span:nth-child(2) { min-width: 0 !important; }
+.adminSupportRow strong,.adminSupportRow small,.adminSupportRow em { display: block !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+.adminSupportRow small,.adminSupportRow em { margin-top: 3px !important; color: #8398b0 !important; font-size: 9px !important; font-style: normal !important; }
+.adminSupportRow > b { color: #8eb5da !important; font-size: 8px !important; text-transform: uppercase !important; }
+
+.adminSupportDetailPanel { padding-bottom: 14px !important; }
+.adminSupportDetailHeader { display: flex !important; align-items: flex-start !important; justify-content: space-between !important; gap: 12px !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
+.adminSupportDetailHeader h2 { margin: 0 !important; }
+.adminSupportDetailHeader p,.adminSupportDetailHeader small { display: block !important; margin-top: 4px !important; color: #8398b0 !important; }
+.adminSupportMessages { max-height: 420px !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; gap: 9px !important; padding: 14px !important; }
+.adminSupportMessage { width: min(84%,520px) !important; align-self: flex-start !important; padding: 10px 12px !important; border-radius: 11px !important; background: #0b2137 !important; }
+.adminSupportMessage.agent { align-self: flex-end !important; background: #075b9e !important; }
+.adminSupportMessage.assistant { background: rgba(116,137,165,.15) !important; }
+.adminSupportMessage strong,.adminSupportMessage time { display: block !important; color: #7ec6ff !important; font-size: 9px !important; }
+.adminSupportMessage p { margin: 5px 0 !important; white-space: pre-wrap !important; }
+.adminSupportComposer { display: grid !important; grid-template-columns: minmax(0,1fr) 120px !important; gap: 10px !important; padding: 0 14px !important; }
+.adminSupportComposer textarea { min-height: 70px !important; }
+.adminSupportStatusActions { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; padding: 12px 14px 0 !important; }
+.adminSupportStatusActions button { min-height: 36px !important; padding: 0 12px !important; border-radius: 8px !important; background: #10273d !important; color: #d8e8f7 !important; }
+.adminSupportStatusActions .close { background: rgba(255,59,82,.13) !important; color: #ff7e90 !important; }
+.adminSupportMetadata { margin: 12px 14px 0 !important; color: #8ca1b8 !important; font-size: 10px !important; }
+.adminSupportMetadata pre { max-height: 180px !important; overflow: auto !important; padding: 10px !important; border-radius: 8px !important; background: #030c16 !important; white-space: pre-wrap !important; }
+
+/* AI panel should fit its content instead of stretching to the entire phone. */
+@media (max-width: 900px), (pointer: coarse) {
+  .aiScannerPanel {
+    left: 6px !important;
+    right: 6px !important;
+    top: max(8px, env(safe-area-inset-top)) !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    padding: 10px !important;
+    contain: content !important;
+  }
+
+  .aiScannerPanel > header,
+  .aiScannerPanel > footer,
+  .aiContextPill,
+  .aiScannerInputs,
+  .aiScanningState,
+  .aiSignalResult,
+  .aiAutoRunCard,
+  .aiSafetyNote { flex: 0 0 auto !important; }
+
+  .aiScannerPanel > footer {
+    position: sticky !important;
+    bottom: -10px !important;
+    z-index: 4 !important;
+    padding: 8px 0 2px !important;
+    background: #04111f !important;
+  }
+
+  .aiScannerInputs { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 6px !important; }
+  .aiScannerInputs input { height: 38px !important; padding-inline: 8px 24px !important; }
+  .aiSignalResult { grid-template-columns: 66px minmax(0,1fr) !important; padding: 9px !important; }
+  .aiConfidenceRing { width: 58px !important; height: 58px !important; border-width: 3px !important; }
+  .aiConfidenceRing strong { font-size: 16px !important; }
+  .aiAutoMetrics { grid-template-columns: repeat(5,minmax(0,1fr)) !important; gap: 5px !important; }
+  .aiAutoMetrics span { min-width: 0 !important; padding: 7px 3px !important; }
+  .aiAutoMetrics small { font-size: 6px !important; }
+  .aiAutoMetrics strong { font-size: 10px !important; }
+
+  .supportChatPanel {
+    left: 6px !important;
+    right: 6px !important;
+    top: max(8px, env(safe-area-inset-top)) !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-height: calc(100dvh - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  }
+
+  .adminSupportWorkspace { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 420px) {
+  .supportChatLauncher { left: 8px !important; min-width: 48px !important; padding: 0 8px !important; }
+  .supportChatLauncher > b { display: none !important; }
+  .aiScannerPanel > header h2,.supportChatPanel > header h2 { font-size: 17px !important; }
+  .aiScannerInputs { grid-template-columns: 1fr !important; }
+  .aiScanningState { grid-template-columns: 56px minmax(0,1fr) !important; }
+  .aiRadarScanner { width: 52px !important; height: 52px !important; }
+  .aiDataFindingList { display: none !important; }
+  .aiAutoMetrics { grid-template-columns: repeat(3,minmax(0,1fr)) !important; }
+  .supportChatPanel { padding: 9px !important; }
+}
+
+@media (max-width: 360px), (max-height: 680px) {
+  .aiScannerPanel,.supportChatPanel { max-height: calc(100dvh - 68px) !important; }
+  .aiContextPill { margin: 6px 0 !important; padding: 6px 8px !important; }
+  .aiScannerInputs label > span { font-size: 7px !important; }
+  .aiScannerPanel > footer button { min-height: 38px !important; font-size: 9px !important; }
+  .supportAiGreeting { padding: 7px !important; }
+}
+
+/* Mobile Forex order panel stays usable on narrow and short phones. */
+@media (max-width: 760px) {
+  .forexPage.realMarketPublishPage { padding-inline: 7px !important; }
+  .forexPage .realMarketHeaderCard,
+  .forexPage .realMarketChartPanel,
+  .forexPage .realMarketOrderPanel { width: 100% !important; min-width: 0 !important; }
+  .forexPage .realMarketOrderForm { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 7px !important; }
+  .forexPage .realMarketOrderForm .orderInput:nth-child(n+3) { min-width: 0 !important; }
+  .forexPage .realMarketTradeButtons { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 8px !important; }
+  .forexPage .realMarketTradeButtons button { min-width: 0 !important; }
+}
