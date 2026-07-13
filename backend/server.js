@@ -462,14 +462,25 @@ function estimatedTouchProbability(ticks, barrierDistance) {
   return Math.max(0.12, Math.min(0.82, safeTicks / (safeTicks + safeDistance * 2.5)));
 }
 
+const DIGIT_PAYOUT_BY_WINNING_DIGITS = Object.freeze({
+  1: 9.68,
+  2: 4.84,
+  3: 3.23,
+  4: 2.42,
+  5: 1.93,
+  6: 1.61,
+  7: 1.39,
+  8: 1.22,
+  9: 1.09,
+});
+
 function tradeMultiplier(type, action, prediction, options = {}) {
   const digit = Math.max(0, Math.min(9, Number(prediction || 0)));
   if (type === "Even/Odd" || type === "Rise/Fall") return 1.9;
-  if (type === "Matches/Differs") return action === "Matches" ? 9.5 : 1.056;
+  if (type === "Matches/Differs") return action === "Matches" ? 8.33 : 1.09;
   if (type === "Over/Under") {
     const winningDigits = action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
-    if (!winningDigits) return 0;
-    return Number(Math.max(1.02, Math.min(9.5, 0.95 / (winningDigits / 10))).toFixed(3));
+    return Number(DIGIT_PAYOUT_BY_WINNING_DIGITS[winningDigits] || 0);
   }
   if (type === "Touch/No Touch") {
     const touchProbability = estimatedTouchProbability(options.ticks, options.barrierDistance);
@@ -1792,8 +1803,10 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
     const volume = Number(req.body?.volume);
     const leverageText = cleanText(req.body?.leverage || "1:100", 20);
     const leverageValue = Number(leverageText.split(":")[1] || 100);
-    const stopLoss = Number(req.body?.stopLoss);
-    const takeProfit = Number(req.body?.takeProfit);
+    const requestedStopLoss = Number(req.body?.stopLoss || 0);
+    const requestedTakeProfit = Number(req.body?.takeProfit || 0);
+    const stopLoss = Number.isFinite(requestedStopLoss) && requestedStopLoss > 0 ? requestedStopLoss : 0;
+    const takeProfit = Number.isFinite(requestedTakeProfit) && requestedTakeProfit > 0 ? requestedTakeProfit : 0;
     const clientPrice = Number(req.body?.marketPrice || 0);
     const requestedSource = String(req.body?.source || "manual").trim().toLowerCase();
     const source = requestedSource === "ai" ? "ai" : "manual";
@@ -1807,17 +1820,14 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
       allowClientFallback: account === "demo",
       clientPrice,
     });
-    if (!quote.isMarketOpen) throw httpError(400, `${market.label} is currently closed.`);
+    if (!quote.isMarketOpen && account === "real") throw httpError(400, `${market.label} is currently closed.`);
 
     const halfSpread = Number(market.spread || 0) / 2;
     const openPrice = Number((side === "Buy" ? quote.price + halfSpread : quote.price - halfSpread).toFixed(market.decimals));
-    if (!Number.isFinite(stopLoss) || !Number.isFinite(takeProfit) || stopLoss <= 0 || takeProfit <= 0) {
-      throw httpError(400, "Enter valid Stop Loss and Take Profit prices.");
-    }
-    const protectionOk = side === "Buy"
-      ? stopLoss < openPrice && takeProfit > openPrice
-      : stopLoss > openPrice && takeProfit < openPrice;
-    if (!protectionOk) throw httpError(400, "Stop Loss and Take Profit are on the wrong side of the market price.");
+    const stopLossOk = stopLoss <= 0 || (side === "Buy" ? stopLoss < openPrice : stopLoss > openPrice);
+    const takeProfitOk = takeProfit <= 0 || (side === "Buy" ? takeProfit > openPrice : takeProfit < openPrice);
+    if (!stopLossOk) throw httpError(400, "Stop Loss is on the wrong side of the market price.");
+    if (!takeProfitOk) throw httpError(400, "Take Profit is on the wrong side of the market price.");
 
     const openPositions = await db.collection("forexPositions")
       .find({ email: req.user.email, account, status: "OPEN" })

@@ -353,6 +353,7 @@ const TRADING_PAGES = new Set([
 function initialTradingPage() {
   if (typeof window === "undefined") return "home";
   const page = window.location.hash.replace(/^#/, "");
+  if (page === "markets") return "forex";
   return TRADING_PAGES.has(page) ? page : "home";
 }
 
@@ -494,15 +495,26 @@ function estimatedTouchProbability({ ticks = 5, barrierDistance = 2 } = {}) {
   return Math.max(0.12, Math.min(0.82, safeTicks / (safeTicks + safeDistance * 2.5)));
 }
 
+const DIGIT_PAYOUT_BY_WINNING_DIGITS = Object.freeze({
+  1: 9.68,
+  2: 4.84,
+  3: 3.23,
+  4: 2.42,
+  5: 1.93,
+  6: 1.61,
+  7: 1.39,
+  8: 1.22,
+  9: 1.09,
+});
+
 function estimatedContractMultiplier(type, action, prediction = 2, options = {}) {
   const digit = Math.max(0, Math.min(9, Number(prediction ?? 0)));
 
   if (type === "Even/Odd" || type === "Rise/Fall") return 1.9;
-  if (type === "Matches/Differs") return action === "Matches" ? 9.5 : 1.056;
+  if (type === "Matches/Differs") return action === "Matches" ? 8.33 : 1.09;
   if (type === "Over/Under") {
     const winningDigits = action === "Over" ? Math.max(0, 9 - digit) : Math.max(0, digit);
-    if (!winningDigits) return 0;
-    return Number(Math.max(1.02, Math.min(9.5, 0.95 / (winningDigits / 10))).toFixed(3));
+    return Number(DIGIT_PAYOUT_BY_WINNING_DIGITS[winningDigits] || 0);
   }
   if (type === "Touch/No Touch") {
     const touchProbability = estimatedTouchProbability(options);
@@ -1065,10 +1077,10 @@ function TradingApp() {
       const quote = Number(marketFeed?.[position.instrument]?.price || position.currentPrice || 0);
       const stopLoss = Number(position.stopLoss || 0);
       const takeProfit = Number(position.takeProfit || 0);
-      if (!Number.isFinite(quote) || quote <= 0 || stopLoss <= 0 || takeProfit <= 0) return;
+      if (!Number.isFinite(quote) || quote <= 0) return;
 
-      const takeHit = position.side === "Buy" ? quote >= takeProfit : quote <= takeProfit;
-      const stopHit = position.side === "Buy" ? quote <= stopLoss : quote >= stopLoss;
+      const takeHit = takeProfit > 0 && (position.side === "Buy" ? quote >= takeProfit : quote <= takeProfit);
+      const stopHit = stopLoss > 0 && (position.side === "Buy" ? quote <= stopLoss : quote >= stopLoss);
       if (takeHit || stopHit) void closePosition(position.id);
     });
   }, [positions, marketFeed]);
@@ -1079,13 +1091,21 @@ function TradingApp() {
 
     const openPosition = positions.find((item) => item.id === session.positionId);
     if (openPosition) {
+      const livePnl = Number(Number(openPosition.pl || 0).toFixed(2));
+      const targetReached = Number(session.targetProfit || 0) > 0 && livePnl >= Number(session.targetProfit);
+      const stopReached = Number(session.stopLoss || 0) > 0 && livePnl <= -Number(session.stopLoss);
       const next = {
         ...session,
-        pnl: Number(Number(openPosition.pl || 0).toFixed(2)),
-        status: `${openPosition.side || "Trade"} position running`,
+        pnl: livePnl,
+        status: targetReached
+          ? `Target profit reached at +${money(livePnl)} USD · closing position`
+          : stopReached
+          ? `Stop loss reached at ${money(livePnl)} USD · closing position`
+          : `${openPosition.side || "Trade"} ${openPosition.instrument || "position"} running`,
       };
       aiAutoSessionRef.current = next;
       setAiAutoSession(next);
+      if (targetReached || stopReached) void closePosition(openPosition.id);
       return;
     }
 
@@ -1139,11 +1159,12 @@ function TradingApp() {
     const onPopState = (event) => {
       const statePage = event.state?.mbPage;
       const hashPage = window.location.hash.replace(/^#/, "");
-      const nextPage = TRADING_PAGES.has(statePage)
+      const resolvedPage = TRADING_PAGES.has(statePage)
         ? statePage
         : TRADING_PAGES.has(hashPage)
         ? hashPage
         : "home";
+      const nextPage = resolvedPage === "markets" ? "forex" : resolvedPage;
       historyPopRef.current = true;
       setActivePage(nextPage);
     };
@@ -1545,7 +1566,11 @@ function TradingApp() {
       const result = await readApiResponse(response);
       if (!response.ok || result.ok === false) return;
       if (Array.isArray(result.positions)) {
-        setPositions(result.positions);
+        setPositions((current) => {
+          const localDemoPositions = current.filter((position) => String(position.id || "").startsWith("demo-fx-"));
+          const serverIds = new Set(result.positions.map((position) => position.id));
+          return [...localDemoPositions.filter((position) => !serverIds.has(position.id)), ...result.positions].slice(0, 40);
+        });
       }
     } catch (error) {
       console.warn("Unable to refresh forex positions:", error);
@@ -1956,14 +1981,16 @@ function TradingApp() {
     const market = MARKET_BY_SYMBOL[symbol] || MARKET_BY_SYMBOL["EUR/USD"];
     const lots = Number(volume);
     const quote = Number(submittedMarketPrice || marketFeed[symbol]?.price || 0);
+    const optionalStopLoss = Number.isFinite(Number(stopLoss)) && Number(stopLoss) > 0 ? Number(stopLoss) : 0;
+    const optionalTakeProfit = Number.isFinite(Number(takeProfit)) && Number(takeProfit) > 0 ? Number(takeProfit) : 0;
 
     if (!Number.isFinite(quote) || quote <= 0) {
       notify("loss", "Live price unavailable", "Wait for the live market quote before placing an order.");
       return false;
     }
 
-    if (marketOpen === false || marketFeed[symbol]?.isOpen === false) {
-      notify("loss", "Market closed", `${market.label} is closed. Orders are disabled until the market opens.`);
+    if (account === "real" && (marketOpen === false || marketFeed[symbol]?.isOpen === false)) {
+      notify("loss", "Market closed", `${market.label} is closed. Real orders are disabled until the market opens.`);
       return false;
     }
 
@@ -1988,8 +2015,8 @@ function TradingApp() {
           symbol,
           volume: lots,
           leverage,
-          stopLoss: Number(stopLoss),
-          takeProfit: Number(takeProfit),
+          stopLoss: optionalStopLoss,
+          takeProfit: optionalTakeProfit,
           marketPrice: quote,
           source,
           strategy,
@@ -2033,6 +2060,46 @@ function TradingApp() {
       );
       return result.position || true;
     } catch (error) {
+      if (account === "demo") {
+        const leverageValue = Math.max(10, Number(String(leverage || "1:100").split(":")[1] || 100));
+        const openPrice = Number((side === "Buy" ? quote + Number(market.spread || 0) / 2 : quote - Number(market.spread || 0) / 2).toFixed(market.decimals));
+        const margin = Number(((openPrice * Number(market.contractSize || 1) * lots) / leverageValue).toFixed(2));
+        const localPosition = {
+          id: `demo-fx-${uid()}`,
+          account: "demo",
+          instrument: symbol,
+          marketLabel: market.label,
+          side,
+          volume: lots,
+          leverage: String(leverage || "1:100"),
+          leverageValue,
+          margin,
+          contractSize: Number(market.contractSize || 1),
+          openPrice,
+          currentPrice: quote,
+          stopLoss: optionalStopLoss,
+          takeProfit: optionalTakeProfit,
+          pl: 0,
+          plPercent: 0,
+          source,
+          strategy,
+          status: "OPEN",
+          openedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        };
+        setPositions((old) => [localPosition, ...old.filter((position) => position.id !== localPosition.id)].slice(0, 40));
+        addTx({
+          type: `${side} ${symbol}`,
+          method: source === "ai" ? "AI Forex" : "Forex",
+          account: "demo",
+          amount: 0,
+          status: "Open",
+          details: `${lots} lot · Demo margin ${money(margin)} USD`,
+        });
+        notify("open", `${side} demo order placed`, `${market.label} · ${lots} lot`, 3400);
+        return localPosition;
+      }
+
       notify(
         "loss",
         "Forex order failed",
@@ -2050,6 +2117,24 @@ function TradingApp() {
   async function closePosition(id) {
     const item = positions.find((position) => position.id === id);
     if (!item || !authToken || closingForexIdsRef.current.has(id)) return false;
+
+    if (String(id).startsWith("demo-fx-")) {
+      const closed = { ...item, status: "CLOSED", closedAt: new Date().toISOString(), pl: Number(item.pl || 0) };
+      setClosedPositions((old) => [closed, ...old.filter((position) => position.id !== id)].slice(0, 100));
+      setPositions((old) => old.filter((position) => position.id !== id));
+      setBalances((old) => ({ ...old, demo: Number((Number(old.demo || 0) + Number(closed.pl || 0)).toFixed(2)) }));
+      setUser((old) => old ? { ...old, demoBalance: Number((Number(old.demoBalance || balancesRef.current.demo || 0) + Number(closed.pl || 0)).toFixed(2)) } : old);
+      addTx({
+        type: `Closed ${item.side} ${item.instrument}`,
+        method: "Forex",
+        account: "demo",
+        amount: Number(closed.pl || 0),
+        status: "Closed",
+        details: `${item.volume} lot · Demo`,
+      });
+      notify(Number(closed.pl || 0) >= 0 ? "win" : "loss", "Demo trade closed", `${Number(closed.pl || 0) >= 0 ? "+" : ""}${money(closed.pl || 0)} USD`);
+      return true;
+    }
 
     closingForexIdsRef.current.add(id);
     const quote = Number(marketFeed[item.instrument]?.price || item.currentPrice || 0);
@@ -2385,6 +2470,60 @@ function TradingApp() {
     if (showMessage) notify("open", "AI Auto-Trade stopped", reason, 3200);
   }
 
+  function buildAdaptiveAiSignal(previousSignal, won) {
+    const currentSession = aiAutoSessionRef.current;
+    const previousType = previousSignal?.type || "Over/Under";
+    const previousMarketId = previousSignal?.marketId || "";
+    const typeRotation = ["Over/Under", "Matches/Differs", "Rise/Fall"];
+    const previousTypeIndex = Math.max(0, typeRotation.indexOf(previousType));
+    const nextType = won
+      ? (Number(currentSession.trades || 0) + 1) % 3 === 0
+        ? typeRotation[(previousTypeIndex + 1) % typeRotation.length]
+        : previousType
+      : typeRotation[(previousTypeIndex + 1) % typeRotation.length];
+
+    const rankedMarkets = VOLATILITY_OPTIONS.map((market, index) => {
+      const state = binaryMarketStatesRef.current?.[market.id] || {};
+      const prices = Array.isArray(state.prices) ? state.prices : [];
+      const recent = prices.slice(-12);
+      const trend = recent.length > 1 ? Number(recent[recent.length - 1]) - Number(recent[0]) : 0;
+      const stats = Array.isArray(state.digitStats) && state.digitStats.length ? state.digitStats : [10];
+      const distribution = Math.max(...stats) - Math.min(...stats);
+      const changeBonus = !won && market.id !== previousMarketId ? 4 : 0;
+      return { market, trend, score: Math.abs(trend) * 100000 + distribution + changeBonus + index * 0.001 };
+    }).sort((a, b) => b.score - a.score);
+
+    const selected = rankedMarkets.find((item) => won || item.market.id !== previousMarketId) || rankedMarkets[0];
+    const market = selected?.market || VOLATILITY_OPTIONS[0];
+    const trend = Number(selected?.trend || 0);
+    const thresholdSequence = [1, 6, 9];
+    const threshold = thresholdSequence[(Number(currentSession.losses || 0) + Number(currentSession.trades || 0)) % thresholdSequence.length];
+
+    let action = "Over";
+    let prediction = threshold;
+    if (nextType === "Matches/Differs") {
+      action = "Differs";
+      prediction = Math.floor(Math.random() * 10);
+    } else if (nextType === "Rise/Fall") {
+      action = trend >= 0 ? "Rise" : "Fall";
+      prediction = 0;
+    } else {
+      action = threshold >= 8 ? "Under" : threshold === 6 ? (trend >= 0 ? "Over" : "Under") : "Over";
+    }
+
+    return {
+      ...previousSignal,
+      sessionId: currentSession.id,
+      marketId: market.id,
+      marketLabel: market.label,
+      type: nextType,
+      action,
+      prediction,
+      ticks: Math.min(10, Math.max(2, 3 + Math.floor(Math.random() * 4))),
+      stake: Math.max(0.3, Number(previousSignal?.stake || stake || 0.3)),
+    };
+  }
+
   async function openAiBinaryTrade(signal) {
     const session = aiAutoSessionRef.current;
     if (!session.running || session.mode !== "trade" || session.id !== signal?.sessionId) return false;
@@ -2527,6 +2666,7 @@ function TradingApp() {
     const nextPnl = Number((Number(current.pnl || 0) + net).toFixed(2));
     const targetReached = Number(current.targetProfit || 0) > 0 && nextPnl >= Number(current.targetProfit);
     const stopReached = Number(current.stopLoss || 0) > 0 && nextPnl <= -Number(current.stopLoss);
+    const nextSignal = targetReached || stopReached ? current.signal : buildAdaptiveAiSignal(current.signal, outcome.won);
     const next = {
       ...current,
       pnl: nextPnl,
@@ -2538,11 +2678,14 @@ function TradingApp() {
       losses: Number(current.losses || 0) + (outcome.won ? 0 : 1),
       running: !(targetReached || stopReached),
       completedAt: targetReached || stopReached ? Date.now() : 0,
+      signal: nextSignal,
       status: targetReached
         ? `Target profit reached at +${money(nextPnl)} USD`
         : stopReached
         ? `Stop loss reached at ${money(nextPnl)} USD`
-        : `${outcome.won ? "Won" : "Lost"} ${money(Math.abs(net))} USD · preparing next trade`,
+        : outcome.won
+        ? `Won ${money(Math.abs(net))} USD · validating the next entry`
+        : `Lost ${money(Math.abs(net))} USD · changing market and contract before the next entry`,
     };
 
     aiAutoSessionRef.current = next;
@@ -2560,11 +2703,14 @@ function TradingApp() {
     }
 
     window.clearTimeout(aiAutoTimerRef.current);
+    const entryDelay = outcome.won
+      ? 1400 + Math.floor(Math.random() * 1200)
+      : 2800 + Math.floor(Math.random() * 1800);
     aiAutoTimerRef.current = window.setTimeout(() => {
       const latest = aiAutoSessionRef.current;
       if (!latest.running || latest.id !== current.id || latest.mode !== "trade") return;
       void openAiBinaryTrade(latest.signal);
-    }, 650);
+    }, entryDelay);
   }
 
   async function startAiAutoTrade(result) {
@@ -2646,11 +2792,11 @@ function TradingApp() {
       const running = {
         ...aiAutoSessionRef.current,
         positionId,
-        status: `${result.side || "Buy"} ${market.symbol} is running with broker take profit and stop loss`,
+        status: `${result.side || "Buy"} ${market.symbol} is running until the AI target or stop is reached`,
       };
       aiAutoSessionRef.current = running;
       setAiAutoSession(running);
-      notify("open", "AI Forex trade started", `${market.symbol} will remain open until TP, SL, or manual close.`, 4800);
+      notify("open", "AI Forex trade started", `${market.symbol} will remain open until the AI target, AI stop, or manual close.`, 4800);
       return true;
     }
 
@@ -3648,12 +3794,19 @@ function Header({
         aria-expanded={accountMenuOpen}
         aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
       >
-        <div className="usdWalletSelectorV11">
-          <span className="usdFlagCircleV11" aria-hidden="true">
-            <span className="usdFlagStarsV11"></span>
-          </span>
-          <span className="usdWalletInlineV11">{money(balance)} USD</span>
-        </div>
+        {isReal ? (
+          <div className="usdWalletSelectorV12">
+            <span className="usdFlagCircleV12" aria-hidden="true">
+              <span className="usdFlagStarsV12"></span>
+            </span>
+            <span className="usdWalletInlineV12">{money(balance)} USD</span>
+          </div>
+        ) : (
+          <div className="demoWalletSelectorV12">
+            <span className="demoWalletBadgeV12">DEMO</span>
+            <span className="demoWalletInlineV12">{money(balance)} USD</span>
+          </div>
+        )}
 
       </button>
 
@@ -4169,6 +4322,7 @@ function ForexPage({
     marketFeed?.isOpen,
     likelyMarketOpen(market)
   );
+  const tradingAllowed = account === "demo" ? true : marketOpen;
   const priceReady = Number.isFinite(Number(livePrice)) && Number(livePrice) > 0;
   const feedStatus = marketFeed?.status || "connecting";
   const change = Number(marketFeed?.change || 0);
@@ -4186,48 +4340,34 @@ function ForexPage({
   }, [preparedSetup?.preparedAt, preparedSetup?.symbol, symbol]);
 
   useEffect(() => {
-    if (!priceReady || seededSymbolRef.current === symbol) return;
-
-    setStopLoss(
-      Number(
-        (Number(livePrice) - Number(market.slDistance || market.priceStep)).toFixed(
-          market.decimals
-        )
-      )
-    );
-    setTakeProfit(
-      Number(
-        (Number(livePrice) + Number(market.tpDistance || market.priceStep)).toFixed(
-          market.decimals
-        )
-      )
-    );
+    if (seededSymbolRef.current === symbol) return;
+    if (preparedSetup?.preparedAt && preparedSetup.symbol === symbol) {
+      seededSymbolRef.current = symbol;
+      return;
+    }
+    setStopLoss(0);
+    setTakeProfit(0);
     seededSymbolRef.current = symbol;
-  }, [symbol, livePrice, priceReady, market]);
+  }, [symbol, preparedSetup?.preparedAt, preparedSetup?.symbol]);
 
   async function order(side) {
-    if (orderBusy || !priceReady || !marketOpen) return;
+    if (orderBusy || !priceReady || !tradingAllowed) return;
 
     const gap = Number(market.priceStep || 0.0001);
-    const normalizedStopLoss =
-      side === "Buy"
-        ? Math.min(Number(stopLoss), Number(livePrice) - gap)
-        : Math.max(Number(stopLoss), Number(livePrice) + gap);
+    const stopValue = Number(stopLoss);
+    const takeValue = Number(takeProfit);
+    const hasStopLoss = Number.isFinite(stopValue) && stopValue > 0;
+    const hasTakeProfit = Number.isFinite(takeValue) && takeValue > 0;
 
-    const normalizedTakeProfit =
-      side === "Buy"
-        ? Math.max(Number(takeProfit), Number(livePrice) + gap)
-        : Math.min(Number(takeProfit), Number(livePrice) - gap);
+    const fixedStopLoss = hasStopLoss
+      ? Number((side === "Buy" ? Math.min(stopValue, Number(livePrice) - gap) : Math.max(stopValue, Number(livePrice) + gap)).toFixed(market.decimals))
+      : 0;
+    const fixedTakeProfit = hasTakeProfit
+      ? Number((side === "Buy" ? Math.max(takeValue, Number(livePrice) + gap) : Math.min(takeValue, Number(livePrice) - gap)).toFixed(market.decimals))
+      : 0;
 
-    const fixedStopLoss = Number(
-      normalizedStopLoss.toFixed(market.decimals)
-    );
-    const fixedTakeProfit = Number(
-      normalizedTakeProfit.toFixed(market.decimals)
-    );
-
-    setStopLoss(fixedStopLoss);
-    setTakeProfit(fixedTakeProfit);
+    if (hasStopLoss) setStopLoss(fixedStopLoss);
+    if (hasTakeProfit) setTakeProfit(fixedTakeProfit);
     setOrderBusy(true);
 
     try {
@@ -4239,7 +4379,7 @@ function ForexPage({
         stopLoss: fixedStopLoss,
         takeProfit: fixedTakeProfit,
         marketPrice: livePrice,
-        marketOpen,
+        marketOpen: tradingAllowed,
       });
     } finally {
       window.setTimeout(() => setOrderBusy(false), 350);
@@ -4289,6 +4429,8 @@ function ForexPage({
             value={symbol}
             onChange={(event) => {
               seededSymbolRef.current = "";
+              setStopLoss(0);
+              setTakeProfit(0);
               setSymbol(event.target.value);
             }}
             aria-label="Choose market"
@@ -4399,8 +4541,8 @@ function ForexPage({
                 {expanded && (
                   <div className="forexLiveTradeDetails">
                     <p><span>Current price</span><b>{formatMarketPrice(position.currentPrice || position.openPrice, position.instrument)}</b></p>
-                    <p><span>Stop loss</span><b>{formatMarketPrice(position.stopLoss, position.instrument)}</b></p>
-                    <p><span>Take profit</span><b>{formatMarketPrice(position.takeProfit, position.instrument)}</b></p>
+                    <p><span>Stop loss</span><b>{Number(position.stopLoss || 0) > 0 ? formatMarketPrice(position.stopLoss, position.instrument) : "Not set"}</b></p>
+                    <p><span>Take profit</span><b>{Number(position.takeProfit || 0) > 0 ? formatMarketPrice(position.takeProfit, position.instrument) : "Not set"}</b></p>
                     <p><span>Leverage</span><b>{position.leverage || "1:100"}</b></p>
                   </div>
                 )}
@@ -4417,7 +4559,7 @@ function ForexPage({
               type="button"
               className="buyLarge"
               onClick={() => order("Buy")}
-              disabled={orderBusy || !priceReady || !marketOpen}
+              disabled={orderBusy || !priceReady || !tradingAllowed}
             >
               <b>
                 {!marketOpen
@@ -4434,7 +4576,7 @@ function ForexPage({
               type="button"
               className="sellLarge"
               onClick={() => order("Sell")}
-              disabled={orderBusy || !priceReady || !marketOpen}
+              disabled={orderBusy || !priceReady || !tradingAllowed}
             >
               <b>
                 {!marketOpen
@@ -4478,7 +4620,7 @@ function ForexPage({
             </label>
 
             <OrderInput
-              label="Stop Loss"
+              label="Stop Loss (optional)"
               value={stopLoss}
               setValue={setStopLoss}
               step={market.priceStep}
@@ -4487,7 +4629,7 @@ function ForexPage({
             />
 
             <OrderInput
-              label="Take Profit"
+              label="Take Profit (optional)"
               value={takeProfit}
               setValue={setTakeProfit}
               step={market.priceStep}
@@ -5997,7 +6139,7 @@ function BottomNav({ activePage, setActivePage }) {
               ? "active"
               : ""
           }
-          onClick={() => setActivePage(key)}
+          onClick={() => setActivePage(key === "markets" ? "forex" : key)}
           aria-label={label}
           aria-current={
             activePage === key || (key === "markets" && ["forex", "openTrades"].includes(activePage))
@@ -6054,7 +6196,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
             <DrawerButton icon="⌂" label="Trader’s Hub" onClick={() => go("home")} />
-            <DrawerButton icon="▥" label="Markets" onClick={() => go("markets")} />
+            <DrawerButton icon="▥" label="Markets" onClick={() => go("forex")} />
             <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
           </DrawerBlock>
 
@@ -6129,7 +6271,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
   const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
-  const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10, risk: "Medium" });
+  const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10 });
   const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
 
   useEffect(() => saveStore(STORE.aiPosition, position), [position]);
@@ -6170,7 +6312,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const side = momentum >= 0 ? "Buy" : "Sell";
       const sl = side === "Buy" ? price - market.slDistance : price + market.slDistance;
       const tp = side === "Buy" ? price + market.tpDistance : price - market.tpDistance;
-      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: 0.01, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: Math.max(0.3, Number(config.takeProfit || 20)), sessionStopLoss: Math.max(0.3, Number(config.stopLoss || 10)), risk: config.risk };
+      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: 0.01, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: Math.max(0.3, Number(config.takeProfit || 20)), sessionStopLoss: Math.max(0.3, Number(config.stopLoss || 10)) };
     }
     if (mode === "bot") {
       const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
@@ -6189,40 +6331,53 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       return { market, score: Math.abs(trend) * 100000 + spread + Math.random() * 2 + index * 0.01 };
     }).sort((a, b) => b.score - a.score);
     const market = scored[0]?.market || volatilityOptions[0];
-    const typeChoices = ["Even/Odd", "Over/Under", "Matches/Differs"];
+    const typeChoices = ["Over/Under", "Matches/Differs", "Rise/Fall"];
     const type = typeChoices[Math.floor(Math.random() * typeChoices.length)];
-    const prediction = type === "Over/Under" ? 2 : Math.floor(Math.random() * 10);
-    const action = type === "Even/Odd" ? (Math.random() > 0.5 ? "Even" : "Odd") : type === "Matches/Differs" ? "Differs" : "Over";
-    return { mode, confidence, marketId: market.id, marketLabel: market.label, type, action, prediction, ticks: 3 + Math.floor(Math.random() * 4), stake: config.stake, takeProfit: config.takeProfit, stopLoss: config.stopLoss, risk: config.risk };
+    const recentPrices = binaryMarketStates?.[market.id]?.prices || [];
+    const recentTrend = recentPrices.length > 2 ? Number(recentPrices[recentPrices.length - 1]) - Number(recentPrices[Math.max(0, recentPrices.length - 8)]) : 0;
+    const thresholds = [1, 6, 9];
+    const prediction = type === "Over/Under" ? thresholds[Math.floor(Math.random() * thresholds.length)] : Math.floor(Math.random() * 10);
+    const action = type === "Matches/Differs"
+      ? "Differs"
+      : type === "Rise/Fall"
+      ? (recentTrend >= 0 ? "Rise" : "Fall")
+      : prediction >= 8
+      ? "Under"
+      : prediction === 6
+      ? (recentTrend >= 0 ? "Over" : "Under")
+      : "Over";
+    return { mode, confidence, marketId: market.id, marketLabel: market.label, type, action, prediction, ticks: 3 + Math.floor(Math.random() * 4), stake: config.stake, takeProfit: config.takeProfit, stopLoss: config.stopLoss };
   }
 
   function scan() {
     if (scanning) return;
+    const scanDurationMs = 30000;
+    const startedAt = Date.now();
     setScanning(true);
-    setProgress(3);
+    setProgress(1);
     setResult(null);
     setScanMessage("Connecting to market feeds…");
-    let value = 3;
+
     const timer = window.setInterval(() => {
-      value = Math.min(96, value + 7 + Math.floor(Math.random() * 8));
+      const elapsed = Date.now() - startedAt;
+      const value = Math.min(99, Math.max(1, Math.floor((elapsed / scanDurationMs) * 100)));
       setProgress(value);
       setScanMessage(
-        value < 24 ? "Connecting to market feeds…" :
-        value < 43 ? "Reading price movement and momentum…" :
-        value < 62 ? "Comparing payouts and volatility…" :
-        value < 81 ? "Checking risk, stop loss and recovery…" :
+        value < 20 ? "Connecting to market feeds…" :
+        value < 42 ? "Reading price movement and momentum…" :
+        value < 64 ? "Comparing payouts and digit distribution…" :
+        value < 84 ? "Checking recovery paths and entry timing…" :
         "Ranking the strongest market setup…"
       );
-      if (value >= 96) {
+
+      if (elapsed >= scanDurationMs) {
         window.clearInterval(timer);
-        window.setTimeout(() => {
-          setProgress(100);
-          setScanMessage("Strongest setup found");
-          setResult(buildResult());
-          setScanning(false);
-        }, 220);
+        setProgress(100);
+        setScanMessage("Strongest setup found");
+        setResult(buildResult());
+        setScanning(false);
       }
-    }, 150);
+    }, 300);
   }
 
   function pointerDown(event) {
@@ -6291,7 +6446,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
             <label><span>Starting amount</span><input type="number" min="0.3" step="0.1" value={config.stake} onChange={(e) => setConfig((old) => ({ ...old, stake: Number(e.target.value) }))} /><small>USD</small></label>
             <label><span>Target profit</span><input type="number" min="0" value={config.takeProfit} onChange={(e) => setConfig((old) => ({ ...old, takeProfit: Number(e.target.value) }))} /><small>USD</small></label>
             <label><span>Stop loss</span><input type="number" min="0" value={config.stopLoss} onChange={(e) => setConfig((old) => ({ ...old, stopLoss: Number(e.target.value) }))} /><small>USD</small></label>
-            <label><span>Risk</span><select value={config.risk} onChange={(e) => setConfig((old) => ({ ...old, risk: e.target.value }))}><option>Low</option><option>Medium</option><option>High</option></select></label>
           </div>
 
           {scanning && (
@@ -6301,7 +6455,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
               <ul className="aiDataFindingList">
                 <li className={progress >= 20 ? "done" : "active"}>Market feed connected</li>
                 <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Momentum and distribution analysed</li>
-                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Risk and payout compared</li>
+                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Payout and entry timing compared</li>
                 <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Recommended market selected</li>
               </ul>
             </div>
@@ -6313,7 +6467,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
               <div className="aiSignalCopy">
                 <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
                 {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
-                {result.mode === "forex" && <p>{result.side} · Entry {formatMarketPrice(result.entry, result.symbol)} · SL {formatMarketPrice(result.stopLoss, result.symbol)} · TP {formatMarketPrice(result.takeProfit, result.symbol)}</p>}
+                {result.mode === "forex" && <p>{result.side} · Entry {formatMarketPrice(result.entry, result.symbol)} · AI exit levels prepared</p>}
                 {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}
                 <em>Signal confidence is an estimate, not a guaranteed win rate.</em>
               </div>

@@ -23541,3 +23541,275 @@ body {
     font-size: 13px !important;
   }
 }
+
+/* =====================================================================
+   METABINARY V12 — ADAPTIVE AI, OPTIONAL FOREX PROTECTION, RESPONSIVE FLOW
+   ===================================================================== */
+
+/* Real wallet: compact USD flag and balance on one line. */
+.cleanBrokerHeader .brokerWallet > .usdWalletSelectorV12,
+.cleanBrokerHeader .brokerWallet > .demoWalletSelectorV12 {
+  all: unset !important;
+  box-sizing: border-box !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 0 12px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+
+.cleanBrokerHeader .usdFlagCircleV12 {
+  all: unset !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  flex: 0 0 27px !important;
+  width: 27px !important;
+  height: 27px !important;
+  display: block !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255,255,255,.55) !important;
+  background: repeating-linear-gradient(
+    to bottom,
+    #c62036 0 2.05px,
+    #fff 2.05px 4.1px
+  ) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), 0 2px 7px rgba(0,0,0,.32) !important;
+}
+
+.cleanBrokerHeader .usdFlagStarsV12 {
+  all: unset !important;
+  box-sizing: border-box !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 54% !important;
+  height: 53% !important;
+  display: block !important;
+  background:
+    radial-gradient(circle, #fff 0 .5px, transparent .72px) .7px .7px / 3.2px 3.2px,
+    #243d82 !important;
+}
+
+.cleanBrokerHeader .usdWalletInlineV12,
+.cleanBrokerHeader .demoWalletInlineV12 {
+  all: unset !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  min-width: 0 !important;
+  color: #fff !important;
+  font-family: inherit !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 750 !important;
+  letter-spacing: -.25px !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+}
+
+/* Demo removes the flag and uses a clear non-currency badge. */
+.cleanBrokerHeader .demoWalletSelectorV12 {
+  gap: 7px !important;
+}
+
+.cleanBrokerHeader .demoWalletBadgeV12 {
+  all: unset !important;
+  box-sizing: border-box !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  height: 25px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  color: #7fc4ff !important;
+  background: rgba(0,119,255,.13) !important;
+  border: 1px solid rgba(68,153,255,.38) !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+  letter-spacing: .55px !important;
+}
+
+/* AI inputs are now amount, target and stop only. */
+.aiScannerPanel .aiScannerInputs {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.aiScannerPanel .aiContextPill {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Forex protection inputs are truly optional. */
+.realMarketOrderForm .orderInput > span {
+  white-space: nowrap !important;
+}
+
+.realMarketOrderForm .orderInput input[value="0"] {
+  color: #8d9bad !important;
+}
+
+/* Rise/Fall and Touch charts stay centered, with the live trade line visible. */
+.finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+  width: min(100%, 1120px) !important;
+  margin-inline: auto !important;
+  align-self: center !important;
+}
+
+.finalBinaryTradePage.priceContractPage .priceContractLiveLine {
+  position: relative !important;
+  z-index: 25 !important;
+  width: calc(100% - 16px) !important;
+  margin: 8px auto 0 !important;
+  border-width: 1px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.24) !important;
+}
+
+/* Prevent tall phones from leaving a large artificial gap. */
+@media (max-width: 760px) {
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    width: 132px !important;
+    max-width: 132px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    border-radius: 14px !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet > .usdWalletSelectorV12,
+  .cleanBrokerHeader .brokerWallet > .demoWalletSelectorV12 {
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    padding: 0 8px !important;
+  }
+
+  .cleanBrokerHeader .usdFlagCircleV12 {
+    flex-basis: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .cleanBrokerHeader .usdWalletInlineV12,
+  .cleanBrokerHeader .demoWalletInlineV12 {
+    font-size: 13px !important;
+    letter-spacing: -.12px !important;
+  }
+
+  .cleanBrokerHeader .demoWalletBadgeV12 {
+    height: 22px !important;
+    padding-inline: 6px !important;
+    font-size: 7.5px !important;
+  }
+
+  .mainScreen {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .finalBinaryTradePage,
+  .finalBinaryTradePage.digitContractPage,
+  .finalBinaryTradePage.priceContractPage {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    gap: 8px !important;
+    padding-bottom: calc(98px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs,
+  .finalBinaryTradePage .volatilitySwitchBar,
+  .finalBinaryTradePage .finalBinaryChartCard,
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    flex: 0 0 auto !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard,
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    gap: 8px !important;
+    z-index: 30 !important;
+  }
+
+  .finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+    width: 100% !important;
+    margin-inline: 0 !important;
+  }
+
+  .finalBinaryTradePage.priceContractPage .priceContractLiveLine {
+    width: calc(100% - 10px) !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    padding: 10px !important;
+  }
+
+  .finalBinaryTradePage.priceContractPage .priceContractLiveLine > span:first-child,
+  .finalBinaryTradePage.priceContractPage .priceContractLiveLine > span:nth-child(4) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .aiScannerPanel .aiScannerInputs {
+    grid-template-columns: 1fr !important;
+  }
+
+  .aiScannerPanel {
+    max-height: calc(100dvh - 20px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .forexPage.realMarketPublishPage {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    min-height: 440px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    width: 122px !important;
+    max-width: 122px !important;
+  }
+
+  .cleanBrokerHeader .usdFlagCircleV12 {
+    flex-basis: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .cleanBrokerHeader .usdWalletInlineV12,
+  .cleanBrokerHeader .demoWalletInlineV12 {
+    font-size: 12px !important;
+  }
+}
