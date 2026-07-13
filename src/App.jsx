@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-clean-digit-rings-v6-2026-07-13";
+const FRONTEND_BUILD = "metabinary-rings-usd-v7-2026-07-13";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -3648,14 +3648,13 @@ function Header({
         aria-expanded={accountMenuOpen}
         aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
       >
-        <span className="accountSelectorText">
-          <small>
-            {isReal ? "REAL ACCOUNT" : "DEMO ACCOUNT"}
-            {isReal && <i aria-label="Real account online"></i>}
-          </small>
-          <strong>
-            {money(balance)} <em>USD</em>
-          </strong>
+        <span className="usdAccountSelectorV7">
+          <span className="usdFlagCircleV7" aria-hidden="true">🇺🇸</span>
+          <span className="usdAmountV7">
+            <strong>{money(balance)}</strong>
+            <em>USD</em>
+          </span>
+          <span className="usdAccountChevronV7" aria-hidden="true">⌄</span>
         </span>
 
       </button>
@@ -5074,8 +5073,8 @@ function TradePage({
         )}
 
         {digitMode ? (
-          <div className={`finalDigitBoard mbDigitBoardV6 ${activeBinaryTrade ? "isTrading" : ""}`}>
-            <div className="mbDigitGridV6" aria-label="Digit percentages">
+          <div className={`mbDigitBoardV7 ${activeBinaryTrade ? "isTrading" : ""}`}>
+            <div className="mbDigitGridV7" aria-label="Digit percentages">
               {digitStats.map((percent, digit) => {
                 const isHighest = Math.abs(percent - highestPercent) < 0.01;
                 const isLowest = Math.abs(percent - lowestPercent) < 0.01;
@@ -5092,16 +5091,11 @@ function TradePage({
                   Math.min(1, (Number(percent) - lowestPercent) / percentageRange)
                 );
 
-                // Highest = green upper half. Lowest = red bottom arc.
-                // Every other digit gets a different white arc length based on its percentage.
-                const whiteSweep = Math.round(42 + percentageLevel * 220);
-                const ringSweep = isHighest ? 180 : isLowest ? 82 : whiteSweep;
-                const ringStart = isHighest ? -90 : isLowest ? 139 : -90;
-                const ringColor = isHighest
-                  ? "#21d68b"
-                  : isLowest
-                    ? "#ff3b55"
-                    : "#f5f7fa";
+                // Middle rings visibly change with rank: low percentages have a
+                // short white bottom arc; higher percentages grow and move upward.
+                const whiteSweep = Math.round(64 + percentageLevel * 176);
+                const whiteCenter = 180 * (1 - percentageLevel);
+                const whiteStart = whiteCenter - whiteSweep / 2;
 
                 return (
                   <button
@@ -5110,29 +5104,27 @@ function TradePage({
                     onClick={() => setPrediction(digit)}
                     disabled={Boolean(activeBinaryTrade)}
                     className={[
-                      "mbDigitCellV6",
-                      digit < 5 ? "mbDigitTopV6" : "mbDigitBottomV6",
-                      isHighest ? "mbDigitHighestV6" : "",
-                      isLowest ? "mbDigitLowestV6" : "",
-                      isPicked ? "mbDigitPickedV6" : "",
-                      isCurrent ? "mbDigitCurrentV6" : "",
-                      isWinningTarget ? "mbDigitWinningV6" : "",
-                      isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV6" : "",
-                      isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV6" : "",
+                      "mbDigitCellV7",
+                      isHighest ? "mbDigitHighestV7" : "",
+                      isLowest ? "mbDigitLowestV7" : "",
+                      isPicked ? "mbDigitPickedV7" : "",
+                      isCurrent ? "mbDigitCurrentV7" : "",
+                      isWinningTarget ? "mbDigitWinningV7" : "",
+                      isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
+                      isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
                     style={{
-                      "--mb-ring-sweep": `${ringSweep}deg`,
-                      "--mb-ring-start": `${ringStart}deg`,
-                      "--mb-ring-color": ringColor,
+                      "--mb-v7-white-sweep": `${whiteSweep}deg`,
+                      "--mb-v7-white-start": `${whiteStart}deg`,
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                   >
-                    <span className="mbDigitRingV6" aria-hidden="true" />
-                    <span className="mbDigitCoreV6">
+                    <span className="mbDigitRingV7" aria-hidden="true" />
+                    <span className="mbDigitCoreV7">
                       <strong>{digit}</strong>
-                      <span className="mbDigitPercentV6">{Number(percent).toFixed(1)}%</span>
+                      <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
                     </span>
-                    <i className="mbDigitCursorV6" aria-hidden="true" />
+                    <i className="mbDigitCursorV7" aria-hidden="true" />
                   </button>
                 );
               })}
