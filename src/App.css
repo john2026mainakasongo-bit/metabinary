@@ -4,7 +4,7 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+a
 html,
 body,
 #root {
@@ -22235,201 +22235,236 @@ body {
   }
 }
 
-/* METABINARY FINAL CLEAN DIGIT RINGS V4 */
-.finalBinaryTradePage .finalDigitBoardHead { display: none !important; }
+/* =====================================================================
+   METABINARY CLEAN DIGIT RINGS V6 — ISOLATED FINAL IMPLEMENTATION
+   Unique class names prevent every older .chartDigit / SVG / pie rule
+   from affecting this panel. Do not rename these mbDigit*V6 classes.
+   ===================================================================== */
 
-.finalBinaryTradePage .cleanDigitBoard {
+.finalBinaryTradePage .mbDigitBoardV6 {
   min-height: 0 !important;
   height: auto !important;
-  padding: 10px 10px 14px !important;
-  overflow: visible !important;
-}
-
-.finalBinaryTradePage .finalDigitsGrid,
-.finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  grid-template-rows: repeat(2, minmax(58px, auto)) !important;
-  place-items: center !important;
-  gap: 12px 10px !important;
-  min-height: 132px !important;
-  height: auto !important;
-  padding: 2px 2px 8px !important;
+  padding: 10px 10px 16px !important;
   overflow: visible !important;
   background: #02070d !important;
 }
 
-.finalBinaryTradePage .chartDigit,
-.finalBinaryTradePage .chartDigit:not(.picked):not(.resultWin):not(.resultLoss),
-.finalBinaryTradePage .chartDigit.highestDigit,
-.finalBinaryTradePage .chartDigit.lowestDigit {
+.finalBinaryTradePage .mbDigitGridV6 {
+  width: 100% !important;
+  min-height: 136px !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, minmax(60px, auto)) !important;
+  place-items: center !important;
+  gap: 12px 10px !important;
+  padding: 2px 2px 10px !important;
+  overflow: visible !important;
+  background: #02070d !important;
+}
+
+.finalBinaryTradePage .mbDigitCellV6,
+.finalBinaryTradePage .mbDigitCellV6:disabled {
+  --mb-ring-start: -90deg;
+  --mb-ring-sweep: 120deg;
+  --mb-ring-color: #f5f7fa;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  position: relative !important;
   width: 58px !important;
   height: 58px !important;
   min-width: 58px !important;
   min-height: 58px !important;
-  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
   display: grid !important;
   place-items: center !important;
-  padding: 0 !important;
   border: 0 !important;
   border-radius: 50% !important;
+  outline: 0 !important;
   background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
   overflow: visible !important;
   isolation: isolate !important;
+  opacity: 1 !important;
+  transform: none !important;
 }
 
-.finalBinaryTradePage .chartDigit::before,
-.finalBinaryTradePage .chartDigit::after,
-.finalBinaryTradePage .chartDigit .digitRingGraphic,
-.finalBinaryTradePage .chartDigit svg,
-.finalBinaryTradePage .chartDigit .digitFace::before,
-.finalBinaryTradePage .chartDigit .digitFace::after {
+.finalBinaryTradePage .mbDigitCellV6::before,
+.finalBinaryTradePage .mbDigitCellV6::after,
+.finalBinaryTradePage .mbDigitRingV6::before,
+.finalBinaryTradePage .mbDigitRingV6::after,
+.finalBinaryTradePage .mbDigitCoreV6::before,
+.finalBinaryTradePage .mbDigitCoreV6::after {
   content: none !important;
   display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  background: none !important;
-  background-image: none !important;
 }
 
-.finalBinaryTradePage .chartDigit .cleanDigitRing {
+.finalBinaryTradePage .mbDigitRingV6 {
   position: absolute !important;
   inset: 0 !important;
-  z-index: 0 !important;
+  z-index: 1 !important;
   display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
   border-radius: 50% !important;
   background: conic-gradient(
-    from var(--ring-start, -90deg),
-    var(--ring-color, #f4f7fb) 0deg var(--ring-fill, 120deg),
-    #505b69 var(--ring-fill, 120deg) 360deg
+    from var(--mb-ring-start),
+    var(--mb-ring-color) 0deg var(--mb-ring-sweep),
+    #4f5a68 var(--mb-ring-sweep) 360deg
   ) !important;
-  -webkit-mask: radial-gradient(circle, transparent 0 72%, #000 73% 100%) !important;
-  mask: radial-gradient(circle, transparent 0 72%, #000 73% 100%) !important;
+  -webkit-mask: radial-gradient(circle, transparent 0 73%, #000 74% 100%) !important;
+  mask: radial-gradient(circle, transparent 0 73%, #000 74% 100%) !important;
   box-shadow: none !important;
   filter: none !important;
   pointer-events: none !important;
 }
 
-.finalBinaryTradePage .chartDigit.highestDigit .cleanDigitRing {
+/* Highest percentage: green exactly on the upper half. */
+.finalBinaryTradePage .mbDigitHighestV6 .mbDigitRingV6 {
   background: conic-gradient(
     from -90deg,
-    #22d486 0deg 180deg,
-    #505b69 180deg 360deg
+    #21d68b 0deg 180deg,
+    #4f5a68 180deg 360deg
   ) !important;
-  filter: drop-shadow(0 0 5px rgba(34, 212, 134, 0.28)) !important;
+  filter: drop-shadow(0 0 5px rgba(33, 214, 139, 0.34)) !important;
 }
 
-.finalBinaryTradePage .chartDigit.lowestDigit .cleanDigitRing {
+/* Lowest percentage: short red warning arc centred on the bottom. */
+.finalBinaryTradePage .mbDigitLowestV6 .mbDigitRingV6 {
   background: conic-gradient(
     from 139deg,
-    #ff3853 0deg 82deg,
-    #505b69 82deg 360deg
+    #ff3b55 0deg 82deg,
+    #4f5a68 82deg 360deg
   ) !important;
-  filter: drop-shadow(0 0 4px rgba(255, 56, 83, 0.24)) !important;
+  filter: drop-shadow(0 0 4px rgba(255, 59, 85, 0.3)) !important;
 }
 
-.finalBinaryTradePage .chartDigit .digitFace,
-.finalBinaryTradePage .chartDigit:not(.picked):not(.resultWin):not(.resultLoss) .digitFace,
-.finalBinaryTradePage .chartDigit.picked:not(.resultWin):not(.resultLoss) .digitFace {
+.finalBinaryTradePage .mbDigitCoreV6 {
   position: relative !important;
-  z-index: 2 !important;
-  width: 73% !important;
-  height: 73% !important;
+  z-index: 3 !important;
+  width: 72% !important;
+  height: 72% !important;
   display: grid !important;
   place-content: center !important;
   gap: 2px !important;
-  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.045) !important;
   border-radius: 50% !important;
   background: #02070d !important;
   background-image: none !important;
-  box-shadow: none !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.88) !important;
   color: #fff !important;
+  text-align: center !important;
 }
 
-.finalBinaryTradePage .chartDigit .digitFace > strong,
-.finalBinaryTradePage .chartDigit .digitFace > .digitPercent,
-.finalBinaryTradePage .chartDigit.picked .digitFace > strong,
-.finalBinaryTradePage .chartDigit.picked .digitFace > .digitPercent {
+.finalBinaryTradePage .mbDigitCoreV6 > strong,
+.finalBinaryTradePage .mbDigitPercentV6 {
   position: static !important;
+  display: block !important;
   margin: 0 !important;
   padding: 0 !important;
-  transform: none !important;
   color: #fff !important;
-  text-shadow: none !important;
   line-height: 1 !important;
+  text-align: center !important;
+  text-shadow: none !important;
+  transform: none !important;
 }
 
-.finalBinaryTradePage .chartDigit .digitFace > strong {
+.finalBinaryTradePage .mbDigitCoreV6 > strong {
   font-size: 18px !important;
   font-weight: 900 !important;
 }
 
-.finalBinaryTradePage .chartDigit .digitFace > .digitPercent {
+.finalBinaryTradePage .mbDigitPercentV6 {
   font-size: 9px !important;
-  font-weight: 700 !important;
+  font-weight: 750 !important;
 }
 
-.finalBinaryTradePage .chartDigit.picked:not(.resultWin):not(.resultLoss) .digitFace {
-  box-shadow: inset 0 0 0 1px rgba(79, 164, 255, 0.5), 0 0 0 2px rgba(79, 164, 255, 0.13) !important;
+/* Only the trader's selected prediction receives a light centre. */
+.finalBinaryTradePage .mbDigitPickedV6:not(.mbDigitResultWinV6):not(.mbDigitResultLossV6) .mbDigitCoreV6 {
+  background: #f1f5f8 !important;
+  color: #07111d !important;
+  border-color: rgba(125, 194, 246, 0.72) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(125, 194, 246, 0.34),
+    0 0 0 2px rgba(84, 170, 240, 0.15) !important;
 }
 
-.finalBinaryTradePage .movingDigitCursor {
+.finalBinaryTradePage .mbDigitPickedV6:not(.mbDigitResultWinV6):not(.mbDigitResultLossV6) .mbDigitCoreV6 > strong,
+.finalBinaryTradePage .mbDigitPickedV6:not(.mbDigitResultWinV6):not(.mbDigitResultLossV6) .mbDigitPercentV6 {
+  color: #07111d !important;
+}
+
+.finalBinaryTradePage .mbDigitWinningV6 .mbDigitCoreV6,
+.finalBinaryTradePage .mbDigitResultWinV6 .mbDigitCoreV6 {
+  background: #073a2b !important;
+  border-color: rgba(33, 214, 139, 0.5) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultLossV6 .mbDigitCoreV6 {
+  background: #490b18 !important;
+  border-color: rgba(255, 59, 85, 0.5) !important;
+}
+
+/* Cursor always sits below the live digit, never on top of it. */
+.finalBinaryTradePage .mbDigitCursorV6 {
   position: absolute !important;
   left: 50% !important;
   top: auto !important;
-  bottom: -13px !important;
-  transform: translateX(-50%) !important;
+  bottom: -14px !important;
+  z-index: 10 !important;
   width: 0 !important;
   height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border-left: 8px solid transparent !important;
   border-right: 8px solid transparent !important;
   border-top: 13px solid #ff573e !important;
   border-bottom: 0 !important;
   background: transparent !important;
-  box-shadow: 0 3px 9px rgba(255, 87, 62, 0.45) !important;
+  box-shadow: 0 3px 9px rgba(255, 87, 62, 0.46) !important;
   opacity: 0 !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
 }
 
-.finalBinaryTradePage .chartDigit.currentDigit .movingDigitCursor {
+.finalBinaryTradePage .mbDigitCurrentV6 .mbDigitCursorV6 {
   opacity: 1 !important;
 }
 
 @media (max-width: 760px) {
-  .finalBinaryTradePage .cleanDigitBoard {
-    padding: 7px 7px 12px !important;
+  .finalBinaryTradePage .mbDigitBoardV6 {
+    padding: 7px 7px 13px !important;
   }
 
-  .finalBinaryTradePage .finalDigitsGrid,
-  .finalBinaryTradePage .chartDigitsOverlay.finalDigitsGrid {
-    grid-template-rows: repeat(2, 46px) !important;
-    gap: 9px 6px !important;
-    min-height: 106px !important;
+  .finalBinaryTradePage .mbDigitGridV6 {
+    min-height: 110px !important;
+    grid-template-rows: repeat(2, 47px) !important;
+    gap: 10px 6px !important;
+    padding: 1px 1px 9px !important;
   }
 
-  .finalBinaryTradePage .chartDigit,
-  .finalBinaryTradePage .chartDigit:not(.picked):not(.resultWin):not(.resultLoss),
-  .finalBinaryTradePage .chartDigit.highestDigit,
-  .finalBinaryTradePage .chartDigit.lowestDigit {
+  .finalBinaryTradePage .mbDigitCellV6,
+  .finalBinaryTradePage .mbDigitCellV6:disabled {
     width: 44px !important;
     height: 44px !important;
     min-width: 44px !important;
     min-height: 44px !important;
   }
 
-  .finalBinaryTradePage .chartDigit .digitFace > strong {
+  .finalBinaryTradePage .mbDigitCoreV6 > strong {
     font-size: 13px !important;
   }
 
-  .finalBinaryTradePage .chartDigit .digitFace > .digitPercent {
+  .finalBinaryTradePage .mbDigitPercentV6 {
     font-size: 6.8px !important;
   }
 
-  .finalBinaryTradePage .movingDigitCursor {
-    bottom: -10px !important;
+  .finalBinaryTradePage .mbDigitCursorV6 {
+    bottom: -11px !important;
     border-left-width: 6px !important;
     border-right-width: 6px !important;
     border-top-width: 10px !important;
@@ -22437,14 +22472,24 @@ body {
 }
 
 @media (max-width: 390px) {
-  .finalBinaryTradePage .chartDigit,
-  .finalBinaryTradePage .chartDigit:not(.picked):not(.resultWin):not(.resultLoss),
-  .finalBinaryTradePage .chartDigit.highestDigit,
-  .finalBinaryTradePage .chartDigit.lowestDigit {
+  .finalBinaryTradePage .mbDigitGridV6 {
+    grid-template-rows: repeat(2, 43px) !important;
+    gap: 9px 5px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV6,
+  .finalBinaryTradePage .mbDigitCellV6:disabled {
     width: 40px !important;
     height: 40px !important;
     min-width: 40px !important;
     min-height: 40px !important;
   }
-}
 
+  .finalBinaryTradePage .mbDigitCoreV6 > strong {
+    font-size: 12px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitPercentV6 {
+    font-size: 6.2px !important;
+  }
+}

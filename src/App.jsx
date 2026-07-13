@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-ai-autotrade-s22-v2-2026-07-12";
+const FRONTEND_BUILD = "metabinary-clean-digit-rings-v6-2026-07-13";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -5074,8 +5074,8 @@ function TradePage({
         )}
 
         {digitMode ? (
-          <div className={`finalDigitBoard cleanDigitBoard ${activeBinaryTrade ? "isTrading" : ""}`}>
-            <div className="chartDigitsOverlay finalDigitsGrid" aria-label="Digit percentages">
+          <div className={`finalDigitBoard mbDigitBoardV6 ${activeBinaryTrade ? "isTrading" : ""}`}>
+            <div className="mbDigitGridV6" aria-label="Digit percentages">
               {digitStats.map((percent, digit) => {
                 const isHighest = Math.abs(percent - highestPercent) < 0.01;
                 const isLowest = Math.abs(percent - lowestPercent) < 0.01;
@@ -5092,20 +5092,16 @@ function TradePage({
                   Math.min(1, (Number(percent) - lowestPercent) / percentageRange)
                 );
 
-                // Highest: fixed green upper half. Lowest: red bottom arc.
-                // Other digits: a white arc that grows with the percentage.
-                const ringFill = isHighest
-                  ? 180
-                  : isLowest
-                    ? 82
-                    : Math.round(54 + percentageLevel * 210);
-
+                // Highest = green upper half. Lowest = red bottom arc.
+                // Every other digit gets a different white arc length based on its percentage.
+                const whiteSweep = Math.round(42 + percentageLevel * 220);
+                const ringSweep = isHighest ? 180 : isLowest ? 82 : whiteSweep;
                 const ringStart = isHighest ? -90 : isLowest ? 139 : -90;
                 const ringColor = isHighest
-                  ? "#22d486"
+                  ? "#21d68b"
                   : isLowest
-                    ? "#ff3853"
-                    : "#f4f7fb";
+                    ? "#ff3b55"
+                    : "#f5f7fa";
 
                 return (
                   <button
@@ -5114,29 +5110,29 @@ function TradePage({
                     onClick={() => setPrediction(digit)}
                     disabled={Boolean(activeBinaryTrade)}
                     className={[
-                      "chartDigit",
-                      digit < 5 ? "topDigitRow" : "bottomDigitRow",
-                      isHighest ? "highestDigit" : "",
-                      isLowest ? "lowestDigit" : "",
-                      isPicked ? "picked" : "",
-                      isCurrent ? "currentDigit" : "",
-                      isWinningTarget ? "winningTarget" : "",
-                      isResultDigit && binaryResultFlash?.result === "win" ? "resultWin" : "",
-                      isResultDigit && binaryResultFlash?.result === "loss" ? "resultLoss" : "",
+                      "mbDigitCellV6",
+                      digit < 5 ? "mbDigitTopV6" : "mbDigitBottomV6",
+                      isHighest ? "mbDigitHighestV6" : "",
+                      isLowest ? "mbDigitLowestV6" : "",
+                      isPicked ? "mbDigitPickedV6" : "",
+                      isCurrent ? "mbDigitCurrentV6" : "",
+                      isWinningTarget ? "mbDigitWinningV6" : "",
+                      isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV6" : "",
+                      isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV6" : "",
                     ].filter(Boolean).join(" ")}
                     style={{
-                      "--ring-fill": `${ringFill}deg`,
-                      "--ring-start": `${ringStart}deg`,
-                      "--ring-color": ringColor,
+                      "--mb-ring-sweep": `${ringSweep}deg`,
+                      "--mb-ring-start": `${ringStart}deg`,
+                      "--mb-ring-color": ringColor,
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                   >
-                    <span className="cleanDigitRing" aria-hidden="true" />
-                    <span className="digitFace">
+                    <span className="mbDigitRingV6" aria-hidden="true" />
+                    <span className="mbDigitCoreV6">
                       <strong>{digit}</strong>
-                      <span className="digitPercent">{Number(percent).toFixed(1)}%</span>
+                      <span className="mbDigitPercentV6">{Number(percent).toFixed(1)}%</span>
                     </span>
-                    <i className="movingDigitCursor" aria-hidden="true" />
+                    <i className="mbDigitCursorV6" aria-hidden="true" />
                   </button>
                 );
               })}
