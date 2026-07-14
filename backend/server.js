@@ -1858,7 +1858,11 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
       allowClientFallback: account === "demo",
       clientPrice,
     });
-    if (!marketIsOpen(market) && account === "real") throw httpError(400, `${market.label} is outside the weekday trading session.`);
+    const providerMarketOpen = quote?.isMarketOpen ?? quote?.is_market_open;
+    const sessionOpen = market.alwaysOpen || providerMarketOpen === true || marketIsOpen(market);
+    if (!sessionOpen && account === "real") {
+      throw httpError(400, `${market.label} is outside the weekday trading session.`);
+    }
 
     const halfSpread = Number(market.spread || 0) / 2;
     const openPrice = Number((side === "Buy" ? quote.price + halfSpread : quote.price - halfSpread).toFixed(market.decimals));

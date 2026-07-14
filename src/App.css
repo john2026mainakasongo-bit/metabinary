@@ -24382,3 +24382,368 @@ body {
     grid-template-columns: .9fr 1.1fr !important;
   }
 }
+
+/* =========================================================
+   METABINARY V16 — RESPONSIVE PHONE + LAPTOP FINAL OVERRIDES
+   ========================================================= */
+
+/* Up-facing live cursor under the digit. */
+.finalBinaryTradePage .mbDigitCursorV7 {
+  bottom: -14px !important;
+  border-left: 8px solid transparent !important;
+  border-right: 8px solid transparent !important;
+  border-top: 0 !important;
+  border-bottom: 13px solid #ff573e !important;
+  filter: drop-shadow(0 -2px 6px rgba(255,87,62,.5)) !important;
+}
+
+/* Keep contract action buttons and controls in the normal page flow.
+   This prevents Samsung/short-viewports from cutting off OVER/UNDER,
+   ODD/EVEN and other action buttons behind the bottom navigation. */
+@media (max-width: 760px) {
+  html, body, #root {
+    min-height: 100% !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .app,
+  .platform,
+  .page,
+  .finalBinaryTradePage,
+  .forexPage,
+  .botLivePage {
+    min-height: 100dvh !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 8px 8px calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 9px !important;
+    z-index: 20 !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    display: grid !important;
+    grid-template-columns: minmax(0,.92fr) minmax(0,1.08fr) !important;
+    gap: 9px !important;
+    height: auto !important;
+    min-height: 72px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    height: 58px !important;
+    min-height: 58px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox button {
+    height: 58px !important;
+    min-width: 42px !important;
+    width: 42px !important;
+    font-size: 25px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    min-width: 0 !important;
+    font-size: 18px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 10px !important;
+    height: auto !important;
+    min-height: 112px !important;
+    margin-top: 9px !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 112px !important;
+    height: 112px !important;
+    padding: 14px 13px !important;
+    border-radius: 17px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: clamp(26px,8vw,34px) !important;
+    line-height: 1 !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons small {
+    font-size: clamp(10px,2.8vw,13px) !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Digits remain touchable/readable—never tiny. */
+  .finalBinaryTradePage .mbDigitGridV7 {
+    gap: 12px 8px !important;
+    padding: 10px 8px 17px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7 {
+    width: clamp(50px,14vw,64px) !important;
+    height: clamp(50px,14vw,64px) !important;
+    min-width: 50px !important;
+    min-height: 50px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCoreV7 strong {
+    font-size: clamp(17px,5vw,23px) !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCoreV7 span {
+    font-size: clamp(9px,2.6vw,12px) !important;
+  }
+
+  /* Bottom navigation stays fixed but content is padded above it. */
+  .bottomNav,
+  .mobileBottomNav,
+  .bottomNavigation {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: calc(6px + env(safe-area-inset-bottom)) !important;
+    z-index: 15000 !important;
+  }
+
+  /* Forex uses natural scrolling and keeps Buy/Sell fully visible. */
+  .forexPage.realMarketPublishPage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    padding: 7px 7px calc(112px + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  .forexPage .realMarketHeaderCard,
+  .forexPage .singleTimeframeBar,
+  .forexPage .realMarketChartPanel,
+  .forexPage .forexLiveTradeLines,
+  .forexPage .realMarketOrderPanel {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    height: clamp(330px,53dvh,510px) !important;
+    min-height: 330px !important;
+    max-height: 510px !important;
+  }
+
+  .forexPage .marketOrderStack,
+  .forexPage .realMarketOrderPanel {
+    position: relative !important;
+    bottom: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 9px !important;
+  }
+
+  .forexPage .buySellBox,
+  .forexPage .realMarketTradeButtons {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 9px !important;
+  }
+
+  .forexPage .buySellBox button,
+  .forexPage .realMarketTradeButtons button {
+    min-width: 0 !important;
+    min-height: 92px !important;
+    height: auto !important;
+  }
+
+  .forexPage .realMarketOrderForm {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .forexPage .realMarketOrderForm .orderInput,
+  .forexPage .realMarketOrderForm label {
+    min-width: 0 !important;
+  }
+
+  /* Draggable AI stays clear of the trade buttons/navigation after viewport changes. */
+  .floatingAiButton {
+    max-width: 60px !important;
+    max-height: 60px !important;
+  }
+}
+
+/* Samsung S22 Ultra and similar 360–430px CSS viewports. */
+@media (min-width: 361px) and (max-width: 430px) {
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 108px !important;
+    height: 108px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7 {
+    width: 56px !important;
+    height: 56px !important;
+  }
+}
+
+/* Narrow phones: preserve readability without horizontal clipping. */
+@media (max-width: 360px) {
+  .finalBinaryTradePage {
+    padding-inline: 5px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitGridV7 {
+    gap: 10px 4px !important;
+    padding-inline: 3px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7 {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 104px !important;
+    height: 104px !important;
+    padding-inline: 9px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: 25px !important;
+  }
+}
+
+/* Laptop/desktop at 100% browser zoom. */
+@media (min-width: 900px) {
+  html, body, #root {
+    width: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .app,
+  .platform {
+    width: 100% !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage,
+  .forexPage.realMarketPublishPage {
+    width: min(100%, 1680px) !important;
+    margin-inline: auto !important;
+    min-height: calc(100dvh - 78px) !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 10px 12px 96px !important;
+  }
+
+  .finalBinaryTradePage {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 10px !important;
+  }
+
+  .finalBinaryTradePage .binaryChartCard {
+    min-height: 390px !important;
+    height: clamp(390px,48vh,610px) !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    display: grid !important;
+    grid-template-columns: minmax(330px,.7fr) minmax(600px,1.3fr) !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons {
+    min-height: 94px !important;
+    height: 94px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 94px !important;
+    height: 94px !important;
+  }
+
+  .forexPage.realMarketPublishPage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .forexPage .realMarketHeaderCard,
+  .forexPage .singleTimeframeBar,
+  .forexPage .realMarketChartPanel,
+  .forexPage .forexLiveTradeLines,
+  .forexPage .realMarketOrderPanel {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    height: clamp(430px,55vh,690px) !important;
+    min-height: 430px !important;
+  }
+
+  .forexPage .marketOrderStack {
+    display: grid !important;
+    grid-template-columns: minmax(320px,.8fr) minmax(560px,1.4fr) minmax(250px,.6fr) !important;
+    gap: 12px !important;
+    height: auto !important;
+    min-height: 180px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .forexPage .buySellBox {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .forexPage .buySellBox button {
+    min-height: 150px !important;
+  }
+}

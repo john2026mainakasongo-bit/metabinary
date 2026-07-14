@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-forex-open-buy-sell-v15-2026-07-14";
+const FRONTEND_BUILD = "metabinary-responsive-forex-v16-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -4352,8 +4352,14 @@ function ForexPage({
   const quoteUsable = priceReady && feedStatus !== "error";
   // Some quote providers occasionally report a stale closed flag while a fresh
   // weekday quote is arriving. Use the server/session schedule as the authority.
-  const marketOpen = Boolean(market?.alwaysOpen || (scheduledMarketOpen && quoteUsable));
-  const tradingAllowed = Boolean(quoteUsable && (account === "demo" || marketOpen));
+  const providerMarketOpen = marketFeed?.isOpen ?? marketFeed?.isMarketOpen ?? marketFeed?.is_market_open;
+  const marketOpen = Boolean(
+    market?.alwaysOpen ||
+    (quoteUsable && (providerMarketOpen === true || scheduledMarketOpen))
+  );
+  const tradingAllowed = Boolean(
+    quoteUsable && (account === "demo" || marketOpen)
+  );
   const change = Number(marketFeed?.change || 0);
   const percentChange = Number(marketFeed?.percentChange || 0);
   const positiveChange = change >= 0;
@@ -4592,8 +4598,10 @@ function ForexPage({
               disabled={orderBusy || !priceReady || !tradingAllowed}
             >
               <b>
-                {!tradingAllowed
-                  ? priceReady ? "Closed" : "Waiting…"
+                {!priceReady
+                  ? "Waiting…"
+                  : !tradingAllowed
+                  ? "Closed"
                   : orderBusy
                   ? "Placing…"
                   : "Buy ↗"}
@@ -4609,8 +4617,10 @@ function ForexPage({
               disabled={orderBusy || !priceReady || !tradingAllowed}
             >
               <b>
-                {!tradingAllowed
-                  ? priceReady ? "Closed" : "Waiting…"
+                {!priceReady
+                  ? "Waiting…"
+                  : !tradingAllowed
+                  ? "Closed"
                   : orderBusy
                   ? "Placing…"
                   : "Sell ↘"}
@@ -5376,7 +5386,6 @@ function BotsPage({ bots, configureBot }) {
           <small>Automated strategies</small>
           <h1>Trading Bots</h1>
         </div>
-        <span><b>{running}</b> templates active</span>
       </header>
 
       <section className="botStats compactBotStats">
@@ -6383,7 +6392,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   function scan() {
     if (scanning) return;
-    const scanDurationMs = 30000;
+    const scanDurationMs = 12000;
     const startedAt = Date.now();
     setScanning(true);
     setProgress(1);
