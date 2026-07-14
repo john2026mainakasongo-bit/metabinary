@@ -25537,3 +25537,641 @@ canvas {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 }
+
+/* ======================================================================
+   METABINARY V18 — NORMAL 100% ZOOM, REAL SCROLL CONTAINER
+   The app now uses three stable rows: header / scrollable content / nav.
+   This avoids the fixed-height and fixed-bottom conflicts visible on phones.
+   ====================================================================== */
+
+:root {
+  --mb-viewport-height: 100dvh;
+  --mb-viewport-width: 100vw;
+  --mb-v18-header: 72px;
+  --mb-v18-nav: 76px;
+  --mb-v18-gap: clamp(7px, 1.9vw, 12px);
+}
+
+html,
+body,
+#root {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: var(--mb-viewport-height, 100dvh) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body {
+  position: static !important;
+  touch-action: manipulation !important;
+}
+
+#root,
+.app {
+  isolation: isolate !important;
+}
+
+.app {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: var(--mb-viewport-height, 100dvh) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: var(--mb-v18-header) minmax(0, 1fr) var(--mb-v18-nav) !important;
+  padding: 0 !important;
+}
+
+.cleanBrokerHeader.topHeader,
+.cleanBrokerHeader.brokerTopHeader {
+  grid-row: 1 !important;
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: var(--mb-v18-header) !important;
+  min-height: var(--mb-v18-header) !important;
+  z-index: 4000 !important;
+  overflow: visible !important;
+}
+
+.mainScreen {
+  grid-row: 2 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-x: none !important;
+  overscroll-behavior-y: contain !important;
+  scroll-behavior: smooth !important;
+  touch-action: pan-y !important;
+  padding: var(--mb-v18-gap) !important;
+  scrollbar-width: thin !important;
+}
+
+.page,
+.mainScreen > .page {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: max-content !important;
+  height: auto !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: var(--mb-v18-gap) !important;
+  overflow: visible !important;
+  padding-bottom: 10px !important;
+}
+
+.page > *,
+.mainScreen > .page > * {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.bottomNav {
+  grid-row: 3 !important;
+  position: relative !important;
+  inset: auto !important;
+  width: calc(100% - 14px) !important;
+  max-width: none !important;
+  height: calc(var(--mb-v18-nav) - 6px) !important;
+  min-height: 0 !important;
+  margin: 0 7px 6px !important;
+  z-index: 4200 !important;
+  transform: none !important;
+}
+
+.bottomNav button {
+  min-width: 0 !important;
+  min-height: 54px !important;
+}
+
+.bottomNav button:nth-child(3) {
+  transform: translateY(-8px) !important;
+}
+
+.supportChatLauncher {
+  bottom: calc(var(--mb-v18-nav) + 10px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.supportChatPanel {
+  bottom: calc(var(--mb-v18-nav) + 8px + env(safe-area-inset-bottom, 0px)) !important;
+  max-height: calc(var(--mb-viewport-height, 100dvh) - var(--mb-v18-header) - var(--mb-v18-nav) - 18px) !important;
+}
+
+/* ----------------------- MOBILE / TABLET ----------------------- */
+@media (max-width: 1023px) {
+  :root {
+    --mb-v18-header: 72px;
+    --mb-v18-nav: 76px;
+  }
+
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader {
+    display: grid !important;
+    grid-template-columns: 42px minmax(96px, 1fr) minmax(142px, auto) 42px 48px !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 7px 8px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogo {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .cleanBrokerHeader .brokerLogo strong {
+    display: block !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: clamp(18px, 5.1vw, 23px) !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    min-width: 142px !important;
+    width: auto !important;
+    max-width: min(212px, 43vw) !important;
+    height: 52px !important;
+    padding: 0 11px !important;
+  }
+
+  .cleanBrokerHeader .usdWalletInlineV12,
+  .cleanBrokerHeader .demoWalletInlineV12 {
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    font-size: clamp(14px, 3.9vw, 18px) !important;
+  }
+
+  /* Horizontal navigation may scroll by touch; the whole page still scrolls vertically. */
+  .hubNav,
+  .proTradeTypeRow,
+  .finalBinaryTradePage .proTradeTypeRow {
+    width: 100% !important;
+    min-height: 54px !important;
+    height: auto !important;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: minmax(105px, 1fr) !important;
+    grid-template-columns: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-inline: contain !important;
+    scroll-snap-type: inline proximity !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .hubNav button,
+  .proTradeTypeRow button,
+  .finalBinaryTradePage .proTradeTypeRow button {
+    min-width: 105px !important;
+    scroll-snap-align: start !important;
+  }
+
+  /* Home page: readable cards at 100%, vertical page scroll is always available. */
+  .homePage {
+    grid-template-rows: none !important;
+  }
+
+  .homePage .proHero {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    padding: clamp(16px, 4.5vw, 24px) !important;
+    overflow: hidden !important;
+  }
+
+  .homePage .heroText h1 {
+    font-size: clamp(35px, 10vw, 52px) !important;
+    line-height: 0.98 !important;
+  }
+
+  .homePage .heroText p {
+    font-size: clamp(14px, 4vw, 17px) !important;
+    line-height: 1.45 !important;
+  }
+
+  .homePage .heroFeatureRow {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .homePage .heroChartGlow {
+    min-height: 130px !important;
+    height: 130px !important;
+  }
+
+  .homePage .livePairCard {
+    width: 100% !important;
+    min-height: 250px !important;
+    height: auto !important;
+  }
+
+  .homeStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .homeStats .statCard {
+    min-height: 92px !important;
+    height: auto !important;
+    padding: 12px !important;
+  }
+
+  .marketTicker {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: minmax(230px, 82vw) !important;
+    grid-template-columns: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .homeLowerGrid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .homeLowerGrid > div {
+    min-height: 150px !important;
+    height: auto !important;
+  }
+
+  .homeFooter {
+    min-height: 48px !important;
+    height: auto !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px 14px !important;
+    padding: 12px !important;
+  }
+
+  /* Binary contract page: no fixed card, no buttons hidden below nav. */
+  .finalBinaryTradePage,
+  .tradePage {
+    grid-template-rows: none !important;
+  }
+
+  .finalBinaryTradePage .binaryChartCard {
+    min-height: 410px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  .finalBinaryTradePage .finalChartShell {
+    min-height: 260px !important;
+    height: clamp(260px, 38vh, 390px) !important;
+  }
+
+  .finalBinaryTradePage .mbDigitBoardV7,
+  .finalBinaryTradePage .finalDigitBoard,
+  .finalBinaryTradePage .cleanDigitBoard {
+    min-height: 210px !important;
+    height: auto !important;
+    padding: 13px 8px 18px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 10px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs {
+    display: grid !important;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr) !important;
+    gap: 10px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons {
+    width: 100% !important;
+    min-height: 112px !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 112px !important;
+    height: 112px !important;
+    padding: 13px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: clamp(24px, 7vw, 32px) !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons small {
+    font-size: clamp(10px, 2.9vw, 13px) !important;
+    white-space: normal !important;
+  }
+
+  /* Forex: chart and order form stack; the mainScreen owns the scroll. */
+  .forexPage,
+  .forexPage.realMarketPublishPage {
+    grid-template-rows: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: max-content !important;
+    height: auto !important;
+  }
+
+  .forexPage .realMarketChartPanel,
+  .forexPage .forexBigChart {
+    min-height: 340px !important;
+    height: clamp(340px, 48vh, 500px) !important;
+    max-height: 500px !important;
+  }
+
+  .forexPage .marketOrderStack,
+  .forexPage .proOrderPanel {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "actions" "form" "stats" "open" "notice" !important;
+  }
+
+  .forexPage .buySellBox,
+  .forexPage .buySellProBox,
+  .forexPage .realMarketTradeButtons {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .forexPage .buySellBox button,
+  .forexPage .buySellProBox button,
+  .forexPage .realMarketTradeButtons button {
+    min-width: 0 !important;
+    min-height: 104px !important;
+    height: 104px !important;
+  }
+
+  .forexPage .orderInputs,
+  .forexPage .realMarketOrderForm .orderInputs {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+
+  /* Profile: values stay on one readable line instead of stacking vertically. */
+  .proProfileHero {
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    min-height: 190px !important;
+    height: auto !important;
+    padding: 14px !important;
+  }
+
+  .proProfileStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+
+  .profileBalanceCard {
+    min-width: 0 !important;
+    min-height: 112px !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    padding: 12px 9px !important;
+    overflow: hidden !important;
+  }
+
+  .profileBalanceCard strong {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: clamp(14px, 4vw, 20px) !important;
+    line-height: 1.12 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  .profileBalanceCard small,
+  .profileBalanceCard span {
+    min-width: 0 !important;
+  }
+
+  .proProfileMain,
+  .profileCardsGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Bot and AI pages cannot create an artificial empty viewport-height block. */
+  .botLivePage,
+  .finalBotLivePage,
+  .botsPage,
+  .finalBotsPage,
+  .profilePage,
+  .settingsPage,
+  .referralDashboardPage,
+  .listPage,
+  .reportsPage {
+    min-height: max-content !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .aiScannerPanel {
+    position: fixed !important;
+    top: max(6px, env(safe-area-inset-top, 0px)) !important;
+    right: 6px !important;
+    bottom: calc(var(--mb-v18-nav) + 6px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 6px !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Small phones: keep controls readable by stacking where necessary. */
+@media (max-width: 380px) {
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader {
+    grid-template-columns: 38px minmax(82px, 1fr) minmax(132px, auto) 44px !important;
+    gap: 5px !important;
+    padding-inline: 5px !important;
+  }
+
+  .cleanBrokerHeader .workingBellButton {
+    display: none !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    min-width: 132px !important;
+    max-width: 43vw !important;
+    padding-inline: 8px !important;
+  }
+
+  .homeStats,
+  .proProfileStats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .profileBalanceCard strong {
+    font-size: 18px !important;
+    text-overflow: clip !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .forexPage .orderInputs,
+  .forexPage .realMarketOrderForm .orderInputs {
+    grid-template-columns: 1fr !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button,
+  .forexPage .buySellBox button,
+  .forexPage .realMarketTradeButtons button {
+    min-height: 108px !important;
+  }
+}
+
+/* Short phones still scroll normally; only chart height is reduced. */
+@media (max-width: 1023px) and (max-height: 720px) {
+  :root {
+    --mb-v18-header: 66px;
+    --mb-v18-nav: 68px;
+  }
+
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader {
+    height: var(--mb-v18-header) !important;
+    min-height: var(--mb-v18-header) !important;
+  }
+
+  .finalBinaryTradePage .finalChartShell {
+    min-height: 230px !important;
+    height: 34vh !important;
+  }
+
+  .forexPage .realMarketChartPanel,
+  .forexPage .forexBigChart {
+    min-height: 290px !important;
+    height: 42vh !important;
+  }
+}
+
+/* ----------------------- LAPTOP / DESKTOP 100% ----------------------- */
+@media (min-width: 1024px) {
+  :root {
+    --mb-v18-header: 72px;
+    --mb-v18-nav: 58px;
+  }
+
+  .app {
+    grid-template-rows: var(--mb-v18-header) minmax(0, 1fr) var(--mb-v18-nav) !important;
+  }
+
+  .mainScreen {
+    width: 100% !important;
+    max-width: 1760px !important;
+    margin: 0 auto !important;
+    padding: 8px 12px 12px !important;
+    overflow-y: auto !important;
+  }
+
+  .bottomNav {
+    width: calc(100% - 20px) !important;
+    max-width: 1740px !important;
+    height: 54px !important;
+    margin: 0 auto 4px !important;
+  }
+
+  .homePage .proHero {
+    min-height: 360px !important;
+    height: auto !important;
+    grid-template-columns: minmax(320px, 1fr) minmax(280px, .8fr) minmax(310px, .8fr) !important;
+  }
+
+  .homeLowerGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .forexPage .realMarketChartPanel,
+  .forexPage .forexBigChart {
+    min-height: 380px !important;
+    height: clamp(380px, 48vh, 520px) !important;
+  }
+
+  .forexPage .marketOrderStack,
+  .forexPage .proOrderPanel {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 190px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: grid !important;
+    grid-template-columns: minmax(280px, .78fr) minmax(470px, 1.3fr) minmax(230px, .62fr) !important;
+    grid-template-areas: "actions form stats" "open form stats" "notice notice notice" !important;
+    gap: 10px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    grid-template-columns: minmax(300px, .72fr) minmax(560px, 1.28fr) !important;
+    gap: 12px !important;
+    height: auto !important;
+    min-height: 118px !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .binaryChartCard {
+    min-height: 380px !important;
+    height: clamp(380px, 47vh, 520px) !important;
+  }
+
+  .proProfileStats {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}

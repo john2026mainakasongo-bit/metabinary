@@ -2,12 +2,55 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
+function ensureResponsiveViewportMeta() {
+  if (typeof document === "undefined") return;
+  let viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) {
+    viewport = document.createElement("meta");
+    viewport.setAttribute("name", "viewport");
+    document.head.appendChild(viewport);
+  }
+  viewport.setAttribute(
+    "content",
+    "width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes"
+  );
+}
+
+ensureResponsiveViewportMeta();
+
+function useResponsiveViewportSize() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const updateViewport = () => {
+      const viewport = window.visualViewport;
+      const height = Math.max(320, Math.round(viewport?.height || window.innerHeight || 720));
+      const width = Math.max(280, Math.round(viewport?.width || window.innerWidth || 360));
+      root.style.setProperty("--mb-viewport-height", `${height}px`);
+      root.style.setProperty("--mb-viewport-width", `${width}px`);
+      root.dataset.mbViewport = width < 600 ? "phone" : width < 1024 ? "tablet" : "desktop";
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport, { passive: true });
+    window.addEventListener("orientationchange", updateViewport, { passive: true });
+    window.visualViewport?.addEventListener("resize", updateViewport, { passive: true });
+    window.visualViewport?.addEventListener("scroll", updateViewport, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+      window.removeEventListener("orientationchange", updateViewport);
+      window.visualViewport?.removeEventListener("resize", updateViewport);
+      window.visualViewport?.removeEventListener("scroll", updateViewport);
+    };
+  }, []);
+}
+
 const API_URL = String(
   import.meta.env.VITE_API_URL ||
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-forex-responsive-v17-2026-07-14";
+const FRONTEND_BUILD = "metabinary-normal-zoom-responsive-v18-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -834,6 +877,7 @@ async function fetchMarketCandles(market, timeframe, signal) {
 }
 
 function TradingApp() {
+  useResponsiveViewportSize();
   const [user, setUser] = useState(() => readStore(STORE.user, null));
   const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
   const [authMode, setAuthMode] = useState(() =>
@@ -1541,7 +1585,7 @@ function TradingApp() {
       const touch = event.touches?.[0];
       if (!touch) return;
       // Refresh starts only from the browser/header edge, never from inside the chart or order panel.
-      if (touch.clientY > Math.max(86, Number(window.visualViewport?.offsetTop || 0) + 86)) return;
+      if (touch.clientY > Math.max(34, Number(window.visualViewport?.offsetTop || 0) + 34)) return;
       if (event.target?.closest?.("button, input, select, textarea, [role='dialog'], .volatilitySwitchMenu")) return;
       pullStartYRef.current = touch.clientY;
       pullTrackingRef.current = true;
@@ -1561,7 +1605,7 @@ function TradingApp() {
       const easedDistance = Math.min(96, rawDistance * 0.42);
       pullDistanceRef.current = easedDistance;
       setPullRefreshDistance(easedDistance);
-      if (rawDistance > 8) event.preventDefault();
+      if (rawDistance > 28) event.preventDefault();
     };
 
     const touchEnd = () => {
@@ -3505,7 +3549,7 @@ function TradingApp() {
   }
 
   return (
-    <div className="app">
+    <div className={`app activePage-${activePage}`}>
       <div
         className={`pullRefreshIndicator ${pullRefreshing ? "refreshing" : ""} ${pullRefreshDistance > 0 ? "visible" : ""}`}
         style={{ transform: `translate(-50%, ${Math.max(-52, pullRefreshDistance - 52)}px)` }}
