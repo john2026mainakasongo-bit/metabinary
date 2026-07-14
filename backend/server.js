@@ -20,17 +20,11 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-deposit-mobile-ai-v21-2026-07-14";
+const BACKEND_BUILD = "metabinary-universal-release-v21-2026-07-14";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
-const INTASEND_ENVIRONMENT = String(process.env.INTASEND_ENVIRONMENT || "").trim().toLowerCase();
-const INTASEND_TEST_MODE_RAW = String(process.env.INTASEND_TEST_MODE || "").trim().toLowerCase();
-const TEST_MODE = INTASEND_ENVIRONMENT
-  ? ["test", "sandbox"].includes(INTASEND_ENVIRONMENT)
-  : INTASEND_TEST_MODE_RAW
-    ? INTASEND_TEST_MODE_RAW === "true"
-    : String(process.env.NODE_ENV || "development").toLowerCase() !== "production";
+const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
 const TOKEN_SECRET = String(process.env.JWT_SECRET || process.env.ADMIN_SECRET || "").trim();
@@ -40,19 +34,13 @@ const FRONTEND_URLS = String(process.env.FRONTEND_URL || "http://localhost:5173"
   .split(",")
   .map((value) => value.trim().replace(/\/$/, ""))
   .filter(Boolean);
-const PUBLIC_KEY = String(
-  process.env.INTASEND_PUBLISHABLE_KEY ||
-  process.env.INTASEND_PUBLIC_KEY ||
-  ""
-).trim();
-const SECRET_KEY = String(
-  process.env.INTASEND_SECRET_KEY ||
-  process.env.INTASEND_API_TOKEN ||
-  ""
-).trim();
+const PUBLIC_KEY = String(process.env.INTASEND_PUBLIC_KEY || "").trim();
+const SECRET_KEY = String(process.env.INTASEND_SECRET_KEY || "").trim();
 const TWELVE_DATA_API_KEY = String(
   process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
 ).trim();
+const MARKET_QUOTE_CACHE_MS = Math.max(15000, Math.min(300000, Number(process.env.MARKET_QUOTE_CACHE_MS || 60000)));
+const MARKET_STALE_MAX_MS = Math.max(MARKET_QUOTE_CACHE_MS, Math.min(24 * 60 * 60 * 1000, Number(process.env.MARKET_STALE_MAX_MS || 6 * 60 * 60 * 1000)));
 const PUBLIC_BACKEND_URL = String(process.env.PUBLIC_BACKEND_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_PUBLIC_URL = String(process.env.FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173").trim().replace(/\/$/, "");
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
@@ -700,80 +688,113 @@ async function fetchTrustedMarketQuote(symbol, options = {}) {
   if (!market) throw httpError(400, "Unsupported market.");
 
   const cached = marketQuoteCache.get(symbol);
-  if (cached && Date.now() - cached.cachedAt < 8000) return cached;
+  const cacheAge = cached ? Date.now() - Number(cached.cachedAt || 0) : Infinity;
+  if (cached && cacheAge < MARKET_QUOTE_CACHE_MS) {
+    return { ...cached, stale: false, status: "live", cacheAgeMs: cacheAge };
+  }
+
+  const rememberQuote = (quote) => {
+    const normalized = {
+      ...quote,
+      stale: false,
+      status: "live",
+      error: "",
+      cachedAt: Date.now(),
+      serverTime: nowIso(),
+    };
+    marketQuoteCache.set(symbol, normalized);
+    return normalized;
+  };
+
+  const staleQuote = (error) => {
+    if (!cached || options.allowStale === false || cacheAge > MARKET_STALE_MAX_MS) return null;
+    return {
+      ...cached,
+      isMarketOpen: market.alwaysOpen || marketIsOpen(market),
+      is_market_open: market.alwaysOpen || marketIsOpen(market),
+      stale: true,
+      status: "cached",
+      cacheAgeMs: cacheAge,
+      error: providerErrorMessage(error),
+      serverTime: nowIso(),
+    };
+  };
 
   if (symbol === "BTC/USD") {
-    const response = await fetch("https://api.coinbase.com/v2/prices/BTC-USD/spot", {
-      headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.0" },
-      signal: AbortSignal.timeout(10000),
-    });
-    const data = await response.json();
-    const price = Number(data?.data?.amount);
-    if (!response.ok || !Number.isFinite(price) || price <= 0) {
-      throw httpError(502, "Bitcoin live price is temporarily unavailable.");
+    try {
+      const response = await fetch("https://api.coinbase.com/v2/prices/BTC-USD/spot", {
+        headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.1" },
+        signal: AbortSignal.timeout(10000),
+      });
+      const data = await response.json();
+      const price = Number(data?.data?.amount);
+      if (!response.ok || !Number.isFinite(price) || price <= 0) {
+        throw httpError(502, "Bitcoin live price is temporarily unavailable.");
+      }
+      return rememberQuote({
+        symbol,
+        price,
+        previousClose: price,
+        open: price,
+        high: price,
+        low: price,
+        change: 0,
+        percentChange: 0,
+        isMarketOpen: true,
+        is_market_open: true,
+        datetime: nowIso(),
+        source: "coinbase",
+      });
+    } catch (error) {
+      const stale = staleQuote(error);
+      if (stale) return stale;
+      throw error;
     }
-    const quote = {
-      symbol,
-      price,
-      previousClose: price,
-      open: price,
-      high: price,
-      low: price,
-      change: 0,
-      percentChange: 0,
-      isMarketOpen: true,
-      is_market_open: true,
-      datetime: nowIso(),
-      source: "coinbase",
-      cachedAt: Date.now(),
-    };
-    marketQuoteCache.set(symbol, quote);
-    return quote;
   }
 
   if (TWELVE_DATA_API_KEY) {
-    const url = new URL("https://api.twelvedata.com/quote");
-    url.searchParams.set("symbol", market.apiSymbol);
-    url.searchParams.set("apikey", TWELVE_DATA_API_KEY);
-    const response = await fetch(url, {
-      headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.0" },
-      signal: AbortSignal.timeout(10000),
-    });
-    const data = await response.json();
-    const price = Number(data?.close ?? data?.price);
-    if (!response.ok || data?.status === "error" || data?.code || !Number.isFinite(price) || price <= 0) {
-      throw httpError(502, data?.message || `${market.label} live price is temporarily unavailable.`);
+    try {
+      const url = new URL("https://api.twelvedata.com/quote");
+      url.searchParams.set("symbol", market.apiSymbol);
+      url.searchParams.set("apikey", TWELVE_DATA_API_KEY);
+      const response = await fetch(url, {
+        headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.1" },
+        signal: AbortSignal.timeout(10000),
+      });
+      const data = await response.json();
+      const price = Number(data?.close ?? data?.price);
+      if (!response.ok || data?.status === "error" || data?.code || !Number.isFinite(price) || price <= 0) {
+        throw httpError(502, data?.message || `${market.label} live price is temporarily unavailable.`);
+      }
+      const previousClose = Number(data?.previous_close ?? data?.open ?? price);
+      const change = Number(data?.change ?? price - previousClose);
+      const percentChange = Number(
+        data?.percent_change ?? (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
+      );
+      const providerMarketOpen = typeof data?.is_market_open === "boolean"
+        ? data.is_market_open
+        : null;
+      const isOpen = market.alwaysOpen || marketIsOpen(market);
+      return rememberQuote({
+        symbol,
+        price,
+        previousClose,
+        open: Number(data?.open || price),
+        high: Number(data?.high || price),
+        low: Number(data?.low || price),
+        change: Number.isFinite(change) ? change : 0,
+        percentChange: Number.isFinite(percentChange) ? percentChange : 0,
+        isMarketOpen: isOpen,
+        is_market_open: isOpen,
+        providerMarketOpen,
+        datetime: data?.datetime || nowIso(),
+        source: "twelve-data",
+      });
+    } catch (error) {
+      const stale = staleQuote(error);
+      if (stale) return stale;
+      throw error;
     }
-    const previousClose = Number(data?.previous_close ?? data?.open ?? price);
-    const change = Number(data?.change ?? price - previousClose);
-    const percentChange = Number(
-      data?.percent_change ?? (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
-    );
-    const providerMarketOpen = typeof data?.is_market_open === "boolean"
-      ? data.is_market_open
-      : null;
-    // The provider can return a stale closed flag even while a fresh weekday
-    // quote is available. MetaBinary uses its weekday session schedule for
-    // order availability and keeps the provider value for diagnostics.
-    const isOpen = market.alwaysOpen || marketIsOpen(market);
-    const quote = {
-      symbol,
-      price,
-      previousClose,
-      open: Number(data?.open || price),
-      high: Number(data?.high || price),
-      low: Number(data?.low || price),
-      change: Number.isFinite(change) ? change : 0,
-      percentChange: Number.isFinite(percentChange) ? percentChange : 0,
-      isMarketOpen: isOpen,
-      is_market_open: isOpen,
-      providerMarketOpen,
-      datetime: data?.datetime || nowIso(),
-      source: "twelve-data",
-      cachedAt: Date.now(),
-    };
-    marketQuoteCache.set(symbol, quote);
-    return quote;
   }
 
   const fallback = Number(options.clientPrice || 0);
@@ -787,13 +808,20 @@ async function fetchTrustedMarketQuote(symbol, options = {}) {
       low: fallback,
       change: 0,
       percentChange: 0,
-      isMarketOpen: marketIsOpen(market),
-      is_market_open: marketIsOpen(market),
+      isMarketOpen: market.alwaysOpen || marketIsOpen(market),
+      is_market_open: market.alwaysOpen || marketIsOpen(market),
       datetime: nowIso(),
       source: "demo-client-quote",
+      stale: false,
+      status: "demo",
+      error: "",
       cachedAt: Date.now(),
+      serverTime: nowIso(),
     };
   }
+
+  const stale = staleQuote(new Error(`${market.label} live pricing key is not configured.`));
+  if (stale) return stale;
 
   throw httpError(
     503,
@@ -829,19 +857,14 @@ function publicForexPosition(position) {
 }
 
 function ensurePaymentKeys() {
-  const publicLooksPlaceholder = !PUBLIC_KEY || /your|replace|publishable_key|public_key/i.test(PUBLIC_KEY);
-  const secretLooksPlaceholder = !SECRET_KEY || /your|replace|secret_key|api_token/i.test(SECRET_KEY);
-  if (publicLooksPlaceholder || secretLooksPlaceholder) {
-    throw httpError(
-      503,
-      "IntaSend is not configured. Add INTASEND_PUBLISHABLE_KEY and INTASEND_SECRET_KEY on the Render backend."
-    );
+  if (!PUBLIC_KEY || !SECRET_KEY) {
+    throw httpError(503, "IntaSend keys are not configured on the backend.");
   }
 }
 
-function intasendClient(testMode = TEST_MODE) {
+function intasendClient() {
   ensurePaymentKeys();
-  return new IntaSend(PUBLIC_KEY, SECRET_KEY, Boolean(testMode));
+  return new IntaSend(PUBLIC_KEY, SECRET_KEY, TEST_MODE);
 }
 
 function providerErrorMessage(error) {
@@ -849,13 +872,7 @@ function providerErrorMessage(error) {
   let raw;
   if (Buffer.isBuffer(error)) raw = error.toString("utf8");
   else if (typeof error === "string") raw = error;
-  else if (error?.response?.data) {
-    try {
-      raw = JSON.stringify(error.response.data);
-    } catch {
-      raw = String(error.response.data);
-    }
-  } else if (error?.message) raw = error.message;
+  else if (error?.message) raw = error.message;
   else {
     try {
       raw = JSON.stringify(error);
@@ -867,48 +884,9 @@ function providerErrorMessage(error) {
   try {
     const parsed = JSON.parse(raw);
     const nested = parsed?.errors?.[0]?.detail || parsed?.errors?.[0]?.message;
-    return String(parsed.message || parsed.detail || parsed.error || nested || raw).slice(0, 500);
+    return parsed.message || parsed.detail || parsed.error || nested || raw;
   } catch {
     return String(raw).slice(0, 500);
-  }
-}
-
-function isIntaSendAuthenticationError(error) {
-  const message = providerErrorMessage(error).toLowerCase();
-  return (
-    message.includes("invalid api token") ||
-    message.includes("invalid token") ||
-    message.includes("authentication credential") ||
-    message.includes("not authenticated") ||
-    message.includes("unauthorized") ||
-    message.includes("401")
-  );
-}
-
-async function runIntaSend(operation, preferredTestMode = TEST_MODE) {
-  const firstMode = Boolean(preferredTestMode);
-  try {
-    const response = await operation(intasendClient(firstMode));
-    return { response, testMode: firstMode };
-  } catch (firstError) {
-    if (!isIntaSendAuthenticationError(firstError)) throw firstError;
-
-    // A frequent production mistake is using live keys while the app is still
-    // pointed at the sandbox (or the opposite). Retry once in the other IntaSend
-    // environment. An authentication failure cannot have created a charge.
-    const secondMode = !firstMode;
-    try {
-      const response = await operation(intasendClient(secondMode));
-      return { response, testMode: secondMode };
-    } catch (secondError) {
-      if (isIntaSendAuthenticationError(secondError)) {
-        throw httpError(
-          502,
-          `IntaSend rejected the API token in both live and sandbox mode. On Render, copy the matching publishable and secret keys from the same IntaSend environment. Current configured mode: ${firstMode ? "sandbox" : "live"}.`
-        );
-      }
-      throw secondError;
-    }
   }
 }
 
@@ -1093,14 +1071,11 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
 async function reconcileDeposit(db, deposit) {
   if (!deposit?.invoiceId || deposit.credited || FAILED_STATUSES.has(deposit.status)) return deposit;
   try {
-    const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
-      (client) => client.collection().status(deposit.invoiceId),
-      typeof deposit.providerTestMode === "boolean" ? deposit.providerTestMode : TEST_MODE
-    );
+    const providerResponse = await intasendClient().collection().status(deposit.invoiceId);
     const status = normalizeStatus(providerResponse);
     await db.collection("deposits").updateOne(
       { id: deposit.id },
-      { $set: { providerStatusResponse: providerResponse, providerTestMode, status, updatedAt: nowIso() } }
+      { $set: { providerStatusResponse: providerResponse, status, updatedAt: nowIso() } }
     );
     const updated = { ...deposit, providerStatusResponse: providerResponse, status };
     return PAID_STATUSES.has(status) ? creditDepositOnce(db, updated, status) : updated;
@@ -1693,17 +1668,15 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const apiRef = `MB-${depositId}`.slice(0, 64);
 
     if (method === "card") {
-      const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
-        (client) => client.collection().charge({
-          first_name: String(name.split(/\s+/)[0] || "MetaBinary"),
-          last_name: String(name.split(/\s+/).slice(1).join(" ") || "User"),
-          email,
-          host: FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173",
-          amount: roundMoney(amountUsd),
-          currency: "USD",
-          api_ref: apiRef,
-        })
-      );
+      const providerResponse = await intasendClient().collection().charge({
+        first_name: String(name.split(/\s+/)[0] || "MetaBinary"),
+        last_name: String(name.split(/\s+/).slice(1).join(" ") || "User"),
+        email,
+        host: FRONTEND_URLS[0] || "http://localhost:5173",
+        amount: roundMoney(amountUsd),
+        currency: "USD",
+        api_ref: apiRef,
+      });
       const deposit = {
         id: depositId,
         requestId,
@@ -1716,7 +1689,6 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
         amountKes,
         status: normalizeStatus(providerResponse),
         credited: false,
-        providerTestMode,
         providerResponse,
         createdAt: nowIso(),
         updatedAt: nowIso(),
@@ -1734,28 +1706,14 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
 
     if (method !== "mpesa") throw httpError(400, "Choose M-Pesa or card deposit.");
     const phone = normalizeKenyanPhone(req.body.phone || user.phone);
-    if (!/^254[17]\d{8}$/.test(phone)) {
-      throw httpError(400, "Enter a valid Kenyan M-Pesa number such as 0712345678 or 254712345678.");
-    }
-    const nameParts = name.split(/\s+/).filter(Boolean);
-    const payload = {
-      first_name: String(nameParts[0] || "MetaBinary"),
-      last_name: String(nameParts.slice(1).join(" ") || "Trader"),
-      phone_number: phone,
-      email,
-      host: FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173",
-      amount: amountKes,
-      api_ref: apiRef,
-    };
+    const payload = { phone_number: phone, name, email, amount: amountKes, api_ref: apiRef };
     const generatedCallbackUrl = PUBLIC_BACKEND_URL
       ? `${PUBLIC_BACKEND_URL}/api/intasend/callback${INTASEND_CALLBACK_SECRET ? `?token=${encodeURIComponent(INTASEND_CALLBACK_SECRET)}` : ""}`
       : "";
     const callbackUrl = String(process.env.INTASEND_CALLBACK_URL || generatedCallbackUrl).trim();
     if (callbackUrl) payload.callback_url = callbackUrl;
 
-    const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
-      (client) => client.collection().mpesaStkPush(payload)
-    );
+    const providerResponse = await intasendClient().collection().mpesaStkPush(payload);
     const deposit = {
       id: depositId,
       requestId,
@@ -1768,7 +1726,6 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
       amountKes,
       status: normalizeStatus(providerResponse),
       credited: false,
-      providerTestMode,
       providerResponse,
       createdAt: nowIso(),
       updatedAt: nowIso(),
@@ -1786,12 +1743,7 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     });
   } catch (error) {
     if (!error.status) error.status = 502;
-    const providerMessage = providerErrorMessage(error);
-    if (isIntaSendAuthenticationError(error)) {
-      error.message = "IntaSend authentication failed. The backend publishable key, secret key and live/sandbox mode must come from the same IntaSend account environment.";
-    } else {
-      error.message = providerMessage;
-    }
+    error.message = providerErrorMessage(error);
     next(error);
   }
 });
@@ -1922,13 +1874,11 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
     await db.collection("withdrawals").insertOne(withdrawal);
 
     try {
-      const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
-        (client) => client.payouts().mpesa({
+      const providerResponse = await intasendClient().payouts().mpesa({
         currency: "KES",
         requires_approval: String(process.env.INTASEND_PAYOUT_REQUIRES_APPROVAL || "YES").toUpperCase(),
         transactions: [{ name, account: phone, amount: String(amountKes), narrative: `MetaBinary withdrawal ${withdrawalId}` }],
-        })
-      );
+      });
       const providerStatus = normalizeStatus(providerResponse);
       const status = FAILED_STATUSES.has(providerStatus) ? "FAILED" : providerStatus === "PENDING" ? "PROCESSING" : providerStatus;
       const trackingId = extractTrackingId(providerResponse);
@@ -1939,7 +1889,7 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
       }
       await db.collection("withdrawals").updateOne(
         { id: withdrawalId },
-        { $set: { status, trackingId, providerTestMode, providerResponse, refunded: status === "FAILED", message, updatedAt: nowIso() } }
+        { $set: { status, trackingId, providerResponse, refunded: status === "FAILED", message, updatedAt: nowIso() } }
       );
       await db.collection("transactions").insertOne({
         id: makeId("tx"),
@@ -2028,8 +1978,12 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
 
     const quote = await fetchTrustedMarketQuote(instrument, {
       allowClientFallback: account === "demo",
+      allowStale: account !== "real",
       clientPrice,
     });
+    if (account === "real" && quote?.stale) {
+      throw httpError(503, "The live price feed is delayed. Real orders are paused until a fresh verified quote is available.");
+    }
     const providerMarketOpen = quote?.isMarketOpen ?? quote?.is_market_open;
     const sessionOpen = market.alwaysOpen || providerMarketOpen === true || marketIsOpen(market);
     if (!sessionOpen && account === "real") {

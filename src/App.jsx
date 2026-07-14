@@ -27,7 +27,11 @@ function useResponsiveViewportSize() {
       const width = Math.max(280, Math.round(viewport?.width || window.innerWidth || 360));
       root.style.setProperty("--mb-viewport-height", `${height}px`);
       root.style.setProperty("--mb-viewport-width", `${width}px`);
+      root.style.setProperty("--mb-vh", `${height / 100}px`);
+      root.style.setProperty("--mb-vw", `${width / 100}px`);
       root.dataset.mbViewport = width < 600 ? "phone" : width < 1024 ? "tablet" : "desktop";
+      root.dataset.mbWidth = width < 340 ? "xs" : width < 390 ? "sm" : width < 480 ? "md" : width < 768 ? "lg" : width < 1024 ? "tablet" : "desktop";
+      root.dataset.mbHeight = height < 560 ? "xs" : height < 680 ? "short" : height < 820 ? "medium" : "tall";
     };
 
     updateViewport();
@@ -50,9 +54,9 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-deposit-mobile-ai-v21-2026-07-14";
+const FRONTEND_BUILD = "metabinary-universal-release-v21-2026-07-14";
 const DIGIT_TICK_MS = 1000;
-const BOT_CYCLE_DELAY_MS = 250;
+const BOT_CYCLE_DELAY_MS = 1100;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(import.meta.env.VITE_REFERRAL_COMMISSION_PERCENT || 5))
@@ -191,12 +195,8 @@ const STORE = {
   botConfig: "mb_bot_config",
   aiPosition: "mb_ai_position",
   supportTicket: "mb_support_ticket",
+  theme: "mb_theme",
 };
-
-const MARKET_API_KEY =
-  import.meta.env.VITE_TWELVE_DATA_API_KEY ||
-  import.meta.env.VITE_TWELVE_DATA_KEY ||
-  "";
 
 const MARKET_CACHE_KEY = "mb_real_market_feed_v1";
 
@@ -788,93 +788,34 @@ function normalizeMarketQuote(raw, market) {
     low: Number(raw?.low || 0),
     change: Number.isFinite(change) ? change : 0,
     percentChange: Number.isFinite(percentChange) ? percentChange : 0,
-    isOpen: parseMarketOpen(raw?.is_market_open, likelyMarketOpen(market)),
-    updatedAt: raw?.datetime || new Date().toISOString(),
-    status: "live",
-    error: "",
+    isOpen: parseMarketOpen(raw?.is_market_open ?? raw?.isMarketOpen, likelyMarketOpen(market)),
+    isMarketOpen: parseMarketOpen(raw?.isMarketOpen ?? raw?.is_market_open, likelyMarketOpen(market)),
+    is_market_open: parseMarketOpen(raw?.is_market_open ?? raw?.isMarketOpen, likelyMarketOpen(market)),
+    stale: Boolean(raw?.stale),
+    source: raw?.source || "backend",
+    cacheAgeMs: Number(raw?.cacheAgeMs || 0),
+    updatedAt: raw?.datetime || raw?.updatedAt || new Date().toISOString(),
+    status: raw?.status || (raw?.stale ? "cached" : "live"),
+    error: raw?.error || "",
   };
 }
 
 async function fetchMarketQuote(market, signal) {
-  let backendError = null;
-
-  if (API_URL) {
-    try {
-      const url = new URL(`${API_URL}/api/markets/quote`);
-      url.searchParams.set("symbol", market.symbol);
-      const response = await fetch(url, { signal, cache: "no-store" });
-      const data = await readApiResponse(response);
-      if (!response.ok || data?.ok === false) {
-        throw new Error(data?.message || "Unable to load the server market quote.");
-      }
-      return normalizeMarketQuote(data.quote || data, market);
-    } catch (error) {
-      if (error?.name === "AbortError") throw error;
-      backendError = error;
-    }
+  if (!API_URL) {
+    throw new Error("VITE_API_URL is missing. Live market prices must come from the backend.");
   }
 
-  if (MARKET_API_KEY) {
-    const url = new URL("https://api.twelvedata.com/quote");
-    url.searchParams.set("symbol", market.apiSymbol);
-    url.searchParams.set("apikey", MARKET_API_KEY);
-
-    const response = await fetch(url, { signal });
-    const data = await response.json();
-
-    if (!response.ok || data?.status === "error" || data?.code) {
-      throw new Error(data?.message || "Unable to load live market quote.");
-    }
-
-    return normalizeMarketQuote(data, market);
+  const url = new URL(`${API_URL}/api/markets/quote`);
+  url.searchParams.set("symbol", market.symbol);
+  const response = await fetch(url, { signal, cache: "no-store" });
+  const data = await readApiResponse(response);
+  if (!response.ok || data?.ok === false) {
+    throw new Error(data?.message || "Unable to load the server market quote.");
   }
 
-  throw backendError || new Error(
-    market.symbol === "BTC/USD"
-      ? "Bitcoin live price is temporarily unavailable."
-      : "Add TWELVE_DATA_API_KEY to the backend for live forex and metals prices."
-  );
+  return normalizeMarketQuote(data.quote || data, market);
 }
 
-async function fetchMarketCandles(market, timeframe, signal) {
-  if (!MARKET_API_KEY) {
-    throw new Error("Live candle key is not configured.");
-  }
-
-  const url = new URL("https://api.twelvedata.com/time_series");
-  url.searchParams.set("symbol", market.apiSymbol);
-  url.searchParams.set("interval", timeframe);
-  url.searchParams.set("outputsize", "180");
-  url.searchParams.set("format", "JSON");
-  url.searchParams.set("timezone", "UTC");
-  url.searchParams.set("apikey", MARKET_API_KEY);
-
-  const response = await fetch(url, { signal });
-  const data = await response.json();
-
-  if (!response.ok || data?.status === "error" || data?.code || !Array.isArray(data?.values)) {
-    throw new Error(data?.message || "Unable to load live market candles.");
-  }
-
-  return data.values
-    .slice()
-    .reverse()
-    .map((item) => ({
-      time: item.datetime,
-      open: Number(item.open),
-      high: Number(item.high),
-      low: Number(item.low),
-      close: Number(item.close),
-      volume: Number(item.volume || 0),
-    }))
-    .filter(
-      (item) =>
-        Number.isFinite(item.open) &&
-        Number.isFinite(item.high) &&
-        Number.isFinite(item.low) &&
-        Number.isFinite(item.close)
-    );
-}
 
 function TradingApp() {
   useResponsiveViewportSize();
@@ -885,6 +826,7 @@ function TradingApp() {
   );
 
   const [activePage, setActivePage] = useState(initialTradingPage);
+  const [theme, setTheme] = useState(() => readStore(STORE.theme, "dark"));
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
   const [balances, setBalances] = useState(() =>
     readStore(STORE.balances, { demo: 10000, real: 0 })
@@ -950,6 +892,7 @@ function TradingApp() {
   const botBusyRef = useRef(false);
   const botRunningRef = useRef(false);
   const botSessionVersionRef = useRef(0);
+  const botFailureCountRef = useRef(0);
   const balancesRef = useRef(balances);
   const accountRef = useRef(account);
   const historyPopRef = useRef(false);
@@ -1028,6 +971,12 @@ function TradingApp() {
   useEffect(() => saveStore(STORE.notifications, notifications), [notifications]);
   useEffect(() => saveStore(STORE.binaryMarket, binaryMarketId), [binaryMarketId]);
   useEffect(() => saveStore(STORE.botConfig, botConfig), [botConfig]);
+  useEffect(() => {
+    const nextTheme = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.style.colorScheme = nextTheme;
+    saveStore(STORE.theme, nextTheme);
+  }, [theme]);
 
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
 
@@ -1080,8 +1029,8 @@ function TradingApp() {
               next[symbol] = {
                 ...previous,
                 ...quote,
-                status: "live",
-                error: "",
+                status: quote.status || (quote.stale ? "cached" : "live"),
+                error: quote.error || "",
                 updatedAt: quote.updatedAt || new Date().toISOString(),
               };
               return;
@@ -1129,7 +1078,7 @@ function TradingApp() {
       }
 
       if (!disposed) {
-        const delay = activePage === "forex" || activePage === "openTrades" ? 3500 : 7000;
+        const delay = activePage === "forex" || activePage === "openTrades" ? 15000 : 45000;
         timerId = window.setTimeout(refreshMarketQuotes, delay);
       }
     }
@@ -1423,6 +1372,7 @@ function TradingApp() {
     let timer = 0;
     let requestBusy = false;
     let localCompatibilityMode = false;
+    let tickFailures = 0;
     const openTrade = { ...activeBinaryTrade };
     const tradeTickDelay = Math.max(250, Number(openTrade.tickMs || DIGIT_TICK_MS));
     let localRemainingTicks = Math.max(
@@ -1537,6 +1487,7 @@ function TradingApp() {
           throw new Error(result.message || "The next trade tick could not be loaded.");
         }
 
+        tickFailures = 0;
         const tickDigit = Number(result.digit ?? result.resultDigit);
         const remainingTicks = Math.max(0, Number(result.remainingTicks || 0));
         showTick(tickDigit, remainingTicks, result);
@@ -1551,16 +1502,27 @@ function TradingApp() {
         schedule(tradeTickDelay);
       } catch (error) {
         if (cancelled) return;
-        console.error("Trade tick failed:", error);
-        activeBinaryTradeRef.current = null;
-        setActiveBinaryTrade(null);
-        notify(
-          "loss",
-          "Trade tick failed",
-          error instanceof Error ? error.message : "The trade could not continue.",
-          4500
-        );
-        await refreshUser();
+        tickFailures += 1;
+        console.error("Trade tick temporarily failed:", error);
+
+        if (tickFailures === 1) {
+          notify(
+            "open",
+            "Reconnecting trade",
+            "Your contract is still active. MetaBinary is reconnecting to the settlement server.",
+            3200
+          );
+        }
+
+        if (openTrade.account === "demo" && tickFailures >= 5) {
+          localCompatibilityMode = true;
+          await runCompatibilityTick();
+          return;
+        }
+
+        // Real contracts never invent a result locally. Keep polling until the
+        // verified backend settlement becomes available.
+        schedule(Math.min(8000, 900 * Math.pow(1.65, Math.min(tickFailures, 5))));
       } finally {
         requestBusy = false;
       }
@@ -1578,10 +1540,10 @@ function TradingApp() {
     // Very small and short phones use the browser's native vertical scrolling.
     // Disabling the custom pull gesture here prevents older Android browsers
     // from trapping touchmove events and making the Trade page feel frozen.
-    const compactTouchViewport =
+    const touchDevice =
       typeof window !== "undefined" &&
-      (window.innerWidth <= 480 || window.innerHeight <= 720);
-    if (compactTouchViewport) return undefined;
+      (navigator.maxTouchPoints > 0 || "ontouchstart" in window);
+    if (touchDevice) return undefined;
 
     const pageIsAtTop = () => {
       const main = document.querySelector(".mainScreen");
@@ -3119,15 +3081,32 @@ function TradingApp() {
       const waitMs = Math.max(350, new Date(trade.settleAt).getTime() - Date.now() + 160);
       await wait(waitMs);
 
-      const settleResponse = await fetch(`${API_URL}/api/trades/${encodeURIComponent(trade.id)}/settle`, {
-        method: "POST",
-        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-        cache: "no-store",
-        body: JSON.stringify({}),
-      });
-      const settled = await readApiResponse(settleResponse);
-      if (!settleResponse.ok || settled.ok === false) {
-        throw new Error(settled.message || "Bot trade could not be settled.");
+      let settled = null;
+      let settlementError = null;
+      for (let attempt = 0; attempt < 7 && !settled; attempt += 1) {
+        try {
+          const settleResponse = await fetch(`${API_URL}/api/trades/${encodeURIComponent(trade.id)}/settle`, {
+            method: "POST",
+            headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+            cache: "no-store",
+            body: JSON.stringify({}),
+          });
+          const candidate = await readApiResponse(settleResponse);
+          if (settleResponse.status === 409 && Number(candidate.remainingMs) > 0) {
+            await wait(Math.min(1800, Math.max(120, Number(candidate.remainingMs) + 40)));
+            continue;
+          }
+          if (!settleResponse.ok || candidate.ok === false) {
+            throw new Error(candidate.message || "Bot trade could not be settled.");
+          }
+          settled = candidate;
+        } catch (error) {
+          settlementError = error;
+          if (attempt < 6) await wait(Math.min(3200, 500 * Math.pow(1.6, attempt)));
+        }
+      }
+      if (!settled) {
+        throw settlementError || new Error("Bot trade settlement is temporarily unavailable.");
       }
 
       if (sessionVersion !== botSessionVersionRef.current) {
@@ -3172,6 +3151,7 @@ function TradingApp() {
         status: won ? "WON" : "LOST",
         time: new Date().toLocaleTimeString(),
       };
+      botFailureCountRef.current = 0;
       setBotTrades((old) => [row, ...old].slice(0, 80));
 
       addTx({
@@ -3208,15 +3188,30 @@ function TradingApp() {
       return row;
     } catch (error) {
       console.error("Bot cycle failed:", error);
-      botRunningRef.current = false;
-      setBotRunning(false);
-      notify(
-        "loss",
-        "Bot stopped",
-        error instanceof Error ? error.message : "The bot could not complete its trade.",
-        5000
-      );
+      const message = error instanceof Error ? error.message : "The bot could not complete its trade.";
+      const fatal = /insufficient|low .*balance|login|session|unauthor|forbidden|suspend|banned|account is/i.test(message);
+      botFailureCountRef.current += 1;
+
+      if (fatal || botFailureCountRef.current >= 5) {
+        botRunningRef.current = false;
+        setBotRunning(false);
+        notify(
+          "loss",
+          "Bot paused safely",
+          fatal ? message : "The connection failed several times. Check the backend and press Run Bot to continue.",
+          5200
+        );
+      } else if (botFailureCountRef.current === 1 || botFailureCountRef.current === 3) {
+        notify(
+          "open",
+          "Bot reconnecting",
+          `${message} Retrying automatically (${botFailureCountRef.current}/5).`,
+          3600
+        );
+      }
+
       await refreshUser();
+      await wait(Math.min(5000, 900 * Math.pow(1.55, botFailureCountRef.current)));
       return null;
     }
   }
@@ -3269,6 +3264,7 @@ function TradingApp() {
     setSelectedBot(prepared);
     setBotConfig(preparedConfig);
     botSessionVersionRef.current += 1;
+    botFailureCountRef.current = 0;
     botSessionPnlRef.current = 0;
     botMartingaleStepRef.current = 0;
     setBotSessionPnl(0);
@@ -3288,6 +3284,7 @@ function TradingApp() {
 
   function resetBotSession() {
     botSessionVersionRef.current += 1;
+    botFailureCountRef.current = 0;
     botRunningRef.current = false;
     setBotRunning(false);
     setBotTrades([]);
@@ -3557,7 +3554,7 @@ function TradingApp() {
   }
 
   return (
-    <div className={`app activePage-${activePage}`}>
+    <div className={`app activePage-${activePage} theme-${theme}`}>
       <div
         className={`pullRefreshIndicator ${pullRefreshing ? "refreshing" : ""} ${pullRefreshDistance > 0 ? "visible" : ""}`}
         style={{ transform: `translate(-50%, ${Math.max(-52, pullRefreshDistance - 52)}px)` }}
@@ -3581,6 +3578,8 @@ function TradingApp() {
         markAllNotificationsRead={markAllNotificationsRead}
         clearNotifications={clearNotifications}
         autoSession={aiAutoSession}
+        theme={theme}
+        toggleTheme={() => setTheme((current) => current === "light" ? "dark" : "light")}
       />
 
       <main className="mainScreen">
@@ -3953,6 +3952,8 @@ function Header({
   markAllNotificationsRead,
   clearNotifications,
   autoSession,
+  theme,
+  toggleTheme,
 }) {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -4018,6 +4019,16 @@ function Header({
       >
         <span>Deposit</span>
         <b>＋</b>
+      </button>
+
+      <button
+        type="button"
+        className="themeToggleButton"
+        onClick={toggleTheme}
+        aria-label={theme === "light" ? "Use dark theme" : "Use light theme"}
+        title={theme === "light" ? "Dark mode" : "Light mode"}
+      >
+        <span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span>
       </button>
 
       <button
@@ -4524,16 +4535,18 @@ function ForexPage({
   const priceReady = Number.isFinite(Number(livePrice)) && Number(livePrice) > 0;
   const feedStatus = marketFeed?.status || "connecting";
   const scheduledMarketOpen = likelyMarketOpen(market);
+  const quoteStale = Boolean(marketFeed?.stale || feedStatus === "cached");
   const quoteUsable = priceReady && feedStatus !== "error";
-  // Some quote providers occasionally report a stale closed flag while a fresh
-  // weekday quote is arriving. Use the server/session schedule as the authority.
+  const freshServerQuote = priceReady && feedStatus === "live" && !quoteStale;
+  // Session state comes from the backend and UTC schedule, never the phone clock.
   const providerMarketOpen = marketFeed?.isOpen ?? marketFeed?.isMarketOpen ?? marketFeed?.is_market_open;
   const marketOpen = Boolean(
-    market?.alwaysOpen ||
-    (quoteUsable && (providerMarketOpen === true || scheduledMarketOpen))
+    market?.alwaysOpen || providerMarketOpen === true || scheduledMarketOpen
   );
   const tradingAllowed = Boolean(
-    quoteUsable && (account === "demo" || marketOpen)
+    account === "demo"
+      ? quoteUsable
+      : freshServerQuote && marketOpen
   );
   const change = Number(marketFeed?.change || 0);
   const percentChange = Number(marketFeed?.percentChange || 0);
@@ -4610,9 +4623,9 @@ function ForexPage({
         ? "Market open"
         : "Market closed"
       : feedStatus === "cached"
-      ? "Last price"
+      ? "Price feed delayed"
       : feedStatus === "error"
-      ? "Feed unavailable"
+      ? "Price feed delayed"
       : feedStatus === "connecting"
       ? "Connecting"
       : "Chart live";
@@ -4731,7 +4744,7 @@ function ForexPage({
         />
       </section>
 
-      {visiblePositions.length > 0 && (
+      {false && visiblePositions.length > 0 && (
         <section className="forexLiveTradeLines" aria-label="Open positions on this market">
           <header>
             <div><small>OPEN POSITION{visiblePositions.length === 1 ? "" : "S"}</small><strong>{symbol}</strong></div>
@@ -4775,7 +4788,9 @@ function ForexPage({
               <b>
                 {!priceReady
                   ? "Waiting…"
-                  : !tradingAllowed
+                  : account === "real" && !freshServerQuote
+                  ? "Feed delayed"
+                  : !marketOpen
                   ? "Closed"
                   : orderBusy
                   ? "Placing…"
@@ -4794,7 +4809,9 @@ function ForexPage({
               <b>
                 {!priceReady
                   ? "Waiting…"
-                  : !tradingAllowed
+                  : account === "real" && !freshServerQuote
+                  ? "Feed delayed"
+                  : !marketOpen
                   ? "Closed"
                   : orderBusy
                   ? "Placing…"
@@ -5367,11 +5384,20 @@ function TradePage({
     });
 
   return (
-    <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"}`}>
+    <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"} ${touchMode ? "touchContractPage" : ""}`}>
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
-        {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
-          <button key={type} type="button" className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)} disabled={Boolean(activeBinaryTrade)}>{type}</button>
+        {[
+          ["Even/Odd", "Even/Odd"],
+          ["Matches/Differs", "Match/Diff"],
+          ["Over/Under", "Over/Under"],
+          ["Rise/Fall", "Rise/Fall"],
+          ["Touch/No Touch", "Touch/NoTouch"],
+        ].map(([type, compact]) => (
+          <button key={type} type="button" className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)} disabled={Boolean(activeBinaryTrade)}>
+            <span className="tradeTypeFullLabel">{type}</span>
+            <span className="tradeTypeCompactLabel">{compact}</span>
+          </button>
         ))}
       </section>
 
@@ -6720,26 +6746,6 @@ function DepositModal({ close, submit }) {
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousRootOverflow = document.documentElement.style.overflow;
-    document.body.classList.add("paymentDialogOpen");
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-
-    const onKeyDown = (event) => {
-      if (event.key === "Escape" && !submitting) close();
-    };
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.classList.remove("paymentDialogOpen");
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousRootOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [close, submitting]);
-
   async function handleSubmit() {
     if (submitting) return;
     setSubmitting(true);
@@ -6747,82 +6753,45 @@ function DepositModal({ close, submit }) {
     if (!completed) setSubmitting(false);
   }
 
-  const title = !method ? "Deposit Funds" : method === "mpesa" ? "M-Pesa Deposit" : "Card Deposit";
-
   return (
-    <div className="modalLayer depositModalLayerV21" role="presentation">
-      <div className={`depositModal depositModalV21 ${method ? "depositFormStepV21" : "depositMethodStepV21"}`} role="dialog" aria-modal="true" aria-labelledby="deposit-dialog-title">
-        <header className="depositModalHeaderV21">
-          {method ? (
-            <button className="depositBackV21" type="button" onClick={() => setMethod("")} disabled={submitting}>
-              <span>‹</span> Back
+    <div className="modalLayer">
+      <div className="depositModal" role="dialog" aria-modal="true" aria-label="Deposit funds">
+        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
+          ×
+        </button>
+
+        {!method ? (
+          <>
+            <h2>Deposit Funds</h2>
+            <p>Choose payment method</p>
+
+            <PaymentButton icon="📱" title="M-Pesa" text="Instant mobile money" onClick={() => setMethod("mpesa")} />
+            <PaymentButton icon="💳" title="Credit/Debit Card" text="Secure hosted checkout" onClick={() => setMethod("card")} />
+          </>
+        ) : (
+          <>
+            <button className="modalBack" onClick={() => setMethod("")} disabled={submitting}>
+              ‹ Back
             </button>
-          ) : (
-            <span className="depositHeaderSpacerV21" aria-hidden="true" />
-          )}
 
-          <div>
-            <small>REAL ACCOUNT FUNDING</small>
-            <h2 id="deposit-dialog-title">{title}</h2>
-          </div>
+            <h2>{method === "mpesa" ? "M-Pesa Deposit" : "Card Deposit"}</h2>
+            <p>Funds go to your real account.</p>
 
-          <button className="depositCloseV21" type="button" onClick={close} aria-label="Close deposit" disabled={submitting}>
-            ×
-          </button>
-        </header>
+            <label>Amount USD</label>
+            <input type="number" min="1" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} disabled={submitting} />
 
-        <div className="depositModalScrollV21">
-          {!method ? (
-            <section className="depositMethodListV21">
-              <p>Choose a secure payment method. Your balance is credited only after IntaSend confirms payment.</p>
-              <PaymentButton icon="📱" title="M-Pesa" text="Receive an STK prompt on your phone" onClick={() => setMethod("mpesa")} />
-              <PaymentButton icon="💳" title="Credit/Debit Card" text="Continue to IntaSend secure checkout" onClick={() => setMethod("card")} />
-            </section>
-          ) : (
-            <section className="depositFormBodyV21">
-              <p>Funds go to your Real Account after successful confirmation.</p>
+            {method === "mpesa" && (
+              <>
+                <label>Phone Number</label>
+                <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={submitting} />
+              </>
+            )}
 
-              <label htmlFor="deposit-amount-v21">Amount USD</label>
-              <div className="depositInputShellV21">
-                <input
-                  id="deposit-amount-v21"
-                  type="number"
-                  inputMode="decimal"
-                  min="1"
-                  step="0.01"
-                  value={amountUsd}
-                  onChange={(event) => setAmountUsd(event.target.value)}
-                  disabled={submitting}
-                />
-                <span>USD</span>
-              </div>
-
-              {method === "mpesa" && (
-                <>
-                  <label htmlFor="deposit-phone-v21">M-Pesa phone number</label>
-                  <input
-                    id="deposit-phone-v21"
-                    className="depositPhoneInputV21"
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel"
-                    placeholder="0712345678 or 254712345678"
-                    value={phone}
-                    onChange={(event) => setPhone(event.target.value.replace(/[^0-9+]/g, ""))}
-                    disabled={submitting}
-                  />
-                  <small className="depositHelpV21">Use the Safaricom number that will receive the M-Pesa prompt.</small>
-                </>
-              )}
-
-              <button className="modalPrimary depositSubmitV21" type="button" onClick={handleSubmit} disabled={submitting}>
-                {submitting ? "Connecting securely…" : method === "mpesa" ? "Deposit Now" : "Continue to secure checkout"}
-              </button>
-
-              <small className="depositSecurityV21">MetaBinary never asks for your M-Pesa PIN. Enter the PIN only inside the official prompt on your phone.</small>
-            </section>
-          )}
-        </div>
+            <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? "Confirming deposit…" : method === "mpesa" ? "Deposit Now" : "Continue to secure checkout"}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
