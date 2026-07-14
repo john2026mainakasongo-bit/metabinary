@@ -20,7 +20,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-forex-open-buy-sell-v15-2026-07-14";
+const BACKEND_BUILD = "metabinary-registration-profile-forex-v19-2026-07-14";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -248,6 +248,14 @@ async function ensureIndexes() {
   const db = await getDb();
   const deposits = db.collection("deposits");
   const withdrawals = db.collection("withdrawals");
+
+  // Older builds stored referralCode as an empty string on every new user.
+  // A unique sparse index still indexes empty strings, which caused a false
+  // duplicate-account error for the next person who tried to register.
+  await db.collection("users").updateMany(
+    { $or: [{ referralCode: "" }, { referralCode: null }] },
+    { $unset: { referralCode: "" } }
+  );
 
   await Promise.all([
     db.collection("users").createIndex({ email: 1 }, { unique: true }),
@@ -1129,56 +1137,108 @@ app.post("/api/auth/register", async (req, res, next) => {
     if (password.length < 8) throw httpError(400, "Password must be at least 8 characters.");
 
     const db = await getDb();
+    const users = db.collection("users");
     const referrer = suppliedReferralCode
-      ? await db.collection("users").findOne({ referralCode: suppliedReferralCode })
+      ? await users.findOne({ referralCode: suppliedReferralCode })
       : null;
     if (suppliedReferralCode && !referrer) {
       throw httpError(400, "The referral code is not valid.");
     }
 
-    const clauses = [{ email }];
-    if (phone) clauses.push({ phone });
-    const existing = await db.collection("users").findOne({ $or: clauses });
-    if (existing) {
-      throw httpError(409, existing.email === email ? "This email already has an account. Login instead." : "This phone number already has an account.");
+    // Check email and phone separately. When an earlier request created the
+    // account but the browser lost the response, the same credentials safely
+    // sign the user in instead of showing a false duplicate error.
+    const [existingEmail, existingPhone] = await Promise.all([
+      users.findOne({ email }),
+      users.findOne({ phone }),
+    ]);
+
+    const existing = existingEmail || existingPhone;
+    const sameStoredAccount =
+      !existingEmail ||
+      !existingPhone ||
+      String(existingEmail._id) === String(existingPhone._id);
+
+    if (
+      existing &&
+      sameStoredAccount &&
+      existing.email === email &&
+      existing.phone === phone &&
+      verifyPassword(password, existing.passwordHash)
+    ) {
+      const token = signToken(
+        { role: "user", email: existing.email, sv: Number(existing.sessionVersion || 0) },
+        60 * 60 * 24 * 7
+      );
+      return res.status(200).json({
+        ok: true,
+        token,
+        user: publicUser(existing),
+        message: "Your account was already created. You have been signed in successfully.",
+      });
+    }
+
+    if (existingEmail) {
+      throw httpError(409, "This email already has an account. Login or reset the password.");
+    }
+    if (existingPhone) {
+      throw httpError(409, "This phone number is already connected to an account. Use the account login or password reset.");
     }
 
     const createdAt = nowIso();
-    const accountId = createAccountId();
-    const user = {
-      accountId,
-      brokerId: accountId,
-      fullName,
-      name: fullName,
-      email,
-      phone,
-      country,
-      documentType,
-      passwordHash: hashPassword(password),
-      demoBalance: 10000,
-      realBalance: 0,
-      partnerBalance: 0,
-      referralCode: "",
-      referralCommissionRate: REFERRAL_COMMISSION_PERCENT,
-      referralCount: 0,
-      referredByEmail: referrer?.email || "",
-      referralCodeUsed: referrer?.referralCode || "",
-      preferences: normalizeUserPreferences(),
-      emailVerified: false,
-      verified: false,
-      status: "active",
-      role: "user",
-      sessionVersion: 0,
-      createdAt,
-      updatedAt: createdAt,
-    };
-    await db.collection("users").insertOne(user);
+    let createdUser = null;
+
+    // Retry only an account-ID collision. Do not report it as an email or phone duplicate.
+    for (let attempt = 0; attempt < 5 && !createdUser; attempt += 1) {
+      const accountId = createAccountId();
+      const user = {
+        accountId,
+        brokerId: accountId,
+        fullName,
+        name: fullName,
+        email,
+        phone,
+        country,
+        documentType,
+        passwordHash: hashPassword(password),
+        demoBalance: 10000,
+        realBalance: 0,
+        partnerBalance: 0,
+        referralCommissionRate: REFERRAL_COMMISSION_PERCENT,
+        referralCount: 0,
+        referredByEmail: referrer?.email || "",
+        referralCodeUsed: referrer?.referralCode || "",
+        preferences: normalizeUserPreferences(),
+        emailVerified: false,
+        verified: false,
+        status: "active",
+        role: "user",
+        sessionVersion: 0,
+        createdAt,
+        updatedAt: createdAt,
+      };
+
+      try {
+        await users.insertOne(user);
+        createdUser = user;
+      } catch (insertError) {
+        const duplicateField = Object.keys(insertError?.keyPattern || insertError?.keyValue || {})[0] || "";
+        if (insertError?.code === 11000 && duplicateField === "accountId") continue;
+        throw insertError;
+      }
+    }
+
+    if (!createdUser) {
+      throw httpError(503, "Account ID generation was busy. Please press Create Account again.");
+    }
+
     if (referrer?.email) {
-      await db.collection("users").updateOne(
+      await users.updateOne(
         { email: referrer.email },
         { $inc: { referralCount: 1 }, $set: { updatedAt: createdAt } }
       );
     }
+
     await db.collection("transactions").insertOne({
       id: makeId("tx"),
       email,
@@ -1188,10 +1248,30 @@ app.post("/api/auth/register", async (req, res, next) => {
       createdAt,
     });
 
-    const token = signToken({ role: "user", email, sv: Number(user.sessionVersion || 0) }, 60 * 60 * 24 * 7);
-    res.status(201).json({ ok: true, token, user: publicUser(user), message: `Account ${accountId} created successfully.` });
+    const token = signToken(
+      { role: "user", email, sv: Number(createdUser.sessionVersion || 0) },
+      60 * 60 * 24 * 7
+    );
+
+    return res.status(201).json({
+      ok: true,
+      token,
+      user: publicUser(createdUser),
+      message: `Account ${createdUser.accountId} created successfully.`,
+    });
   } catch (error) {
-    if (error?.code === 11000) error = httpError(409, "This email or phone number already has an account.");
+    if (error?.code === 11000) {
+      const duplicateField = Object.keys(error?.keyPattern || error?.keyValue || {})[0] || "";
+      if (duplicateField === "email") {
+        error = httpError(409, "This email already has an account. Login or reset the password.");
+      } else if (duplicateField === "phone") {
+        error = httpError(409, "This phone number is already connected to an account.");
+      } else if (duplicateField === "referralCode") {
+        error = httpError(409, "Referral setup was busy. Please press Create Account again.");
+      } else {
+        error = httpError(409, "Account creation conflicted with another request. Please press Create Account again.");
+      }
+    }
     next(error);
   }
 });

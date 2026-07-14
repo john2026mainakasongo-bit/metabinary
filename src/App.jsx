@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-normal-zoom-responsive-v18-2026-07-14";
+const FRONTEND_BUILD = "metabinary-registration-profile-forex-v19-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -4850,6 +4850,7 @@ function ForexPage({
           type="button"
           className="viewOpenTradesBtn"
           onClick={() => setActivePage("openTrades")}
+          aria-label={`View ${accountPositions.length} open Forex trade${accountPositions.length === 1 ? "" : "s"}`}
         >
           <span>View Open Trades</span>
           <b>{accountPositions.length}</b>
@@ -6108,7 +6109,7 @@ function ProfileBalanceCard({ icon, label, value, color }) {
 
       <div>
         <span>{label}</span>
-        <strong className={color === "green" ? "green" : color === "red" ? "red" : ""}>{value}</strong>
+        <strong title={value} className={color === "green" ? "green" : color === "red" ? "red" : ""}>{value}</strong>
       </div>
 
       <em>›</em>
