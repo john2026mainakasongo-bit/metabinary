@@ -18,6 +18,16 @@ function ensureResponsiveViewportMeta() {
 
 ensureResponsiveViewportMeta();
 
+function formatKenyanPhone(value) {
+  let phone = String(value || "").trim().replace(/[^0-9+]/g, "");
+  if (phone.startsWith("+")) phone = phone.slice(1);
+  if (phone.startsWith("00254")) phone = phone.slice(2);
+  if (phone.startsWith("0") && phone.length === 10) phone = `254${phone.slice(1)}`;
+  else if ((phone.startsWith("7") || phone.startsWith("1")) && phone.length === 9) phone = `254${phone}`;
+  return phone;
+}
+
+
 function useResponsiveViewportSize() {
   useEffect(() => {
     const root = document.documentElement;
@@ -1609,16 +1619,31 @@ function TradingApp() {
   }, []);
 
   useEffect(() => {
+    if (authToken && !user) {
+      void initSession();
+    }
+  }, [authToken, user]);
+
+  useEffect(() => {
     if (!user?.email) return;
 
     refreshUser();
     refreshForexPositions();
+    refreshClosedForexPositions();
+    refreshTransactions();
+    restoreActiveTrade();
 
     const userTimer = setInterval(refreshUser, 3000);
     const forexTimer = setInterval(refreshForexPositions, 12000);
+    const historyTimer = setInterval(() => {
+      void refreshClosedForexPositions();
+      void refreshTransactions();
+    }, 25000);
+
     return () => {
       clearInterval(userTimer);
       clearInterval(forexTimer);
+      clearInterval(historyTimer);
     };
   }, [user?.email, authToken]);
 
@@ -1714,6 +1739,107 @@ function TradingApp() {
       console.warn("Unable to refresh forex positions:", error);
     }
   }
+
+  async function initSession() {
+    if (!authToken) return;
+    try {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
+      const data = await readApiResponse(res);
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        return;
+      }
+      if (res.ok && data.ok && data.user) {
+        const logged = normalizeApiUser(data.user);
+        setUser(logged);
+        setBalances({
+          demo: Number(logged.demoBalance ?? 10000),
+          real: Number(logged.realBalance ?? 0),
+        });
+      }
+    } catch (error) {
+      console.warn("Session initialization failed:", error);
+    }
+  }
+
+  async function refreshTransactions() {
+    if (!authToken || !user?.email || !API_URL) return;
+    try {
+      const response = await fetch(`${API_URL}/api/transactions/${encodeURIComponent(user.email)}`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
+      const result = await readApiResponse(response);
+      if (response.ok && result.ok && Array.isArray(result.transactions)) {
+        const formatted = result.transactions.map((tx) => ({
+          id: tx.id || uid(),
+          time: tx.createdAt ? new Date(tx.createdAt).toLocaleString() : tx.time || new Date().toLocaleString(),
+          type: tx.type === "trade-profit" ? "Trade profit"
+            : tx.type === "trade-loss" ? "Trade loss"
+            : tx.type === "deposit" ? "Deposit completed"
+            : tx.type === "withdrawal" ? (tx.status === "FAILED" ? "Withdrawal failed" : "Withdrawal request")
+            : tx.type === "referral-commission" ? "Referral commission"
+            : tx.type === "account-created" ? "Account created"
+            : tx.type === "forex-open" ? "Open Forex order"
+            : tx.type === "forex-close" ? "Closed Forex position"
+            : tx.type,
+          method: tx.method || "System",
+          account: tx.account || "real",
+          amount: Number(tx.amount || 0),
+          status: tx.status || "Completed",
+          details: tx.details || "",
+        }));
+        setTransactions(formatted);
+      }
+    } catch (error) {
+      console.warn("Unable to refresh transactions:", error);
+    }
+  }
+
+  async function refreshClosedForexPositions() {
+    if (!authToken || !user?.email || !API_URL) return;
+    try {
+      const response = await fetch(`${API_URL}/api/forex/history`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
+      const result = await readApiResponse(response);
+      if (response.ok && result.ok && Array.isArray(result.positions)) {
+        setClosedPositions(result.positions);
+      }
+    } catch (error) {
+      console.warn("Unable to refresh closed forex positions:", error);
+    }
+  }
+
+  async function restoreActiveTrade() {
+    if (!authToken || !user?.email || !API_URL) return;
+    try {
+      const response = await fetch(`${API_URL}/api/trades/active`, {
+        headers: apiHeaders({}, authToken),
+        cache: "no-store",
+      });
+      const result = await readApiResponse(response);
+      if (response.ok && result.ok && result.trade) {
+        const remainingTicks = Math.max(0, Math.ceil((new Date(result.trade.settleAt).getTime() - Date.now()) / result.trade.tickMs));
+        if (remainingTicks > 0) {
+          setActiveBinaryTrade({
+            ...result.trade,
+            remainingTicks,
+            totalTicks: result.trade.ticks,
+          });
+        } else {
+          void settleBinaryTrade(result.trade);
+        }
+      }
+    } catch (error) {
+      console.warn("Unable to restore active trade:", error);
+    }
+  }
+
 
   function notify(type, title, message, durationMs = 2200) {
     window.clearTimeout(toastTimerRef.current);
@@ -2052,6 +2178,12 @@ function TradingApp() {
       return false;
     }
 
+    const phone = formatKenyanPhone(data.phone);
+    if (!/^254[17]\d{8}$/.test(phone)) {
+      notify("loss", "Invalid phone number", "Enter a valid Kenyan phone number (e.g. 07XXXXXXXX or +2547XXXXXXXX).");
+      return false;
+    }
+
     if (data.password !== data.confirmPassword) {
       notify("loss", "Password error", "Passwords do not match.");
       return false;
@@ -2067,7 +2199,7 @@ function TradingApp() {
           lastName: data.lastName,
           fullName: `${data.firstName} ${data.lastName}`,
           email: data.email,
-          phone: data.phone,
+          phone,
           password: data.password,
           country: "Kenya",
           documentType: "National ID",
@@ -2400,6 +2532,8 @@ function TradingApp() {
         ? `${openTrade.type} · ${openTrade.action} · digit ${resultDigit}`
         : `${openTrade.type} · ${openTrade.action} · ${Number(result.trade?.currentPrice ?? openTrade.currentPrice ?? openTrade.entryPrice).toFixed(5)}`,
     });
+
+    void refreshTransactions();
 
     window.clearTimeout(resultFlashTimerRef.current);
     setBinaryResultFlash({ id: uid(), digit: resultDigit, result: won ? "win" : "loss" });
@@ -3366,7 +3500,8 @@ function TradingApp() {
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
     const method = String(data.method || "mpesa").toLowerCase();
-    const phone = String(data.phone || "").trim();
+    const rawPhone = String(data.phone || "").trim();
+    const phone = method === "mpesa" ? formatKenyanPhone(rawPhone) : "";
 
     if (!API_URL) {
       notify(
@@ -3382,8 +3517,13 @@ function TradingApp() {
       return false;
     }
 
-    if (method === "mpesa" && !phone) {
+    if (method === "mpesa" && !rawPhone) {
       notify("loss", "Phone required", "Enter the M-Pesa phone number.");
+      return false;
+    }
+
+    if (method === "mpesa" && !/^254[17]\d{8}$/.test(phone)) {
+      notify("loss", "Invalid phone number", "Enter a valid Kenyan phone number (e.g. 07XXXXXXXX or +2547XXXXXXXX).");
       return false;
     }
 
@@ -3454,7 +3594,8 @@ function TradingApp() {
 
   async function submitWithdraw(data) {
     const amount = Number(data.amountUsd);
-    const phone = String(data.phone || "").trim();
+    const rawPhone = String(data.phone || "").trim();
+    const phone = formatKenyanPhone(rawPhone);
 
     if (!API_URL) {
       notify(
@@ -3470,8 +3611,18 @@ function TradingApp() {
       return false;
     }
 
-    if (!phone) {
+    if (amount > 150000) {
+      notify("loss", "Maximum withdrawal", "Maximum withdrawal is 150,000 USD.");
+      return false;
+    }
+
+    if (!rawPhone) {
       notify("loss", "Phone required", "Enter the M-Pesa phone number.");
+      return false;
+    }
+
+    if (!/^254[17]\d{8}$/.test(phone)) {
+      notify("loss", "Invalid phone number", "Enter a valid Kenyan phone number (e.g. 07XXXXXXXX or +2547XXXXXXXX).");
       return false;
     }
 

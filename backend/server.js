@@ -626,16 +626,17 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
     { returnDocument: "after" }
   );
 
-  if (!claimed) {
+  const claimedDoc = claimed?.value !== undefined ? claimed.value : claimed;
+  if (!claimedDoc) {
     const existing = await db.collection("trades").findOne({ _id: trade._id });
     return finalizeTradeWithDigit(db, user, existing, existing?.resultDigit ?? resultDigit);
   }
 
-  const balanceField = claimed.account === "real" ? "realBalance" : "demoBalance";
+  const balanceField = claimedDoc.account === "real" ? "realBalance" : "demoBalance";
   if (won) {
     await db.collection("users").updateOne(
       { _id: user._id },
-      { $inc: { [balanceField]: roundMoney(claimed.payout) }, $set: { updatedAt: settledAt } }
+      { $inc: { [balanceField]: roundMoney(claimedDoc.payout) }, $set: { updatedAt: settledAt } }
     );
   }
 
@@ -1383,7 +1384,8 @@ app.post("/api/auth/reset-password", async (req, res, next) => {
       { $set: { passwordHash: hashPassword(password), passwordChangedAt: changedAt, updatedAt: changedAt }, $inc: { sessionVersion: 1 } },
       { returnDocument: "after" }
     );
-    if (!updated) throw httpError(404, "Account was not found.");
+    const updatedDoc = updated?.value !== undefined ? updated.value : updated;
+    if (!updatedDoc) throw httpError(404, "Account was not found.");
     await db.collection("passwordResetTokens").updateOne({ _id: record._id }, { $set: { usedAt: changedAt } });
     await db.collection("passwordResetTokens").deleteMany({ email: record.email, _id: { $ne: record._id } });
     res.json({ ok: true, message: "Password updated successfully. You can now log in with your new password." });
@@ -1531,8 +1533,9 @@ app.post("/api/settings/password", requireUser, async (req, res, next) => {
       { $set: { passwordHash: hashPassword(newPassword), passwordChangedAt: changedAt, updatedAt: changedAt }, $inc: { sessionVersion: 1 } },
       { returnDocument: "after" }
     );
-    const token = signToken({ role: "user", email: updatedUser.email, sv: Number(updatedUser.sessionVersion || 0) }, 60 * 60 * 24 * 7);
-    res.json({ ok: true, token, user: publicUser(updatedUser), message: "Password changed successfully." });
+    const userDoc = updatedUser?.value !== undefined ? updatedUser.value : updatedUser;
+    const token = signToken({ role: "user", email: userDoc.email, sv: Number(userDoc.sessionVersion || 0) }, 60 * 60 * 24 * 7);
+    res.json({ ok: true, token, user: publicUser(userDoc), message: "Password changed successfully." });
   } catch (error) {
     next(error);
   }
@@ -1713,30 +1716,54 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const callbackUrl = String(process.env.INTASEND_CALLBACK_URL || generatedCallbackUrl).trim();
     if (callbackUrl) payload.callback_url = callbackUrl;
 
-    const providerResponse = await intasendClient().collection().mpesaStkPush(payload);
     const deposit = {
       id: depositId,
       requestId,
       apiRef,
-      invoiceId: extractInvoiceId(providerResponse),
+      invoiceId: null,
       email,
       method: "mpesa",
       phone,
       amountUsd: roundMoney(amountUsd),
       amountKes,
-      status: normalizeStatus(providerResponse),
+      status: "PENDING",
       credited: false,
-      providerResponse,
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
     await db.collection("deposits").insertOne(deposit);
 
+    let providerResponse;
+    try {
+      providerResponse = await intasendClient().collection().mpesaStkPush(payload);
+    } catch (pushError) {
+      const errorMsg = providerErrorMessage(pushError);
+      await db.collection("deposits").updateOne(
+        { id: depositId },
+        { $set: { status: "FAILED", lastStatusError: errorMsg, updatedAt: nowIso() } }
+      );
+      throw pushError;
+    }
+
+    const invoiceId = extractInvoiceId(providerResponse);
+    const providerStatus = normalizeStatus(providerResponse);
+    await db.collection("deposits").updateOne(
+      { id: depositId },
+      {
+        $set: {
+          invoiceId,
+          status: providerStatus,
+          providerResponse,
+          updatedAt: nowIso(),
+        }
+      }
+    );
+
     res.status(201).json({
       ok: true,
       depositId,
-      invoiceId: deposit.invoiceId,
-      status: deposit.status,
+      invoiceId,
+      status: providerStatus,
       amountUsd: deposit.amountUsd,
       amountKes,
       message: "M-Pesa request sent. Complete it on your phone.",
@@ -1953,6 +1980,21 @@ app.get("/api/forex/positions", requireUser, async (req, res, next) => {
   }
 });
 
+app.get("/api/forex/history", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const positions = await db.collection("forexPositions")
+      .find({ email: req.user.email, status: "CLOSED" })
+      .sort({ closedAt: -1 })
+      .limit(100)
+      .toArray();
+    res.json({ ok: true, positions: positions.map(publicForexPosition) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 app.post("/api/forex/open", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();
@@ -2095,7 +2137,7 @@ app.post("/api/forex/:id/close", requireUser, async (req, res, next) => {
       { $set: { status: "CLOSED", currentPrice: closePrice, closePrice, pl, closedAt, updatedAt: closedAt, quoteSource: quote.source } },
       { returnDocument: "after" }
     );
-    const closed = claimed?.value || claimed;
+    const closed = claimed?.value !== undefined ? claimed.value : claimed;
     if (!closed) throw httpError(409, "Position is already being closed.");
 
     if (pl !== 0) {
@@ -2137,6 +2179,16 @@ app.post("/api/forex/:id/close", requireUser, async (req, res, next) => {
   }
 });
 
+app.get("/api/trades/active", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const trade = await db.collection("trades").findOne({ email: req.user.email, status: "RUNNING" });
+    res.json({ ok: true, trade: trade ? publicTrade(trade) : null });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/trades/open", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();
@@ -2169,7 +2221,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       { returnDocument: "after" }
     );
 
-    if (!debit) throw httpError(400, `Your ${account} balance is too low for this trade.`);
+    const userAfterDebit = debit?.value !== undefined ? debit.value : debit;
+    if (!userAfterDebit) throw httpError(400, `Your ${account} balance is too low for this trade.`);
 
     const id = makeId("trade");
     const createdAt = nowIso();
@@ -2217,8 +2270,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     res.status(201).json({
       ok: true,
       trade: publicTrade(trade),
-      user: publicUser(debit),
-      balance: roundMoney(debit[balanceField]),
+      user: publicUser(userAfterDebit),
+      balance: roundMoney(userAfterDebit[balanceField]),
       message: "Trade opened.",
     });
   } catch (error) {
@@ -2254,16 +2307,17 @@ async function handleTradeTick(req, res, next) {
       { returnDocument: "after" }
     );
 
-    if (!advanced) throw httpError(409, "This tick has already been counted.");
-    const consumed = Math.max(0, Number(advanced.ticksConsumed || 0));
+    const advancedDoc = advanced?.value !== undefined ? advanced.value : advanced;
+    if (!advancedDoc) throw httpError(409, "This tick has already been counted.");
+    const consumed = Math.max(0, Number(advancedDoc.ticksConsumed || 0));
     const remainingTicks = Math.max(0, totalTicks - consumed);
-    const touchFinishedEarly = advanced.type === "Touch/No Touch" && touched;
+    const touchFinishedEarly = advancedDoc.type === "Touch/No Touch" && touched;
 
     if (remainingTicks > 0 && !touchFinishedEarly) {
-      return res.json({ ok: true, settled: false, digit, currentPrice: nextPrice, touched, remainingTicks, totalTicks, trade: publicTrade(advanced), message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.` });
+      return res.json({ ok: true, settled: false, digit, currentPrice: nextPrice, touched, remainingTicks, totalTicks, trade: publicTrade(advancedDoc), message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.` });
     }
 
-    const final = await finalizeTradeWithDigit(db, req.user, advanced, digit);
+    const final = await finalizeTradeWithDigit(db, req.user, advancedDoc, digit);
     return res.json({ ok: true, settled: true, digit: final.resultDigit, resultDigit: final.resultDigit, won: final.won, currentPrice: Number(final.trade.currentPrice || nextPrice), touched: Boolean(final.trade.touched), remainingTicks: 0, totalTicks, trade: publicTrade(final.trade), user: publicUser(final.user), balance: final.balance, message: final.won ? "Trade won." : "Trade lost." });
   } catch (error) {
     next(error);
