@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-small-phone-scroll-v20-2026-07-14";
+const FRONTEND_BUILD = "metabinary-deposit-mobile-ai-v21-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -6720,6 +6720,26 @@ function DepositModal({ close, submit }) {
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
+    document.body.classList.add("paymentDialogOpen");
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && !submitting) close();
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.classList.remove("paymentDialogOpen");
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [close, submitting]);
+
   async function handleSubmit() {
     if (submitting) return;
     setSubmitting(true);
@@ -6727,45 +6747,82 @@ function DepositModal({ close, submit }) {
     if (!completed) setSubmitting(false);
   }
 
+  const title = !method ? "Deposit Funds" : method === "mpesa" ? "M-Pesa Deposit" : "Card Deposit";
+
   return (
-    <div className="modalLayer">
-      <div className="depositModal" role="dialog" aria-modal="true" aria-label="Deposit funds">
-        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
-          ×
-        </button>
-
-        {!method ? (
-          <>
-            <h2>Deposit Funds</h2>
-            <p>Choose payment method</p>
-
-            <PaymentButton icon="📱" title="M-Pesa" text="Instant mobile money" onClick={() => setMethod("mpesa")} />
-            <PaymentButton icon="💳" title="Credit/Debit Card" text="Secure hosted checkout" onClick={() => setMethod("card")} />
-          </>
-        ) : (
-          <>
-            <button className="modalBack" onClick={() => setMethod("")} disabled={submitting}>
-              ‹ Back
+    <div className="modalLayer depositModalLayerV21" role="presentation">
+      <div className={`depositModal depositModalV21 ${method ? "depositFormStepV21" : "depositMethodStepV21"}`} role="dialog" aria-modal="true" aria-labelledby="deposit-dialog-title">
+        <header className="depositModalHeaderV21">
+          {method ? (
+            <button className="depositBackV21" type="button" onClick={() => setMethod("")} disabled={submitting}>
+              <span>‹</span> Back
             </button>
+          ) : (
+            <span className="depositHeaderSpacerV21" aria-hidden="true" />
+          )}
 
-            <h2>{method === "mpesa" ? "M-Pesa Deposit" : "Card Deposit"}</h2>
-            <p>Funds go to your real account.</p>
+          <div>
+            <small>REAL ACCOUNT FUNDING</small>
+            <h2 id="deposit-dialog-title">{title}</h2>
+          </div>
 
-            <label>Amount USD</label>
-            <input type="number" min="1" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} disabled={submitting} />
+          <button className="depositCloseV21" type="button" onClick={close} aria-label="Close deposit" disabled={submitting}>
+            ×
+          </button>
+        </header>
 
-            {method === "mpesa" && (
-              <>
-                <label>Phone Number</label>
-                <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={submitting} />
-              </>
-            )}
+        <div className="depositModalScrollV21">
+          {!method ? (
+            <section className="depositMethodListV21">
+              <p>Choose a secure payment method. Your balance is credited only after IntaSend confirms payment.</p>
+              <PaymentButton icon="📱" title="M-Pesa" text="Receive an STK prompt on your phone" onClick={() => setMethod("mpesa")} />
+              <PaymentButton icon="💳" title="Credit/Debit Card" text="Continue to IntaSend secure checkout" onClick={() => setMethod("card")} />
+            </section>
+          ) : (
+            <section className="depositFormBodyV21">
+              <p>Funds go to your Real Account after successful confirmation.</p>
 
-            <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? "Confirming deposit…" : method === "mpesa" ? "Deposit Now" : "Continue to secure checkout"}
-            </button>
-          </>
-        )}
+              <label htmlFor="deposit-amount-v21">Amount USD</label>
+              <div className="depositInputShellV21">
+                <input
+                  id="deposit-amount-v21"
+                  type="number"
+                  inputMode="decimal"
+                  min="1"
+                  step="0.01"
+                  value={amountUsd}
+                  onChange={(event) => setAmountUsd(event.target.value)}
+                  disabled={submitting}
+                />
+                <span>USD</span>
+              </div>
+
+              {method === "mpesa" && (
+                <>
+                  <label htmlFor="deposit-phone-v21">M-Pesa phone number</label>
+                  <input
+                    id="deposit-phone-v21"
+                    className="depositPhoneInputV21"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="0712345678 or 254712345678"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value.replace(/[^0-9+]/g, ""))}
+                    disabled={submitting}
+                  />
+                  <small className="depositHelpV21">Use the Safaricom number that will receive the M-Pesa prompt.</small>
+                </>
+              )}
+
+              <button className="modalPrimary depositSubmitV21" type="button" onClick={handleSubmit} disabled={submitting}>
+                {submitting ? "Connecting securely…" : method === "mpesa" ? "Deposit Now" : "Continue to secure checkout"}
+              </button>
+
+              <small className="depositSecurityV21">MetaBinary never asks for your M-Pesa PIN. Enter the PIN only inside the official prompt on your phone.</small>
+            </section>
+          )}
+        </div>
       </div>
     </div>
   );

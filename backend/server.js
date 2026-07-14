@@ -20,11 +20,17 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-small-phone-scroll-v20-2026-07-14";
+const BACKEND_BUILD = "metabinary-deposit-mobile-ai-v21-2026-07-14";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
-const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
+const INTASEND_ENVIRONMENT = String(process.env.INTASEND_ENVIRONMENT || "").trim().toLowerCase();
+const INTASEND_TEST_MODE_RAW = String(process.env.INTASEND_TEST_MODE || "").trim().toLowerCase();
+const TEST_MODE = INTASEND_ENVIRONMENT
+  ? ["test", "sandbox"].includes(INTASEND_ENVIRONMENT)
+  : INTASEND_TEST_MODE_RAW
+    ? INTASEND_TEST_MODE_RAW === "true"
+    : String(process.env.NODE_ENV || "development").toLowerCase() !== "production";
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
 const TOKEN_SECRET = String(process.env.JWT_SECRET || process.env.ADMIN_SECRET || "").trim();
@@ -34,8 +40,16 @@ const FRONTEND_URLS = String(process.env.FRONTEND_URL || "http://localhost:5173"
   .split(",")
   .map((value) => value.trim().replace(/\/$/, ""))
   .filter(Boolean);
-const PUBLIC_KEY = String(process.env.INTASEND_PUBLIC_KEY || "").trim();
-const SECRET_KEY = String(process.env.INTASEND_SECRET_KEY || "").trim();
+const PUBLIC_KEY = String(
+  process.env.INTASEND_PUBLISHABLE_KEY ||
+  process.env.INTASEND_PUBLIC_KEY ||
+  ""
+).trim();
+const SECRET_KEY = String(
+  process.env.INTASEND_SECRET_KEY ||
+  process.env.INTASEND_API_TOKEN ||
+  ""
+).trim();
 const TWELVE_DATA_API_KEY = String(
   process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
 ).trim();
@@ -815,14 +829,19 @@ function publicForexPosition(position) {
 }
 
 function ensurePaymentKeys() {
-  if (!PUBLIC_KEY || !SECRET_KEY) {
-    throw httpError(503, "IntaSend keys are not configured on the backend.");
+  const publicLooksPlaceholder = !PUBLIC_KEY || /your|replace|publishable_key|public_key/i.test(PUBLIC_KEY);
+  const secretLooksPlaceholder = !SECRET_KEY || /your|replace|secret_key|api_token/i.test(SECRET_KEY);
+  if (publicLooksPlaceholder || secretLooksPlaceholder) {
+    throw httpError(
+      503,
+      "IntaSend is not configured. Add INTASEND_PUBLISHABLE_KEY and INTASEND_SECRET_KEY on the Render backend."
+    );
   }
 }
 
-function intasendClient() {
+function intasendClient(testMode = TEST_MODE) {
   ensurePaymentKeys();
-  return new IntaSend(PUBLIC_KEY, SECRET_KEY, TEST_MODE);
+  return new IntaSend(PUBLIC_KEY, SECRET_KEY, Boolean(testMode));
 }
 
 function providerErrorMessage(error) {
@@ -830,7 +849,13 @@ function providerErrorMessage(error) {
   let raw;
   if (Buffer.isBuffer(error)) raw = error.toString("utf8");
   else if (typeof error === "string") raw = error;
-  else if (error?.message) raw = error.message;
+  else if (error?.response?.data) {
+    try {
+      raw = JSON.stringify(error.response.data);
+    } catch {
+      raw = String(error.response.data);
+    }
+  } else if (error?.message) raw = error.message;
   else {
     try {
       raw = JSON.stringify(error);
@@ -842,9 +867,48 @@ function providerErrorMessage(error) {
   try {
     const parsed = JSON.parse(raw);
     const nested = parsed?.errors?.[0]?.detail || parsed?.errors?.[0]?.message;
-    return parsed.message || parsed.detail || parsed.error || nested || raw;
+    return String(parsed.message || parsed.detail || parsed.error || nested || raw).slice(0, 500);
   } catch {
     return String(raw).slice(0, 500);
+  }
+}
+
+function isIntaSendAuthenticationError(error) {
+  const message = providerErrorMessage(error).toLowerCase();
+  return (
+    message.includes("invalid api token") ||
+    message.includes("invalid token") ||
+    message.includes("authentication credential") ||
+    message.includes("not authenticated") ||
+    message.includes("unauthorized") ||
+    message.includes("401")
+  );
+}
+
+async function runIntaSend(operation, preferredTestMode = TEST_MODE) {
+  const firstMode = Boolean(preferredTestMode);
+  try {
+    const response = await operation(intasendClient(firstMode));
+    return { response, testMode: firstMode };
+  } catch (firstError) {
+    if (!isIntaSendAuthenticationError(firstError)) throw firstError;
+
+    // A frequent production mistake is using live keys while the app is still
+    // pointed at the sandbox (or the opposite). Retry once in the other IntaSend
+    // environment. An authentication failure cannot have created a charge.
+    const secondMode = !firstMode;
+    try {
+      const response = await operation(intasendClient(secondMode));
+      return { response, testMode: secondMode };
+    } catch (secondError) {
+      if (isIntaSendAuthenticationError(secondError)) {
+        throw httpError(
+          502,
+          `IntaSend rejected the API token in both live and sandbox mode. On Render, copy the matching publishable and secret keys from the same IntaSend environment. Current configured mode: ${firstMode ? "sandbox" : "live"}.`
+        );
+      }
+      throw secondError;
+    }
   }
 }
 
@@ -1029,11 +1093,14 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
 async function reconcileDeposit(db, deposit) {
   if (!deposit?.invoiceId || deposit.credited || FAILED_STATUSES.has(deposit.status)) return deposit;
   try {
-    const providerResponse = await intasendClient().collection().status(deposit.invoiceId);
+    const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
+      (client) => client.collection().status(deposit.invoiceId),
+      typeof deposit.providerTestMode === "boolean" ? deposit.providerTestMode : TEST_MODE
+    );
     const status = normalizeStatus(providerResponse);
     await db.collection("deposits").updateOne(
       { id: deposit.id },
-      { $set: { providerStatusResponse: providerResponse, status, updatedAt: nowIso() } }
+      { $set: { providerStatusResponse: providerResponse, providerTestMode, status, updatedAt: nowIso() } }
     );
     const updated = { ...deposit, providerStatusResponse: providerResponse, status };
     return PAID_STATUSES.has(status) ? creditDepositOnce(db, updated, status) : updated;
@@ -1626,15 +1693,17 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const apiRef = `MB-${depositId}`.slice(0, 64);
 
     if (method === "card") {
-      const providerResponse = await intasendClient().collection().charge({
-        first_name: String(name.split(/\s+/)[0] || "MetaBinary"),
-        last_name: String(name.split(/\s+/).slice(1).join(" ") || "User"),
-        email,
-        host: FRONTEND_URLS[0] || "http://localhost:5173",
-        amount: roundMoney(amountUsd),
-        currency: "USD",
-        api_ref: apiRef,
-      });
+      const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
+        (client) => client.collection().charge({
+          first_name: String(name.split(/\s+/)[0] || "MetaBinary"),
+          last_name: String(name.split(/\s+/).slice(1).join(" ") || "User"),
+          email,
+          host: FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173",
+          amount: roundMoney(amountUsd),
+          currency: "USD",
+          api_ref: apiRef,
+        })
+      );
       const deposit = {
         id: depositId,
         requestId,
@@ -1647,6 +1716,7 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
         amountKes,
         status: normalizeStatus(providerResponse),
         credited: false,
+        providerTestMode,
         providerResponse,
         createdAt: nowIso(),
         updatedAt: nowIso(),
@@ -1664,14 +1734,28 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
 
     if (method !== "mpesa") throw httpError(400, "Choose M-Pesa or card deposit.");
     const phone = normalizeKenyanPhone(req.body.phone || user.phone);
-    const payload = { phone_number: phone, name, email, amount: amountKes, api_ref: apiRef };
+    if (!/^254[17]\d{8}$/.test(phone)) {
+      throw httpError(400, "Enter a valid Kenyan M-Pesa number such as 0712345678 or 254712345678.");
+    }
+    const nameParts = name.split(/\s+/).filter(Boolean);
+    const payload = {
+      first_name: String(nameParts[0] || "MetaBinary"),
+      last_name: String(nameParts.slice(1).join(" ") || "Trader"),
+      phone_number: phone,
+      email,
+      host: FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173",
+      amount: amountKes,
+      api_ref: apiRef,
+    };
     const generatedCallbackUrl = PUBLIC_BACKEND_URL
       ? `${PUBLIC_BACKEND_URL}/api/intasend/callback${INTASEND_CALLBACK_SECRET ? `?token=${encodeURIComponent(INTASEND_CALLBACK_SECRET)}` : ""}`
       : "";
     const callbackUrl = String(process.env.INTASEND_CALLBACK_URL || generatedCallbackUrl).trim();
     if (callbackUrl) payload.callback_url = callbackUrl;
 
-    const providerResponse = await intasendClient().collection().mpesaStkPush(payload);
+    const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
+      (client) => client.collection().mpesaStkPush(payload)
+    );
     const deposit = {
       id: depositId,
       requestId,
@@ -1684,6 +1768,7 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
       amountKes,
       status: normalizeStatus(providerResponse),
       credited: false,
+      providerTestMode,
       providerResponse,
       createdAt: nowIso(),
       updatedAt: nowIso(),
@@ -1701,7 +1786,12 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     });
   } catch (error) {
     if (!error.status) error.status = 502;
-    error.message = providerErrorMessage(error);
+    const providerMessage = providerErrorMessage(error);
+    if (isIntaSendAuthenticationError(error)) {
+      error.message = "IntaSend authentication failed. The backend publishable key, secret key and live/sandbox mode must come from the same IntaSend account environment.";
+    } else {
+      error.message = providerMessage;
+    }
     next(error);
   }
 });
@@ -1832,11 +1922,13 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
     await db.collection("withdrawals").insertOne(withdrawal);
 
     try {
-      const providerResponse = await intasendClient().payouts().mpesa({
+      const { response: providerResponse, testMode: providerTestMode } = await runIntaSend(
+        (client) => client.payouts().mpesa({
         currency: "KES",
         requires_approval: String(process.env.INTASEND_PAYOUT_REQUIRES_APPROVAL || "YES").toUpperCase(),
         transactions: [{ name, account: phone, amount: String(amountKes), narrative: `MetaBinary withdrawal ${withdrawalId}` }],
-      });
+        })
+      );
       const providerStatus = normalizeStatus(providerResponse);
       const status = FAILED_STATUSES.has(providerStatus) ? "FAILED" : providerStatus === "PENDING" ? "PROCESSING" : providerStatus;
       const trackingId = extractTrackingId(providerResponse);
@@ -1847,7 +1939,7 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
       }
       await db.collection("withdrawals").updateOne(
         { id: withdrawalId },
-        { $set: { status, trackingId, providerResponse, refunded: status === "FAILED", message, updatedAt: nowIso() } }
+        { $set: { status, trackingId, providerTestMode, providerResponse, refunded: status === "FAILED", message, updatedAt: nowIso() } }
       );
       await db.collection("transactions").insertOne({
         id: makeId("tx"),
