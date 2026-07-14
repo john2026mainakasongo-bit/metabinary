@@ -27408,6 +27408,97 @@ body {
   background: rgba(255, 255, 255, 0.05) !important;
 }
 
+/* ==========================================================================
+   Deriv-Inspired Color Theme & Visual Polish
+   ========================================================================== */
+:root {
+  --mb-bg: #0b0e14 !important;
+  --mb-panel: #111622 !important;
+  --mb-panel-2: #161d2b !important;
+  --mb-line: rgba(255, 255, 255, 0.08) !important;
+  --mb-muted: #8e9cae !important;
+  --mb-blue: #ff444f !important; /* Brand Coral Red (Deriv Signature accent) */
+  --mb-green: #00c853 !important; /* Vibrant Emerald Green */
+  --mb-red: #ff3d00 !important; /* Vibrant Orange Red */
+}
+
+/* Brand Logo Color overrides */
+.cleanBrokerHeader .brokerLogoMark::before {
+  background: linear-gradient(135deg, #ff444f 0%, #ff1744 45%, #d500f9 100%) !important;
+  box-shadow: 0 0 28px rgba(255, 68, 79, 0.35), inset 0 0 18px rgba(255, 255, 255, 0.18) !important;
+}
+.brokerLogoMark span {
+  color: #ff444f !important;
+}
+.brokerLogo strong span {
+  color: #ff444f !important;
+}
+
+/* Glowing active tab navigation indicators with Deriv brand color */
+.bottomNav button.active {
+  background: radial-gradient(circle at center, rgba(255, 68, 79, 0.15) 0%, transparent 70%) !important;
+  border-bottom: 2px solid #ff444f !important;
+}
+.bottomNav button.active span {
+  color: #ff444f !important;
+  filter: drop-shadow(0 0 6px rgba(255, 68, 79, 0.4)) !important;
+}
+
+/* Responsive floating orb and support chat arrangements */
+@media (max-width: 760px) {
+  .supportChatLauncher {
+    left: auto !important;
+    right: 12px !important;
+    top: 84px !important; /* Relocate launcher to top-right of page body (below header) to resolve bottom button blocking */
+    bottom: auto !important;
+  }
+}
+
+/* Mobile Forex chart enlargement */
+@media (max-width: 899px) {
+  .forexPage .realMarketChartPanel {
+    height: 340px !important;
+    min-height: 340px !important;
+    max-height: 340px !important;
+  }
+}
+
+/* Universal Scrolling: ensure nothing gets stuck or clipped on laptop screens at 100% browser zoom */
+.mainScreen:has(.finalBinaryTradePage),
+.mainScreen:has(.botSetupPage),
+.mainScreen:has(.finalBotLivePage),
+.mainScreen:has(.finalBotsPage) {
+  min-height: 0 !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior-y: auto !important;
+}
+
+.finalBinaryTradePage {
+  height: auto !important;
+  min-height: min-content !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Premium scrollbars styling */
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 3px !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+}
+
+
 
 
 

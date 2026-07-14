@@ -5553,7 +5553,7 @@ function TradePage({
         )}
         <div className="orderInputsTop finalOrderInputs">
           <label className="finalTicksControl"><span>Ticks</span><div className="finalTicksBox"><button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button><select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>{tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}</select><button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button></div></label>
-          <label className="finalStakeControl"><span>Amount to trade</span><div className="proStakeBox finalStakeBox"><button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button><div className="finalStakeInputWrap"><input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} /><small>USD</small></div><button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button></div><div className="quickStakeRow">{quickStakeValues.map((value) => <button key={value} type="button" onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div></label>
+          <label className="finalStakeControl"><span>Amount to trade</span><div className="finalStakeBox"><button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button><div className="finalStakeInputWrap"><input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} /><small>USD</small></div><button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button></div><div className="quickStakeRow">{quickStakeValues.map((value) => <button key={value} type="button" onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div></label>
         </div>
         <div className="proTradeButtons finalTradeButtons">
           <button
@@ -6528,7 +6528,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [progress, setProgress] = useState(0);
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
-  const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
+  const [position, setPosition] = useState(() => readStore(STORE.aiPosition, {
+    x: typeof window !== "undefined" ? window.innerWidth - 74 : 290,
+    y: typeof window !== "undefined" ? window.innerHeight - 180 : 480
+  }));
   const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10 });
   const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
 
