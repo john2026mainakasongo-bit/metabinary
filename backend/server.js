@@ -20,7 +20,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-support-admin-forex-v13-2026-07-13";
+const BACKEND_BUILD = "metabinary-forex-open-buy-sell-v15-2026-07-14";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -727,9 +727,13 @@ async function fetchTrustedMarketQuote(symbol, options = {}) {
     const percentChange = Number(
       data?.percent_change ?? (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
     );
-    const isOpen = typeof data?.is_market_open === "boolean"
+    const providerMarketOpen = typeof data?.is_market_open === "boolean"
       ? data.is_market_open
-      : marketIsOpen(market);
+      : null;
+    // The provider can return a stale closed flag even while a fresh weekday
+    // quote is available. MetaBinary uses its weekday session schedule for
+    // order availability and keeps the provider value for diagnostics.
+    const isOpen = market.alwaysOpen || marketIsOpen(market);
     const quote = {
       symbol,
       price,
@@ -741,6 +745,7 @@ async function fetchTrustedMarketQuote(symbol, options = {}) {
       percentChange: Number.isFinite(percentChange) ? percentChange : 0,
       isMarketOpen: isOpen,
       is_market_open: isOpen,
+      providerMarketOpen,
       datetime: data?.datetime || nowIso(),
       source: "twelve-data",
       cachedAt: Date.now(),
@@ -1846,14 +1851,14 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
     const strategy = cleanText(req.body?.strategy || "", 100);
 
     if (!["Buy", "Sell"].includes(side)) throw httpError(400, "Choose Buy or Sell.");
-    if (!Number.isFinite(volume) || volume < 0.01 || volume > 10) throw httpError(400, "Volume must be between 0.01 and 10 lots.");
+    if (!Number.isFinite(volume) || volume < 0.001 || volume > 10) throw httpError(400, "Volume must be between 0.001 and 10 lots.");
     if (!Number.isFinite(leverageValue) || leverageValue < 10 || leverageValue > 1000) throw httpError(400, "Leverage must be between 1:10 and 1:1000.");
 
     const quote = await fetchTrustedMarketQuote(instrument, {
       allowClientFallback: account === "demo",
       clientPrice,
     });
-    if (!quote.isMarketOpen && account === "real") throw httpError(400, `${market.label} is currently closed.`);
+    if (!marketIsOpen(market) && account === "real") throw httpError(400, `${market.label} is outside the weekday trading session.`);
 
     const halfSpread = Number(market.spread || 0) / 2;
     const openPrice = Number((side === "Buy" ? quote.price + halfSpread : quote.price - halfSpread).toFixed(market.decimals));

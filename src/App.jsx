@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-responsive-all-phones-v14-2026-07-14";
+const FRONTEND_BUILD = "metabinary-forex-open-buy-sell-v15-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -1990,13 +1990,14 @@ function TradingApp() {
       return false;
     }
 
-    if (account === "real" && (marketOpen === false || marketFeed[symbol]?.isOpen === false)) {
-      notify("loss", "Market closed", `${market.label} is closed. Real orders are disabled until the market opens.`);
+    if (account === "real" && marketOpen === false) {
+      notify("loss", "Market closed", `${market.label} is outside the weekday trading session.`);
       return false;
     }
 
-    if (!Number.isFinite(lots) || lots < 0.01 || lots > 10) {
-      notify("loss", "Invalid volume", "Volume must be between 0.01 and 10 lots.");
+    const minimumLots = market.category === "Metals" || market.category === "Crypto" ? 0.001 : 0.01;
+    if (!Number.isFinite(lots) || lots < minimumLots || lots > 10) {
+      notify("loss", "Invalid volume", `Volume must be between ${minimumLots.toFixed(minimumLots < 0.01 ? 3 : 2)} and 10 lots.`);
       return false;
     }
 
@@ -2774,12 +2775,15 @@ function TradingApp() {
       const opened = await placeForexOrder({
         side: result.side || "Buy",
         symbol: market.symbol,
-        volume: Math.max(0.01, Number(result.volume || 0.01)),
+        volume: Math.max(
+          market.category === "Metals" || market.category === "Crypto" ? 0.001 : 0.01,
+          Number(result.volume || (market.category === "Metals" || market.category === "Crypto" ? 0.001 : 0.01))
+        ),
         leverage: 100,
         stopLoss: Number(result.stopLoss),
         takeProfit: Number(result.takeProfit),
         marketPrice: quote,
-        marketOpen: marketFeed?.[market.symbol]?.isOpen !== false,
+        marketOpen: likelyMarketOpen(market) && Number(quote) > 0,
         source: "ai",
         strategy: "MetaBinary AI Auto-Trade",
       });
@@ -4314,7 +4318,10 @@ function ForexPage({
   openDeposit,
   preparedSetup,
 }) {
-  const [volume, setVolume] = useState(0.01);
+  const minimumVolume = market?.category === "Metals" || market?.category === "Crypto" ? 0.001 : 0.01;
+  const volumeStep = minimumVolume;
+  const volumeDecimals = minimumVolume < 0.01 ? 3 : 2;
+  const [volume, setVolume] = useState(() => minimumVolume);
   const [leverage, setLeverage] = useState("1:100");
   const [stopLoss, setStopLoss] = useState(0);
   const [takeProfit, setTakeProfit] = useState(0);
@@ -4339,13 +4346,14 @@ function ForexPage({
     Number(balance || 0) + floatingPl - usedMargin
   );
 
-  const marketOpen = parseMarketOpen(
-    marketFeed?.isOpen,
-    likelyMarketOpen(market)
-  );
-  const tradingAllowed = account === "demo" ? true : marketOpen;
   const priceReady = Number.isFinite(Number(livePrice)) && Number(livePrice) > 0;
   const feedStatus = marketFeed?.status || "connecting";
+  const scheduledMarketOpen = likelyMarketOpen(market);
+  const quoteUsable = priceReady && feedStatus !== "error";
+  // Some quote providers occasionally report a stale closed flag while a fresh
+  // weekday quote is arriving. Use the server/session schedule as the authority.
+  const marketOpen = Boolean(market?.alwaysOpen || (scheduledMarketOpen && quoteUsable));
+  const tradingAllowed = Boolean(quoteUsable && (account === "demo" || marketOpen));
   const change = Number(marketFeed?.change || 0);
   const percentChange = Number(marketFeed?.percentChange || 0);
   const positiveChange = change >= 0;
@@ -4366,10 +4374,11 @@ function ForexPage({
       seededSymbolRef.current = symbol;
       return;
     }
+    setVolume(minimumVolume);
     setStopLoss(0);
     setTakeProfit(0);
     seededSymbolRef.current = symbol;
-  }, [symbol, preparedSetup?.preparedAt, preparedSetup?.symbol]);
+  }, [symbol, preparedSetup?.preparedAt, preparedSetup?.symbol, minimumVolume]);
 
   async function order(side) {
     if (orderBusy || !priceReady || !tradingAllowed) return;
@@ -4583,8 +4592,8 @@ function ForexPage({
               disabled={orderBusy || !priceReady || !tradingAllowed}
             >
               <b>
-                {!marketOpen
-                  ? "Closed"
+                {!tradingAllowed
+                  ? priceReady ? "Closed" : "Waiting…"
                   : orderBusy
                   ? "Placing…"
                   : "Buy ↗"}
@@ -4600,8 +4609,8 @@ function ForexPage({
               disabled={orderBusy || !priceReady || !tradingAllowed}
             >
               <b>
-                {!marketOpen
-                  ? "Closed"
+                {!tradingAllowed
+                  ? priceReady ? "Closed" : "Waiting…"
                   : orderBusy
                   ? "Placing…"
                   : "Sell ↘"}
@@ -4623,9 +4632,9 @@ function ForexPage({
               label="Volume (Lots)"
               value={volume}
               setValue={setVolume}
-              step={0.01}
-              min={0.01}
-              decimals={2}
+              step={volumeStep}
+              min={minimumVolume}
+              decimals={volumeDecimals}
             />
 
             <label className="orderInput">
@@ -4692,17 +4701,14 @@ function ForexPage({
           </p>
         </div>
 
-        {!MARKET_API_KEY && (
+        {!priceReady && (
           <div className="marketKeyNotice">
-            <b>Real chart connected</b>
-            <span>
-              Add <code>VITE_TWELVE_DATA_API_KEY</code> to enable live Buy,
-              Sell, margin and profit calculations.
-            </span>
+            <b>Waiting for the live quote</b>
+            <span>Buy and Sell become available automatically when the backend quote arrives.</span>
           </div>
         )}
 
-        {MARKET_API_KEY && marketFeed?.error && (
+        {marketFeed?.error && (
           <div className="marketKeyNotice error">
             <b>Quote feed notice</b>
             <span>{marketFeed.error}</span>
@@ -6328,14 +6334,17 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     const confidence = 77 + Math.floor(Math.random() * 17);
     const mode = pageMode();
     if (mode === "forex") {
-      const openMarkets = forexMarkets.filter((market) => marketFeed?.[market.symbol]?.isOpen !== false);
+      const openMarkets = forexMarkets.filter(
+        (market) => market.alwaysOpen || (likelyMarketOpen(market) && Number(marketFeed?.[market.symbol]?.price || 0) > 0)
+      );
       const market = openMarkets[Math.floor(Math.random() * Math.max(1, openMarkets.length))] || forexMarkets[2];
       const price = Number(marketFeed?.[market.symbol]?.price || market.defaultPrice);
       const momentum = Number(marketFeed?.[market.symbol]?.change || 0);
       const side = momentum >= 0 ? "Buy" : "Sell";
       const sl = side === "Buy" ? price - market.slDistance : price + market.slDistance;
       const tp = side === "Buy" ? price + market.tpDistance : price - market.tpDistance;
-      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: 0.01, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: Math.max(0.3, Number(config.takeProfit || 20)), sessionStopLoss: Math.max(0.3, Number(config.stopLoss || 10)) };
+      const suggestedVolume = market.category === "Metals" || market.category === "Crypto" ? 0.001 : 0.01;
+      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: suggestedVolume, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: Math.max(0.3, Number(config.takeProfit || 20)), sessionStopLoss: Math.max(0.3, Number(config.stopLoss || 10)) };
     }
     if (mode === "bot") {
       const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
