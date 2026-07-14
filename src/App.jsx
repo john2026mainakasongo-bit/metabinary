@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-registration-profile-forex-v19-2026-07-14";
+const FRONTEND_BUILD = "metabinary-small-phone-scroll-v20-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -1575,6 +1575,14 @@ function TradingApp() {
   }, [activeBinaryTrade?.id, authToken]);
 
   useEffect(() => {
+    // Very small and short phones use the browser's native vertical scrolling.
+    // Disabling the custom pull gesture here prevents older Android browsers
+    // from trapping touchmove events and making the Trade page feel frozen.
+    const compactTouchViewport =
+      typeof window !== "undefined" &&
+      (window.innerWidth <= 480 || window.innerHeight <= 720);
+    if (compactTouchViewport) return undefined;
+
     const pageIsAtTop = () => {
       const main = document.querySelector(".mainScreen");
       return window.scrollY <= 0 && Number(main?.scrollTop || 0) <= 0;
