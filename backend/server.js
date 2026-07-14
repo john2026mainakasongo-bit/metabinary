@@ -20,7 +20,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-universal-release-v21-2026-07-14";
+const BACKEND_BUILD = "metabinary-small-phone-scroll-v20-2026-07-14";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -39,8 +39,6 @@ const SECRET_KEY = String(process.env.INTASEND_SECRET_KEY || "").trim();
 const TWELVE_DATA_API_KEY = String(
   process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
 ).trim();
-const MARKET_QUOTE_CACHE_MS = Math.max(15000, Math.min(300000, Number(process.env.MARKET_QUOTE_CACHE_MS || 60000)));
-const MARKET_STALE_MAX_MS = Math.max(MARKET_QUOTE_CACHE_MS, Math.min(24 * 60 * 60 * 1000, Number(process.env.MARKET_STALE_MAX_MS || 6 * 60 * 60 * 1000)));
 const PUBLIC_BACKEND_URL = String(process.env.PUBLIC_BACKEND_URL || "").trim().replace(/\/$/, "");
 const FRONTEND_PUBLIC_URL = String(process.env.FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173").trim().replace(/\/$/, "");
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
@@ -626,17 +624,16 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
     { returnDocument: "after" }
   );
 
-  const claimedDoc = claimed?.value !== undefined ? claimed.value : claimed;
-  if (!claimedDoc) {
+  if (!claimed) {
     const existing = await db.collection("trades").findOne({ _id: trade._id });
     return finalizeTradeWithDigit(db, user, existing, existing?.resultDigit ?? resultDigit);
   }
 
-  const balanceField = claimedDoc.account === "real" ? "realBalance" : "demoBalance";
+  const balanceField = claimed.account === "real" ? "realBalance" : "demoBalance";
   if (won) {
     await db.collection("users").updateOne(
       { _id: user._id },
-      { $inc: { [balanceField]: roundMoney(claimedDoc.payout) }, $set: { updatedAt: settledAt } }
+      { $inc: { [balanceField]: roundMoney(claimed.payout) }, $set: { updatedAt: settledAt } }
     );
   }
 
@@ -689,113 +686,80 @@ async function fetchTrustedMarketQuote(symbol, options = {}) {
   if (!market) throw httpError(400, "Unsupported market.");
 
   const cached = marketQuoteCache.get(symbol);
-  const cacheAge = cached ? Date.now() - Number(cached.cachedAt || 0) : Infinity;
-  if (cached && cacheAge < MARKET_QUOTE_CACHE_MS) {
-    return { ...cached, stale: false, status: "live", cacheAgeMs: cacheAge };
-  }
-
-  const rememberQuote = (quote) => {
-    const normalized = {
-      ...quote,
-      stale: false,
-      status: "live",
-      error: "",
-      cachedAt: Date.now(),
-      serverTime: nowIso(),
-    };
-    marketQuoteCache.set(symbol, normalized);
-    return normalized;
-  };
-
-  const staleQuote = (error) => {
-    if (!cached || options.allowStale === false || cacheAge > MARKET_STALE_MAX_MS) return null;
-    return {
-      ...cached,
-      isMarketOpen: market.alwaysOpen || marketIsOpen(market),
-      is_market_open: market.alwaysOpen || marketIsOpen(market),
-      stale: true,
-      status: "cached",
-      cacheAgeMs: cacheAge,
-      error: providerErrorMessage(error),
-      serverTime: nowIso(),
-    };
-  };
+  if (cached && Date.now() - cached.cachedAt < 8000) return cached;
 
   if (symbol === "BTC/USD") {
-    try {
-      const response = await fetch("https://api.coinbase.com/v2/prices/BTC-USD/spot", {
-        headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.1" },
-        signal: AbortSignal.timeout(10000),
-      });
-      const data = await response.json();
-      const price = Number(data?.data?.amount);
-      if (!response.ok || !Number.isFinite(price) || price <= 0) {
-        throw httpError(502, "Bitcoin live price is temporarily unavailable.");
-      }
-      return rememberQuote({
-        symbol,
-        price,
-        previousClose: price,
-        open: price,
-        high: price,
-        low: price,
-        change: 0,
-        percentChange: 0,
-        isMarketOpen: true,
-        is_market_open: true,
-        datetime: nowIso(),
-        source: "coinbase",
-      });
-    } catch (error) {
-      const stale = staleQuote(error);
-      if (stale) return stale;
-      throw error;
+    const response = await fetch("https://api.coinbase.com/v2/prices/BTC-USD/spot", {
+      headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.0" },
+      signal: AbortSignal.timeout(10000),
+    });
+    const data = await response.json();
+    const price = Number(data?.data?.amount);
+    if (!response.ok || !Number.isFinite(price) || price <= 0) {
+      throw httpError(502, "Bitcoin live price is temporarily unavailable.");
     }
+    const quote = {
+      symbol,
+      price,
+      previousClose: price,
+      open: price,
+      high: price,
+      low: price,
+      change: 0,
+      percentChange: 0,
+      isMarketOpen: true,
+      is_market_open: true,
+      datetime: nowIso(),
+      source: "coinbase",
+      cachedAt: Date.now(),
+    };
+    marketQuoteCache.set(symbol, quote);
+    return quote;
   }
 
   if (TWELVE_DATA_API_KEY) {
-    try {
-      const url = new URL("https://api.twelvedata.com/quote");
-      url.searchParams.set("symbol", market.apiSymbol);
-      url.searchParams.set("apikey", TWELVE_DATA_API_KEY);
-      const response = await fetch(url, {
-        headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.1" },
-        signal: AbortSignal.timeout(10000),
-      });
-      const data = await response.json();
-      const price = Number(data?.close ?? data?.price);
-      if (!response.ok || data?.status === "error" || data?.code || !Number.isFinite(price) || price <= 0) {
-        throw httpError(502, data?.message || `${market.label} live price is temporarily unavailable.`);
-      }
-      const previousClose = Number(data?.previous_close ?? data?.open ?? price);
-      const change = Number(data?.change ?? price - previousClose);
-      const percentChange = Number(
-        data?.percent_change ?? (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
-      );
-      const providerMarketOpen = typeof data?.is_market_open === "boolean"
-        ? data.is_market_open
-        : null;
-      const isOpen = market.alwaysOpen || marketIsOpen(market);
-      return rememberQuote({
-        symbol,
-        price,
-        previousClose,
-        open: Number(data?.open || price),
-        high: Number(data?.high || price),
-        low: Number(data?.low || price),
-        change: Number.isFinite(change) ? change : 0,
-        percentChange: Number.isFinite(percentChange) ? percentChange : 0,
-        isMarketOpen: isOpen,
-        is_market_open: isOpen,
-        providerMarketOpen,
-        datetime: data?.datetime || nowIso(),
-        source: "twelve-data",
-      });
-    } catch (error) {
-      const stale = staleQuote(error);
-      if (stale) return stale;
-      throw error;
+    const url = new URL("https://api.twelvedata.com/quote");
+    url.searchParams.set("symbol", market.apiSymbol);
+    url.searchParams.set("apikey", TWELVE_DATA_API_KEY);
+    const response = await fetch(url, {
+      headers: { Accept: "application/json", "User-Agent": "MetaBinary/2.0" },
+      signal: AbortSignal.timeout(10000),
+    });
+    const data = await response.json();
+    const price = Number(data?.close ?? data?.price);
+    if (!response.ok || data?.status === "error" || data?.code || !Number.isFinite(price) || price <= 0) {
+      throw httpError(502, data?.message || `${market.label} live price is temporarily unavailable.`);
     }
+    const previousClose = Number(data?.previous_close ?? data?.open ?? price);
+    const change = Number(data?.change ?? price - previousClose);
+    const percentChange = Number(
+      data?.percent_change ?? (previousClose ? ((price - previousClose) / previousClose) * 100 : 0)
+    );
+    const providerMarketOpen = typeof data?.is_market_open === "boolean"
+      ? data.is_market_open
+      : null;
+    // The provider can return a stale closed flag even while a fresh weekday
+    // quote is available. MetaBinary uses its weekday session schedule for
+    // order availability and keeps the provider value for diagnostics.
+    const isOpen = market.alwaysOpen || marketIsOpen(market);
+    const quote = {
+      symbol,
+      price,
+      previousClose,
+      open: Number(data?.open || price),
+      high: Number(data?.high || price),
+      low: Number(data?.low || price),
+      change: Number.isFinite(change) ? change : 0,
+      percentChange: Number.isFinite(percentChange) ? percentChange : 0,
+      isMarketOpen: isOpen,
+      is_market_open: isOpen,
+      providerMarketOpen,
+      datetime: data?.datetime || nowIso(),
+      source: "twelve-data",
+      cachedAt: Date.now(),
+    };
+    marketQuoteCache.set(symbol, quote);
+    return quote;
   }
 
   const fallback = Number(options.clientPrice || 0);
@@ -809,20 +773,13 @@ async function fetchTrustedMarketQuote(symbol, options = {}) {
       low: fallback,
       change: 0,
       percentChange: 0,
-      isMarketOpen: market.alwaysOpen || marketIsOpen(market),
-      is_market_open: market.alwaysOpen || marketIsOpen(market),
+      isMarketOpen: marketIsOpen(market),
+      is_market_open: marketIsOpen(market),
       datetime: nowIso(),
       source: "demo-client-quote",
-      stale: false,
-      status: "demo",
-      error: "",
       cachedAt: Date.now(),
-      serverTime: nowIso(),
     };
   }
-
-  const stale = staleQuote(new Error(`${market.label} live pricing key is not configured.`));
-  if (stale) return stale;
 
   throw httpError(
     503,
@@ -1384,8 +1341,7 @@ app.post("/api/auth/reset-password", async (req, res, next) => {
       { $set: { passwordHash: hashPassword(password), passwordChangedAt: changedAt, updatedAt: changedAt }, $inc: { sessionVersion: 1 } },
       { returnDocument: "after" }
     );
-    const updatedDoc = updated?.value !== undefined ? updated.value : updated;
-    if (!updatedDoc) throw httpError(404, "Account was not found.");
+    if (!updated) throw httpError(404, "Account was not found.");
     await db.collection("passwordResetTokens").updateOne({ _id: record._id }, { $set: { usedAt: changedAt } });
     await db.collection("passwordResetTokens").deleteMany({ email: record.email, _id: { $ne: record._id } });
     res.json({ ok: true, message: "Password updated successfully. You can now log in with your new password." });
@@ -1533,9 +1489,8 @@ app.post("/api/settings/password", requireUser, async (req, res, next) => {
       { $set: { passwordHash: hashPassword(newPassword), passwordChangedAt: changedAt, updatedAt: changedAt }, $inc: { sessionVersion: 1 } },
       { returnDocument: "after" }
     );
-    const userDoc = updatedUser?.value !== undefined ? updatedUser.value : updatedUser;
-    const token = signToken({ role: "user", email: userDoc.email, sv: Number(userDoc.sessionVersion || 0) }, 60 * 60 * 24 * 7);
-    res.json({ ok: true, token, user: publicUser(userDoc), message: "Password changed successfully." });
+    const token = signToken({ role: "user", email: updatedUser.email, sv: Number(updatedUser.sessionVersion || 0) }, 60 * 60 * 24 * 7);
+    res.json({ ok: true, token, user: publicUser(updatedUser), message: "Password changed successfully." });
   } catch (error) {
     next(error);
   }
@@ -1716,54 +1671,30 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const callbackUrl = String(process.env.INTASEND_CALLBACK_URL || generatedCallbackUrl).trim();
     if (callbackUrl) payload.callback_url = callbackUrl;
 
+    const providerResponse = await intasendClient().collection().mpesaStkPush(payload);
     const deposit = {
       id: depositId,
       requestId,
       apiRef,
-      invoiceId: null,
+      invoiceId: extractInvoiceId(providerResponse),
       email,
       method: "mpesa",
       phone,
       amountUsd: roundMoney(amountUsd),
       amountKes,
-      status: "PENDING",
+      status: normalizeStatus(providerResponse),
       credited: false,
+      providerResponse,
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
     await db.collection("deposits").insertOne(deposit);
 
-    let providerResponse;
-    try {
-      providerResponse = await intasendClient().collection().mpesaStkPush(payload);
-    } catch (pushError) {
-      const errorMsg = providerErrorMessage(pushError);
-      await db.collection("deposits").updateOne(
-        { id: depositId },
-        { $set: { status: "FAILED", lastStatusError: errorMsg, updatedAt: nowIso() } }
-      );
-      throw pushError;
-    }
-
-    const invoiceId = extractInvoiceId(providerResponse);
-    const providerStatus = normalizeStatus(providerResponse);
-    await db.collection("deposits").updateOne(
-      { id: depositId },
-      {
-        $set: {
-          invoiceId,
-          status: providerStatus,
-          providerResponse,
-          updatedAt: nowIso(),
-        }
-      }
-    );
-
     res.status(201).json({
       ok: true,
       depositId,
-      invoiceId,
-      status: providerStatus,
+      invoiceId: deposit.invoiceId,
+      status: deposit.status,
       amountUsd: deposit.amountUsd,
       amountKes,
       message: "M-Pesa request sent. Complete it on your phone.",
@@ -1980,21 +1911,6 @@ app.get("/api/forex/positions", requireUser, async (req, res, next) => {
   }
 });
 
-app.get("/api/forex/history", requireUser, async (req, res, next) => {
-  try {
-    const db = await getDb();
-    const positions = await db.collection("forexPositions")
-      .find({ email: req.user.email, status: "CLOSED" })
-      .sort({ closedAt: -1 })
-      .limit(100)
-      .toArray();
-    res.json({ ok: true, positions: positions.map(publicForexPosition) });
-  } catch (error) {
-    next(error);
-  }
-});
-
-
 app.post("/api/forex/open", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();
@@ -2020,12 +1936,8 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
 
     const quote = await fetchTrustedMarketQuote(instrument, {
       allowClientFallback: account === "demo",
-      allowStale: account !== "real",
       clientPrice,
     });
-    if (account === "real" && quote?.stale) {
-      throw httpError(503, "The live price feed is delayed. Real orders are paused until a fresh verified quote is available.");
-    }
     const providerMarketOpen = quote?.isMarketOpen ?? quote?.is_market_open;
     const sessionOpen = market.alwaysOpen || providerMarketOpen === true || marketIsOpen(market);
     if (!sessionOpen && account === "real") {
@@ -2137,7 +2049,7 @@ app.post("/api/forex/:id/close", requireUser, async (req, res, next) => {
       { $set: { status: "CLOSED", currentPrice: closePrice, closePrice, pl, closedAt, updatedAt: closedAt, quoteSource: quote.source } },
       { returnDocument: "after" }
     );
-    const closed = claimed?.value !== undefined ? claimed.value : claimed;
+    const closed = claimed?.value || claimed;
     if (!closed) throw httpError(409, "Position is already being closed.");
 
     if (pl !== 0) {
@@ -2179,16 +2091,6 @@ app.post("/api/forex/:id/close", requireUser, async (req, res, next) => {
   }
 });
 
-app.get("/api/trades/active", requireUser, async (req, res, next) => {
-  try {
-    const db = await getDb();
-    const trade = await db.collection("trades").findOne({ email: req.user.email, status: "RUNNING" });
-    res.json({ ok: true, trade: trade ? publicTrade(trade) : null });
-  } catch (error) {
-    next(error);
-  }
-});
-
 app.post("/api/trades/open", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();
@@ -2221,8 +2123,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       { returnDocument: "after" }
     );
 
-    const userAfterDebit = debit?.value !== undefined ? debit.value : debit;
-    if (!userAfterDebit) throw httpError(400, `Your ${account} balance is too low for this trade.`);
+    if (!debit) throw httpError(400, `Your ${account} balance is too low for this trade.`);
 
     const id = makeId("trade");
     const createdAt = nowIso();
@@ -2270,8 +2171,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     res.status(201).json({
       ok: true,
       trade: publicTrade(trade),
-      user: publicUser(userAfterDebit),
-      balance: roundMoney(userAfterDebit[balanceField]),
+      user: publicUser(debit),
+      balance: roundMoney(debit[balanceField]),
       message: "Trade opened.",
     });
   } catch (error) {
@@ -2307,17 +2208,16 @@ async function handleTradeTick(req, res, next) {
       { returnDocument: "after" }
     );
 
-    const advancedDoc = advanced?.value !== undefined ? advanced.value : advanced;
-    if (!advancedDoc) throw httpError(409, "This tick has already been counted.");
-    const consumed = Math.max(0, Number(advancedDoc.ticksConsumed || 0));
+    if (!advanced) throw httpError(409, "This tick has already been counted.");
+    const consumed = Math.max(0, Number(advanced.ticksConsumed || 0));
     const remainingTicks = Math.max(0, totalTicks - consumed);
-    const touchFinishedEarly = advancedDoc.type === "Touch/No Touch" && touched;
+    const touchFinishedEarly = advanced.type === "Touch/No Touch" && touched;
 
     if (remainingTicks > 0 && !touchFinishedEarly) {
-      return res.json({ ok: true, settled: false, digit, currentPrice: nextPrice, touched, remainingTicks, totalTicks, trade: publicTrade(advancedDoc), message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.` });
+      return res.json({ ok: true, settled: false, digit, currentPrice: nextPrice, touched, remainingTicks, totalTicks, trade: publicTrade(advanced), message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.` });
     }
 
-    const final = await finalizeTradeWithDigit(db, req.user, advancedDoc, digit);
+    const final = await finalizeTradeWithDigit(db, req.user, advanced, digit);
     return res.json({ ok: true, settled: true, digit: final.resultDigit, resultDigit: final.resultDigit, won: final.won, currentPrice: Number(final.trade.currentPrice || nextPrice), touched: Boolean(final.trade.touched), remainingTicks: 0, totalTicks, trade: publicTrade(final.trade), user: publicUser(final.user), balance: final.balance, message: final.won ? "Trade won." : "Trade lost." });
   } catch (error) {
     next(error);
