@@ -20,7 +20,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-ai-autotrade-s22-v2-2026-07-12";
+const BACKEND_BUILD = "metabinary-support-admin-forex-v13-2026-07-13";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -191,13 +191,14 @@ function cleanText(value, max = 180) {
 }
 
 function normalizeKenyanPhone(value) {
-  let phone = String(value || "").replace(/\D/g, "");
+  let phone = String(value || "").trim().replace(/[^0-9+]/g, "");
+  if (phone.startsWith("+")) phone = phone.slice(1);
+  if (phone.startsWith("00254")) phone = phone.slice(2);
   if (phone.startsWith("0") && phone.length === 10) phone = `254${phone.slice(1)}`;
   else if ((phone.startsWith("7") || phone.startsWith("1")) && phone.length === 9) phone = `254${phone}`;
-  else if (phone.startsWith("00254")) phone = phone.slice(2);
 
-  if (!/^254[17]\d{8}$/.test(phone)) {
-    throw httpError(400, "Enter a valid Kenyan phone number, for example 07XXXXXXXX.");
+  if (!/^\d{7,15}$/.test(phone)) {
+    throw httpError(400, "Enter a valid phone number with country code, for example +2547XXXXXXXX.");
   }
   return phone;
 }
@@ -268,6 +269,9 @@ async function ensureIndexes() {
     db.collection("passwordResetTokens").createIndex({ tokenHash: 1 }, { unique: true }),
     db.collection("passwordResetTokens").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
     db.collection("passwordResetTokens").createIndex({ email: 1, createdAt: -1 }),
+    db.collection("supportTickets").createIndex({ id: 1 }, { unique: true }),
+    db.collection("supportTickets").createIndex({ email: 1, status: 1, updatedAt: -1 }),
+    db.collection("supportTickets").createIndex({ status: 1, updatedAt: -1 }),
   ]);
 
   await ensurePartialRequestIndex(deposits, "uniq_deposit_email_requestId");
@@ -432,6 +436,35 @@ function publicUser(user) {
     createdAt: user.createdAt || "",
     updatedAt: user.updatedAt || "",
     lastLoginAt: user.lastLoginAt || "",
+  };
+}
+
+function publicSupportTicket(ticket = {}) {
+  return {
+    id: ticket.id || "",
+    email: cleanEmail(ticket.email),
+    fullName: ticket.fullName || ticket.name || "",
+    accountId: ticket.accountId || ticket.brokerId || "",
+    category: ticket.category || "other",
+    subject: ticket.subject || "Support request",
+    status: ticket.status || "open",
+    priority: ticket.priority || "normal",
+    page: ticket.page || "",
+    account: ticket.account || "",
+    metadata: ticket.metadata || {},
+    messages: Array.isArray(ticket.messages)
+      ? ticket.messages.map((message) => ({
+          id: message.id || "",
+          sender: message.sender || "user",
+          body: message.body || "",
+          createdAt: message.createdAt || "",
+          senderEmail: message.sender === "agent" ? message.senderEmail || "" : "",
+        }))
+      : [],
+    createdAt: ticket.createdAt || "",
+    updatedAt: ticket.updatedAt || "",
+    agentRepliedAt: ticket.agentRepliedAt || "",
+    closedAt: ticket.closedAt || "",
   };
 }
 
@@ -2170,6 +2203,151 @@ app.get("/api/transactions/:email", requireUser, async (req, res, next) => {
   }
 });
 
+app.get("/api/support/current", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const ticket = await db.collection("supportTickets")
+      .findOne({ email: req.user.email, status: { $in: ["open", "waiting", "agent-replied"] } }, { sort: { updatedAt: -1 } });
+    res.json({ ok: true, ticket: ticket ? publicSupportTicket(ticket) : null });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/support/tickets", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const existing = await db.collection("supportTickets")
+      .findOne({ email: req.user.email, status: { $in: ["open", "waiting", "agent-replied"] } }, { sort: { updatedAt: -1 } });
+    if (existing) return res.json({ ok: true, ticket: publicSupportTicket(existing), message: "Your existing support conversation is still open." });
+
+    const category = cleanText(req.body?.category || "other", 40).toLowerCase();
+    const body = cleanText(req.body?.message, 1200);
+    const page = cleanText(req.body?.page, 80);
+    const account = cleanText(req.body?.account, 20);
+    const rawMetadata = req.body?.metadata && typeof req.body.metadata === "object" ? req.body.metadata : {};
+    if (body.length < 5) throw httpError(400, "Explain what you need help with.");
+
+    const createdAt = nowIso();
+    const ticket = {
+      id: makeId("support"),
+      email: req.user.email,
+      fullName: req.user.fullName || req.user.name || "MetaBinary user",
+      accountId: req.user.accountId || req.user.brokerId || "",
+      category: ["wallet", "trading", "ai", "account", "other"].includes(category) ? category : "other",
+      subject: `${category || "Support"} help request`,
+      status: "waiting",
+      priority: "normal",
+      page,
+      account,
+      metadata: {
+        screen: cleanText(rawMetadata.screen, 40),
+        viewport: cleanText(rawMetadata.viewport, 40),
+        timezone: cleanText(rawMetadata.timezone, 80),
+        userAgent: cleanText(rawMetadata.userAgent, 300),
+        build: cleanText(rawMetadata.build, 100),
+      },
+      messages: [
+        { id: makeId("msg"), sender: "assistant", body: "I collected your request and connected you to a MetaBinary support agent.", createdAt },
+        { id: makeId("msg"), sender: "user", body, createdAt },
+      ],
+      createdAt,
+      updatedAt: createdAt,
+      agentRepliedAt: "",
+      closedAt: "",
+    };
+    await db.collection("supportTickets").insertOne(ticket);
+    res.status(201).json({ ok: true, ticket: publicSupportTicket(ticket), message: "Support conversation created." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/support/tickets/:id/messages", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const body = cleanText(req.body?.message, 1200);
+    if (!body) throw httpError(400, "Write a message first.");
+    const ticket = await db.collection("supportTickets").findOne({ id: req.params.id, email: req.user.email });
+    if (!ticket) throw httpError(404, "Support conversation was not found.");
+    if (ticket.status === "closed") throw httpError(400, "This conversation is closed. Start a new conversation.");
+    const createdAt = nowIso();
+    const nextMessage = { id: makeId("msg"), sender: "user", body, createdAt };
+    await db.collection("supportTickets").updateOne(
+      { _id: ticket._id },
+      { $push: { messages: nextMessage }, $set: { status: "waiting", updatedAt: createdAt } }
+    );
+    const updated = await db.collection("supportTickets").findOne({ _id: ticket._id });
+    res.json({ ok: true, ticket: publicSupportTicket(updated) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/support", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const status = cleanText(req.query.status || "", 30).toLowerCase();
+    const query = status && status !== "all" ? { status } : {};
+    const tickets = await db.collection("supportTickets").find(query).sort({ updatedAt: -1 }).limit(500).toArray();
+    res.json({ ok: true, tickets: tickets.map(publicSupportTicket) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/support/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const ticket = await db.collection("supportTickets").findOne({ id: req.params.id });
+    if (!ticket) throw httpError(404, "Support conversation was not found.");
+    res.json({ ok: true, ticket: publicSupportTicket(ticket) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/support/:id/reply", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const body = cleanText(req.body?.message, 1200);
+    if (!body) throw httpError(400, "Write a reply first.");
+    const ticket = await db.collection("supportTickets").findOne({ id: req.params.id });
+    if (!ticket) throw httpError(404, "Support conversation was not found.");
+    const createdAt = nowIso();
+    const message = { id: makeId("msg"), sender: "agent", senderEmail: req.admin.email, body, createdAt };
+    await db.collection("supportTickets").updateOne(
+      { _id: ticket._id },
+      { $push: { messages: message }, $set: { status: "agent-replied", agentRepliedAt: createdAt, updatedAt: createdAt, assignedTo: req.admin.email } }
+    );
+    await auditAdmin(db, req, "support-reply", ticket.email, { ticketId: ticket.id });
+    const updated = await db.collection("supportTickets").findOne({ _id: ticket._id });
+    res.json({ ok: true, ticket: publicSupportTicket(updated), message: "Reply sent." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch("/api/admin/support/:id/status", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const status = cleanText(req.body?.status, 30).toLowerCase();
+    if (!["open", "waiting", "agent-replied", "closed"].includes(status)) throw httpError(400, "Choose a valid support status.");
+    const ticket = await db.collection("supportTickets").findOne({ id: req.params.id });
+    if (!ticket) throw httpError(404, "Support conversation was not found.");
+    const changedAt = nowIso();
+    await db.collection("supportTickets").updateOne(
+      { _id: ticket._id },
+      { $set: { status, updatedAt: changedAt, closedAt: status === "closed" ? changedAt : "" } }
+    );
+    await auditAdmin(db, req, "support-status", ticket.email, { ticketId: ticket.id, status });
+    const updated = await db.collection("supportTickets").findOne({ _id: ticket._id });
+    res.json({ ok: true, ticket: publicSupportTicket(updated), message: `Support conversation marked ${status}.` });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/admin/login", async (req, res, next) => {
   try {
     if (!ADMIN_EMAIL || !ADMIN_PASSWORD) throw httpError(503, "ADMIN_EMAIL and ADMIN_PASSWORD are not configured.");
@@ -2188,12 +2366,13 @@ app.post("/api/admin/login", async (req, res, next) => {
 app.get("/api/admin/stats", requireAdmin, async (_req, res, next) => {
   try {
     const db = await getDb();
-    const [totalUsers, activeUsers, bannedUsers, deposits, withdrawals] = await Promise.all([
+    const [totalUsers, activeUsers, bannedUsers, deposits, withdrawals, openSupportTickets] = await Promise.all([
       db.collection("users").countDocuments({}),
       db.collection("users").countDocuments({ status: { $nin: ["banned", "suspended"] } }),
       db.collection("users").countDocuments({ status: "banned" }),
       db.collection("deposits").aggregate([{ $match: { credited: true } }, { $group: { _id: null, total: { $sum: "$amountUsd" } } }]).toArray(),
       db.collection("withdrawals").aggregate([{ $match: { status: { $nin: ["FAILED", "CANCELLED"] } } }, { $group: { _id: null, total: { $sum: "$amountUsd" } } }]).toArray(),
+      db.collection("supportTickets").countDocuments({ status: { $ne: "closed" } }),
     ]);
     res.json({
       ok: true,
@@ -2203,6 +2382,7 @@ app.get("/api/admin/stats", requireAdmin, async (_req, res, next) => {
         bannedUsers,
         totalDeposits: roundMoney(deposits[0]?.total),
         totalWithdrawals: roundMoney(withdrawals[0]?.total),
+        openSupportTickets,
       },
     });
   } catch (error) {
@@ -2215,7 +2395,7 @@ app.get("/api/admin/users", requireAdmin, async (req, res, next) => {
     const db = await getDb();
     const search = cleanText(req.query.search, 100);
     const page = Math.max(1, Number(req.query.page || 1));
-    const limit = Math.min(100, Math.max(5, Number(req.query.limit || 50)));
+    const limit = Math.min(1000, Math.max(5, Number(req.query.limit || 100)));
     const query = search
       ? {
           $or: [

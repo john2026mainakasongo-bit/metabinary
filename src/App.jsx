@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-wallet-selector-v11-2026-07-13";
+const FRONTEND_BUILD = "metabinary-responsive-all-phones-v14-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -6302,9 +6302,11 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const buttonSize = window.innerWidth <= 760 ? 58 : 66;
       const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
       const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
+      const reservedBottom = activePage === "trade" ? 254 : activePage === "botLive" ? 92 : 78;
+      const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
       setPosition((old) => ({
         x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, Number(old?.x || window.innerWidth - buttonSize - 16))),
-        y: Math.max(minY, Math.min(viewportHeight - buttonSize - 8, Number(old?.y || 130))),
+        y: Math.max(minY, Math.min(maxY, Number(old?.y || 130))),
       }));
     };
     clampToScreen();
@@ -6314,7 +6316,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       window.removeEventListener("resize", clampToScreen);
       window.visualViewport?.removeEventListener("resize", clampToScreen);
     };
-  }, []);
+  }, [activePage]);
 
   function pageMode() {
     if (["forex", "openTrades"].includes(activePage)) return "forex";
@@ -6421,9 +6423,11 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     const buttonSize = window.innerWidth <= 760 ? 58 : 66;
     const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
     const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
+    const reservedBottom = activePage === "trade" ? 254 : activePage === "botLive" ? 92 : 78;
+    const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
     setPosition({
       x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, event.clientX - dragRef.current.offsetX)),
-      y: Math.max(minY, Math.min(viewportHeight - buttonSize - 8, event.clientY - dragRef.current.offsetY)),
+      y: Math.max(minY, Math.min(maxY, event.clientY - dragRef.current.offsetY)),
     });
   }
 

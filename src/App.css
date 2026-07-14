@@ -24199,3 +24199,186 @@ body {
   .forexPage .realMarketTradeButtons { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 8px !important; }
   .forexPage .realMarketTradeButtons button { min-width: 0 !important; }
 }
+
+/* =====================================================================
+   METABINARY V14 — FULL-PHONE RESPONSIVE TRADE VIEW
+   Uses viewport height as well as width so short, normal and tall phones
+   fill the available screen without a dead empty section.
+   ===================================================================== */
+
+@media (max-width: 760px) {
+  .mainScreen {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .finalBinaryTradePage,
+  .finalBinaryTradePage.digitContractPage,
+  .finalBinaryTradePage.priceContractPage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    padding: 7px 8px calc(10px + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs,
+  .finalBinaryTradePage .volatilitySwitchBar,
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    flex: 0 0 auto !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard,
+  .finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 390px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartArea,
+  .finalBinaryTradePage .proChartArea {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: clamp(150px, 23dvh, 330px) !important;
+    max-height: none !important;
+  }
+
+  .finalBinaryTradePage .mbDigitBoardV7 {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: clamp(122px, 15dvh, 188px) !important;
+    height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-block: clamp(7px, 1.2dvh, 14px) !important;
+  }
+
+  .finalBinaryTradePage .mbDigitGridV7 {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(48px, 1fr)) !important;
+    gap: clamp(7px, 1.15dvh, 13px) 5px !important;
+    align-content: center !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7,
+  .finalBinaryTradePage .mbDigitCellV7:disabled {
+    width: clamp(42px, 6.2dvh, 56px) !important;
+    height: clamp(42px, 6.2dvh, 56px) !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 158px !important;
+    max-height: none !important;
+    margin: 0 !important;
+    z-index: 30 !important;
+  }
+
+  .supportChatLauncher {
+    bottom: calc(74px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .floatingAiButton {
+    width: 54px !important;
+    height: 54px !important;
+  }
+}
+
+/* Short phones: compact enough to fit, then allow natural scrolling. */
+@media (max-width: 760px) and (max-height: 740px) {
+  .finalBinaryTradePage,
+  .finalBinaryTradePage.digitContractPage,
+  .finalBinaryTradePage.priceContractPage {
+    min-height: auto !important;
+    gap: 5px !important;
+    padding: 5px 6px 8px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard,
+  .finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+    flex: 0 0 auto !important;
+    min-height: 328px !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartArea,
+  .finalBinaryTradePage .proChartArea {
+    flex: 0 0 138px !important;
+    height: 138px !important;
+    min-height: 138px !important;
+    max-height: 138px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitBoardV7 {
+    min-height: 112px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7,
+  .finalBinaryTradePage .mbDigitCellV7:disabled {
+    width: 39px !important;
+    height: 39px !important;
+    min-width: 39px !important;
+    min-height: 39px !important;
+  }
+}
+
+/* Tall phones: grow the useful trading content instead of leaving blank space. */
+@media (max-width: 760px) and (min-height: 900px) {
+  .finalBinaryTradePage .finalBinaryChartArea,
+  .finalBinaryTradePage .proChartArea {
+    min-height: clamp(220px, 27dvh, 360px) !important;
+  }
+
+  .finalBinaryTradePage .mbDigitBoardV7 {
+    min-height: clamp(150px, 18dvh, 215px) !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7,
+  .finalBinaryTradePage .mbDigitCellV7:disabled {
+    width: clamp(47px, 6.5dvh, 59px) !important;
+    height: clamp(47px, 6.5dvh, 59px) !important;
+  }
+}
+
+/* Very narrow phones: prevent horizontal clipping. */
+@media (max-width: 360px) {
+  .finalBinaryTradePage .mbDigitGridV7 {
+    gap-inline: 2px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7,
+  .finalBinaryTradePage .mbDigitCellV7:disabled {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    grid-template-columns: .9fr 1.1fr !important;
+  }
+}
