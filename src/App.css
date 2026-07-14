@@ -26962,4 +26962,155 @@ body {
   border-color: rgba(39, 221, 176, 0.4) !important;
 }
 
+/* Mobile Layout and Viewport compatibility overrides */
+@media (max-width: 899px) {
+  html,
+  body,
+  #root {
+    width: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    overflow-x: clip !important;
+  }
+
+  .mainScreen:has(.finalBinaryTradePage),
+  .mainScreen:has(.botSetupPage),
+  .mainScreen:has(.finalBotLivePage),
+  .mainScreen:has(.finalBotsPage) {
+    min-height: calc(100svh - 72px) !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: calc(var(--mb-mobile-nav-height) + 40px + var(--mb-safe-bottom)) !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  .finalBinaryTradePage {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 0 0 16px !important;
+    overflow: visible !important;
+  }
+
+  .forexPage.realMarketPublishPage {
+    padding-bottom: calc(var(--mb-mobile-nav-height) + 40px + var(--mb-safe-bottom)) !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+  }
+}
+
+/* Clean grid layout rules for Ticks and Stake boxes (prevents overlaps) */
+.finalBinaryTradePage .finalTicksBox,
+.finalBinaryTradePage .finalStakeBox {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  background: #07111e !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.finalBinaryTradePage .finalTicksBox button,
+.finalBinaryTradePage .finalStakeBox button {
+  width: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  position: static !important;
+}
+
+.finalBinaryTradePage .finalTicksBox select {
+  width: 100% !important;
+  height: 48px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  padding: 0 4px !important;
+  position: static !important;
+  appearance: none !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap {
+  width: 100% !important;
+  height: 48px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center !important;
+  background: transparent !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap input {
+  width: 100% !important;
+  height: 48px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  padding: 0 !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap small {
+  color: var(--mb-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding-right: 10px !important;
+}
+
+@media (max-width: 600px) {
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    height: 42px !important;
+    min-height: 42px !important;
+    grid-template-columns: 36px minmax(0, 1fr) 36px !important;
+  }
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox button {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap input,
+  .finalBinaryTradePage .finalStakeInputWrap {
+    height: 42px !important;
+  }
+}
+
+
 
