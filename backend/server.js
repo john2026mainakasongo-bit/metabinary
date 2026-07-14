@@ -2529,5 +2529,5 @@ app.use((error, _req, res, _next) => {
 
 await ensureIndexes();
 app.listen(PORT, () => {
-  console.log(`MetaBinary backend running on port ${PORT} (${TEST_MODE ? "sandbox" : "live"}, MongoDB: ${MONGODB_DB})`);
+  console.log(`MetaBinary V17 backend running on port ${PORT} (${TEST_MODE ? "sandbox" : "live"}, MongoDB: ${MONGODB_DB})`);
 });

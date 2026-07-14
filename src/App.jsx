@@ -7,7 +7,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-responsive-forex-v16-2026-07-14";
+const FRONTEND_BUILD = "metabinary-forex-responsive-v17-2026-07-14";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -984,7 +984,130 @@ function TradingApp() {
   useEffect(() => saveStore(STORE.notifications, notifications), [notifications]);
   useEffect(() => saveStore(STORE.binaryMarket, binaryMarketId), [binaryMarketId]);
   useEffect(() => saveStore(STORE.botConfig, botConfig), [botConfig]);
+
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
+
+  /*
+   * V17 market quote loop.
+   * V16 rendered the TradingView chart but no longer refreshed marketFeed,
+   * so Forex stayed on "Connecting / Waiting" and Buy/Sell never enabled.
+   * Real accounts require the backend live quote. Demo accounts can continue
+   * with a clearly marked local demo quote if the provider is temporarily down.
+   */
+  useEffect(() => {
+    let disposed = false;
+    let timerId = 0;
+    let controller = null;
+
+    const symbols = (quotedMarketSymbols.length ? quotedMarketSymbols : [marketSymbol])
+      .filter((symbol) => MARKET_BY_SYMBOL[symbol]);
+
+    async function refreshMarketQuotes() {
+      if (disposed) return;
+      controller?.abort();
+      controller = new AbortController();
+
+      const results = await Promise.all(
+        symbols.map(async (symbol) => {
+          const market = MARKET_BY_SYMBOL[symbol];
+          try {
+            const quote = await fetchMarketQuote(market, controller.signal);
+            return { symbol, market, quote, error: "" };
+          } catch (error) {
+            if (error?.name === "AbortError") return null;
+            return {
+              symbol,
+              market,
+              quote: null,
+              error: error instanceof Error ? error.message : "Live quote is temporarily unavailable.",
+            };
+          }
+        })
+      );
+
+      if (!disposed) {
+        setMarketFeed((current) => {
+          const next = { ...current };
+
+          results.filter(Boolean).forEach(({ symbol, market, quote, error }) => {
+            const previous = current?.[symbol] || {};
+
+            if (quote && Number(quote.price) > 0) {
+              next[symbol] = {
+                ...previous,
+                ...quote,
+                status: "live",
+                error: "",
+                updatedAt: quote.updatedAt || new Date().toISOString(),
+              };
+              return;
+            }
+
+            if (account === "demo") {
+              const base = Number(previous.price || market.defaultPrice || 1);
+              const step = Math.max(Number(market.priceStep || 0.0001), Math.abs(base) * 0.00002);
+              const movement = (Math.random() - 0.5) * step * 1.6;
+              const price = Number(Math.max(step, base + movement).toFixed(market.decimals));
+              const previousClose = Number(previous.previousClose || base || price);
+              const change = Number((price - previousClose).toFixed(market.decimals));
+              const percentChange = previousClose ? Number(((change / previousClose) * 100).toFixed(3)) : 0;
+
+              next[symbol] = {
+                ...previous,
+                price,
+                previousClose,
+                open: Number(previous.open || previousClose),
+                high: Math.max(Number(previous.high || price), price),
+                low: Math.min(Number(previous.low || price), price),
+                change,
+                percentChange,
+                isOpen: true,
+                isMarketOpen: true,
+                is_market_open: true,
+                status: "demo",
+                source: "demo-fallback",
+                error: "",
+                updatedAt: new Date().toISOString(),
+              };
+              return;
+            }
+
+            next[symbol] = {
+              ...previous,
+              status: Number(previous.price) > 0 ? "cached" : "error",
+              error,
+              updatedAt: previous.updatedAt || new Date().toISOString(),
+            };
+          });
+
+          return next;
+        });
+      }
+
+      if (!disposed) {
+        const delay = activePage === "forex" || activePage === "openTrades" ? 3500 : 7000;
+        timerId = window.setTimeout(refreshMarketQuotes, delay);
+      }
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState !== "visible" || disposed) return;
+      window.clearTimeout(timerId);
+      void refreshMarketQuotes();
+    }
+
+    void refreshMarketQuotes();
+    window.addEventListener("online", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(timerId);
+      controller?.abort();
+      window.removeEventListener("online", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [quotedMarketSymbolsKey, marketSymbol, account, activePage]);
   useEffect(() => {
     if (!user?.referralCode) return;
 
