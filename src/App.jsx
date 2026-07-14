@@ -5131,50 +5131,13 @@ function OrderInput({
 }
 
 function TradingViewMarketChart({ market, timeframe, marketOpen }) {
-  const containerRef = useRef(null);
   const timeframeConfig =
     MARKET_TIMEFRAMES.find((item) => item.value === timeframe) ||
     MARKET_TIMEFRAMES[0];
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return undefined;
-
-    container.innerHTML =
-      '<div class="tradingview-widget-container__widget"></div>';
-
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src =
-      "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      autosize: true,
-      symbol: market.tradingViewSymbol,
-      interval: timeframeConfig.tradingView,
-      timezone: "Etc/UTC",
-      theme: "dark",
-      style: "1",
-      locale: "en",
-      backgroundColor: "rgba(2, 7, 13, 1)",
-      gridColor: "rgba(35, 55, 78, 0.35)",
-      hide_top_toolbar: true,
-      hide_legend: false,
-      allow_symbol_change: false,
-      save_image: false,
-      calendar: false,
-      details: false,
-      hotlist: false,
-      withdateranges: false,
-      support_host: "https://www.tradingview.com",
-    });
-
-    container.appendChild(script);
-
-    return () => {
-      container.innerHTML = "";
-    };
-  }, [market.tradingViewSymbol, timeframeConfig.tradingView]);
+  const iframeSrc = `https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(
+    market.tradingViewSymbol
+  )}&interval=${timeframeConfig.tradingView}&theme=dark&style=1&timezone=Etc%2FUTC&locale=en&hideideas=1`;
 
   return (
     <div className="realChartShell">
@@ -5190,10 +5153,13 @@ function TradingViewMarketChart({ market, timeframe, marketOpen }) {
         </strong>
       </div>
 
-      <div
-        className="tradingview-widget-container realTradingViewWidget"
-        ref={containerRef}
-      />
+      <div className="tradingview-widget-container realTradingViewWidget">
+        <iframe
+          src={iframeSrc}
+          style={{ width: "100%", height: "100%", border: "none" }}
+          title="TradingView Market Chart"
+        />
+      </div>
 
       <div className="chartGestureHint">
         Drag to move · Pinch to zoom · Scroll through history
@@ -6784,8 +6750,51 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
           <footer>
             <button className="aiScanAgain" onClick={scan} disabled={scanning || autoSession?.running}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>
-            {result && !autoSession?.running && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use Setup</button>}
-            {result && !autoSession?.running && <button className="aiStartAuto" onClick={() => void onAutoTrade(result)}>Start AI Auto-Trade</button>}
+            {result && !autoSession?.running && (
+              <button
+                className="aiUseSetup"
+                onClick={() => {
+                  const merged = {
+                    ...result,
+                    stake: config.stake,
+                    takeProfit: config.takeProfit,
+                    stopLoss: config.stopLoss,
+                    config: result.config ? {
+                      ...result.config,
+                      stake: config.stake,
+                      takeProfit: config.takeProfit,
+                      stopLoss: config.stopLoss,
+                    } : undefined,
+                  };
+                  onApply(merged);
+                  setOpen(false);
+                }}
+              >
+                Use Setup
+              </button>
+            )}
+            {result && !autoSession?.running && (
+              <button
+                className="aiStartAuto"
+                onClick={() => {
+                  const merged = {
+                    ...result,
+                    stake: config.stake,
+                    takeProfit: config.takeProfit,
+                    stopLoss: config.stopLoss,
+                    config: result.config ? {
+                      ...result.config,
+                      stake: config.stake,
+                      takeProfit: config.takeProfit,
+                      stopLoss: config.stopLoss,
+                    } : undefined,
+                  };
+                  void onAutoTrade(merged);
+                }}
+              >
+                Start AI Auto-Trade
+              </button>
+            )}
           </footer>
           <small className="aiSafetyNote">Pressing Start AI Auto-Trade is your confirmation. It continues until the target profit, stop loss, insufficient balance, an error, or manual stop. Results are not guaranteed.</small>
         </section>

@@ -27112,5 +27112,87 @@ body {
   }
 }
 
+/* Premium Visual Upgrades & Glassmorphism Design System */
+.homePage .featureCard,
+.proProfilePage .profileCard,
+.finalBinaryTradePage .mbDigitBoardV7,
+.proOrderPanel,
+.forexOrderCard,
+.botSetupPage .botCard,
+.kycModal,
+.aiScannerPanel,
+.supportChatBox {
+  background: rgba(10, 24, 43, 0.72) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45) !important;
+  border-radius: 16px !important;
+}
+
+/* Glassmorphism buttons and elements */
+.bottomNav {
+  background: rgba(5, 17, 29, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 119, 255, 0.07) !important;
+}
+
+.bottomNav button.active {
+  background: radial-gradient(circle at center, rgba(0, 125, 255, 0.15) 0%, transparent 70%) !important;
+  border-bottom: 2px solid #00c3ff !important;
+}
+
+.bottomNav button.active span {
+  color: #00c3ff !important;
+  filter: drop-shadow(0 0 6px rgba(0, 195, 255, 0.4)) !important;
+}
+
+/* Floating Elements scaling down on small screens to prevent overlap */
+@media (max-width: 760px) {
+  .floatingAiButton {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    box-shadow: 0 0 15px rgba(8, 124, 255, 0.45) !important;
+  }
+  .floatingAiButton .aiOrbCore {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 11px !important;
+  }
+  .floatingAiButton > b {
+    font-size: 8px !important;
+    bottom: 2px !important;
+  }
+  
+  .supportChatLauncher {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    left: 12px !important;
+    bottom: calc(var(--mb-mobile-nav-height) + 12px + var(--mb-safe-bottom)) !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #007dff, #005cff) !important;
+    box-shadow: 0 4px 12px rgba(0, 125, 255, 0.3) !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 0 !important;
+  }
+  .supportChatLauncher b {
+    display: none !important;
+  }
+  .supportChatLauncher span {
+    margin: 0 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+  }
+}
+
+
 
 
