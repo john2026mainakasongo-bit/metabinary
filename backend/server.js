@@ -1447,6 +1447,39 @@ app.patch("/api/settings/profile", requireUser, async (req, res, next) => {
   }
 });
 
+app.post("/api/settings/kyc", requireUser, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const docType = cleanText(req.body?.docType, 50);
+    const docNumber = cleanText(req.body?.docNumber, 50);
+    const fullName = cleanText(req.body?.fullName, 120);
+
+    if (!docType || !docNumber) {
+      throw httpError(400, "Document type and document number are required.");
+    }
+
+    const updatedAt = nowIso();
+    await db.collection("users").updateOne(
+      { _id: req.user._id },
+      {
+        $set: {
+          verified: true,
+          emailVerified: true,
+          fullName: fullName || req.user.fullName,
+          documentType: docType,
+          documentNumber: docNumber,
+          updatedAt,
+        },
+      }
+    );
+
+    const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+    res.json({ ok: true, user: publicUser(updatedUser), message: "KYC documents verified successfully!" });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.patch("/api/settings/preferences", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();

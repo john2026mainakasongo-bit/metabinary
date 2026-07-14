@@ -910,6 +910,8 @@ function TradingApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [kycOpen, setKycOpen] = useState(false);
+  const [supportChatOpen, setSupportChatOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [notifications, setNotifications] = useState(() =>
     readStore(STORE.notifications, DEFAULT_NOTIFICATIONS)
@@ -3717,6 +3719,8 @@ function TradingApp() {
             applyReferralProgram={applyReferralProgram}
             logout={logout}
             setActivePage={setActivePage}
+            openKyc={() => setKycOpen(true)}
+            openSupport={() => setSupportChatOpen(true)}
           />
         )}
 
@@ -3772,6 +3776,8 @@ function TradingApp() {
         user={user}
         activePage={activePage}
         account={account}
+        isOpenOverride={supportChatOpen}
+        setIsOpenOverride={setSupportChatOpen}
       />
 
       {menuOpen && (
@@ -3791,6 +3797,8 @@ function TradingApp() {
       {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
 
       {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
+
+      {kycOpen && <KycModal close={() => setKycOpen(false)} user={user} onVerified={(updatedUser) => setUser(updatedUser)} />}
 
       {toast && <Toast toast={toast} />}
     </div>
@@ -4436,45 +4444,117 @@ function MiniSpark({ type = "blue" }) {
   );
 }
 
-function MarketsPage({ marketFeed, setMarketSymbol, setActivePage }) {
+function MarketsPage({
+  marketStates,
+  volatilityOptions,
+  marketFeed,
+  setBinaryMarketId,
+  setMarketSymbol,
+  setActivePage,
+}) {
+  const [category, setCategory] = useState("volatility");
+
   function openForex(market) {
     setMarketSymbol(market.symbol);
     setActivePage("forex");
   }
 
   return (
-    <div className="page marketsPage professionalMarketsPage forexOnlyMarketsPage">
+    <div className="page marketsPage professionalMarketsPage">
       <header className="marketsPageHero">
         <div>
-          <small>FOREX, METALS & CRYPTO</small>
+          <small>GLOBAL TRADING HUB</small>
           <h1>Markets</h1>
-          <p>Select a market to open its live chart and Buy/Sell controls.</p>
+          <p>Select a volatility index for binary options or a currency pair for Forex trading.</p>
         </div>
-        <span>Live global markets</span>
+        <span>Live market feeds</span>
       </header>
 
-      <section className="marketCategoryPanel forexOnlyMarketPanel">
-        <header>
-          <div><small>GLOBAL MARKETS</small><h2>Forex, Metals & Crypto</h2></div>
-          <span>{MARKET_OPTIONS.length} markets</span>
-        </header>
-        <div className="forexMarketGrid">
-          {MARKET_OPTIONS.map((market) => {
-            const feed = marketFeed?.[market.symbol] || {};
-            return (
-              <button key={market.symbol} type="button" className="forexMarketCard" onClick={() => openForex(market)}>
-                <span>{market.category === "Crypto" ? "₿" : market.category === "Metals" ? "◆" : "FX"}</span>
-                <div><strong>{market.label}</strong><small>{market.symbol} · {feed.isOpen === false ? "CLOSED" : "OPEN"}</small></div>
-                <b>{formatMarketPrice(feed.price || market.defaultPrice, market)}</b>
-                <i>›</i>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <div className="marketsCategoryTabs">
+        <button
+          type="button"
+          className={category === "volatility" ? "active" : ""}
+          onClick={() => setCategory("volatility")}
+        >
+          🤖 Volatility Indices
+        </button>
+        <button
+          type="button"
+          className={category === "forex" ? "active" : ""}
+          onClick={() => setCategory("forex")}
+        >
+          💱 Forex, Metals & Crypto
+        </button>
+      </div>
+
+      {category === "volatility" ? (
+        <section className="marketCategoryPanel">
+          <header>
+            <div><small>SYNTHETIC MARKETS</small><h2>Volatility Indices</h2></div>
+            <span>{volatilityOptions.length} markets</span>
+          </header>
+          <div className="volatilityMarketGrid">
+            {volatilityOptions.map((market) => {
+              const state = marketStates?.[market.id] || {};
+              const currentPrice = state.price || (state.prices ? state.prices[state.prices.length - 1] : market.start * market.scale) || 0;
+              const prevPrice = state.prices && state.prices.length > 1 ? state.prices[state.prices.length - 2] : currentPrice;
+              const isUp = currentPrice >= prevPrice;
+              return (
+                <button
+                  key={market.id}
+                  type="button"
+                  className="volatilityMarketCard"
+                  onClick={() => {
+                    setBinaryMarketId(market.id);
+                    setActivePage("trade");
+                  }}
+                >
+                  <span className="marketCardBadge">{market.short}</span>
+                  <div>
+                    <strong>{market.label}</strong>
+                    <small>{market.description} · ● LIVE</small>
+                  </div>
+                  <b>{currentPrice.toFixed(2)}</b>
+                  <em className={isUp ? "green" : "red"}>{isUp ? "▲" : "▼"}</em>
+                  <i>›</i>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ) : (
+        <section className="marketCategoryPanel">
+          <header>
+            <div><small>GLOBAL CFDS</small><h2>Forex, Metals & Crypto</h2></div>
+            <span>{MARKET_OPTIONS.length} markets</span>
+          </header>
+          <div className="forexMarketGrid">
+            {MARKET_OPTIONS.map((market) => {
+              const feed = marketFeed?.[market.symbol] || {};
+              return (
+                <button
+                  key={market.symbol}
+                  type="button"
+                  className="forexMarketCard"
+                  onClick={() => openForex(market)}
+                >
+                  <span>{market.category === "Crypto" ? "₿" : market.category === "Metals" ? "◆" : "FX"}</span>
+                  <div>
+                    <strong>{market.label}</strong>
+                    <small>{market.symbol} · {feed.isOpen === false ? "CLOSED" : "OPEN"}</small>
+                  </div>
+                  <b>{formatMarketPrice(feed.price || market.defaultPrice, market)}</b>
+                  <i>›</i>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
+
 
 function ForexPage({
   account,
@@ -5886,7 +5966,7 @@ function BotLivePage({
   );
 }
 
-function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage }) {
+function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage, openKyc, openSupport }) {
   const realBalance = balances?.real || 0;
   const demoBalance = balances?.demo || 10000;
   const accountId = user?.brokerId || "MB168844";
@@ -5934,7 +6014,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
       text: "Verify your identity to unlock all platform features",
       button: user?.verified ? "Verified ✓" : "Start Verification",
       color: "green",
-      action: () => {},
+      action: openKyc,
     },
     {
       icon: "💳",
@@ -6040,7 +6120,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
               <strong>● Online</strong>
             </div>
 
-            <button>Contact Support ›</button>
+            <button onClick={openSupport}>Contact Support ›</button>
           </div>
         </div>
 
@@ -6787,7 +6867,7 @@ function PaymentButton({ icon, title, text, onClick }) {
 }
 
 
-function SupportChat({ user, activePage, account }) {
+function SupportChat({ user, activePage, account, isOpenOverride, setIsOpenOverride }) {
   const categories = [
     ["wallet", "Deposit or withdrawal"],
     ["trading", "Trading or Forex"],
@@ -6795,7 +6875,9 @@ function SupportChat({ user, activePage, account }) {
     ["account", "Account or password"],
     ["other", "Something else"],
   ];
-  const [open, setOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = isOpenOverride !== undefined ? isOpenOverride : localOpen;
+  const setOpen = setIsOpenOverride !== undefined ? setIsOpenOverride : setLocalOpen;
   const [stage, setStage] = useState("topic");
   const [category, setCategory] = useState("");
   const [details, setDetails] = useState("");
@@ -7593,6 +7675,122 @@ function Toast({ toast }) {
       <div>
         <strong>{toast.title}</strong>
         <span>{toast.message}</span>
+      </div>
+    </div>
+  );
+}
+
+function KycModal({ close, user, onVerified }) {
+  const [docType, setDocType] = useState("National ID");
+  const [docNumber, setDocNumber] = useState("");
+  const [fullName, setFullName] = useState(user?.fullName || "");
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (submitting) return;
+    if (!docNumber.trim()) {
+      setError("Please enter your document number.");
+      return;
+    }
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const token = localStorage.getItem("mb_auth_token") || "";
+      const response = await fetch(`${API_URL}/api/settings/kyc`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ docType, docNumber, fullName }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.message || "KYC verification failed.");
+      }
+      setSuccess(true);
+      if (onVerified) onVerified(data.user);
+      setTimeout(() => {
+        close();
+      }, 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="modalLayer">
+      <div className="depositModal kycModal" role="dialog" aria-modal="true" aria-label="Identity Verification">
+        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
+          ×
+        </button>
+        {success ? (
+          <div style={{ textAlign: "center", padding: "20px 0" }}>
+            <h2 style={{ color: "#35e5b8", fontSize: "32px", marginBottom: "10px" }}>✓ Verified</h2>
+            <p>Your identity has been verified successfully!</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <h2>KYC Verification</h2>
+            <p>Verify your identity to unlock deposits, withdrawals, and live trading.</p>
+
+            {error && <div className="kycError" style={{ color: "#ff4057", marginBottom: "10px", fontSize: "14px" }}>{error}</div>}
+
+            <label>Full Legal Name</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              disabled={submitting}
+              required
+            />
+
+            <label>Document Type</label>
+            <select value={docType} onChange={(e) => setDocType(e.target.value)} disabled={submitting}>
+              <option value="National ID">National ID</option>
+              <option value="Passport">Passport</option>
+              <option value="Driver's License">Driver's License</option>
+            </select>
+
+            <label>Document Number</label>
+            <input
+              type="text"
+              placeholder="e.g. 12345678"
+              value={docNumber}
+              onChange={(e) => setDocNumber(e.target.value)}
+              disabled={submitting}
+              required
+            />
+
+            <label>Upload Document Photo</label>
+            <div
+              className="kycUploadBox"
+              style={{
+                border: "1px dashed rgba(255,255,255,0.15)",
+                borderRadius: "8px",
+                padding: "20px",
+                textAlign: "center",
+                background: "rgba(255,255,255,0.02)",
+                cursor: "pointer",
+                marginBottom: "20px",
+              }}
+            >
+              <span style={{ fontSize: "24px", display: "block" }}>📁</span>
+              <span style={{ fontSize: "12px", color: "var(--mb-muted)", display: "block", marginTop: "5px" }}>
+                Drag and drop your ID scan, or click to browse
+              </span>
+            </div>
+
+            <button type="submit" className="modalPrimary" disabled={submitting}>
+              {submitting ? "Verifying details..." : "Submit Verification"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
