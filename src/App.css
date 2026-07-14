@@ -27498,6 +27498,327 @@ body {
   background: rgba(255, 255, 255, 0.22) !important;
 }
 
+/* Premium Mobile-First Overrides for Home Page (Resizes text from microscopic to legible and balanced) */
+@media (max-width: 760px) {
+  /* Hub Navigation */
+  .hubNav {
+    height: 52px !important;
+    gap: 8px !important;
+    padding: 0 10px !important;
+  }
+  .hubNav button span {
+    font-size: 13px !important;
+  }
+  .hubNav button small {
+    font-size: 9px !important;
+  }
+
+  /* Home Page Layout */
+  .homePage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 10px !important;
+  }
+
+  /* Hero Section */
+  .homePage .proHero {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+    gap: 16px !important;
+  }
+  .heroText h1 {
+    font-size: 32px !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+  }
+  .heroText p {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    margin: 12px 0 !important;
+  }
+  .heroText > button {
+    height: 40px !important;
+    width: 100% !important;
+    font-size: 14px !important;
+    border-radius: 10px !important;
+  }
+  .heroChartGlow {
+    display: none !important; /* Hide background clutter on mobile */
+  }
+
+  /* Live Pair Card (EUR/USD Mini chart) */
+  .livePairCard {
+    width: 100% !important;
+    padding: 16px !important;
+    border-radius: 14px !important;
+    background: rgba(3, 12, 24, 0.9) !important;
+  }
+  .pairHead strong {
+    font-size: 14px !important;
+  }
+  .pairHead span {
+    font-size: 11px !important;
+  }
+  .livePairCard h2 {
+    font-size: 28px !important;
+    margin-top: 10px !important;
+  }
+  .livePairCard p {
+    font-size: 13px !important;
+    margin-bottom: 8px !important;
+  }
+  .pairTimes {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 12px 0 !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-radius: 10px !important;
+    padding: 2px !important;
+  }
+  .pairTimes button {
+    flex: 1 !important;
+    height: 28px !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: var(--mb-muted) !important;
+  }
+  .pairTimes button.active {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+  }
+  .pairActions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .pairActions button {
+    height: 42px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+  }
+
+  /* Stats Grid (10 Volatility Markets, etc.) */
+  .homeStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .homeStats .statCard {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 16px !important;
+    gap: 8px !important;
+    min-height: 110px !important;
+    border-radius: 14px !important;
+    text-align: left !important;
+  }
+  .homeStats .statCard b {
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+  .homeStats .statCard strong {
+    font-size: 20px !important;
+    color: #fff !important;
+    line-height: 1.2 !important;
+  }
+  .homeStats .statCard span {
+    font-size: 12px !important;
+    color: var(--mb-muted) !important;
+    margin-top: 2px !important;
+  }
+  .homeStats .statCard .sparkLineContainer,
+  .homeStats .statCard svg {
+    display: none !important;
+  }
+
+  /* Ticker Row */
+  .marketTicker {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    padding: 4px 0 !important;
+  }
+  .marketTicker::-webkit-scrollbar {
+    display: none !important;
+  }
+  .tickerItem {
+    flex: 0 0 180px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 10px !important;
+  }
+  .tickerItem span {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 14px !important;
+    border-radius: 50% !important;
+  }
+  .tickerItem b,
+  .tickerItem strong,
+  .tickerItem em {
+    font-size: 12px !important;
+  }
+
+  /* Lower Grid & Cards */
+  .homeLowerGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  .homeLowerGrid > div {
+    padding: 16px !important;
+    border-radius: 14px !important;
+    min-height: 0 !important;
+  }
+
+  /* AI Trading Card */
+  .aiTradingCard {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .aiChip {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 48px !important;
+    height: 26px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+  }
+  .aiTradingCard h3 {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    margin-bottom: 6px !important;
+  }
+  .aiTradingCard p {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    color: var(--mb-muted) !important;
+    margin-bottom: 12px !important;
+  }
+  .aiTradingCard button {
+    height: 38px !important;
+    width: 100% !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Quick Actions */
+  .quickActions h3 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    margin-bottom: 12px !important;
+  }
+  .quickActions > div {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .quickActions button {
+    min-height: 72px !important;
+    font-size: 20px !important;
+    gap: 6px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 68, 79, 0.06) !important;
+    border: 1px solid rgba(255, 68, 79, 0.15) !important;
+  }
+  .quickActions span {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+  }
+
+  /* Top Markets */
+  .topMarkets h3 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  .topMarkets h3 button {
+    display: inline-block !important;
+    background: transparent !important;
+    color: #ff444f !important;
+    font-size: 13px !important;
+  }
+  .topMarkets p {
+    grid-template-columns: 1fr 90px 60px !important;
+    padding: 10px 0 !important;
+    font-size: 13px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  .topMarkets em {
+    font-size: 12px !important;
+  }
+
+  /* Platform Features */
+  .featureList h3 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    margin-bottom: 12px !important;
+  }
+  .featureList p {
+    grid-template-columns: 36px 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  .featureList p > b {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+  .featureList strong {
+    font-size: 13px !important;
+    color: #fff !important;
+  }
+  .featureList small {
+    font-size: 11px !important;
+    color: var(--mb-muted) !important;
+  }
+
+  /* Home Footer */
+  .homeFooter {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 16px !important;
+    font-size: 12px !important;
+    text-align: center !important;
+  }
+}
+
+
 
 
 
