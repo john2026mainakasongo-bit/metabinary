@@ -30430,3 +30430,214 @@ body,
     font-size: 14px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V24 — FINAL MOBILE TRADE POLISH
+   - Active contract tab automatically scrolls into view (JS) and every tab can
+     be fully reached on phones.
+   - Exactly one highest and one lowest digit are highlighted.
+   - Highest = larger green ring with a grey bottom segment.
+   - Lowest = smaller red ring with a smaller grey bottom segment.
+   - Payout copy wraps cleanly instead of being truncated.
+   - Removes duplicated bottom spacing while keeping content clear of fixed nav.
+   ========================================================================== */
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) {
+  z-index: 9 !important;
+  transform: scale(1.12) !important;
+  filter: drop-shadow(0 0 13px rgba(0, 232, 132, .62)) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 0deg,
+    #00e884 0deg 132deg,
+    #596471 132deg 228deg,
+    #00e884 228deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 0 2px rgba(0, 232, 132, .13),
+    0 0 20px rgba(0, 232, 132, .48),
+    0 4px 10px rgba(0, 0, 0, .46) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
+  z-index: 8 !important;
+  transform: scale(.93) !important;
+  filter: drop-shadow(0 0 9px rgba(255, 64, 87, .48)) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 0deg,
+    #ff4057 0deg 145deg,
+    #596471 145deg 215deg,
+    #ff4057 215deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 15px rgba(255, 64, 87, .38),
+    0 3px 8px rgba(0, 0, 0, .44) !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons .tradePayoutText {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 2px 6px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  line-height: 1.22 !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons .tradePayoutText > span {
+  display: inline-block !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+.finalBinaryTradePage .finalTradeButtons .tradePayoutRate {
+  opacity: .82 !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 760px) {
+  /* One nav-height reserve only. Earlier rules reserved the fixed nav in both
+     .app and .mainScreen, which created the large empty area below trade cards. */
+  .app:has(.finalBinaryTradePage) {
+    min-height: 100svh !important;
+    padding-bottom: calc(var(--mb-mobile-nav-height, 64px) + 10px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .mainScreen:has(.finalBinaryTradePage) {
+    min-height: 0 !important;
+    padding-bottom: 4px !important;
+  }
+
+  .finalBinaryTradePage,
+  .finalBinaryTradePage.digitContractPage,
+  .finalBinaryTradePage.priceContractPage {
+    gap: 8px !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard,
+  .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    margin-bottom: 0 !important;
+  }
+
+  /* Fully scrollable segmented tabs with end padding so the last tab never
+     stops half-cut at the right edge. */
+  .finalBinaryTradePage .finalContractTabs {
+    box-sizing: border-box !important;
+    padding: 4px 8px !important;
+    gap: 5px !important;
+    scroll-padding-inline: 12px !important;
+    touch-action: pan-x !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs::after {
+    content: "" !important;
+    flex: 0 0 8px !important;
+    width: 8px !important;
+    height: 1px !important;
+  }
+
+  .finalBinaryTradePage .finalContractTabs button {
+    min-width: 112px !important;
+    padding-inline: 11px !important;
+  }
+
+  /* Keep all ten numbers visually centered inside the available board space. */
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    justify-content: center !important;
+    padding-inline: 8px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    width: min(100%, 620px) !important;
+    margin-inline: auto !important;
+  }
+
+  /* Payout information stays readable on both buttons. */
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 106px !important;
+    height: auto !important;
+    padding: 11px 10px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons .tradePayoutText {
+    margin-top: 4px !important;
+    font-size: clamp(9px, 2.8vw, 11px) !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Smaller, lower docked AI button: reachable but no longer occupying a large
+     empty block or covering the trade actions. */
+  .floatingAiButton.aiPage-trade {
+    right: 10px !important;
+    bottom: calc(var(--mb-mobile-nav-height, 64px) + 10px + env(safe-area-inset-bottom)) !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .floatingAiButton.aiPage-trade .aiOrbCore {
+    width: 23px !important;
+    height: 23px !important;
+    font-size: 10px !important;
+  }
+
+  .floatingAiButton.aiPage-trade > b {
+    font-size: 7px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .finalBinaryTradePage .finalContractTabs button {
+    min-width: 106px !important;
+    font-size: 12px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 104px !important;
+    padding-inline: 9px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: clamp(22px, 7.1vw, 30px) !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons .tradePayoutText {
+    font-size: clamp(8.5px, 2.7vw, 10px) !important;
+    gap: 1px 5px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .finalBinaryTradePage .finalContractTabs button {
+    min-width: 100px !important;
+    padding-inline: 8px !important;
+    font-size: 11px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 100px !important;
+    padding-inline: 7px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons .tradePayoutText {
+    font-size: 8.5px !important;
+  }
+}

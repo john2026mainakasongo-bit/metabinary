@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-mobile-trade-v22-2026-07-15";
+const FRONTEND_BUILD = "metabinary-mobile-trade-v24-2026-07-15";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -5301,10 +5301,27 @@ function TradePage({
   const [marketMenuOpen, setMarketMenuOpen] = useState(false);
   const [barrierDirection, setBarrierDirection] = useState("above");
   const [barrierDistance, setBarrierDistance] = useState(2);
+  const contractTabRefs = useRef({});
 
   useEffect(() => {
     if (activeBinaryTrade) setMarketMenuOpen(false);
   }, [activeBinaryTrade]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth > 760) return;
+    const activeTab = contractTabRefs.current?.[tradeType];
+    if (!activeTab) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      activeTab.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [tradeType]);
 
   const actions = actionsFor(tradeType);
   const digitMode = isDigitContract(tradeType);
@@ -5342,8 +5359,10 @@ function TradePage({
   const activePreviewNet = activePriceWinning
     ? Number((activePotentialPayout - activeStake).toFixed(2))
     : -activeStake;
-    const highestPercent = Math.max(...digitStats);
+  const highestPercent = Math.max(...digitStats);
   const lowestPercent = Math.min(...digitStats);
+  const highestDigit = digitStats.indexOf(highestPercent);
+  const lowestDigit = digitStats.indexOf(lowestPercent);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const quickStakeValues = [1, 5, 10, 50, 100];
 
@@ -5392,7 +5411,18 @@ function TradePage({
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
-          <button key={type} type="button" className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)} disabled={Boolean(activeBinaryTrade)}>{type}</button>
+          <button
+            key={type}
+            ref={(node) => {
+              if (node) contractTabRefs.current[type] = node;
+            }}
+            type="button"
+            className={tradeType === type ? "active" : ""}
+            onClick={() => setTradeType(type)}
+            disabled={Boolean(activeBinaryTrade)}
+          >
+            {type}
+          </button>
         ))}
       </section>
 
@@ -5465,8 +5495,8 @@ function TradePage({
               }}
             >
               {digitStats.map((percent, digit) => {
-                const isHighest = Math.abs(percent - highestPercent) < 0.01;
-                const isLowest = Math.abs(percent - lowestPercent) < 0.01;
+                const isHighest = digit === highestDigit;
+                const isLowest = digit === lowestDigit;
                 const isPicked = digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
@@ -5556,12 +5586,17 @@ function TradePage({
             <span>{tradeType === "Even/Odd" ? "⌄" : "⌃"}</span>
             <div>
               <strong>{leftLabel}</strong>
-              <small>
-                {activeBinaryTrade
-                  ? `${activeBinaryTrade.remainingTicks} ticks remaining`
-                  : leftRate > 0
-                    ? `Estimated payout ${leftPayout} USD · ${leftRate.toFixed(3)}×`
-                    : "Unavailable"}
+              <small className="tradePayoutText">
+                {activeBinaryTrade ? (
+                  <span>{activeBinaryTrade.remainingTicks} ticks remaining</span>
+                ) : leftRate > 0 ? (
+                  <>
+                    <span>Estimated payout {leftPayout} USD</span>
+                    <span className="tradePayoutRate">{leftRate.toFixed(3)}×</span>
+                  </>
+                ) : (
+                  <span>Unavailable</span>
+                )}
               </small>
             </div>
           </button>
@@ -5574,12 +5609,17 @@ function TradePage({
             <span>{tradeType === "Even/Odd" ? "⌃" : "⌄"}</span>
             <div>
               <strong>{rightLabel}</strong>
-              <small>
-                {activeBinaryTrade
-                  ? `${activeBinaryTrade.remainingTicks} ticks remaining`
-                  : rightRate > 0
-                    ? `Estimated payout ${rightPayout} USD · ${rightRate.toFixed(3)}×`
-                    : "Unavailable"}
+              <small className="tradePayoutText">
+                {activeBinaryTrade ? (
+                  <span>{activeBinaryTrade.remainingTicks} ticks remaining</span>
+                ) : rightRate > 0 ? (
+                  <>
+                    <span>Estimated payout {rightPayout} USD</span>
+                    <span className="tradePayoutRate">{rightRate.toFixed(3)}×</span>
+                  </>
+                ) : (
+                  <span>Unavailable</span>
+                )}
               </small>
             </div>
           </button>
