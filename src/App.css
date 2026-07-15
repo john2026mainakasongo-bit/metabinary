@@ -32085,3 +32085,171 @@ body,
     font-size: 9px !important;
   }
 }
+
+/* =========================================================
+   V29 — BOT LIVE TRUE VIEWPORT LOCK
+   The entire bot-live workspace fits between the broker header
+   and fixed bottom navigation. Only the center run history scrolls.
+   ========================================================= */
+@media (max-width: 760px) {
+  .app:has(.finalBotLivePage) {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .app:has(.finalBotLivePage) .cleanBrokerHeader.topHeader,
+  .app:has(.finalBotLivePage) .cleanBrokerHeader.brokerTopHeader,
+  .app:has(.finalBotLivePage) .topHeader.cleanBrokerHeader {
+    position: relative !important;
+    top: auto !important;
+    flex: 0 0 var(--mb-v20-header, 62px) !important;
+  }
+
+  .mainScreen:has(.finalBotLivePage) {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: calc(
+      var(--mb-viewport-height, 100dvh)
+      - var(--mb-v20-header, 62px)
+      - var(--mb-v20-nav, 66px)
+      - 10px
+      - var(--mb-v20-safe-bottom, 0px)
+    ) !important;
+    min-height: 0 !important;
+    max-height: calc(
+      var(--mb-viewport-height, 100dvh)
+      - var(--mb-v20-header, 62px)
+      - var(--mb-v20-nav, 66px)
+      - 10px
+      - var(--mb-v20-safe-bottom, 0px)
+    ) !important;
+    display: block !important;
+    overflow: hidden !important;
+    padding: 5px 6px 0 !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+  }
+
+  .mainScreen:has(.finalBotLivePage) > .finalBotLivePage,
+  .mainScreen:has(.finalBotLivePage) > .botLivePage.finalBotLivePage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 3px 4px 4px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows:
+      minmax(58px, auto)
+      minmax(76px, auto)
+      62px
+      40px
+      minmax(0, 1fr)
+      68px !important;
+    gap: 5px !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  .finalBotLivePage > .botLiveTop,
+  .finalBotLivePage > .finalRunnerBox,
+  .finalBotLivePage > .botLiveMetrics,
+  .finalBotLivePage > .runnerTabs,
+  .finalBotLivePage > .runnerStats {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    flex: none !important;
+  }
+
+  .finalBotLivePage > .runnerBody {
+    grid-row: 5 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    position: relative !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .finalBotLivePage > .runnerBody > .runnerList,
+  .finalBotLivePage > .runnerBody > .finalRunnerList,
+  .finalBotLivePage > .runnerBody > .botJournalList {
+    box-sizing: border-box !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 0 6px !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    scrollbar-width: none !important;
+  }
+
+  .finalBotLivePage > .runnerBody > .runnerSummaryPanel {
+    box-sizing: border-box !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+  }
+
+  .finalBotLivePage > .runnerStats {
+    grid-row: 6 !important;
+    position: relative !important;
+    inset: auto !important;
+    z-index: 50 !important;
+    width: 100% !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* The AI orb is a sibling of mainScreen, so hide it directly on Bot Live. */
+  .floatingAiButton.aiPage-botLive {
+    display: none !important;
+  }
+}
+
+@media (max-width: 390px), (max-height: 720px) and (max-width: 760px) {
+  .mainScreen:has(.finalBotLivePage) > .finalBotLivePage,
+  .mainScreen:has(.finalBotLivePage) > .botLivePage.finalBotLivePage {
+    grid-template-rows:
+      minmax(52px, auto)
+      minmax(66px, auto)
+      56px
+      36px
+      minmax(0, 1fr)
+      62px !important;
+    gap: 4px !important;
+    padding: 2px 3px 3px !important;
+  }
+
+  .finalBotLivePage > .runnerStats {
+    height: 62px !important;
+    min-height: 62px !important;
+    max-height: 62px !important;
+  }
+}
