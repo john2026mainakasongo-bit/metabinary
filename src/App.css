@@ -28494,7 +28494,7 @@ body,
 }
 
 /* ==========================================================================
-   Forex Top Header Symbol Bar High-Fidelity Mock-Up Overrides
+   Forex Top Header Symbol Bar High-Fidelity Overrides (Clean Layout, No Logo)
    ========================================================================== */
 .realMarketHeaderCard {
   display: flex !important;
@@ -28504,7 +28504,7 @@ body,
   background: var(--mb-panel, #16202e) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 16px !important;
-  min-height: 96px !important;
+  min-height: 80px !important;
 }
 
 .realMarketHeaderCard .marketBack {
@@ -28514,26 +28514,6 @@ body,
   color: var(--mb-muted, #8fa1b6) !important;
   cursor: pointer !important;
   padding: 0 4px !important;
-}
-
-.forexSymbolLogoWrap {
-  width: 68px !important;
-  height: 68px !important;
-  min-width: 68px !important;
-  border-radius: 16px !important;
-  background: #111924 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  overflow: hidden !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
-}
-
-.forexSymbolLogoWrap img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
 }
 
 .forexSymbolDetails {
@@ -28646,22 +28626,52 @@ body,
   display: none !important; /* Hide extra status pill to clean up layout space */
 }
 
+/* Timeframe Bar Tabs Layout */
+.timeframeTabs {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  padding: 4px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.timeframeTabs button {
+  height: 28px !important;
+  border-radius: 6px !important;
+  padding: 0 10px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.timeframeTabs button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
+.timeframeTabs button.active {
+  background: var(--mb-blue, #ff444f) !important;
+  border-color: var(--mb-blue, #ff444f) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(255, 68, 79, 0.3) !important;
+}
+
 /* Mobile Overrides for Mock-Up Header */
 @media (max-width: 760px) {
   .realMarketHeaderCard {
     padding: 10px 12px !important;
-    min-height: 80px !important;
+    min-height: 64px !important;
     gap: 10px !important;
     border-radius: 12px !important;
   }
   .realMarketHeaderCard .marketBack {
     font-size: 24px !important;
-  }
-  .forexSymbolLogoWrap {
-    width: 54px !important;
-    height: 54px !important;
-    min-width: 54px !important;
-    border-radius: 12px !important;
   }
   .symbolPickerLabel {
     font-size: 14px !important;
@@ -28671,6 +28681,194 @@ body,
   }
   .forexSymbolPriceBlock small {
     font-size: 11px !important;
+  }
+}
+
+/* Active position chart overlays SL/TP buttons */
+.addChartParamBtn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  margin-left: 6px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+  transition: all 0.2s ease !important;
+  pointer-events: auto !important;
+}
+
+.addChartParamBtn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+.addChartParamBtn.addSlBtn:hover {
+  border-color: #ff3d00 !important;
+  box-shadow: 0 0 8px rgba(255, 61, 0, 0.4) !important;
+}
+
+.addChartParamBtn.addTpBtn:hover {
+  border-color: #00c853 !important;
+  box-shadow: 0 0 8px rgba(0, 200, 83, 0.4) !important;
+}
+
+.closePositionBtn {
+  background: #ca1735 !important;
+  color: #fff !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  margin-right: 12px !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  margin-left: auto !important;
+}
+
+.closePositionBtn:hover {
+  background: #ff2a4b !important;
+}
+
+.clearParamBtn {
+  background: transparent !important;
+  border: 0 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  padding: 0 2px 0 6px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+  pointer-events: auto !important;
+  display: inline-block !important;
+}
+
+.clearParamBtn:hover {
+  color: #ff444f !important;
+  transform: scale(1.2) !important;
+}
+
+/* ==========================================================================
+   Binary Trade Page No-Scroll Mobile Overrides
+   ========================================================================== */
+@media (max-width: 760px) {
+  .finalBinaryTradePage {
+    height: calc(100dvh - 60px) !important;
+    max-height: calc(100dvh - 60px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    padding: 8px !important;
+    gap: 8px !important;
+  }
+  
+  .finalBinaryTradePage .finalContractTabs {
+    flex: 0 0 auto !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .finalBinaryTradePage .volatilitySwitchBar {
+    flex: 0 0 auto !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .finalBinaryTradePage .finalBinaryChartCard {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .finalBinaryTradePage .finalBinaryChartArea,
+  .finalBinaryTradePage .proChartArea {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 120px !important;
+    max-height: 22vh !important;
+  }
+  
+  .finalBinaryTradePage .finalChartTimeRow {
+    flex: 0 0 auto !important;
+    margin-top: 2px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitBoardV7 {
+    flex: 0 1 auto !important;
+    min-height: 0 !important;
+    margin-bottom: 2px !important;
+  }
+  
+  .finalBinaryTradePage .mbDigitGridV7 {
+    gap: 4px !important;
+    padding: 4px !important;
+  }
+  
+  .finalBinaryTradePage .mbDigitCellV7 {
+    height: 34px !important;
+    width: 34px !important;
+    min-height: 34px !important;
+    min-width: 34px !important;
+    font-size: 13px !important;
+  }
+
+  .finalBinaryTradePage .tradeInputsV7 {
+    flex: 0 0 auto !important;
+    margin-bottom: 2px !important;
+    gap: 8px !important;
+  }
+
+  .finalBinaryTradePage .tradeActionsV7 {
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+  }
+  
+  .finalBinaryTradePage .tradeActionsV7 button {
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+
+  /* Profile Page Mobile Typography Adjustments (No microscopic text) */
+  .proProfileIdentity h1 {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    margin-bottom: 4px !important;
+  }
+  .proProfileIdentity p {
+    font-size: 13px !important;
+    color: var(--mb-muted, #8fa1b6) !important;
+    margin-bottom: 4px !important;
+  }
+  .profileVerifiedRow b {
+    font-size: 11px !important;
+    height: auto !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+  }
+  .profileMetaRow span {
+    font-size: 11px !important;
+    color: var(--mb-muted, #8fa1b6) !important;
+  }
+  .profileMetaRow strong {
+    font-size: 12px !important;
+    color: #fff !important;
+  }
+  .proProfileAvatarWrap {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  .proProfileAvatar {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 24px !important;
+    line-height: 60px !important;
   }
 }
 

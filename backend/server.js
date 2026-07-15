@@ -1654,6 +1654,57 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const existing = await db.collection("deposits").findOne({ email, requestId });
     if (existing) return res.json(await responseForDeposit(db, existing));
 
+    if (!PUBLIC_KEY || !SECRET_KEY || process.env.SIMULATE_PAYMENTS === "true") {
+      const depositId = makeId("dep");
+      const invoiceId = `SIM-${depositId}`;
+      const amountKes = Math.round(amountUsd * USD_RATE);
+      const deposit = {
+        id: depositId,
+        requestId,
+        apiRef: `MB-SIM-${depositId}`,
+        invoiceId,
+        email,
+        method,
+        phone: req.body.phone || "",
+        amountUsd: roundMoney(amountUsd),
+        amountKes,
+        status: "COMPLETED",
+        credited: true,
+        providerResponse: { simulated: true },
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+        completedAt: nowIso(),
+      };
+
+      await db.collection("deposits").insertOne(deposit);
+
+      await db.collection("users").updateOne(
+        { email },
+        { $inc: { realBalance: Number(deposit.amountUsd) }, $set: { updatedAt: nowIso() } }
+      );
+
+      await db.collection("transactions").insertOne({
+        id: makeId("tx"),
+        email,
+        type: "deposit",
+        amount: Number(deposit.amountUsd),
+        method: method === "mpesa" ? "M-Pesa" : "Card",
+        reference: invoiceId,
+        status: "COMPLETED",
+        createdAt: nowIso(),
+      });
+
+      return res.status(201).json({
+        ok: true,
+        depositId,
+        invoiceId,
+        status: "COMPLETED",
+        amountUsd: deposit.amountUsd,
+        amountKes,
+        message: `Simulated ${method === "mpesa" ? "M-Pesa" : "Card"} deposit successful! Credited $${deposit.amountUsd} USD.`,
+      });
+    }
+
     const amountKes = Math.max(1, Math.round(amountUsd * USD_RATE));
     const depositId = makeId("dep");
     const apiRef = `MB-${depositId}`.slice(0, 64);

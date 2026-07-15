@@ -4766,15 +4766,7 @@ function ForexPage({
           ‹
         </button>
 
-        {/* Square icon logo badge */}
-        <div className="forexSymbolLogoWrap">
-          <img
-            src={symbol === "XAU/USD" ? "/gold_bars_logo.jpg" : symbol === "BTC/USD" ? "/btc_logo.jpg" : "/forex_logo.jpg"}
-            alt={market.label}
-          />
-        </div>
-
-        {/* Middle Details Block */}
+        {/* Middle Details Block (No logo box) */}
         <div className="forexSymbolDetails">
           <div className="forexSymbolPickerWrap">
             <span className="symbolPickerLabel">★ {market.label} · {symbol} <span className="chevronPicker">⌄</span></span>
@@ -4824,34 +4816,17 @@ function ForexPage({
       </section>
 
       <section className="singleTimeframeBar">
-        <div className="timeframeSummary">
-          <small>Chart timeframe</small>
-          <strong>{currentTimeframe.label}</strong>
-        </div>
-
-        <label className="timeframeSelect">
-          <span>{currentTimeframe.short}</span>
-          <select
-            value={timeframe}
-            onChange={(event) => setTimeframe(event.target.value)}
-            aria-label="Choose chart timeframe"
-          >
-            {MARKET_TIMEFRAMES.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-          <b>⌄</b>
-        </label>
-
-        <div className="marketFeedMessage">
-          <span>{marketOpen ? "Live market data" : "Last market session"}</span>
-          <small>
-            {market.symbol === "BTC/USD"
-              ? "Bitcoin quote refreshes automatically"
-              : "Live forex pricing is verified by the backend"}
-          </small>
+        <div className="timeframeTabs">
+          {MARKET_TIMEFRAMES.map((item) => (
+            <button
+              type="button"
+              key={item.value}
+              className={timeframe === item.value ? "active" : ""}
+              onClick={() => setTimeframe(item.value)}
+            >
+              {item.short}
+            </button>
+          ))}
         </div>
       </section>
 
@@ -4881,30 +4856,68 @@ function ForexPage({
                 <b className={Number(pos.pl || 0) >= 0 ? "green" : "red"}>
                   {Number(pos.pl || 0) >= 0 ? "+" : ""}{money(pos.pl)} USD
                 </b>
-                <button type="button" onClick={() => closePosition(pos.id)}>Close</button>
+                
+                {/* Active Level Add Buttons */}
+                {(!pos.stopLoss || Number(pos.stopLoss) === 0) && (
+                  <button
+                    type="button"
+                    className="addChartParamBtn addSlBtn"
+                    onClick={() => {
+                      const defaultSl = pos.side === "Buy" ? pos.openPrice * 0.98 : pos.openPrice * 1.02;
+                      updatePosition(pos.id, { stopLoss: Number(defaultSl.toFixed(market.decimals || 2)) });
+                    }}
+                  >
+                    + SL
+                  </button>
+                )}
+
+                {(!pos.takeProfit || Number(pos.takeProfit) === 0) && (
+                  <button
+                    type="button"
+                    className="addChartParamBtn addTpBtn"
+                    onClick={() => {
+                      const defaultTp = pos.side === "Buy" ? pos.openPrice * 1.02 : pos.openPrice * 0.98;
+                      updatePosition(pos.id, { takeProfit: Number(defaultTp.toFixed(market.decimals || 2)) });
+                    }}
+                  >
+                    + TP
+                  </button>
+                )}
+
+                <button type="button" className="closePositionBtn" onClick={() => closePosition(pos.id)}>Close</button>
               </div>
 
-              {/* Stop Loss (SL) Draggable Line */}
-              <div
-                className="chartPositionLine sl draggable"
-                style={{ top: `${slPercent}%` }}
-                onMouseDown={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
-                onTouchStart={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
-              >
-                <span>SL: {pos.stopLoss > 0 ? pos.stopLoss.toFixed(market.decimals || 2) : "Drag to set SL"}</span>
-                <div className="dragHandle">⇅</div>
-              </div>
+              {/* Stop Loss (SL) Draggable Line - Render only if explicitly set */}
+              {pos.stopLoss > 0 && (
+                <div
+                  className="chartPositionLine sl draggable"
+                  style={{ top: `${slPercent}%` }}
+                  onMouseDown={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
+                  onTouchStart={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
+                >
+                  <span>
+                    SL: {pos.stopLoss.toFixed(market.decimals || 2)}
+                    <button type="button" className="clearParamBtn" onClick={() => updatePosition(pos.id, { stopLoss: 0 })} aria-label="Clear Stop Loss">×</button>
+                  </span>
+                  <div className="dragHandle">⇅</div>
+                </div>
+              )}
 
-              {/* Take Profit (TP) Draggable Line */}
-              <div
-                className="chartPositionLine tp draggable"
-                style={{ top: `${tpPercent}%` }}
-                onMouseDown={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
-                onTouchStart={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
-              >
-                <span>TP: {pos.takeProfit > 0 ? pos.takeProfit.toFixed(market.decimals || 2) : "Drag to set TP"}</span>
-                <div className="dragHandle">⇅</div>
-              </div>
+              {/* Take Profit (TP) Draggable Line - Render only if explicitly set */}
+              {pos.takeProfit > 0 && (
+                <div
+                  className="chartPositionLine tp draggable"
+                  style={{ top: `${tpPercent}%` }}
+                  onMouseDown={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
+                  onTouchStart={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
+                >
+                  <span>
+                    TP: {pos.takeProfit.toFixed(market.decimals || 2)}
+                    <button type="button" className="clearParamBtn" onClick={() => updatePosition(pos.id, { takeProfit: 0 })} aria-label="Clear Take Profit">×</button>
+                  </span>
+                  <div className="dragHandle">⇅</div>
+                </div>
+              )}
             </Fragment>
           );
         })}
