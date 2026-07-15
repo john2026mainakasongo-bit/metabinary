@@ -32259,3 +32259,119 @@ body,
    Forex/Markets pages are no longer exposed in navigation.
    Support launcher is rendered only on the Profile page.
    ========================================================= */
+
+/* ========================================================================== 
+   METABINARY V31 — SMOOTH DIGIT PERCENTAGES + CLEAN TRADE DIGIT FEEDBACK
+   - Displayed digit percentages stay between 8.8% and 13.5%.
+   - Each tick transfers only 0.1% or 0.2% between digits.
+   - Highest/lowest statistic arcs are flat colors with zero glow/shadow.
+   - During an active digit contract, every digit that would currently win is
+     softly covered in green without glow.
+   - The final landing digit flashes bright green once for a win or bright red
+     once for a loss, then returns to the normal statistics styling.
+   ========================================================================== */
+
+/* Statistical arcs must stay flat and calm. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 270deg,
+    #20bf7a 0deg 180deg,
+    #596471 180deg 360deg
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 125deg,
+    #dc4658 0deg 108deg,
+    #596471 108deg 360deg
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Digits that can win the currently running contract are marked with a calm
+   green cover. This is deliberately not a result glow. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: linear-gradient(180deg, rgba(22, 151, 101, .82), rgba(9, 89, 64, .88)) !important;
+  border-color: rgba(72, 207, 152, .68) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #f3fff9 !important;
+  text-shadow: none !important;
+}
+
+/* A selected prediction may still have its normal outline, but it must not
+   create a glow while a contract is running. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31.mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes mbDigitWinFlashV31 {
+  0% {
+    transform: scale(1);
+    filter: none;
+  }
+  38% {
+    transform: scale(1.11);
+    filter: drop-shadow(0 0 18px rgba(47, 255, 157, .98));
+  }
+  100% {
+    transform: scale(1.02);
+    filter: none;
+  }
+}
+
+@keyframes mbDigitLossFlashV31 {
+  0% {
+    transform: scale(1);
+    filter: none;
+  }
+  38% {
+    transform: scale(1.11);
+    filter: drop-shadow(0 0 18px rgba(255, 52, 82, .98));
+  }
+  100% {
+    transform: scale(1.02);
+    filter: none;
+  }
+}
+
+/* The bright state exists only for the short settlement flash. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 {
+  animation: mbDigitWinFlashV31 .9s ease-out 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitRingV7 {
+  background: #30f09b !important;
+  box-shadow: 0 0 20px rgba(48, 240, 155, .92) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 {
+  background: #0dbb70 !important;
+  border-color: #7dffc2 !important;
+  box-shadow: 0 0 20px rgba(48, 240, 155, .72) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
+  animation: mbDigitLossFlashV31 .9s ease-out 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitRingV7 {
+  background: #ff3452 !important;
+  box-shadow: 0 0 20px rgba(255, 52, 82, .9) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 {
+  background: #cf1736 !important;
+  border-color: #ff8b9d !important;
+  box-shadow: 0 0 20px rgba(255, 52, 82, .7) !important;
+}

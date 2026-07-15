@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-mobile-trade-v24-2026-07-15";
+const FRONTEND_BUILD = "metabinary-digit-stats-v31-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -734,6 +734,8 @@ function makePrices(start = 1.08564) {
 }
 
 const DIGIT_HISTORY_LIMIT = 100;
+const DIGIT_STAT_MIN = 8.8;
+const DIGIT_STAT_MAX = 13.5;
 
 function makeInitialDigitHistory(seed = 0) {
   let value = (Math.abs(Number(seed) || 0) + 1) * 7919;
@@ -750,7 +752,39 @@ function appendDigitHistory(history, digit) {
   return [...current.slice(-(DIGIT_HISTORY_LIMIT - 1)), safeDigit];
 }
 
-function calculateDigitStats(history) {
+function normalizeDigitStatsToHundred(values) {
+  const stats = values.map((value) =>
+    Number(Math.max(DIGIT_STAT_MIN, Math.min(DIGIT_STAT_MAX, Number(value) || 10)).toFixed(1))
+  );
+
+  // Keep the display total at 100.0 while respecting the requested 8.8–13.5 range.
+  // Adjustments happen in 0.1 steps so the visible percentages remain calm.
+  let guard = 0;
+  while (guard < 300) {
+    guard += 1;
+    const total = Number(stats.reduce((sum, value) => sum + value, 0).toFixed(1));
+    const difference = Number((100 - total).toFixed(1));
+    if (Math.abs(difference) < 0.05) break;
+
+    const direction = difference > 0 ? 1 : -1;
+    const candidates = stats
+      .map((value, index) => ({ value, index }))
+      .filter(({ value }) =>
+        direction > 0 ? value < DIGIT_STAT_MAX - 0.05 : value > DIGIT_STAT_MIN + 0.05
+      )
+      .sort((a, b) =>
+        direction > 0 ? a.value - b.value : b.value - a.value
+      );
+
+    if (!candidates.length) break;
+    const index = candidates[(guard - 1) % candidates.length].index;
+    stats[index] = Number((stats[index] + direction * 0.1).toFixed(1));
+  }
+
+  return stats;
+}
+
+function calculateDigitStats(history, previousStats = null) {
   const safeHistory = Array.isArray(history) && history.length
     ? history
     : makeInitialDigitHistory(0);
@@ -762,7 +796,50 @@ function calculateDigitStats(history) {
   });
 
   const total = counts.reduce((sum, count) => sum + count, 0) || 1;
-  return counts.map((count) => Number(((count / total) * 100).toFixed(1)));
+  const rawPercentages = counts.map((count) => (count / total) * 100);
+
+  // Compress the raw 100-tick distribution into a realistic broker-style band.
+  // No displayed digit can drop below 8.8% or rise above 13.5%.
+  const targets = normalizeDigitStatsToHundred(
+    rawPercentages.map((value) =>
+      Math.max(DIGIT_STAT_MIN, Math.min(DIGIT_STAT_MAX, 10 + (value - 10) * 0.45))
+    )
+  );
+
+  if (!Array.isArray(previousStats) || previousStats.length !== 10) return targets;
+
+  const previous = normalizeDigitStatsToHundred(previousStats);
+  const next = [...previous];
+  const deltas = targets.map((target, index) => target - previous[index]);
+
+  const gainIndex = deltas
+    .map((delta, index) => ({ delta, index }))
+    .filter(({ delta, index }) => delta > 0.05 && previous[index] < DIGIT_STAT_MAX - 0.05)
+    .sort((a, b) => b.delta - a.delta)[0]?.index;
+
+  const lossIndex = deltas
+    .map((delta, index) => ({ delta, index }))
+    .filter(({ delta, index }) => delta < -0.05 && previous[index] > DIGIT_STAT_MIN + 0.05)
+    .sort((a, b) => a.delta - b.delta)[0]?.index;
+
+  if (Number.isInteger(gainIndex) && Number.isInteger(lossIndex)) {
+    const requestedStep =
+      Math.abs(deltas[gainIndex]) >= 0.7 && Math.abs(deltas[lossIndex]) >= 0.7 ? 0.2 : 0.1;
+    const step = Math.min(
+      requestedStep,
+      DIGIT_STAT_MAX - previous[gainIndex],
+      previous[lossIndex] - DIGIT_STAT_MIN
+    );
+
+    if (step >= 0.099) {
+      next[gainIndex] = Number((previous[gainIndex] + step).toFixed(1));
+      next[lossIndex] = Number((previous[lossIndex] - step).toFixed(1));
+    }
+  }
+
+  return next.map((value) =>
+    Number(Math.max(DIGIT_STAT_MIN, Math.min(DIGIT_STAT_MAX, value)).toFixed(1))
+  );
 }
 
 function makeInitialDigitStats(seed = 0) {
@@ -796,7 +873,7 @@ function nextDigitState(current, digit, seed = 0) {
 
   return {
     digitHistory: history,
-    digitStats: calculateDigitStats(history),
+    digitStats: calculateDigitStats(history, current?.digitStats),
     lastDigit: Math.max(0, Math.min(9, Number(digit) || 0)),
   };
 }
@@ -2517,7 +2594,7 @@ function TradingApp() {
     setBinaryResultFlash({ id: uid(), digit: resultDigit, result: won ? "win" : "loss" });
     resultFlashTimerRef.current = window.setTimeout(
       () => setBinaryResultFlash(null),
-      1800
+      950
     );
 
     notify(
@@ -5564,6 +5641,11 @@ function TradePage({
                 const isPicked = digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
+                const isWinningZone = Boolean(
+                  activeBinaryTrade &&
+                  digitMode &&
+                  digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent)
+                );
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -5589,6 +5671,7 @@ function TradePage({
                       isLowest ? "mbDigitLowestV7" : "",
                       isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
+                      isWinningZone ? "mbDigitWinningZoneV31" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
