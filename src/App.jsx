@@ -5451,15 +5451,10 @@ function TradePage({
         )}
 
         {digitMode ? (
-          <div className={`mbDigitBoardV7 ${activeBinaryTrade ? "isTrading" : ""}`}>
-            <div className="digitBoardHeaderV21">
-              <span><small>LIVE LAST DIGIT</small><strong>{lastDigit}</strong></span>
-              <div>
-                <small>{binaryMarket?.short || "V100 1s"}</small>
-                <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
-              </div>
-              <b>Statistics from last {DIGIT_HISTORY_LIMIT} ticks</b>
-            </div>
+          <div
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 ${activeBinaryTrade ? "isTrading" : ""}`}
+            aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
+          >
             <div
               className="mbDigitGridV7"
               aria-label="Digit percentages"

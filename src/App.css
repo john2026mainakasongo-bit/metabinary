@@ -30113,3 +30113,320 @@ body,
     font-size: 15px !important;
   }
 }
+
+
+/* =====================================================================
+   METABINARY V23 — CLEAN DIGIT BOARD + MOBILE TICK CONTROL FIX
+   - The market selector remains the single Volatility label on digit pages.
+   - The digit card contains only the 0–9 statistics buttons.
+   - Highest percentage: larger green ring with a grey lower segment.
+   - Lowest percentage: smaller red ring.
+   - Mobile Ticks/Amount controls stay fully visible.
+   ===================================================================== */
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 18px 18px 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+  --mb-v23-cell-size: 72px;
+  --mb-v23-row-height: 84px;
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: min(100%, 760px) !important;
+  min-height: calc((var(--mb-v23-row-height) * 2) + 28px) !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  padding: 4px 6px 22px !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
+  place-items: center !important;
+  align-content: center !important;
+  justify-content: center !important;
+  column-gap: clamp(8px, 2.4vw, 26px) !important;
+  row-gap: 12px !important;
+  overflow: visible !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+  width: var(--mb-v23-cell-size) !important;
+  height: var(--mb-v23-cell-size) !important;
+  min-width: var(--mb-v23-cell-size) !important;
+  min-height: var(--mb-v23-cell-size) !important;
+  max-width: var(--mb-v23-cell-size) !important;
+  max-height: var(--mb-v23-cell-size) !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Normal ranked ring: white/grey as before. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitRingV7 {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: conic-gradient(
+    from var(--mb-v7-white-start, -30deg),
+    #f4f7f9 0deg var(--mb-v7-white-sweep, 120deg),
+    #5c6773 var(--mb-v7-white-sweep, 120deg) 360deg
+  ) !important;
+  box-shadow: 0 2px 7px rgba(0,0,0,.42) !important;
+}
+
+/* Highest percentage: visibly larger than every other digit.
+   Green dominates the ring and a grey segment remains at the bottom. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) {
+  z-index: 8 !important;
+  transform: scale(1.12) !important;
+  filter: drop-shadow(0 0 12px rgba(0, 232, 132, .62)) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 220deg,
+    #596471 0deg 100deg,
+    #00e884 100deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 0 2px rgba(0,232,132,.12),
+    0 0 18px rgba(0,232,132,.48),
+    0 3px 9px rgba(0,0,0,.48) !important;
+}
+
+/* Lowest percentage: deliberately smaller than the highest ring.
+   It uses a red dominant ring with a small grey lower segment. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
+  z-index: 7 !important;
+  transform: scale(.94) !important;
+  filter: drop-shadow(0 0 8px rgba(255,64,87,.52)) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 220deg,
+    #596471 0deg 70deg,
+    #ff4057 70deg 360deg
+  ) !important;
+  box-shadow:
+    0 0 14px rgba(255,64,87,.38),
+    0 3px 8px rgba(0,0,0,.46) !important;
+}
+
+/* A current tick still pulses, but it must not replace the percentage colors. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitCurrentV7 {
+  animation: mbDigitLandingV23 .38s ease-out !important;
+}
+
+@keyframes mbDigitLandingV23 {
+  0% { scale: 1; }
+  42% { scale: 1.07; }
+  100% { scale: 1; }
+}
+
+/* Put the one cursor immediately beneath the correct live digit.
+   The extra row spacing prevents the top-row cursor from sitting on row two. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+  left: calc((var(--mb-active-col) + .5) * 20%) !important;
+  top: calc(
+    4px +
+    (var(--mb-active-row) * (var(--mb-v23-row-height) + 12px)) +
+    ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
+    var(--mb-v23-cell-size) + 3px
+  ) !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+  border-bottom: 9px solid #ff4a55 !important;
+  border-top: 0 !important;
+  z-index: 15 !important;
+}
+
+/* Ticks / amount controls: explicit internal columns stop the select/input from
+   being squeezed or visually hidden on narrow phones. */
+.finalBinaryTradePage .finalTicksBox,
+.finalBinaryTradePage .finalStakeBox {
+  overflow: visible !important;
+}
+
+.finalBinaryTradePage .finalTicksBox {
+  display: grid !important;
+  grid-template-columns: 40px minmax(84px, 1fr) 40px !important;
+}
+
+.finalBinaryTradePage .finalStakeBox {
+  display: grid !important;
+  grid-template-columns: 40px minmax(96px, 1fr) 40px !important;
+}
+
+.finalBinaryTradePage .finalTicksBox select {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 0 4px !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  font-size: 17px !important;
+}
+
+.finalBinaryTradePage .finalStakeInputWrap {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    padding: 16px 10px 20px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(50px, 14.6vw, 62px);
+    --mb-v23-row-height: clamp(64px, 18vw, 74px);
+    width: min(100%, 600px) !important;
+    min-height: calc((var(--mb-v23-row-height) * 2) + 28px) !important;
+    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
+    column-gap: clamp(3px, 1.7vw, 12px) !important;
+    row-gap: 16px !important;
+    padding: 4px 2px 22px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+    max-width: var(--mb-v23-cell-size) !important;
+    max-height: var(--mb-v23-cell-size) !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: clamp(17px, 5.2vw, 23px) !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    font-size: clamp(9px, 2.7vw, 12px) !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    top: calc(
+      4px +
+      (var(--mb-active-row) * (var(--mb-v23-row-height) + 16px)) +
+      ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
+      var(--mb-v23-cell-size) + 2px
+    ) !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard,
+  .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    padding: 12px 10px !important;
+    gap: 12px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs > label {
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    min-height: 62px !important;
+    height: 62px !important;
+    border-radius: 14px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox {
+    grid-template-columns: 38px minmax(74px, 1fr) 38px !important;
+  }
+
+  .finalBinaryTradePage .finalStakeBox {
+    grid-template-columns: 38px minmax(88px, 1fr) 38px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 62px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    height: 62px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select {
+    font-size: clamp(14px, 4.1vw, 18px) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    padding-inline: 7px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(45px, 14vw, 52px);
+    --mb-v23-row-height: clamp(58px, 17vw, 66px);
+    row-gap: 14px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    top: calc(
+      4px +
+      (var(--mb-active-row) * (var(--mb-v23-row-height) + 14px)) +
+      ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
+      var(--mb-v23-cell-size) + 1px
+    ) !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr) !important;
+    gap: 6px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox {
+    grid-template-columns: 34px minmax(68px, 1fr) 34px !important;
+  }
+
+  .finalBinaryTradePage .finalStakeBox {
+    grid-template-columns: 34px minmax(76px, 1fr) 34px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button {
+    width: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select {
+    font-size: 14px !important;
+  }
+}
