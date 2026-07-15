@@ -4766,51 +4766,51 @@ function ForexPage({
           ‹
         </button>
 
-        <label className="symbolPicker realSymbolPicker">
-          <span>★</span>
-          <select
-            value={symbol}
-            onChange={(event) => {
-              seededSymbolRef.current = "";
-              setStopLoss(0);
-              setTakeProfit(0);
-              setSymbol(event.target.value);
-            }}
-            aria-label="Choose market"
-          >
-            {MARKET_OPTIONS.map((option) => (
-              <option key={option.symbol} value={option.symbol}>
-                {option.label} · {option.symbol}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="marketNameBlock">
-          <strong>{market.label}</strong>
-          <small>
-            {market.category} · {symbol}
-          </small>
+        {/* Square icon logo badge */}
+        <div className="forexSymbolLogoWrap">
+          <img
+            src={symbol === "XAU/USD" ? "/gold_bars_logo.jpg" : symbol === "BTC/USD" ? "/btc_logo.jpg" : "/forex_logo.jpg"}
+            alt={market.label}
+          />
         </div>
 
-        <div className="marketPriceBlock">
-          <strong>{formatMarketPrice(livePrice, market)}</strong>
+        {/* Middle Details Block */}
+        <div className="forexSymbolDetails">
+          <div className="forexSymbolPickerWrap">
+            <span className="symbolPickerLabel">★ {market.label} · {symbol} <span className="chevronPicker">⌄</span></span>
+            <select
+              value={symbol}
+              onChange={(event) => {
+                seededSymbolRef.current = "";
+                setStopLoss(0);
+                setTakeProfit(0);
+                setSymbol(event.target.value);
+              }}
+              aria-label="Choose market"
+            >
+              {MARKET_OPTIONS.map((option) => (
+                <option key={option.symbol} value={option.symbol}>
+                  {option.label} · {option.symbol}
+                </option>
+              ))}
+            </select>
+          </div>
+          <strong className="forexAssetName">{market.label}</strong>
+          <span className="marketCategoryPill">
+            {market.category === "Metals" ? "Commodity" : market.category}
+          </span>
+        </div>
+
+        {/* Right Details Block */}
+        <div className="forexSymbolPriceBlock">
+          <strong className={positiveChange ? "green" : "red"}>
+            {formatMarketPrice(livePrice, market)}
+          </strong>
           <small className={positiveChange ? "green" : "red"}>
             {positiveChange ? "+" : ""}
-            {formatMarketPrice(change, market)} ({positiveChange ? "+" : ""}
-            {percentChange.toFixed(2)}%)
+            {formatMarketPrice(change, market)} ({positiveChange ? "+" : ""}{percentChange.toFixed(2)}%)
+            <span className="arrowTriangle">{positiveChange ? " ▲" : " ▼"}</span>
           </small>
-        </div>
-
-        <div className="marketHighLow">
-          <p>
-            <span>High</span>
-            <b>{formatMarketPrice(marketFeed?.high, market)}</b>
-          </p>
-          <p>
-            <span>Low</span>
-            <b>{formatMarketPrice(marketFeed?.low, market)}</b>
-          </p>
         </div>
 
         <span
