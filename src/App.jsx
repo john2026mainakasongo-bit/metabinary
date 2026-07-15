@@ -4816,38 +4816,6 @@ function ForexPage({
         />
       </section>
 
-      {visiblePositions.length > 0 && (
-        <section className="forexLiveTradeLines" aria-label="Open positions on this market">
-          <header>
-            <div><small>OPEN POSITION{visiblePositions.length === 1 ? "" : "S"}</small><strong>{symbol}</strong></div>
-            <button type="button" onClick={() => setActivePage("openTrades")}>View all ({accountPositions.length})</button>
-          </header>
-          {visiblePositions.map((position) => {
-            const expanded = expandedLiveTradeId === position.id;
-            const positive = Number(position.pl || 0) >= 0;
-            return (
-              <article className={`forexLiveTradeLine ${expanded ? "expanded" : ""}`} key={position.id}>
-                <button type="button" className="forexLiveTradeSummary" onClick={() => setExpandedLiveTradeId(expanded ? "" : position.id)}>
-                  <span><strong>{position.instrument}</strong><small className={position.side === "Buy" ? "green" : "red"}>{position.side}</small></span>
-                  <span><small>Volume</small><b>{position.volume} lot</b></span>
-                  <span><small>Entry</small><b>{formatMarketPrice(position.openPrice, position.instrument)}</b></span>
-                  <span><small>Live P/L</small><b className={positive ? "green" : "red"}>{positive ? "+" : ""}{money(position.pl)} USD</b></span>
-                  <i>{expanded ? "⌃" : "⌄"}</i>
-                </button>
-                {expanded && (
-                  <div className="forexLiveTradeDetails">
-                    <p><span>Current price</span><b>{formatMarketPrice(position.currentPrice || position.openPrice, position.instrument)}</b></p>
-                    <p><span>Stop loss</span><b>{Number(position.stopLoss || 0) > 0 ? formatMarketPrice(position.stopLoss, position.instrument) : "Not set"}</b></p>
-                    <p><span>Take profit</span><b>{Number(position.takeProfit || 0) > 0 ? formatMarketPrice(position.takeProfit, position.instrument) : "Not set"}</b></p>
-                    <p><span>Leverage</span><b>{position.leverage || "1:100"}</b></p>
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </section>
-      )}
-
       <section className="proOrderPanel forexOrderCard marketOrderStack">
         <div className="tradeActionColumn marketActionColumn">
           <div className="buySellBox buySellProBox">
@@ -5056,10 +5024,20 @@ function OpenTradesPage({
           return (
             <article className={`compactTradePosition ${expanded ? "expanded" : ""}`} key={p.id}>
               <button type="button" className="compactTradeSummary" onClick={() => setExpandedId(expanded ? "" : p.id)}>
-                <span><strong>{p.instrument}</strong><small className={p.side === "Buy" ? "green" : "red"}>{p.side}</small></span>
-                <span><small>Volume</small><b>{p.volume} lot</b></span>
-                <span><small>P/L</small><b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>{Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)} USD</b></span>
-                <i>{expanded ? "⌃" : "⌄"}</i>
+                <span className="tradeSummaryAsset">
+                  <strong>{p.instrument}</strong>
+                  <span className="tradeSummaryMeta">
+                    <small className={p.side === "Buy" ? "green" : "red"}>{p.side}</small>
+                    <small>{p.volume} lot</small>
+                  </span>
+                </span>
+                <span className="tradeSummaryPL">
+                  <b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>
+                    {Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)}
+                  </b>
+                  <small>USD</small>
+                </span>
+                <i className="tradeSummaryChevron">{expanded ? "⌃" : "⌄"}</i>
               </button>
 
               {expanded && (
