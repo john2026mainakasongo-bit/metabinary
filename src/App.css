@@ -32772,3 +32772,105 @@ body,
     margin-bottom: 12px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V34 — DEFINITIVE PROFILE VIEWPORT SCROLL
+   Profile uses a bounded header/content/nav grid on every phone/tablet.
+   Only the middle content row scrolls. This deliberately overrides the
+   small-phone natural-document-scroll layer, which conflicted with V33.
+   ========================================================================== */
+@media (max-width: 899px) {
+  .app.activePage-profile {
+    width: 100% !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: 0 !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: var(--mb-v18-header, 72px) minmax(0, 1fr) var(--mb-v18-nav, 76px) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .app.activePage-profile > .cleanBrokerHeader,
+  .app.activePage-profile > .topHeader,
+  .app.activePage-profile > .brokerTopHeader {
+    grid-row: 1 !important;
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    height: var(--mb-v18-header, 72px) !important;
+    min-height: var(--mb-v18-header, 72px) !important;
+  }
+
+  .app.activePage-profile > .mainScreen {
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: block !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    padding: 8px !important;
+    scroll-behavior: auto !important;
+  }
+
+  .app.activePage-profile > .mainScreen > .proProfilePage,
+  .app.activePage-profile > .mainScreen > .profilePage.proProfilePage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    overflow: visible !important;
+    padding: 0 0 24px !important;
+    touch-action: pan-y !important;
+  }
+
+  .app.activePage-profile > .bottomNav {
+    grid-row: 3 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: calc(100% - 14px) !important;
+    height: calc(var(--mb-v18-nav, 76px) - 6px) !important;
+    min-height: 0 !important;
+    margin: 0 7px 6px !important;
+    transform: none !important;
+    z-index: 20000 !important;
+  }
+
+  .app.activePage-profile > .bottomNav button:nth-child(3) {
+    transform: translateY(-8px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .app.activePage-profile {
+    grid-template-rows: var(--mb-v20-header, 62px) minmax(0, 1fr) var(--mb-v20-nav, 66px) !important;
+  }
+
+  .app.activePage-profile > .cleanBrokerHeader,
+  .app.activePage-profile > .topHeader,
+  .app.activePage-profile > .brokerTopHeader {
+    height: var(--mb-v20-header, 62px) !important;
+    min-height: var(--mb-v20-header, 62px) !important;
+  }
+
+  .app.activePage-profile > .bottomNav {
+    height: calc(var(--mb-v20-nav, 66px) - 4px) !important;
+    margin-bottom: 4px !important;
+  }
+
+  .app.activePage-profile > .mainScreen {
+    padding: 7px 7px 12px !important;
+  }
+}
