@@ -32874,3 +32874,315 @@ body,
     padding: 7px 7px 12px !important;
   }
 }
+
+/* =========================================================
+   METABINARY V35 — FINAL AI BOT LIBRARY POLISH
+   Visual-only Bots page refinements. Bot logic is unchanged.
+   ========================================================= */
+
+.vSeriesBotsPage .vSeriesBotIcon {
+  box-shadow: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.vSeriesBotsPage .vSeriesBotIcon.botIcon1,
+.vSeriesBotsPage .botIcon1.vSeriesBotIcon {
+  background: linear-gradient(145deg, #13b9ff 0%, #0876ff 58%, #3150ff 100%) !important;
+}
+
+.vSeriesBotsPage .vSeriesBotIcon.botIcon2,
+.vSeriesBotsPage .botIcon2.vSeriesBotIcon {
+  background: linear-gradient(145deg, #18d7c0 0%, #008fc9 55%, #175cff 100%) !important;
+}
+
+.vSeriesBotsPage .vSeriesBotIcon.botIcon3,
+.vSeriesBotsPage .botIcon3.vSeriesBotIcon {
+  background: linear-gradient(145deg, #9d67ff 0%, #6942e8 55%, #2d5dff 100%) !important;
+}
+
+.vSeriesBotsPage .vSeriesBotIcon.botIcon4,
+.vSeriesBotsPage .botIcon4.vSeriesBotIcon {
+  background: linear-gradient(145deg, #ffb02e 0%, #ff7a2f 52%, #e84c63 100%) !important;
+}
+
+.vSeriesBotsPage .vSeriesBotIcon.botIcon5,
+.vSeriesBotsPage .botIcon5.vSeriesBotIcon {
+  background: linear-gradient(145deg, #43df8d 0%, #08a987 50%, #1478c9 100%) !important;
+}
+
+.vSeriesBotsPage .botStatusPill.ready {
+  color: #aab6c8 !important;
+  background: rgba(145, 160, 181, 0.08) !important;
+  border-color: rgba(145, 160, 181, 0.24) !important;
+  box-shadow: none !important;
+}
+
+.vSeriesBotsPage .botStatusPill.ready i {
+  background: #91a0b5 !important;
+  box-shadow: none !important;
+}
+
+.vSeriesBotsPage .botStatusPill.running {
+  color: #6ff0bc !important;
+  background: rgba(0, 216, 128, 0.08) !important;
+  border-color: rgba(0, 216, 128, 0.28) !important;
+  box-shadow: none !important;
+}
+
+.vSeriesBotsPage .botStatusPill.running i {
+  background: #19d98c !important;
+  box-shadow: none !important;
+}
+
+/* Always keep ready actions MetaBinary blue, even after generic mobile rules. */
+.vSeriesBotsPage .botAction.vSeriesBotAction.ready,
+.vSeriesBotsPage .vSeriesBotAction.ready,
+.vSeriesBotsPage button.vSeriesBotAction.ready {
+  background: linear-gradient(135deg, #1388ff 0%, #075de8 100%) !important;
+  border: 1px solid rgba(83, 164, 255, 0.48) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.vSeriesBotsPage .botAction.vSeriesBotAction.running,
+.vSeriesBotsPage .vSeriesBotAction.running,
+.vSeriesBotsPage button.vSeriesBotAction.running {
+  background: linear-gradient(135deg, #12ad78 0%, #087853 100%) !important;
+  border: 1px solid rgba(76, 231, 173, 0.35) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.vSeriesBotsPage .vSeriesBotAction b {
+  font-size: 26px !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+}
+
+@media (max-width: 760px) {
+  .mainScreen:has(.vSeriesBotsPage) {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+  }
+
+  .vSeriesBotsPage,
+  .botsPage.vSeriesBotsPage {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    gap: 10px !important;
+    padding: 7px 8px calc(132px + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader {
+    min-height: 94px !important;
+    padding: 14px 16px !important;
+    gap: 10px !important;
+    border-radius: 17px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader small {
+    font-size: 9px !important;
+    letter-spacing: 1.5px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader h1 {
+    margin: 3px 0 4px !important;
+    font-size: 27px !important;
+    line-height: 1 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader p {
+    max-width: 78% !important;
+    font-size: 10.5px !important;
+    line-height: 1.35 !important;
+  }
+
+  .vSeriesBotsPage .botsHeaderStatus {
+    min-height: 35px !important;
+    padding: 0 11px !important;
+    margin-top: 3px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats,
+  .vSeriesBotsPage .botStats.vSeriesBotStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard {
+    min-height: 78px !important;
+    padding: 10px 12px !important;
+    gap: 4px !important;
+    border-radius: 14px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard > b,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard > b {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard strong,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard strong {
+    font-size: 19px !important;
+    line-height: 1 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard span,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard span {
+    font-size: 10px !important;
+    margin-top: 0 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotGrid,
+  .vSeriesBotsPage .botGrid.vSeriesBotGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCard,
+  .vSeriesBotsPage .botCard.vSeriesBotCard {
+    display: block !important;
+    min-height: 0 !important;
+    padding: 13px 14px 14px !important;
+    border-radius: 17px !important;
+    gap: 0 !important;
+    background:
+      radial-gradient(circle at 94% 3%, rgba(24, 119, 255, 0.09), transparent 31%),
+      linear-gradient(145deg, rgba(17, 33, 52, 0.98), rgba(7, 18, 31, 0.98)) !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCardHead {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotIcon,
+  .vSeriesBotsPage .botIcon.vSeriesBotIcon {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    border-radius: 14px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotIcon span {
+    font-size: 7px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotIcon strong {
+    font-size: 19px !important;
+  }
+
+  .vSeriesBotsPage .botStatusPill {
+    min-height: 34px !important;
+    padding: 0 11px !important;
+    font-size: 9px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCopy h2 {
+    margin: 0 0 3px !important;
+    font-size: 21px !important;
+    line-height: 1.1 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCopy p {
+    margin: 0 0 6px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCopy small {
+    display: -webkit-box !important;
+    min-height: 0 !important;
+    max-height: 34px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    font-size: 10.5px !important;
+    line-height: 1.45 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesMeta {
+    margin: 10px 0 !important;
+    padding: 9px 10px !important;
+    grid-template-columns: 1.15fr 0.78fr 0.78fr !important;
+    gap: 7px !important;
+    border-radius: 12px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesMeta span {
+    margin-bottom: 3px !important;
+    font-size: 8.5px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesMeta strong {
+    font-size: 10.5px !important;
+  }
+
+  .vSeriesBotsPage .botAction.vSeriesBotAction,
+  .vSeriesBotsPage .vSeriesBotAction {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 0 16px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.7px !important;
+  }
+
+  .floatingAiButton.aiPage-bots {
+    display: none !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .vSeriesBotsPage .vSeriesBotsHeader {
+    min-height: 90px !important;
+    padding: 12px 13px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader h1 {
+    font-size: 24px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader p {
+    max-width: 72% !important;
+    font-size: 9.5px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard {
+    min-height: 72px !important;
+    padding: 9px 10px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCard,
+  .vSeriesBotsPage .botCard.vSeriesBotCard {
+    padding: 12px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesMeta {
+    grid-template-columns: 1fr 0.72fr 0.78fr !important;
+  }
+}
