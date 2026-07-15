@@ -28290,4 +28290,206 @@ body,
     padding: 10px 12px !important;
     min-height: 56px !important;
   }
+
+  /* Slim timeframe bar */
+  .singleTimeframeBar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 4px !important;
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  }
+  .singleTimeframeBar .timeframeSummary,
+  .singleTimeframeBar .marketFeedMessage {
+    display: none !important;
+  }
+  .singleTimeframeBar .timeframeSelect {
+    height: 28px !important;
+    padding: 0 8px !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    font-size: 12px !important;
+  }
+  .singleTimeframeBar .timeframeSelect select {
+    font-size: 12px !important;
+  }
+
+  /* Compact buy/sell buttons */
+  .forexPage .buySellBox button,
+  .forexPage .buySellProBox button {
+    height: 64px !important;
+    min-height: 64px !important;
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+  }
+  .forexPage .buySellBox button b,
+  .forexPage .buySellProBox button b {
+    font-size: 16px !important;
+  }
+  .forexPage .buySellBox button strong,
+  .forexPage .buySellProBox button strong {
+    font-size: 13px !important;
+    margin-top: 2px !important;
+  }
+  .forexPage .buySellBox button svg,
+  .forexPage .buySellProBox button svg {
+    display: none !important;
+  }
+
+  /* Single-column order inputs grid */
+  .forexOrderCard .orderInputs {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .forexOrderCard .orderInput span {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #cbd5e1 !important;
+    margin-bottom: 5px !important;
+    display: block !important;
+  }
+  .forexOrderCard .orderInput select,
+  .forexOrderCard .orderInput > div {
+    height: 40px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+  .forexOrderCard .orderInput input {
+    font-size: 14px !important;
+    color: #fff !important;
+  }
+  .forexOrderCard .orderInput button {
+    width: 40px !important;
+    font-size: 18px !important;
+    color: #cbd5e1 !important;
+  }
 }
+
+/* ==========================================================================
+   Draggable Trade Position Overlay Lines on Forex Chart
+   ========================================================================== */
+.realMarketChartPanel {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.chartPositionLine {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 2px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  z-index: 100 !important;
+  pointer-events: none !important;
+}
+
+.chartPositionLine::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 1px !important;
+  border-top: 1px dashed #fff !important;
+  opacity: 0.65 !important;
+}
+
+/* Colors for active lines */
+.chartPositionLine.entry::before {
+  border-top: 1px solid #008cff !important;
+  opacity: 0.8 !important;
+}
+.chartPositionLine.sl::before {
+  border-top-color: #ff3d00 !important;
+}
+.chartPositionLine.tp::before {
+  border-top-color: #00c853 !important;
+}
+
+.chartPositionLine span,
+.chartPositionLine b,
+.chartPositionLine button {
+  pointer-events: auto !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 3px 6px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+  white-space: nowrap !important;
+}
+
+.chartPositionLine span {
+  background: #008cff !important;
+  color: #fff !important;
+  margin-left: 12px !important;
+}
+
+.chartPositionLine.sl span {
+  background: #ff3d00 !important;
+}
+
+.chartPositionLine.tp span {
+  background: #00c853 !important;
+}
+
+.chartPositionLine b {
+  background: #1e293b !important;
+  color: #fff !important;
+  margin-left: auto !important;
+  margin-right: 8px !important;
+}
+
+.chartPositionLine b.green {
+  color: #00c853 !important;
+  border-left: 3px solid #00c853 !important;
+}
+
+.chartPositionLine b.red {
+  color: #ff3d00 !important;
+  border-left: 3px solid #ff3d00 !important;
+}
+
+.chartPositionLine button {
+  background: #ca1735 !important;
+  color: #fff !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  margin-right: 12px !important;
+}
+
+.chartPositionLine button:hover {
+  background: #ff2a4b !important;
+}
+
+/* Draggable handle icon */
+.chartPositionLine.draggable {
+  cursor: ns-resize !important;
+  pointer-events: auto !important;
+}
+
+.chartPositionLine .dragHandle {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  background: #1e293b !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 12px !important;
+  cursor: ns-resize !important;
+  margin-right: 12px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+}
+
+.chartPositionLine .dragHandle:hover {
+  background: #334155 !important;
+}
+

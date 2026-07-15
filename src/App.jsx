@@ -3633,6 +3633,8 @@ function TradingApp() {
             setActivePage={setActivePage}
             openDeposit={() => setDepositOpen(true)}
             preparedSetup={aiForexSetup}
+            updatePosition={updatePosition}
+            closePosition={closePosition}
           />
         )}
 
@@ -4577,7 +4579,52 @@ function ForexPage({
   setActivePage,
   openDeposit,
   preparedSetup,
+  updatePosition,
+  closePosition,
 }) {
+  const dragRef = useRef({ type: null, startY: 0, initialVal: 0, openPrice: 0, posId: "" });
+
+  function handleStartDrag(event, type, initialVal, openPrice, posId) {
+    event.preventDefault();
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    dragRef.current = {
+      type,
+      startY: clientY,
+      initialVal: initialVal || openPrice,
+      openPrice,
+      posId
+    };
+    
+    const handleMove = (moveEvent) => {
+      if (!dragRef.current.type) return;
+      const currentY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+      const deltaY = currentY - dragRef.current.startY;
+      
+      const scaleFactor = dragRef.current.openPrice * 0.0001; 
+      const priceDelta = (dragRef.current.type === "sl" ? -1 : 1) * deltaY * scaleFactor;
+      let newPrice = Number((dragRef.current.initialVal + priceDelta).toFixed(market.decimals || 4));
+      
+      newPrice = Math.max(0, newPrice);
+      
+      updatePosition(dragRef.current.posId, {
+        [dragRef.current.type === "sl" ? "stopLoss" : "takeProfit"]: newPrice
+      });
+    };
+    
+    const handleEnd = () => {
+      dragRef.current = { type: null };
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleEnd);
+      window.removeEventListener("touchmove", handleMove);
+      window.removeEventListener("touchend", handleEnd);
+    };
+    
+    window.addEventListener("mousemove", handleMove, { passive: true });
+    window.addEventListener("mouseup", handleEnd, { passive: true });
+    window.addEventListener("touchmove", handleMove, { passive: true });
+    window.addEventListener("touchend", handleEnd, { passive: true });
+  }
+
   const minimumVolume = market?.category === "Metals" || market?.category === "Crypto" ? 0.001 : 0.01;
   const volumeStep = minimumVolume;
   const volumeDecimals = minimumVolume < 0.01 ? 3 : 2;
@@ -4814,6 +4861,53 @@ function ForexPage({
           timeframe={timeframe}
           marketOpen={marketOpen}
         />
+
+        {visiblePositions.map((pos) => {
+          const currentSlDiff = pos.stopLoss > 0
+            ? (pos.side === "Buy" ? pos.openPrice - pos.stopLoss : pos.stopLoss - pos.openPrice)
+            : 0;
+          const currentTpDiff = pos.takeProfit > 0
+            ? (pos.side === "Buy" ? pos.takeProfit - pos.openPrice : pos.openPrice - pos.takeProfit)
+            : 0;
+
+          const slPercent = 50 + (pos.side === "Buy" ? 1 : -1) * (pos.stopLoss > 0 ? Math.min(35, (currentSlDiff / (pos.openPrice * 0.01)) * 15) : 15);
+          const tpPercent = 50 + (pos.side === "Buy" ? -1 : 1) * (pos.takeProfit > 0 ? Math.min(35, (currentTpDiff / (pos.openPrice * 0.01)) * 15) : 15);
+
+          return (
+            <React.Fragment key={pos.id}>
+              {/* Entry Price Line with live numbers showing P/L */}
+              <div className="chartPositionLine entry" style={{ top: "50%" }}>
+                <span>{pos.side} {pos.volume} lot @ {pos.openPrice}</span>
+                <b className={Number(pos.pl || 0) >= 0 ? "green" : "red"}>
+                  {Number(pos.pl || 0) >= 0 ? "+" : ""}{money(pos.pl)} USD
+                </b>
+                <button type="button" onClick={() => closePosition(pos.id)}>Close</button>
+              </div>
+
+              {/* Stop Loss (SL) Draggable Line */}
+              <div
+                className="chartPositionLine sl draggable"
+                style={{ top: `${slPercent}%` }}
+                onMouseDown={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
+                onTouchStart={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
+              >
+                <span>SL: {pos.stopLoss > 0 ? pos.stopLoss.toFixed(market.decimals || 2) : "Drag to set SL"}</span>
+                <div className="dragHandle">⇅</div>
+              </div>
+
+              {/* Take Profit (TP) Draggable Line */}
+              <div
+                className="chartPositionLine tp draggable"
+                style={{ top: `${tpPercent}%` }}
+                onMouseDown={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
+                onTouchStart={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
+              >
+                <span>TP: {pos.takeProfit > 0 ? pos.takeProfit.toFixed(market.decimals || 2) : "Drag to set TP"}</span>
+                <div className="dragHandle">⇅</div>
+              </div>
+            </React.Fragment>
+          );
+        })}
       </section>
 
       <section className="proOrderPanel forexOrderCard marketOrderStack">
