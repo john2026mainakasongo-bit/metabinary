@@ -33186,3 +33186,292 @@ body,
     grid-template-columns: 1fr 0.72fr 0.78fr !important;
   }
 }
+
+
+/* ========================================================================== 
+   METABINARY V36 — DEFINITIVE BOTS SCROLL + COMPACT STATUS STRIP
+   Bots uses a bounded header/content/nav grid on phones and tablets.
+   Only the middle content area scrolls. The four overview cards collapse into
+   one slim four-column strip so the bot library receives the available space.
+   ========================================================================== */
+@media (max-width: 899px) {
+  .app.activePage-bots {
+    width: 100% !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: 0 !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: var(--mb-v18-header, 72px) minmax(0, 1fr) var(--mb-v18-nav, 76px) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .app.activePage-bots > .cleanBrokerHeader,
+  .app.activePage-bots > .topHeader,
+  .app.activePage-bots > .brokerTopHeader {
+    grid-row: 1 !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: var(--mb-v18-header, 72px) !important;
+    min-height: var(--mb-v18-header, 72px) !important;
+  }
+
+  .app.activePage-bots > .mainScreen {
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: block !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    padding: 7px !important;
+    scroll-behavior: auto !important;
+    scrollbar-width: thin !important;
+  }
+
+  .app.activePage-bots > .mainScreen > .vSeriesBotsPage,
+  .app.activePage-bots > .mainScreen > .botsPage.vSeriesBotsPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: max-content !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    padding: 0 0 18px !important;
+    touch-action: pan-y !important;
+  }
+
+  .app.activePage-bots > .bottomNav {
+    grid-row: 3 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: calc(100% - 14px) !important;
+    height: calc(var(--mb-v18-nav, 76px) - 6px) !important;
+    min-height: 0 !important;
+    margin: 0 7px 6px !important;
+    transform: none !important;
+    z-index: 20000 !important;
+  }
+
+  .app.activePage-bots > .bottomNav button:nth-child(3) {
+    transform: translateY(-8px) !important;
+  }
+
+  /* Smaller hero so the library starts higher on screen. */
+  .vSeriesBotsPage .vSeriesBotsHeader,
+  .vSeriesBotsPage .finalBotsHeader.vSeriesBotsHeader {
+    min-height: 82px !important;
+    padding: 12px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader h1 {
+    margin: 3px 0 4px !important;
+    font-size: 24px !important;
+    line-height: 1.02 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader p {
+    max-width: 76% !important;
+    font-size: 9.5px !important;
+    line-height: 1.3 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotsHeader small {
+    font-size: 8px !important;
+    letter-spacing: 1.35px !important;
+  }
+
+  .vSeriesBotsPage .botsHeaderStatus {
+    min-height: 31px !important;
+    padding: 0 10px !important;
+    font-size: 9px !important;
+  }
+
+  /* One compact strip instead of four tall 2×2 cards. */
+  .vSeriesBotsPage .vSeriesBotStats,
+  .vSeriesBotsPage .botStats.vSeriesBotStats,
+  .vSeriesBotsPage .finalBotStats.vSeriesBotStats {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 5px !important;
+    border-radius: 14px !important;
+    background: rgba(10, 24, 42, 0.58) !important;
+    border: 1px solid rgba(88, 151, 235, 0.18) !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard,
+  .vSeriesBotsPage .finalBotStats.vSeriesBotStats .statCard {
+    display: grid !important;
+    grid-template-columns: 22px minmax(0, 1fr) !important;
+    grid-template-rows: 1fr !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    column-gap: 5px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 52px !important;
+    height: 52px !important;
+    padding: 6px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.035) !important;
+    border: 1px solid rgba(255, 255, 255, 0.055) !important;
+    box-shadow: none !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard > b,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard > b {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    border-radius: 7px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard > div,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard > div {
+    min-width: 0 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard strong,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard strong {
+    display: block !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard span,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard span {
+    display: block !important;
+    margin-top: 3px !important;
+    font-size: 7.5px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard svg,
+  .vSeriesBotsPage .vSeriesBotStats .sparkLineContainer,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard svg,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .sparkLineContainer {
+    display: none !important;
+  }
+
+  /* Slightly tighter cards without changing any bot logic. */
+  .vSeriesBotsPage .vSeriesBotGrid,
+  .vSeriesBotsPage .botGrid.vSeriesBotGrid {
+    gap: 8px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCard,
+  .vSeriesBotsPage .botCard.vSeriesBotCard {
+    padding: 11px 12px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCardHead {
+    margin-bottom: 8px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotIcon,
+  .vSeriesBotsPage .botIcon.vSeriesBotIcon {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    border-radius: 13px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCopy h2 {
+    font-size: 20px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCopy p {
+    margin-bottom: 4px !important;
+    font-size: 11.5px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotCopy small {
+    max-height: 18px !important;
+    -webkit-line-clamp: 1 !important;
+    font-size: 9.5px !important;
+    line-height: 1.35 !important;
+  }
+
+  .vSeriesBotsPage .vSeriesMeta {
+    margin: 8px 0 !important;
+    padding: 8px 9px !important;
+  }
+
+  .vSeriesBotsPage .botAction.vSeriesBotAction,
+  .vSeriesBotsPage .vSeriesBotAction {
+    min-height: 43px !important;
+    height: 43px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .app.activePage-bots {
+    grid-template-rows: var(--mb-v20-header, 62px) minmax(0, 1fr) var(--mb-v20-nav, 66px) !important;
+  }
+
+  .app.activePage-bots > .cleanBrokerHeader,
+  .app.activePage-bots > .topHeader,
+  .app.activePage-bots > .brokerTopHeader {
+    height: var(--mb-v20-header, 62px) !important;
+    min-height: var(--mb-v20-header, 62px) !important;
+  }
+
+  .app.activePage-bots > .mainScreen {
+    padding: 6px !important;
+  }
+
+  .app.activePage-bots > .bottomNav {
+    height: calc(var(--mb-v20-nav, 66px) - 4px) !important;
+    margin-bottom: 4px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .vSeriesBotsPage .vSeriesBotStats .statCard,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard {
+    grid-template-columns: 1fr !important;
+    place-items: center !important;
+    text-align: center !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    padding: 5px 3px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard > b,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard > b {
+    display: none !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard strong,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard strong {
+    font-size: 14px !important;
+  }
+
+  .vSeriesBotsPage .vSeriesBotStats .statCard span,
+  .vSeriesBotsPage .botStats.vSeriesBotStats .statCard span {
+    font-size: 7px !important;
+  }
+}

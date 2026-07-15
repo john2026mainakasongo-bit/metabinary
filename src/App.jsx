@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-profile-clean-v32-2026-07-16";
+const FRONTEND_BUILD = "metabinary-bots-scroll-compact-v36-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -5804,7 +5804,7 @@ function BotsPage({ bots, configureBot, selectedBot, botRunning }) {
           return (
             <article className={`botCard finalBotCard vSeriesBotCard ${isRunning ? "botRunning" : "botReady"}`} key={bot.id}>
               <div className="finalBotCardHead vSeriesBotCardHead">
-                <div className={`botIcon botIcon${(index % 4) + 1} vSeriesBotIcon`}>
+                <div className={`botIcon botIcon${(index % 5) + 1} vSeriesBotIcon`}>
                   <span>AI</span>
                   <strong>{bot.code}</strong>
                 </div>
