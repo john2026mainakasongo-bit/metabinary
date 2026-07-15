@@ -27898,4 +27898,295 @@ body,
     font-weight: 800 !important;
     color: #94a3b8 !important;
   }
+
+  /* Bots Page Overrides: stack cards and make text legible */
+  .botsPage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 10px !important;
+  }
+  .botsPage .botStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .botsPage .botStats .statCard {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 16px !important;
+    gap: 8px !important;
+    min-height: 110px !important;
+    border-radius: 14px !important;
+    text-align: left !important;
+    background: var(--mb-panel, #16202e) !important;
+  }
+  .botsPage .botStats .statCard b {
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+  .botsPage .botStats .statCard strong {
+    font-size: 20px !important;
+    color: #fff !important;
+    line-height: 1.2 !important;
+  }
+  .botsPage .botStats .statCard span {
+    font-size: 12px !important;
+    color: var(--mb-muted) !important;
+    margin-top: 2px !important;
+  }
+  .botsPage .botStats .statCard .sparkLineContainer,
+  .botsPage .botStats .statCard svg {
+    display: none !important;
+  }
+  .botsPage .botGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  .botsPage .botCard {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 16px !important;
+    border-radius: 14px !important;
+    background: var(--mb-panel, #16202e) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  .botsPage .botIcon {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    font-size: 18px !important;
+  }
+  .botsPage .botCardCopy h2 {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+  }
+  .botsPage .botCardCopy p {
+    font-size: 13px !important;
+    color: var(--mb-blue, #ff444f) !important;
+    margin: 4px 0 !important;
+  }
+  .botsPage .botCardCopy small {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    color: var(--mb-muted) !important;
+    display: block !important;
+  }
+  .botsPage .botMetrics {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    background: rgba(0, 0, 0, 0.15) !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+  }
+  .botsPage .botMetrics p {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-align: center !important;
+  }
+  .botsPage .botMetrics span {
+    font-size: 11px !important;
+    color: var(--mb-muted) !important;
+  }
+  .botsPage .botMetrics strong {
+    font-size: 12px !important;
+    color: #fff !important;
+  }
+  .botsPage .botAction {
+    height: 40px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    background: var(--mb-blue, #ff444f) !important;
+    color: #fff !important;
+  }
+
+  /* Bot Setup Page Overrides */
+  .botSetupPage {
+    padding: 10px !important;
+  }
+  .botSetupGrid {
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+  .botSetupGrid label > span {
+    font-size: 13px !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+  }
+  .botSetupGrid input,
+  .botSetupGrid select,
+  .botToggleField button {
+    height: 38px !important;
+    font-size: 13px !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+  }
+  .botRiskPreview {
+    height: 48px !important;
+    padding: 8px !important;
+  }
+  .botRiskPreview span {
+    font-size: 12px !important;
+  }
+  .botRiskPreview strong {
+    font-size: 13px !important;
+  }
+
+  /* Bot Live Tracking Page Overrides */
+  .botLivePage {
+    padding: 10px !important;
+  }
+  .botLiveMetrics {
+    height: auto !important;
+    min-height: 72px !important;
+    padding: 10px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-radius: 10px !important;
+  }
+  .botLiveMetrics div {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    text-align: center !important;
+    flex: 1 !important;
+  }
+  .botLiveMetrics span {
+    font-size: 12px !important;
+    color: var(--mb-muted) !important;
+  }
+  .botLiveMetrics strong {
+    font-size: 16px !important;
+    color: #fff !important;
+  }
+  .finalBotLivePage .runnerTabs button {
+    font-size: 13px !important;
+    height: 36px !important;
+  }
+  .finalBotLivePage .runnerList p {
+    font-size: 13px !important;
+    min-height: 48px !important;
+    padding: 8px 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  .finalBotLivePage .runnerList p small {
+    font-size: 11px !important;
+    color: var(--mb-muted) !important;
+    margin-top: 3px !important;
+    display: block !important;
+  }
+  .finalBotLivePage .runnerList p b {
+    font-size: 13px !important;
+  }
+
+  /* Profile Page Overrides: stack list and style cards */
+  .proProfilePage {
+    padding: 10px !important;
+  }
+  .proProfilePage .proProfileStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .proProfilePage .profileBalanceCard {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 16px !important;
+    gap: 8px !important;
+    min-height: 110px !important;
+    border-radius: 14px !important;
+    text-align: left !important;
+    background: var(--mb-panel-2, #1b2637) !important;
+  }
+  .proProfilePage .profileBalanceIcon {
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+  .proProfilePage .profileBalanceCard strong {
+    font-size: 18px !important;
+    color: #fff !important;
+    line-height: 1.2 !important;
+    margin-top: 0 !important;
+  }
+  .proProfilePage .profileBalanceCard span {
+    font-size: 11px !important;
+    color: var(--mb-muted) !important;
+  }
+  .proProfilePage .profileCardsGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .proProfilePage .profileActionCard {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    text-align: left !important;
+    background: var(--mb-panel, #16202e) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  .proProfilePage .profileActionIcon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  .proProfilePage .profileActionCard h3 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+  }
+  .proProfilePage .profileActionCard p {
+    font-size: 12px !important;
+    color: var(--mb-muted) !important;
+    margin-top: 3px !important;
+  }
+  .proProfilePage .profileActionCard span {
+    display: block !important;
+    margin-top: 6px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: var(--mb-blue, #ff444f) !important;
+  }
+
+  /* Settings Page Tab Navigation Bar Overrides */
+  .settingsPage {
+    padding: 10px !important;
+  }
+  .settingsSectionNav strong {
+    font-size: 13px !important;
+  }
+  .settingsSectionNav button {
+    min-height: 48px !important;
+    padding: 10px 4px !important;
+  }
 }
