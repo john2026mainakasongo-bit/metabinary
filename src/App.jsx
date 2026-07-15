@@ -3609,9 +3609,7 @@ function TradingApp() {
           <MarketsPage
             marketStates={binaryMarketStates}
             volatilityOptions={VOLATILITY_OPTIONS}
-            marketFeed={marketFeed}
             setBinaryMarketId={setBinaryMarketId}
-            setMarketSymbol={setMarketSymbol}
             setActivePage={setActivePage}
           />
         )}
@@ -4206,14 +4204,14 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
         <div className="livePairCard">
           <div className="pairHead">
-            <strong>🇺🇸 EUR/USD</strong>
+            <strong>🤖 Volatility 100 Index</strong>
             <span>● LIVE</span>
           </div>
 
-          <h2>{livePrice.toFixed(5)}</h2>
-          <p>+0.00254 (+0.23%) ▲</p>
+          <h2>{(livePrice * 800).toFixed(2)}</h2>
+          <p>+2.84 (+0.31%) ▲</p>
 
-          <LineMini prices={prices} />
+          <LineMini prices={prices.map(p => p * 800)} />
 
           <div className="pairTimes">
             <button className="active">1M</button>
@@ -4238,10 +4236,10 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
       </section>
 
       <section className="marketTicker">
-        <TickerItem icon="🇪🇺" pair="EUR/USD" price="1.08564" change="+0.23%" good />
-        <TickerItem icon="🇬🇧" pair="GBP/USD" price="1.26543" change="-0.11%" />
-        <TickerItem icon="🥇" pair="XAU/USD" price="2,345.67" change="+0.24%" good />
-        <TickerItem icon="₿" pair="BTC/USD" price="63,245.12" change="+0.24%" good />
+        <TickerItem icon="🤖" pair="Volatility 10 Index" price="254.12" change="+0.18%" good />
+        <TickerItem icon="🤖" pair="Volatility 25 Index" price="184.23" change="-0.09%" />
+        <TickerItem icon="🤖" pair="Volatility 50 Index" price="347.56" change="+0.22%" good />
+        <TickerItem icon="🤖" pair="Volatility 100 Index" price="842.10" change="+0.31%" good />
       </section>
 
       <section className="homeLowerGrid">
@@ -4283,14 +4281,14 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
         <div className="topMarkets">
           <h3>
-            Top Markets <button onClick={() => setActivePage("forex")}>View All</button>
+            Top Markets <button onClick={() => setActivePage("markets")}>View All</button>
           </h3>
 
           {[
-            ["🇪🇺", "EUR/USD", "1.08564", "+0.23%", true],
-            ["🇬🇧", "GBP/USD", "1.26543", "-0.11%", false],
-            ["🥇", "XAU/USD", "2,345.67", "+0.24%", true],
-            ["₿", "BTC/USD", "63,245.12", "+0.24%", true],
+            ["🤖", "Volatility 10 Index", "254.12", "+0.18%", true],
+            ["🤖", "Volatility 25 Index", "184.23", "-0.09%", false],
+            ["🤖", "Volatility 50 Index", "347.56", "+0.22%", true],
+            ["🤖", "Volatility 100 Index", "842.10", "+0.31%", true],
           ].map(([icon, pair, price, change, good]) => (
             <p key={pair}>
               <span>
@@ -4454,110 +4452,54 @@ function MiniSpark({ type = "blue" }) {
 function MarketsPage({
   marketStates,
   volatilityOptions,
-  marketFeed,
   setBinaryMarketId,
-  setMarketSymbol,
   setActivePage,
 }) {
-  const [category, setCategory] = useState("volatility");
-
-  function openForex(market) {
-    setMarketSymbol(market.symbol);
-    setActivePage("forex");
-  }
-
   return (
     <div className="page marketsPage professionalMarketsPage">
       <header className="marketsPageHero">
         <div>
           <small>GLOBAL TRADING HUB</small>
           <h1>Markets</h1>
-          <p>Select a volatility index for binary options or a currency pair for Forex trading.</p>
+          <p>Select a Volatility Index to start trading binary options contracts.</p>
         </div>
         <span>Live market feeds</span>
       </header>
 
-      <div className="marketsCategoryTabs">
-        <button
-          type="button"
-          className={category === "volatility" ? "active" : ""}
-          onClick={() => setCategory("volatility")}
-        >
-          🤖 Volatility Indices
-        </button>
-        <button
-          type="button"
-          className={category === "forex" ? "active" : ""}
-          onClick={() => setCategory("forex")}
-        >
-          💱 Forex, Metals & Crypto
-        </button>
-      </div>
-
-      {category === "volatility" ? (
-        <section className="marketCategoryPanel">
-          <header>
-            <div><small>SYNTHETIC MARKETS</small><h2>Volatility Indices</h2></div>
-            <span>{volatilityOptions.length} markets</span>
-          </header>
-          <div className="volatilityMarketGrid">
-            {volatilityOptions.map((market) => {
-              const state = marketStates?.[market.id] || {};
-              const currentPrice = state.price || (state.prices ? state.prices[state.prices.length - 1] : market.start * market.scale) || 0;
-              const prevPrice = state.prices && state.prices.length > 1 ? state.prices[state.prices.length - 2] : currentPrice;
-              const isUp = currentPrice >= prevPrice;
-              return (
-                <button
-                  key={market.id}
-                  type="button"
-                  className="volatilityMarketCard"
-                  onClick={() => {
-                    setBinaryMarketId(market.id);
-                    setActivePage("trade");
-                  }}
-                >
-                  <span className="marketCardBadge">{market.short}</span>
-                  <div>
-                    <strong>{market.label}</strong>
-                    <small>{market.description} · ● LIVE</small>
-                  </div>
-                  <b>{currentPrice.toFixed(2)}</b>
-                  <em className={isUp ? "green" : "red"}>{isUp ? "▲" : "▼"}</em>
-                  <i>›</i>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      ) : (
-        <section className="marketCategoryPanel">
-          <header>
-            <div><small>GLOBAL CFDS</small><h2>Forex, Metals & Crypto</h2></div>
-            <span>{MARKET_OPTIONS.length} markets</span>
-          </header>
-          <div className="forexMarketGrid">
-            {MARKET_OPTIONS.map((market) => {
-              const feed = marketFeed?.[market.symbol] || {};
-              return (
-                <button
-                  key={market.symbol}
-                  type="button"
-                  className="forexMarketCard"
-                  onClick={() => openForex(market)}
-                >
-                  <span>{market.category === "Crypto" ? "₿" : market.category === "Metals" ? "◆" : "FX"}</span>
-                  <div>
-                    <strong>{market.label}</strong>
-                    <small>{market.symbol} · {feed.isOpen === false ? "CLOSED" : "OPEN"}</small>
-                  </div>
-                  <b>{formatMarketPrice(feed.price || market.defaultPrice, market)}</b>
-                  <i>›</i>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
+      <section className="marketCategoryPanel">
+        <header>
+          <div><small>SYNTHETIC MARKETS</small><h2>Volatility Indices</h2></div>
+          <span>{volatilityOptions.length} markets</span>
+        </header>
+        <div className="volatilityMarketGrid">
+          {volatilityOptions.map((market) => {
+            const state = marketStates?.[market.id] || {};
+            const currentPrice = state.price || (state.prices ? state.prices[state.prices.length - 1] : market.start * market.scale) || 0;
+            const prevPrice = state.prices && state.prices.length > 1 ? state.prices[state.prices.length - 2] : currentPrice;
+            const isUp = currentPrice >= prevPrice;
+            return (
+              <button
+                key={market.id}
+                type="button"
+                className="volatilityMarketCard"
+                onClick={() => {
+                  setBinaryMarketId(market.id);
+                  setActivePage("trade");
+                }}
+              >
+                <span className="marketCardBadge">{market.short}</span>
+                <div>
+                  <strong>{market.label}</strong>
+                  <small>{market.description} · ● LIVE</small>
+                </div>
+                <b>{currentPrice.toFixed(2)}</b>
+                <em className={isUp ? "green" : "red"}>{isUp ? "▲" : "▼"}</em>
+                <i>›</i>
+              </button>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }
