@@ -28869,12 +28869,9 @@ body,
     color: #fff !important;
   }
 
-  /* Triangle cursor pointing up under active cell digits */
-  .finalBinaryTradePage .mbDigitCursorV7 {
+  /* Single smooth sliding active tick cursor pointer under active digits */
+  .finalBinaryTradePage .singleDigitCursorV7 {
     position: absolute !important;
-    left: 50% !important;
-    bottom: -15px !important;
-    top: auto !important;
     z-index: 10 !important;
     width: 0 !important;
     height: 0 !important;
@@ -28884,12 +28881,73 @@ body,
     border-top: 0 !important;
     background: transparent !important;
     filter: drop-shadow(0 -3px 6px rgba(255, 68, 79, 0.6)) !important;
-    opacity: 0 !important;
-    transform: translateX(-50%) !important;
-    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    pointer-events: none !important;
+    
+    /* Dynamic positions mapping */
+    left: calc(var(--active-col) * 20% + 10%) !important;
+    top: calc(var(--active-row) * 50% + 50%) !important;
+    transform: translate(-50%, 6px) !important;
+    transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1), top 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
   }
-  .finalBinaryTradePage .mbDigitCurrentV7 .mbDigitCursorV7 {
-    opacity: 1 !important;
+
+  /* Landing pulse keyframes */
+  @keyframes digitPulse {
+    0% {
+      transform: scale(1) !important;
+      filter: brightness(1.2) !important;
+    }
+    30% {
+      transform: scale(1.15) !important;
+      filter: brightness(1.5) !important;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4) !important;
+    }
+    100% {
+      transform: scale(1) !important;
+      filter: brightness(1) !important;
+    }
+  }
+
+  /* Visual highlights when a new tick lands */
+  .finalBinaryTradePage .mbDigitCellV7.mbDigitCurrentV7 {
+    animation: digitPulse 0.4s ease-out !important;
+    border-color: #fff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  /* Highest & Lowest statistics neon glowing outer highlights */
+  .finalBinaryTradePage .mbDigitHighestV7 {
+    box-shadow: 0 0 12px #00e5ff !important;
+    border: 2px solid #00e5ff !important;
+  }
+  .finalBinaryTradePage .mbDigitHighestV7 .mbDigitRingV7 {
+    background: #00e5ff !important;
+  }
+
+  .finalBinaryTradePage .mbDigitLowestV7 {
+    box-shadow: 0 0 12px #ff3d00 !important;
+    border: 2px solid #ff3d00 !important;
+  }
+  .finalBinaryTradePage .mbDigitLowestV7 .mbDigitRingV7 {
+    background: #ff3d00 !important;
+  }
+
+  /* Trade settlement landing highlights (win/loss overlays) */
+  .finalBinaryTradePage .mbDigitResultWinV7 {
+    box-shadow: 0 0 16px #00c853 !important;
+    border: 2px solid #00c853 !important;
+  }
+  .finalBinaryTradePage .mbDigitResultWinV7 .mbDigitCoreV7 {
+    background: #00c853 !important;
+    color: #fff !important;
+  }
+
+  .finalBinaryTradePage .mbDigitResultLossV7 {
+    box-shadow: 0 0 16px #ff3d00 !important;
+    border: 2px solid #ff3d00 !important;
+  }
+  .finalBinaryTradePage .mbDigitResultLossV7 .mbDigitCoreV7 {
+    background: #ff3d00 !important;
+    color: #fff !important;
   }
 
   /* Profile Page Mobile Typography Adjustments (No microscopic text) */

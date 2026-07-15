@@ -696,9 +696,16 @@ function makeInitialDigitStats(seed = 0) {
 
 function createBinaryMarketState(market, index = 0) {
   const start = Number(market?.start || 1.2) + Number(market?.step || 0.0002) * (index + 1) * 5;
+  const initialDigits = Array.from({ length: 100 }, () => Math.floor(Math.random() * 10));
+  const counts = Array(10).fill(0);
+  initialDigits.forEach(d => counts[d]++);
+  const total = initialDigits.length;
+  const initialStats = counts.map(count => Number(((count / total) * 100).toFixed(1)));
+
   return {
     prices: makePrices(start),
-    digitStats: makeInitialDigitStats(index),
+    recentDigits: initialDigits,
+    digitStats: initialStats,
     lastDigit: (index * 3 + 2) % 10,
     updatedAt: Date.now() - index * 1000,
   };
@@ -1400,12 +1407,17 @@ function TradingApp() {
             ? Number(current.lastDigit || 0)
             : Math.floor(Math.random() * 10);
 
+          const nextRecent = [...(current.recentDigits || Array.from({ length: 100 }, () => Math.floor(Math.random() * 10))).slice(-99), nextDigit];
+          const counts = Array(10).fill(0);
+          nextRecent.forEach(d => counts[d]++);
+          const total = nextRecent.length;
+          const nextStats = counts.map(count => Number(((count / total) * 100).toFixed(1)));
+
           nextStates[market.id] = {
             ...current,
             prices: [...oldPrices.slice(-119), nextPrice],
-            digitStats: serverControlsThisMarket
-              ? current.digitStats
-              : driftDigitStats(current.digitStats || makeInitialDigitStats(index)),
+            recentDigits: nextRecent,
+            digitStats: nextStats,
             lastDigit: nextDigit,
             updatedAt: now,
           };
@@ -1440,17 +1452,28 @@ function TradingApp() {
     const showTick = (digit, remainingTicks, tickResult = {}) => {
       const tradeMarketId = openTrade.marketId || binaryMarketId;
       const nextPrice = Number(tickResult.currentPrice || tickResult.trade?.currentPrice || 0);
-      updateBinaryMarketState(tradeMarketId, (current) => ({
-        ...(Number.isInteger(digit) && digit >= 0 && digit <= 9
-          ? {
-              lastDigit: digit,
-              digitStats: driftDigitStats(current.digitStats || makeInitialDigitStats()),
-            }
-          : {}),
-        ...(Number.isFinite(nextPrice) && nextPrice > 0
-          ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
-          : {}),
-      }));
+      updateBinaryMarketState(tradeMarketId, (current) => {
+        let statsUpdate = {};
+        if (Number.isInteger(digit) && digit >= 0 && digit <= 9) {
+          const nextRecent = [...(current.recentDigits || Array.from({ length: 100 }, () => Math.floor(Math.random() * 10))).slice(-99), digit];
+          const counts = Array(10).fill(0);
+          nextRecent.forEach(d => counts[d]++);
+          const total = nextRecent.length;
+          const nextStats = counts.map(count => Number(((count / total) * 100).toFixed(1)));
+          statsUpdate = {
+            lastDigit: digit,
+            recentDigits: nextRecent,
+            digitStats: nextStats
+          };
+        }
+        return {
+          ...current,
+          ...statsUpdate,
+          ...(Number.isFinite(nextPrice) && nextPrice > 0
+            ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
+            : {}),
+        };
+      });
       if (tradeMarketId === binaryMarketId && Number.isInteger(digit)) lastDigitRef.current = digit;
 
       setActiveBinaryTrade((current) =>
@@ -5516,29 +5539,33 @@ function TradePage({
       </section>
 
       <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
-        <div className="proChartTitle finalBinaryChartTitle">
-          <div className="binarySelectedMarketMini"><span>{binaryMarket?.short || "V100 1s"}</span><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></div>
-          <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
-          <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
-          <button className="binaryFullscreenButton" type="button">⛶</button>
-        </div>
+        {!digitMode && (
+          <>
+            <div className="proChartTitle finalBinaryChartTitle">
+              <div className="binarySelectedMarketMini"><span>{binaryMarket?.short || "V100 1s"}</span><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></div>
+              <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
+              <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
+              <button className="binaryFullscreenButton" type="button">⛶</button>
+            </div>
 
-        <div className="proChartArea finalBinaryChartArea">
-          <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
-          <div className="proChartCanvas">
-            <LineChart
-              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
-              currentPriceText={indexValue.toFixed(2)}
-            />
-            <div className="worldMapGlow"></div>
-            <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
-            {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
-            {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
-            {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
-          </div>
-        </div>
+            <div className="proChartArea finalBinaryChartArea">
+              <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
+              <div className="proChartCanvas">
+                <LineChart
+                  data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+                  currentPriceText={indexValue.toFixed(2)}
+                />
+                <div className="worldMapGlow"></div>
+                <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
+                {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
+                {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
+                {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
+              </div>
+            </div>
 
-        <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
+            <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
+          </>
+        )}
 
         {!digitMode && activeBinaryTrade && (
           <div className={`priceContractLiveLine ${activePriceWinning ? "winning" : "losing"}`} role="status">
@@ -5552,7 +5579,7 @@ function TradePage({
 
         {digitMode ? (
           <div className={`mbDigitBoardV7 ${activeBinaryTrade ? "isTrading" : ""}`}>
-            <div className="mbDigitGridV7" aria-label="Digit percentages">
+            <div className="mbDigitGridV7" aria-label="Digit percentages" style={{ "--active-col": lastDigit % 5, "--active-row": Math.floor(lastDigit / 5) }}>
               {digitStats.map((percent, digit) => {
                 const isHighest = Math.abs(percent - highestPercent) < 0.01;
                 const isLowest = Math.abs(percent - lowestPercent) < 0.01;
@@ -5604,10 +5631,11 @@ function TradePage({
                       <strong>{digit}</strong>
                       <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
                     </span>
-                    <i className="mbDigitCursorV7" aria-hidden="true" />
                   </button>
                 );
               })}
+              {/* Single smooth sliding cursor */}
+              <div className="singleDigitCursorV7" aria-hidden="true" />
             </div>
           </div>
         ) : (
