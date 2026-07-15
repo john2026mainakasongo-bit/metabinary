@@ -32720,3 +32720,55 @@ body,
     font-size: 16px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V33 — PROFILE SCROLL FIX
+   Keep the app/header/nav structure unchanged. On phones/tablets, Profile owns
+   the middle viewport and becomes the vertical scroll container itself.
+   ========================================================================== */
+@media (max-width: 899px) {
+  .mainScreen:has(.proProfilePage) {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    touch-action: pan-y !important;
+  }
+
+  .mainScreen:has(.proProfilePage) > .proProfilePage,
+  .mainScreen:has(.proProfilePage) > .profilePage.proProfilePage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    scroll-behavior: smooth !important;
+    padding: 8px 8px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    scrollbar-width: thin !important;
+  }
+
+  .proProfilePage > *,
+  .proProfilePage .proProfileMain,
+  .proProfilePage .profileCardsGrid,
+  .proProfilePage .referralPanel,
+  .proProfilePage .proLogoutButton {
+    flex: 0 0 auto !important;
+  }
+
+  .proProfilePage .profileCardsGrid {
+    padding-bottom: 2px !important;
+  }
+
+  .proProfilePage .proLogoutButton {
+    margin-bottom: 12px !important;
+  }
+}
