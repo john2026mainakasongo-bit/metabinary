@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-responsive-contract-view-v21-2026-07-15";
+const FRONTEND_BUILD = "metabinary-mobile-trade-v22-2026-07-15";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -6689,7 +6689,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     <>
       {!open && (
         <button
-          className={`floatingAiButton ${scanning ? "scanning" : ""} ${autoSession?.running ? "autoRunning" : ""}`}
+          className={`floatingAiButton aiPage-${activePage} ${scanning ? "scanning" : ""} ${autoSession?.running ? "autoRunning" : ""}`}
           style={buttonStyle}
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
