@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-mobile-trade-v24-2026-07-15";
+const FRONTEND_BUILD = "metabinary-responsive-contract-view-v21-2026-07-15";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -325,82 +325,61 @@ const DEFAULT_NOTIFICATIONS = [
 
 const BOT_TEMPLATES = [
   {
-    id: "ai-vortex",
-    code: "VX",
-    name: "AI Vortex",
+    id: "bot-1",
+    code: "NE",
+    name: "Neon Eclipse",
     type: "Even/Odd",
     market: "Volatility 100 (1s) Index",
-    marketShort: "V100 1s",
-    engine: "Parity Pulse",
-    risk: "Medium",
-    description: "Scans live digit parity and recent tick distribution before every entry.",
-    stake: 1,
+    stake: 10,
     duration: 5,
-    status: "Ready",
+    status: "Running",
+    profit: 250.75,
+    winRate: 72.5,
+    trades: 36,
   },
   {
-    id: "ai-velocity",
-    code: "VY",
-    name: "AI Velocity",
+    id: "bot-2",
+    code: "QS",
+    name: "Quantum Surge",
     type: "Rise/Fall",
     market: "Volatility 75 Index",
-    marketShort: "V75",
-    engine: "Momentum Flow",
-    risk: "Medium",
-    description: "Tracks short-term momentum shifts and waits for cleaner directional entries.",
-    stake: 1,
+    stake: 15,
     duration: 5,
-    status: "Ready",
+    status: "Stopped",
+    profit: 180.4,
+    winRate: 68,
+    trades: 34,
   },
   {
-    id: "ai-vector",
-    code: "VT",
-    name: "AI Vector",
+    id: "bot-3",
+    code: "AO",
+    name: "Alpha OverUnder",
     type: "Over/Under",
     market: "Volatility 100 Index",
-    marketShort: "V100",
-    engine: "Digit Threshold",
-    risk: "Low–Medium",
-    description: "Ranks digit thresholds using recent frequency, movement and payout conditions.",
-    stake: 1,
+    stake: 10,
     duration: 5,
-    status: "Ready",
+    status: "Stopped",
+    profit: -45,
+    winRate: 45,
+    trades: 23,
   },
   {
-    id: "ai-vision",
-    code: "VS",
-    name: "AI Vision",
+    id: "bot-4",
+    code: "MD",
+    name: "Matrix Differ",
     type: "Matches/Differs",
     market: "Volatility 50 Index",
-    marketShort: "V50",
-    engine: "Pattern Vision",
-    risk: "High",
-    description: "Looks for repeating last-digit behaviour and manages selective match/differ entries.",
-    stake: 1,
+    stake: 20,
     duration: 5,
-    status: "Ready",
-  },
-  {
-    id: "ai-vanguard",
-    code: "VG",
-    name: "AI Vanguard",
-    type: "Touch/No Touch",
-    market: "Volatility 25 (1s) Index",
-    marketShort: "V25 1s",
-    engine: "Adaptive Recovery",
-    risk: "High",
-    description: "Combines entry filtering, controlled recovery steps and session risk limits.",
-    stake: 1,
-    duration: 5,
-    status: "Ready",
+    status: "Stopped",
+    profit: -120,
+    winRate: 40,
+    trades: 20,
   },
 ];
 
 const TRADING_PAGES = new Set([
   "home",
-  "markets",
-  "forex",
-  "openTrades",
   "trade",
   "bots",
   "botSetup",
@@ -415,7 +394,6 @@ const TRADING_PAGES = new Set([
 function initialTradingPage() {
   if (typeof window === "undefined") return "home";
   const page = window.location.hash.replace(/^#/, "");
-  if (page === "markets") return "forex";
   return TRADING_PAGES.has(page) ? page : "home";
 }
 
@@ -446,44 +424,6 @@ function createBotConfig(bot = BOT_TEMPLATES[0]) {
     martingaleSteps: 3,
     takeProfit: 50,
     stopLoss: 30,
-  };
-}
-
-const LEGACY_BOT_TEMPLATE_IDS = Object.freeze({
-  "Neon Eclipse": "ai-vortex",
-  "Quantum Surge": "ai-velocity",
-  "Alpha OverUnder": "ai-vector",
-  "Matrix Differ": "ai-vision",
-  "bot-1": "ai-vortex",
-  "bot-2": "ai-velocity",
-  "bot-3": "ai-vector",
-  "bot-4": "ai-vision",
-});
-
-function normalizeStoredBotConfig(value) {
-  if (!value || typeof value !== "object") {
-    return createBotConfig(BOT_TEMPLATES[0]);
-  }
-
-  const replacementId =
-    LEGACY_BOT_TEMPLATE_IDS[value.name] ||
-    LEGACY_BOT_TEMPLATE_IDS[value.botId] ||
-    "";
-
-  if (!replacementId) return value;
-
-  const replacement =
-    BOT_TEMPLATES.find((template) => template.id === replacementId) ||
-    BOT_TEMPLATES[0];
-  const defaults = createBotConfig(replacement);
-
-  return {
-    ...defaults,
-    ...value,
-    botId: replacement.id,
-    name: replacement.name,
-    type: replacement.type,
-    action: value.action || defaultBotAction(replacement.type),
   };
 }
 
@@ -1019,9 +959,7 @@ function TradingApp() {
 
   const [selectedBot, setSelectedBot] = useState(null);
   const [botConfig, setBotConfig] = useState(() =>
-    normalizeStoredBotConfig(
-      readStore(STORE.botConfig, createBotConfig(BOT_TEMPLATES[0]))
-    )
+    readStore(STORE.botConfig, createBotConfig(BOT_TEMPLATES[0]))
   );
   const [botRunning, setBotRunning] = useState(false);
   const [botTab, setBotTab] = useState("transactions");
@@ -1415,9 +1353,8 @@ function TradingApp() {
         : TRADING_PAGES.has(hashPage)
         ? hashPage
         : "home";
-      const nextPage = resolvedPage === "markets" ? "forex" : resolvedPage;
       historyPopRef.current = true;
-      setActivePage(nextPage);
+      setActivePage(resolvedPage);
     };
 
     window.addEventListener("popstate", onPopState);
@@ -3122,15 +3059,6 @@ function TradingApp() {
   }
 
   function configureBot(bot) {
-    const selectedId = selectedBot?.botId || selectedBot?.id || "";
-    const isCurrentRunning = Boolean(botRunningRef.current && selectedId === bot.id);
-
-    if (isCurrentRunning) {
-      setBotTab("transactions");
-      setActivePage("botLive");
-      return;
-    }
-
     const nextConfig = createBotConfig(bot);
     setSelectedBot({ ...bot, ...nextConfig });
     setBotConfig(nextConfig);
@@ -3691,50 +3619,6 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "markets" && (
-          <MarketsPage
-            marketStates={binaryMarketStates}
-            volatilityOptions={VOLATILITY_OPTIONS}
-            marketFeed={marketFeed}
-            setBinaryMarketId={setBinaryMarketId}
-            setMarketSymbol={setMarketSymbol}
-            setActivePage={setActivePage}
-          />
-        )}
-
-        {activePage === "forex" && (
-          <ForexPage
-            account={account}
-            balance={balance}
-            symbol={marketSymbol}
-            setSymbol={setMarketSymbol}
-            timeframe={marketTimeframe}
-            setTimeframe={setMarketTimeframe}
-            market={activeMarket}
-            marketFeed={activeMarketFeed}
-            livePrice={marketPrice}
-            candles={marketCandles}
-            positions={positions}
-            placeForexOrder={placeForexOrder}
-            setActivePage={setActivePage}
-            openDeposit={() => setDepositOpen(true)}
-            preparedSetup={aiForexSetup}
-          />
-        )}
-
-        {activePage === "openTrades" && (
-          <OpenTradesPage
-            account={account}
-            balance={balance}
-            positions={positions}
-            closedPositions={closedPositions}
-            updatePosition={updatePosition}
-            closePosition={closePosition}
-            closeAllPositions={closeAllPositions}
-            back={() => setActivePage("forex")}
-          />
-        )}
-
         {activePage === "trade" && (
           <TradePage
             prices={prices}
@@ -3761,7 +3645,7 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "bots" && <BotsPage bots={BOT_TEMPLATES} configureBot={configureBot} selectedBot={selectedBot} botRunning={botRunning} />}
+        {activePage === "bots" && <BotsPage bots={BOT_TEMPLATES} configureBot={configureBot} />}
 
         {activePage === "botSetup" && (
           <BotSetupPage
@@ -3856,11 +3740,13 @@ function TradingApp() {
         autoSession={aiAutoSession}
       />
 
-      <SupportChat
-        user={user}
-        activePage={activePage}
-        account={account}
-      />
+      {!['trade', 'botLive'].includes(activePage) && (
+        <SupportChat
+          user={user}
+          activePage={activePage}
+          account={account}
+        />
+      )}
 
       {menuOpen && (
         <SideMenu
@@ -4356,7 +4242,7 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
         <div className="topMarkets">
           <h3>
-            Top Markets <button onClick={() => setActivePage("forex")}>View All</button>
+            Top Markets <button onClick={() => setActivePage("trade")}>Trade Now</button>
           </h3>
 
           {[
@@ -5368,27 +5254,10 @@ function TradePage({
   const [marketMenuOpen, setMarketMenuOpen] = useState(false);
   const [barrierDirection, setBarrierDirection] = useState("above");
   const [barrierDistance, setBarrierDistance] = useState(2);
-  const contractTabRefs = useRef({});
 
   useEffect(() => {
     if (activeBinaryTrade) setMarketMenuOpen(false);
   }, [activeBinaryTrade]);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth > 760) return;
-    const activeTab = contractTabRefs.current?.[tradeType];
-    if (!activeTab) return;
-
-    const frame = window.requestAnimationFrame(() => {
-      activeTab.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [tradeType]);
 
   const actions = actionsFor(tradeType);
   const digitMode = isDigitContract(tradeType);
@@ -5426,10 +5295,8 @@ function TradePage({
   const activePreviewNet = activePriceWinning
     ? Number((activePotentialPayout - activeStake).toFixed(2))
     : -activeStake;
-  const highestPercent = Math.max(...digitStats);
+    const highestPercent = Math.max(...digitStats);
   const lowestPercent = Math.min(...digitStats);
-  const highestDigit = digitStats.indexOf(highestPercent);
-  const lowestDigit = digitStats.indexOf(lowestPercent);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const quickStakeValues = [1, 5, 10, 50, 100];
 
@@ -5478,18 +5345,7 @@ function TradePage({
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
-          <button
-            key={type}
-            ref={(node) => {
-              if (node) contractTabRefs.current[type] = node;
-            }}
-            type="button"
-            className={tradeType === type ? "active" : ""}
-            onClick={() => setTradeType(type)}
-            disabled={Boolean(activeBinaryTrade)}
-          >
-            {type}
-          </button>
+          <button key={type} type="button" className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)} disabled={Boolean(activeBinaryTrade)}>{type}</button>
         ))}
       </section>
 
@@ -5548,10 +5404,15 @@ function TradePage({
         )}
 
         {digitMode ? (
-          <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 ${activeBinaryTrade ? "isTrading" : ""}`}
-            aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
-          >
+          <div className={`mbDigitBoardV7 ${activeBinaryTrade ? "isTrading" : ""}`}>
+            <div className="digitBoardHeaderV21">
+              <span><small>LIVE LAST DIGIT</small><strong>{lastDigit}</strong></span>
+              <div>
+                <small>{binaryMarket?.short || "V100 1s"}</small>
+                <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
+              </div>
+              <b>Statistics from last {DIGIT_HISTORY_LIMIT} ticks</b>
+            </div>
             <div
               className="mbDigitGridV7"
               aria-label="Digit percentages"
@@ -5562,11 +5423,15 @@ function TradePage({
               }}
             >
               {digitStats.map((percent, digit) => {
-                const isHighest = digit === highestDigit;
-                const isLowest = digit === lowestDigit;
+                const isHighest = Math.abs(percent - highestPercent) < 0.01;
+                const isLowest = Math.abs(percent - lowestPercent) < 0.01;
                 const isPicked = digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
+                const isWinningTarget = Boolean(
+                  activeBinaryTrade && digitWinsTrade(activeBinaryTrade, digit, livePrice)
+                );
+                const isLosingTarget = Boolean(activeBinaryTrade && !isWinningTarget);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -5592,6 +5457,8 @@ function TradePage({
                       isLowest ? "mbDigitLowestV7" : "",
                       isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
+                      isWinningTarget ? "mbDigitWinningV7" : "",
+                      isLosingTarget ? "mbDigitLosingV8" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
@@ -5647,17 +5514,12 @@ function TradePage({
             <span>{tradeType === "Even/Odd" ? "⌄" : "⌃"}</span>
             <div>
               <strong>{leftLabel}</strong>
-              <small className="tradePayoutText">
-                {activeBinaryTrade ? (
-                  <span>{activeBinaryTrade.remainingTicks} ticks remaining</span>
-                ) : leftRate > 0 ? (
-                  <>
-                    <span>Estimated payout {leftPayout} USD</span>
-                    <span className="tradePayoutRate">{leftRate.toFixed(3)}×</span>
-                  </>
-                ) : (
-                  <span>Unavailable</span>
-                )}
+              <small>
+                {activeBinaryTrade
+                  ? `${activeBinaryTrade.remainingTicks} ticks remaining`
+                  : leftRate > 0
+                    ? `Estimated payout ${leftPayout} USD · ${leftRate.toFixed(3)}×`
+                    : "Unavailable"}
               </small>
             </div>
           </button>
@@ -5670,17 +5532,12 @@ function TradePage({
             <span>{tradeType === "Even/Odd" ? "⌃" : "⌄"}</span>
             <div>
               <strong>{rightLabel}</strong>
-              <small className="tradePayoutText">
-                {activeBinaryTrade ? (
-                  <span>{activeBinaryTrade.remainingTicks} ticks remaining</span>
-                ) : rightRate > 0 ? (
-                  <>
-                    <span>Estimated payout {rightPayout} USD</span>
-                    <span className="tradePayoutRate">{rightRate.toFixed(3)}×</span>
-                  </>
-                ) : (
-                  <span>Unavailable</span>
-                )}
+              <small>
+                {activeBinaryTrade
+                  ? `${activeBinaryTrade.remainingTicks} ticks remaining`
+                  : rightRate > 0
+                    ? `Estimated payout ${rightPayout} USD · ${rightRate.toFixed(3)}×`
+                    : "Unavailable"}
               </small>
             </div>
           </button>
@@ -5690,76 +5547,43 @@ function TradePage({
   );
 }
 
-function BotsPage({ bots, configureBot, selectedBot, botRunning }) {
-  const activeBotId = botRunning ? (selectedBot?.botId || selectedBot?.id || "") : "";
-  const running = activeBotId ? 1 : 0;
-  const ready = Math.max(0, bots.length - running);
+function BotsPage({ bots, configureBot }) {
+  const running = bots.filter((item) => item.status === "Running").length;
+  const stopped = bots.length - running;
 
   return (
-    <div className="page botsPage finalBotsPage vSeriesBotsPage">
-      <header className="botsTopBar finalBotsHeader vSeriesBotsHeader">
+    <div className="page botsPage finalBotsPage">
+      <header className="botsTopBar">
         <div>
-          <small>MetaBinary AI automation</small>
-          <h1>AI Trading Bots</h1>
-          <p>Load a strategy, set your risk controls, then start it when you are ready.</p>
+          <small>Automated strategies</small>
+          <h1>Trading Bots</h1>
         </div>
-        <span className={`botsHeaderStatus ${running ? "hasActive" : "allReady"}`}>
-          <i></i>
-          {running ? `${running} active` : "Ready"}
-        </span>
       </header>
 
-      <section className="botStats compactBotStats finalBotStats vSeriesBotStats">
-        <Stat icon="AI" value={bots.length} label="AI Bots" spark="blue" />
+      <section className="botStats compactBotStats">
+        <Stat icon="🤖" value={bots.length} label="Strategies" spark="blue" />
         <Stat icon="▶" value={running} label="Active" spark="green" />
-        <Stat icon="Ⅱ" value={ready} label="Ready" spark="yellow" />
+        <Stat icon="Ⅱ" value={stopped} label="Ready" spark="yellow" />
         <Stat icon="✓" value="1–10" label="Ticks" spark="purple" />
       </section>
 
-      <section className="botGrid finalBotGrid vSeriesBotGrid">
-        {bots.map((bot, index) => {
-          const isRunning = Boolean(activeBotId && activeBotId === bot.id);
-          return (
-            <article className={`botCard finalBotCard vSeriesBotCard ${isRunning ? "botRunning" : "botReady"}`} key={bot.id}>
-              <div className="finalBotCardHead vSeriesBotCardHead">
-                <div className={`botIcon botIcon${(index % 4) + 1} vSeriesBotIcon`}>
-                  <span>AI</span>
-                  <strong>{bot.code}</strong>
-                </div>
-                <span className={`botStatusPill ${isRunning ? "running" : "ready"}`}>
-                  <i></i>
-                  {isRunning ? "Running" : "Ready"}
-                </span>
-              </div>
-
-              <div className="botCardCopy vSeriesBotCopy">
-                <h2>{bot.name}</h2>
-                <p>{bot.type} <b>·</b> {bot.market}</p>
-                <small>{bot.description}</small>
-              </div>
-
-              <div className="vSeriesMeta">
-                <p>
-                  <span>Strategy</span>
-                  <strong>{bot.engine}</strong>
-                </p>
-                <p>
-                  <span>Market</span>
-                  <strong>{bot.marketShort}</strong>
-                </p>
-                <p>
-                  <span>Risk</span>
-                  <strong className={`risk${String(bot.risk).replace(/[^a-z]/gi, "")}`}>{bot.risk}</strong>
-                </p>
-              </div>
-
-              <button className={`botAction finalBotAction vSeriesBotAction ${isRunning ? "running" : "ready"}`} onClick={() => configureBot(bot)}>
-                <span>{isRunning ? "OPEN BOT" : "LOAD BOT"}</span>
-                <b>›</b>
-              </button>
-            </article>
-          );
-        })}
+      <section className="botGrid finalBotGrid">
+        {bots.map((bot, index) => (
+          <article className="botCard finalBotCard" key={bot.id}>
+            <div className={`botIcon botIcon${index + 1}`}>{bot.code}</div>
+            <div className="botCardCopy">
+              <h2>{bot.name}</h2>
+              <p>{bot.type} · {bot.market}</p>
+              <small>Configure market, stake, ticks, martingale and limits before starting.</small>
+            </div>
+            <div className="botMetrics compactBotMetrics">
+              <p><span>Example stake</span><strong>{money(bot.stake)} USD</strong></p>
+              <p><span>Template score</span><strong>{bot.winRate}/100</strong></p>
+              <p><span>Previous runs</span><strong>{bot.trades}</strong></p>
+            </div>
+            <button className="botAction" onClick={() => configureBot(bot)}>Configure Bot</button>
+          </article>
+        ))}
       </section>
     </div>
   );
@@ -5782,7 +5606,7 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
     <div className="page botSetupPage">
       <header className="botSetupTop">
         <button type="button" onClick={back}>‹ Back</button>
-        <div><small>Loaded AI strategy</small><strong>{bot.name}</strong></div>
+        <div><small>Configure strategy</small><strong>{bot.name}</strong></div>
         <span>{config.martingaleEnabled ? `MG ×${config.martingaleMultiplier}` : "Fixed stake"}</span>
       </header>
 
@@ -5873,7 +5697,7 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
         <div><span>Limits</span><strong>+{money(config.takeProfit)} / -{money(config.stopLoss)}</strong></div>
       </section>
 
-      <button className="startConfiguredBot" type="button" onClick={() => startBot(config)}>▶ START AI BOT</button>
+      <button className="startConfiguredBot" type="button" onClick={() => startBot(config)}>▶ Start Bot & Open Transactions</button>
     </div>
   );
 }
@@ -6494,7 +6318,7 @@ function ReportsPage({ transactions, closedPositions, botTrades }) {
 
       <section className="homeStats">
         <Stat value={transactions.length} label="Transactions" spark="blue" />
-        <Stat value={closedPositions.length} label="Forex Closed" spark="green" />
+        <Stat value={closedPositions.length} label="Closed Trades" spark="green" />
         <Stat value={botTrades.filter((x) => x.won).length} label="Bot Wins" spark="purple" />
         <Stat value={botTrades.filter((x) => !x.won).length} label="Bot Losses" spark="yellow" />
       </section>
@@ -6505,7 +6329,6 @@ function ReportsPage({ transactions, closedPositions, botTrades }) {
 function BottomNav({ activePage, setActivePage }) {
   const items = [
     ["home", "Home", "⌂"],
-    ["markets", "Markets", "▥"],
     ["trade", "Trade", "↕"],
     ["bots", "Bots", "🤖"],
     ["profile", "Profile", "♙"],
@@ -6516,17 +6339,15 @@ function BottomNav({ activePage, setActivePage }) {
       {items.map(([key, label, icon]) => (
         <button
           key={key}
-          className={
-            activePage === key ||
-            (key === "bots" && ["botSetup", "botLive"].includes(activePage)) ||
-            (key === "markets" && ["forex", "openTrades"].includes(activePage))
+          className={`${
+            activePage === key || (key === "bots" && ["botSetup", "botLive"].includes(activePage))
               ? "active"
               : ""
-          }
-          onClick={() => setActivePage(key === "markets" ? "forex" : key)}
+          } ${key === "trade" ? "tradeNav" : ""}`.trim()}
+          onClick={() => setActivePage(key)}
           aria-label={label}
           aria-current={
-            activePage === key || (key === "markets" && ["forex", "openTrades"].includes(activePage))
+            activePage === key || (key === "bots" && ["botSetup", "botLive"].includes(activePage))
               ? "page"
               : undefined
           }
@@ -6580,7 +6401,6 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
             <DrawerButton icon="⌂" label="Trader’s Hub" onClick={() => go("home")} />
-            <DrawerButton icon="▥" label="Markets" onClick={() => go("forex")} />
             <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
           </DrawerBlock>
 
@@ -6818,7 +6638,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     <>
       {!open && (
         <button
-          className={`floatingAiButton aiPage-${activePage} ${scanning ? "scanning" : ""} ${autoSession?.running ? "autoRunning" : ""}`}
+          className={`floatingAiButton ${scanning ? "scanning" : ""} ${autoSession?.running ? "autoRunning" : ""}`}
           style={buttonStyle}
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
@@ -6962,7 +6782,7 @@ function PaymentButton({ icon, title, text, onClick }) {
 function SupportChat({ user, activePage, account }) {
   const categories = [
     ["wallet", "Deposit or withdrawal"],
-    ["trading", "Trading or Forex"],
+    ["trading", "Trading"],
     ["ai", "AI or bot help"],
     ["account", "Account or password"],
     ["other", "Something else"],
