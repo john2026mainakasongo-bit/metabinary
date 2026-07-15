@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useRef, useState, Fragment } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 
 function ensureResponsiveViewportMeta() {
@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-small-phone-scroll-v20-2026-07-14";
+const FRONTEND_BUILD = "metabinary-responsive-contract-view-v21-2026-07-15";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -681,32 +681,51 @@ function makePrices(start = 1.08564) {
   });
 }
 
-const DIGIT_MIN_PERCENT = 8.5;
-const DIGIT_MAX_PERCENT = 13;
+const DIGIT_HISTORY_LIMIT = 100;
+
+function makeInitialDigitHistory(seed = 0) {
+  let value = (Math.abs(Number(seed) || 0) + 1) * 7919;
+
+  return Array.from({ length: DIGIT_HISTORY_LIMIT }, (_, index) => {
+    value = (value * 48271 + (index + 1) * 101) % 2147483647;
+    return Math.abs(value) % 10;
+  });
+}
+
+function appendDigitHistory(history, digit) {
+  const safeDigit = Math.max(0, Math.min(9, Number(digit) || 0));
+  const current = Array.isArray(history) ? history : [];
+  return [...current.slice(-(DIGIT_HISTORY_LIMIT - 1)), safeDigit];
+}
+
+function calculateDigitStats(history) {
+  const safeHistory = Array.isArray(history) && history.length
+    ? history
+    : makeInitialDigitHistory(0);
+  const counts = Array(10).fill(0);
+
+  safeHistory.forEach((digit) => {
+    const value = Number(digit);
+    if (Number.isInteger(value) && value >= 0 && value <= 9) counts[value] += 1;
+  });
+
+  const total = counts.reduce((sum, count) => sum + count, 0) || 1;
+  return counts.map((count) => Number(((count / total) * 100).toFixed(1)));
+}
 
 function makeInitialDigitStats(seed = 0) {
-  const base = [10.5, 9.8, 11.2, 8.9, 10.1, 9.4, 10.8, 9.7, 10.4, 9.2];
-  const offset = Math.abs(Number(seed) || 0) % base.length;
-  return base.map((_, index) => {
-    const value = base[(index + offset) % base.length];
-    const adjustment = (((index * 3 + offset) % 5) - 2) * 0.1;
-    return Number(Math.max(DIGIT_MIN_PERCENT, Math.min(DIGIT_MAX_PERCENT, value + adjustment)).toFixed(1));
-  });
+  return calculateDigitStats(makeInitialDigitHistory(seed));
 }
 
 function createBinaryMarketState(market, index = 0) {
   const start = Number(market?.start || 1.2) + Number(market?.step || 0.0002) * (index + 1) * 5;
-  const initialDigits = Array.from({ length: 100 }, () => Math.floor(Math.random() * 10));
-  const counts = Array(10).fill(0);
-  initialDigits.forEach(d => counts[d]++);
-  const total = initialDigits.length;
-  const initialStats = counts.map(count => Number(((count / total) * 100).toFixed(1)));
+  const digitHistory = makeInitialDigitHistory(index);
 
   return {
     prices: makePrices(start),
-    recentDigits: initialDigits,
-    digitStats: initialStats,
-    lastDigit: (index * 3 + 2) % 10,
+    digitHistory,
+    digitStats: calculateDigitStats(digitHistory),
+    lastDigit: digitHistory[digitHistory.length - 1] ?? ((index * 3 + 2) % 10),
     updatedAt: Date.now() - index * 1000,
   };
 }
@@ -717,18 +736,17 @@ function createInitialBinaryMarketStates() {
   );
 }
 
-function driftDigitStats(values) {
-  const next = values.map((value) => Number(Number(value).toFixed(1)));
-  const donors = next.map((value, index) => ({ value, index })).filter((item) => item.value > DIGIT_MIN_PERCENT);
-  const receivers = next.map((value, index) => ({ value, index })).filter((item) => item.value < DIGIT_MAX_PERCENT);
-  if (!donors.length || !receivers.length) return next;
-  const donor = donors[Math.floor(Math.random() * donors.length)].index;
-  const choices = receivers.filter((item) => item.index !== donor);
-  if (!choices.length) return next;
-  const receiver = choices[Math.floor(Math.random() * choices.length)].index;
-  next[donor] = Number(Math.max(DIGIT_MIN_PERCENT, next[donor] - 0.1).toFixed(1));
-  next[receiver] = Number(Math.min(DIGIT_MAX_PERCENT, next[receiver] + 0.1).toFixed(1));
-  return next;
+function nextDigitState(current, digit, seed = 0) {
+  const history = appendDigitHistory(
+    current?.digitHistory || makeInitialDigitHistory(seed),
+    digit
+  );
+
+  return {
+    digitHistory: history,
+    digitStats: calculateDigitStats(history),
+    lastDigit: Math.max(0, Math.min(9, Number(digit) || 0)),
+  };
 }
 
 function digitWinsTrade(trade, digit, closingPrice = 0) {
@@ -917,8 +935,6 @@ function TradingApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [kycOpen, setKycOpen] = useState(false);
-  const [supportChatOpen, setSupportChatOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [notifications, setNotifications] = useState(() =>
     readStore(STORE.notifications, DEFAULT_NOTIFICATIONS)
@@ -1406,19 +1422,14 @@ function TradingApp() {
           const nextDigit = serverControlsThisMarket
             ? Number(current.lastDigit || 0)
             : Math.floor(Math.random() * 10);
-
-          const nextRecent = [...(current.recentDigits || Array.from({ length: 100 }, () => Math.floor(Math.random() * 10))).slice(-99), nextDigit];
-          const counts = Array(10).fill(0);
-          nextRecent.forEach(d => counts[d]++);
-          const total = nextRecent.length;
-          const nextStats = counts.map(count => Number(((count / total) * 100).toFixed(1)));
+          const digitUpdate = serverControlsThisMarket
+            ? {}
+            : nextDigitState(current, nextDigit, index);
 
           nextStates[market.id] = {
             ...current,
+            ...digitUpdate,
             prices: [...oldPrices.slice(-119), nextPrice],
-            recentDigits: nextRecent,
-            digitStats: nextStats,
-            lastDigit: nextDigit,
             updatedAt: now,
           };
         });
@@ -1452,28 +1463,14 @@ function TradingApp() {
     const showTick = (digit, remainingTicks, tickResult = {}) => {
       const tradeMarketId = openTrade.marketId || binaryMarketId;
       const nextPrice = Number(tickResult.currentPrice || tickResult.trade?.currentPrice || 0);
-      updateBinaryMarketState(tradeMarketId, (current) => {
-        let statsUpdate = {};
-        if (Number.isInteger(digit) && digit >= 0 && digit <= 9) {
-          const nextRecent = [...(current.recentDigits || Array.from({ length: 100 }, () => Math.floor(Math.random() * 10))).slice(-99), digit];
-          const counts = Array(10).fill(0);
-          nextRecent.forEach(d => counts[d]++);
-          const total = nextRecent.length;
-          const nextStats = counts.map(count => Number(((count / total) * 100).toFixed(1)));
-          statsUpdate = {
-            lastDigit: digit,
-            recentDigits: nextRecent,
-            digitStats: nextStats
-          };
-        }
-        return {
-          ...current,
-          ...statsUpdate,
-          ...(Number.isFinite(nextPrice) && nextPrice > 0
-            ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
-            : {}),
-        };
-      });
+      updateBinaryMarketState(tradeMarketId, (current) => ({
+        ...(Number.isInteger(digit) && digit >= 0 && digit <= 9
+          ? nextDigitState(current, digit)
+          : {}),
+        ...(Number.isFinite(nextPrice) && nextPrice > 0
+          ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
+          : {}),
+      }));
       if (tradeMarketId === binaryMarketId && Number.isInteger(digit)) lastDigitRef.current = digit;
 
       setActiveBinaryTrade((current) =>
@@ -2431,10 +2428,9 @@ function TradingApp() {
 
     if (Number.isInteger(resultDigit) && resultDigit >= 0 && resultDigit <= 9) {
       const tradeMarketId = openTrade.marketId || binaryMarketId;
-      updateBinaryMarketState(tradeMarketId, (current) => ({
-        lastDigit: resultDigit,
-        digitStats: driftDigitStats(current.digitStats || makeInitialDigitStats()),
-      }));
+      updateBinaryMarketState(tradeMarketId, (current) =>
+        nextDigitState(current, resultDigit)
+      );
       if (tradeMarketId === binaryMarketId) lastDigitRef.current = resultDigit;
     }
 
@@ -3632,7 +3628,9 @@ function TradingApp() {
           <MarketsPage
             marketStates={binaryMarketStates}
             volatilityOptions={VOLATILITY_OPTIONS}
+            marketFeed={marketFeed}
             setBinaryMarketId={setBinaryMarketId}
+            setMarketSymbol={setMarketSymbol}
             setActivePage={setActivePage}
           />
         )}
@@ -3654,8 +3652,6 @@ function TradingApp() {
             setActivePage={setActivePage}
             openDeposit={() => setDepositOpen(true)}
             preparedSetup={aiForexSetup}
-            updatePosition={updatePosition}
-            closePosition={closePosition}
           />
         )}
 
@@ -3742,8 +3738,6 @@ function TradingApp() {
             applyReferralProgram={applyReferralProgram}
             logout={logout}
             setActivePage={setActivePage}
-            openKyc={() => setKycOpen(true)}
-            openSupport={() => setSupportChatOpen(true)}
           />
         )}
 
@@ -3767,12 +3761,7 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "history" && (
-          <HistoryPage
-            transactions={transactions}
-            closedPositions={closedPositions}
-          />
-        )}
+        {activePage === "history" && <HistoryPage transactions={transactions} />}
 
         {activePage === "reports" && (
           <ReportsPage
@@ -3804,8 +3793,6 @@ function TradingApp() {
         user={user}
         activePage={activePage}
         account={account}
-        isOpenOverride={supportChatOpen}
-        setIsOpenOverride={setSupportChatOpen}
       />
 
       {menuOpen && (
@@ -3825,8 +3812,6 @@ function TradingApp() {
       {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
 
       {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
-
-      {kycOpen && <KycModal close={() => setKycOpen(false)} user={user} onVerified={(updatedUser) => setUser(updatedUser)} />}
 
       {toast && <Toast toast={toast} />}
     </div>
@@ -4227,14 +4212,14 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
         <div className="livePairCard">
           <div className="pairHead">
-            <strong>🤖 Volatility 100 Index</strong>
+            <strong>🇺🇸 EUR/USD</strong>
             <span>● LIVE</span>
           </div>
 
-          <h2>{(livePrice * 800).toFixed(2)}</h2>
-          <p>+2.84 (+0.31%) ▲</p>
+          <h2>{livePrice.toFixed(5)}</h2>
+          <p>+0.00254 (+0.23%) ▲</p>
 
-          <LineMini prices={prices.map(p => p * 800)} />
+          <LineMini prices={prices} />
 
           <div className="pairTimes">
             <button className="active">1M</button>
@@ -4259,10 +4244,10 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
       </section>
 
       <section className="marketTicker">
-        <TickerItem icon="🤖" pair="Volatility 10 Index" price="254.12" change="+0.18%" good />
-        <TickerItem icon="🤖" pair="Volatility 25 Index" price="184.23" change="-0.09%" />
-        <TickerItem icon="🤖" pair="Volatility 50 Index" price="347.56" change="+0.22%" good />
-        <TickerItem icon="🤖" pair="Volatility 100 Index" price="842.10" change="+0.31%" good />
+        <TickerItem icon="🇪🇺" pair="EUR/USD" price="1.08564" change="+0.23%" good />
+        <TickerItem icon="🇬🇧" pair="GBP/USD" price="1.26543" change="-0.11%" />
+        <TickerItem icon="🥇" pair="XAU/USD" price="2,345.67" change="+0.24%" good />
+        <TickerItem icon="₿" pair="BTC/USD" price="63,245.12" change="+0.24%" good />
       </section>
 
       <section className="homeLowerGrid">
@@ -4304,14 +4289,14 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
         <div className="topMarkets">
           <h3>
-            Top Markets <button onClick={() => setActivePage("markets")}>View All</button>
+            Top Markets <button onClick={() => setActivePage("forex")}>View All</button>
           </h3>
 
           {[
-            ["🤖", "Volatility 10 Index", "254.12", "+0.18%", true],
-            ["🤖", "Volatility 25 Index", "184.23", "-0.09%", false],
-            ["🤖", "Volatility 50 Index", "347.56", "+0.22%", true],
-            ["🤖", "Volatility 100 Index", "842.10", "+0.31%", true],
+            ["🇪🇺", "EUR/USD", "1.08564", "+0.23%", true],
+            ["🇬🇧", "GBP/USD", "1.26543", "-0.11%", false],
+            ["🥇", "XAU/USD", "2,345.67", "+0.24%", true],
+            ["₿", "BTC/USD", "63,245.12", "+0.24%", true],
           ].map(([icon, pair, price, change, good]) => (
             <p key={pair}>
               <span>
@@ -4472,51 +4457,36 @@ function MiniSpark({ type = "blue" }) {
   );
 }
 
-function MarketsPage({
-  marketStates,
-  volatilityOptions,
-  setBinaryMarketId,
-  setActivePage,
-}) {
+function MarketsPage({ marketFeed, setMarketSymbol, setActivePage }) {
+  function openForex(market) {
+    setMarketSymbol(market.symbol);
+    setActivePage("forex");
+  }
+
   return (
-    <div className="page marketsPage professionalMarketsPage">
+    <div className="page marketsPage professionalMarketsPage forexOnlyMarketsPage">
       <header className="marketsPageHero">
         <div>
-          <small>GLOBAL TRADING HUB</small>
+          <small>FOREX, METALS & CRYPTO</small>
           <h1>Markets</h1>
-          <p>Select a Volatility Index to start trading binary options contracts.</p>
+          <p>Select a market to open its live chart and Buy/Sell controls.</p>
         </div>
-        <span>Live market feeds</span>
+        <span>Live global markets</span>
       </header>
 
-      <section className="marketCategoryPanel">
+      <section className="marketCategoryPanel forexOnlyMarketPanel">
         <header>
-          <div><small>SYNTHETIC MARKETS</small><h2>Volatility Indices</h2></div>
-          <span>{volatilityOptions.length} markets</span>
+          <div><small>GLOBAL MARKETS</small><h2>Forex, Metals & Crypto</h2></div>
+          <span>{MARKET_OPTIONS.length} markets</span>
         </header>
-        <div className="volatilityMarketGrid">
-          {volatilityOptions.map((market) => {
-            const state = marketStates?.[market.id] || {};
-            const currentPrice = state.price || (state.prices ? state.prices[state.prices.length - 1] : market.start * market.scale) || 0;
-            const prevPrice = state.prices && state.prices.length > 1 ? state.prices[state.prices.length - 2] : currentPrice;
-            const isUp = currentPrice >= prevPrice;
+        <div className="forexMarketGrid">
+          {MARKET_OPTIONS.map((market) => {
+            const feed = marketFeed?.[market.symbol] || {};
             return (
-              <button
-                key={market.id}
-                type="button"
-                className="volatilityMarketCard"
-                onClick={() => {
-                  setBinaryMarketId(market.id);
-                  setActivePage("trade");
-                }}
-              >
-                <span className="marketCardBadge">{market.short}</span>
-                <div>
-                  <strong>{market.label}</strong>
-                  <small>{market.description} · ● LIVE</small>
-                </div>
-                <b>{currentPrice.toFixed(2)}</b>
-                <em className={isUp ? "green" : "red"}>{isUp ? "▲" : "▼"}</em>
+              <button key={market.symbol} type="button" className="forexMarketCard" onClick={() => openForex(market)}>
+                <span>{market.category === "Crypto" ? "₿" : market.category === "Metals" ? "◆" : "FX"}</span>
+                <div><strong>{market.label}</strong><small>{market.symbol} · {feed.isOpen === false ? "CLOSED" : "OPEN"}</small></div>
+                <b>{formatMarketPrice(feed.price || market.defaultPrice, market)}</b>
                 <i>›</i>
               </button>
             );
@@ -4526,7 +4496,6 @@ function MarketsPage({
     </div>
   );
 }
-
 
 function ForexPage({
   account,
@@ -4544,52 +4513,7 @@ function ForexPage({
   setActivePage,
   openDeposit,
   preparedSetup,
-  updatePosition,
-  closePosition,
 }) {
-  const dragRef = useRef({ type: null, startY: 0, initialVal: 0, openPrice: 0, posId: "" });
-
-  function handleStartDrag(event, type, initialVal, openPrice, posId) {
-    event.preventDefault();
-    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-    dragRef.current = {
-      type,
-      startY: clientY,
-      initialVal: initialVal || openPrice,
-      openPrice,
-      posId
-    };
-    
-    const handleMove = (moveEvent) => {
-      if (!dragRef.current.type) return;
-      const currentY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
-      const deltaY = currentY - dragRef.current.startY;
-      
-      const scaleFactor = dragRef.current.openPrice * 0.0001; 
-      const priceDelta = (dragRef.current.type === "sl" ? -1 : 1) * deltaY * scaleFactor;
-      let newPrice = Number((dragRef.current.initialVal + priceDelta).toFixed(market.decimals || 4));
-      
-      newPrice = Math.max(0, newPrice);
-      
-      updatePosition(dragRef.current.posId, {
-        [dragRef.current.type === "sl" ? "stopLoss" : "takeProfit"]: newPrice
-      });
-    };
-    
-    const handleEnd = () => {
-      dragRef.current = { type: null };
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleEnd);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleEnd);
-    };
-    
-    window.addEventListener("mousemove", handleMove, { passive: true });
-    window.addEventListener("mouseup", handleEnd, { passive: true });
-    window.addEventListener("touchmove", handleMove, { passive: true });
-    window.addEventListener("touchend", handleEnd, { passive: true });
-  }
-
   const minimumVolume = market?.category === "Metals" || market?.category === "Crypto" ? 0.001 : 0.01;
   const volumeStep = minimumVolume;
   const volumeDecimals = minimumVolume < 0.01 ? 3 : 2;
@@ -4731,43 +4655,51 @@ function ForexPage({
           ‹
         </button>
 
-        {/* Middle Details Block (No logo box) */}
-        <div className="forexSymbolDetails">
-          <div className="forexSymbolPickerWrap">
-            <span className="symbolPickerLabel">★ {market.label} · {symbol} <span className="chevronPicker">⌄</span></span>
-            <select
-              value={symbol}
-              onChange={(event) => {
-                seededSymbolRef.current = "";
-                setStopLoss(0);
-                setTakeProfit(0);
-                setSymbol(event.target.value);
-              }}
-              aria-label="Choose market"
-            >
-              {MARKET_OPTIONS.map((option) => (
-                <option key={option.symbol} value={option.symbol}>
-                  {option.label} · {option.symbol}
-                </option>
-              ))}
-            </select>
-          </div>
-          <strong className="forexAssetName">{market.label}</strong>
-          <span className="marketCategoryPill">
-            {market.category === "Metals" ? "Commodity" : market.category}
-          </span>
+        <label className="symbolPicker realSymbolPicker">
+          <span>★</span>
+          <select
+            value={symbol}
+            onChange={(event) => {
+              seededSymbolRef.current = "";
+              setStopLoss(0);
+              setTakeProfit(0);
+              setSymbol(event.target.value);
+            }}
+            aria-label="Choose market"
+          >
+            {MARKET_OPTIONS.map((option) => (
+              <option key={option.symbol} value={option.symbol}>
+                {option.label} · {option.symbol}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="marketNameBlock">
+          <strong>{market.label}</strong>
+          <small>
+            {market.category} · {symbol}
+          </small>
         </div>
 
-        {/* Right Details Block */}
-        <div className="forexSymbolPriceBlock">
-          <strong className={positiveChange ? "green" : "red"}>
-            {formatMarketPrice(livePrice, market)}
-          </strong>
+        <div className="marketPriceBlock">
+          <strong>{formatMarketPrice(livePrice, market)}</strong>
           <small className={positiveChange ? "green" : "red"}>
             {positiveChange ? "+" : ""}
-            {formatMarketPrice(change, market)} ({positiveChange ? "+" : ""}{percentChange.toFixed(2)}%)
-            <span className="arrowTriangle">{positiveChange ? " ▲" : " ▼"}</span>
+            {formatMarketPrice(change, market)} ({positiveChange ? "+" : ""}
+            {percentChange.toFixed(2)}%)
           </small>
+        </div>
+
+        <div className="marketHighLow">
+          <p>
+            <span>High</span>
+            <b>{formatMarketPrice(marketFeed?.high, market)}</b>
+          </p>
+          <p>
+            <span>Low</span>
+            <b>{formatMarketPrice(marketFeed?.low, market)}</b>
+          </p>
         </div>
 
         <span
@@ -4781,17 +4713,34 @@ function ForexPage({
       </section>
 
       <section className="singleTimeframeBar">
-        <div className="timeframeTabs">
-          {MARKET_TIMEFRAMES.map((item) => (
-            <button
-              type="button"
-              key={item.value}
-              className={timeframe === item.value ? "active" : ""}
-              onClick={() => setTimeframe(item.value)}
-            >
-              {item.short}
-            </button>
-          ))}
+        <div className="timeframeSummary">
+          <small>Chart timeframe</small>
+          <strong>{currentTimeframe.label}</strong>
+        </div>
+
+        <label className="timeframeSelect">
+          <span>{currentTimeframe.short}</span>
+          <select
+            value={timeframe}
+            onChange={(event) => setTimeframe(event.target.value)}
+            aria-label="Choose chart timeframe"
+          >
+            {MARKET_TIMEFRAMES.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+          <b>⌄</b>
+        </label>
+
+        <div className="marketFeedMessage">
+          <span>{marketOpen ? "Live market data" : "Last market session"}</span>
+          <small>
+            {market.symbol === "BTC/USD"
+              ? "Bitcoin quote refreshes automatically"
+              : "Live forex pricing is verified by the backend"}
+          </small>
         </div>
       </section>
 
@@ -4801,92 +4750,39 @@ function ForexPage({
           timeframe={timeframe}
           marketOpen={marketOpen}
         />
-
-        {visiblePositions.map((pos) => {
-          const currentSlDiff = pos.stopLoss > 0
-            ? (pos.side === "Buy" ? pos.openPrice - pos.stopLoss : pos.stopLoss - pos.openPrice)
-            : 0;
-          const currentTpDiff = pos.takeProfit > 0
-            ? (pos.side === "Buy" ? pos.takeProfit - pos.openPrice : pos.openPrice - pos.takeProfit)
-            : 0;
-
-          const slPercent = 50 + (pos.side === "Buy" ? 1 : -1) * (pos.stopLoss > 0 ? Math.min(35, (currentSlDiff / (pos.openPrice * 0.01)) * 15) : 15);
-          const tpPercent = 50 + (pos.side === "Buy" ? -1 : 1) * (pos.takeProfit > 0 ? Math.min(35, (currentTpDiff / (pos.openPrice * 0.01)) * 15) : 15);
-
-          return (
-            <Fragment key={pos.id}>
-              {/* Entry Price Line with live numbers showing P/L */}
-              <div className="chartPositionLine entry" style={{ top: "50%" }}>
-                <span>{pos.side} {pos.volume} lot @ {pos.openPrice}</span>
-                <b className={Number(pos.pl || 0) >= 0 ? "green" : "red"}>
-                  {Number(pos.pl || 0) >= 0 ? "+" : ""}{money(pos.pl)} USD
-                </b>
-                
-                {/* Active Level Add Buttons */}
-                {(!pos.stopLoss || Number(pos.stopLoss) === 0) && (
-                  <button
-                    type="button"
-                    className="addChartParamBtn addSlBtn"
-                    onClick={() => {
-                      const defaultSl = pos.side === "Buy" ? pos.openPrice * 0.98 : pos.openPrice * 1.02;
-                      updatePosition(pos.id, { stopLoss: Number(defaultSl.toFixed(market.decimals || 2)) });
-                    }}
-                  >
-                    + SL
-                  </button>
-                )}
-
-                {(!pos.takeProfit || Number(pos.takeProfit) === 0) && (
-                  <button
-                    type="button"
-                    className="addChartParamBtn addTpBtn"
-                    onClick={() => {
-                      const defaultTp = pos.side === "Buy" ? pos.openPrice * 1.02 : pos.openPrice * 0.98;
-                      updatePosition(pos.id, { takeProfit: Number(defaultTp.toFixed(market.decimals || 2)) });
-                    }}
-                  >
-                    + TP
-                  </button>
-                )}
-
-                <button type="button" className="closePositionBtn" onClick={() => closePosition(pos.id)}>Close</button>
-              </div>
-
-              {/* Stop Loss (SL) Draggable Line - Render only if explicitly set */}
-              {pos.stopLoss > 0 && (
-                <div
-                  className="chartPositionLine sl draggable"
-                  style={{ top: `${slPercent}%` }}
-                  onMouseDown={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
-                  onTouchStart={(e) => handleStartDrag(e, "sl", pos.stopLoss, pos.openPrice, pos.id)}
-                >
-                  <span>
-                    SL: {pos.stopLoss.toFixed(market.decimals || 2)}
-                    <button type="button" className="clearParamBtn" onClick={() => updatePosition(pos.id, { stopLoss: 0 })} aria-label="Clear Stop Loss">×</button>
-                  </span>
-                  <div className="dragHandle">⇅</div>
-                </div>
-              )}
-
-              {/* Take Profit (TP) Draggable Line - Render only if explicitly set */}
-              {pos.takeProfit > 0 && (
-                <div
-                  className="chartPositionLine tp draggable"
-                  style={{ top: `${tpPercent}%` }}
-                  onMouseDown={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
-                  onTouchStart={(e) => handleStartDrag(e, "tp", pos.takeProfit, pos.openPrice, pos.id)}
-                >
-                  <span>
-                    TP: {pos.takeProfit.toFixed(market.decimals || 2)}
-                    <button type="button" className="clearParamBtn" onClick={() => updatePosition(pos.id, { takeProfit: 0 })} aria-label="Clear Take Profit">×</button>
-                  </span>
-                  <div className="dragHandle">⇅</div>
-                </div>
-              )}
-            </Fragment>
-          );
-        })}
       </section>
+
+      {visiblePositions.length > 0 && (
+        <section className="forexLiveTradeLines" aria-label="Open positions on this market">
+          <header>
+            <div><small>OPEN POSITION{visiblePositions.length === 1 ? "" : "S"}</small><strong>{symbol}</strong></div>
+            <button type="button" onClick={() => setActivePage("openTrades")}>View all ({accountPositions.length})</button>
+          </header>
+          {visiblePositions.map((position) => {
+            const expanded = expandedLiveTradeId === position.id;
+            const positive = Number(position.pl || 0) >= 0;
+            return (
+              <article className={`forexLiveTradeLine ${expanded ? "expanded" : ""}`} key={position.id}>
+                <button type="button" className="forexLiveTradeSummary" onClick={() => setExpandedLiveTradeId(expanded ? "" : position.id)}>
+                  <span><strong>{position.instrument}</strong><small className={position.side === "Buy" ? "green" : "red"}>{position.side}</small></span>
+                  <span><small>Volume</small><b>{position.volume} lot</b></span>
+                  <span><small>Entry</small><b>{formatMarketPrice(position.openPrice, position.instrument)}</b></span>
+                  <span><small>Live P/L</small><b className={positive ? "green" : "red"}>{positive ? "+" : ""}{money(position.pl)} USD</b></span>
+                  <i>{expanded ? "⌃" : "⌄"}</i>
+                </button>
+                {expanded && (
+                  <div className="forexLiveTradeDetails">
+                    <p><span>Current price</span><b>{formatMarketPrice(position.currentPrice || position.openPrice, position.instrument)}</b></p>
+                    <p><span>Stop loss</span><b>{Number(position.stopLoss || 0) > 0 ? formatMarketPrice(position.stopLoss, position.instrument) : "Not set"}</b></p>
+                    <p><span>Take profit</span><b>{Number(position.takeProfit || 0) > 0 ? formatMarketPrice(position.takeProfit, position.instrument) : "Not set"}</b></p>
+                    <p><span>Leverage</span><b>{position.leverage || "1:100"}</b></p>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </section>
+      )}
 
       <section className="proOrderPanel forexOrderCard marketOrderStack">
         <div className="tradeActionColumn marketActionColumn">
@@ -5096,20 +4992,10 @@ function OpenTradesPage({
           return (
             <article className={`compactTradePosition ${expanded ? "expanded" : ""}`} key={p.id}>
               <button type="button" className="compactTradeSummary" onClick={() => setExpandedId(expanded ? "" : p.id)}>
-                <span className="tradeSummaryAsset">
-                  <strong>{p.instrument}</strong>
-                  <span className="tradeSummaryMeta">
-                    <small className={p.side === "Buy" ? "green" : "red"}>{p.side}</small>
-                    <small>{p.volume} lot</small>
-                  </span>
-                </span>
-                <span className="tradeSummaryPL">
-                  <b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>
-                    {Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)}
-                  </b>
-                  <small>USD</small>
-                </span>
-                <i className="tradeSummaryChevron">{expanded ? "⌃" : "⌄"}</i>
+                <span><strong>{p.instrument}</strong><small className={p.side === "Buy" ? "green" : "red"}>{p.side}</small></span>
+                <span><small>Volume</small><b>{p.volume} lot</b></span>
+                <span><small>P/L</small><b className={Number(p.pl || 0) >= 0 ? "green" : "red"}>{Number(p.pl || 0) >= 0 ? "+" : ""}{money(p.pl)} USD</b></span>
+                <i>{expanded ? "⌃" : "⌄"}</i>
               </button>
 
               {expanded && (
@@ -5186,13 +5072,50 @@ function OrderInput({
 }
 
 function TradingViewMarketChart({ market, timeframe, marketOpen }) {
+  const containerRef = useRef(null);
   const timeframeConfig =
     MARKET_TIMEFRAMES.find((item) => item.value === timeframe) ||
     MARKET_TIMEFRAMES[0];
 
-  const iframeSrc = `https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(
-    market.tradingViewSymbol
-  )}&interval=${timeframeConfig.tradingView}&theme=dark&style=1&timezone=Etc%2FUTC&locale=en&hideideas=1`;
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    container.innerHTML =
+      '<div class="tradingview-widget-container__widget"></div>';
+
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src =
+      "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol: market.tradingViewSymbol,
+      interval: timeframeConfig.tradingView,
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      backgroundColor: "rgba(2, 7, 13, 1)",
+      gridColor: "rgba(35, 55, 78, 0.35)",
+      hide_top_toolbar: true,
+      hide_legend: false,
+      allow_symbol_change: false,
+      save_image: false,
+      calendar: false,
+      details: false,
+      hotlist: false,
+      withdateranges: false,
+      support_host: "https://www.tradingview.com",
+    });
+
+    container.appendChild(script);
+
+    return () => {
+      container.innerHTML = "";
+    };
+  }, [market.tradingViewSymbol, timeframeConfig.tradingView]);
 
   return (
     <div className="realChartShell">
@@ -5208,13 +5131,10 @@ function TradingViewMarketChart({ market, timeframe, marketOpen }) {
         </strong>
       </div>
 
-      <div className="tradingview-widget-container realTradingViewWidget">
-        <iframe
-          src={iframeSrc}
-          style={{ width: "100%", height: "100%", border: "none" }}
-          title="TradingView Market Chart"
-        />
-      </div>
+      <div
+        className="tradingview-widget-container realTradingViewWidget"
+        ref={containerRef}
+      />
 
       <div className="chartGestureHint">
         Drag to move · Pinch to zoom · Scroll through history
@@ -5310,7 +5230,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [], currentPriceText }) {
+function LineChart({ data = [] }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -5340,61 +5260,17 @@ function LineChart({ data = [], currentPriceText }) {
 
   const areaPath = `${linePath} L100,100 L0,100 Z`;
 
-  const lastPoint = points[points.length - 1] || [100, 50];
-  const lastY = lastPoint[1];
-  const isUp = safeValues.length >= 2 ? safeValues[safeValues.length - 1] >= safeValues[safeValues.length - 2] : true;
-  const accentColor = isUp ? "#00c853" : "#ff3d00";
-
   return (
-    <div className="lineChart" aria-hidden="true" style={{ position: "relative", width: "100%", height: "100%" }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height: "100%", overflow: "visible" }}>
-        <path className="areaPath" d={areaPath} style={{ fill: `url(#areaGradient-${isUp ? 'up' : 'down'})`, opacity: 0.15 }} />
-        
-        <defs>
-          <linearGradient id="areaGradient-up" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#00c853" />
-            <stop offset="100%" stopColor="transparent" />
-          </linearGradient>
-          <linearGradient id="areaGradient-down" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ff3d00" />
-            <stop offset="100%" stopColor="transparent" />
-          </linearGradient>
-        </defs>
-
-        <line x1="0" y1={lastY} x2="100" y2={lastY} stroke={accentColor} strokeDasharray="1.5,1.5" strokeWidth="0.3" opacity="0.7" />
-
+    <div className="lineChart" aria-hidden="true">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path className="areaPath" d={areaPath} />
         <path
           className="linePath"
           d={linePath}
-          stroke={accentColor}
-          strokeWidth="1.2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          fill="none"
         />
-
-        <circle cx="100" cy={lastY} r="1.4" fill={accentColor} />
-        <circle cx="100" cy={lastY} r="3" fill="none" stroke={accentColor} strokeWidth="0.4" opacity="0.8" className="pulseCircle" />
       </svg>
-
-      <div className="dynamicPriceLabel" style={{
-        position: "absolute",
-        right: "0px",
-        top: `${lastY}%`,
-        transform: "translateY(-50%)",
-        background: accentColor,
-        color: "#fff",
-        fontSize: "12px",
-        fontWeight: "bold",
-        padding: "4px 8px",
-        borderRadius: "6px",
-        zIndex: 10,
-        boxShadow: `0 0 12px ${accentColor}80`,
-        pointerEvents: "none",
-        transition: "top 0.15s ease-out"
-      }}>
-        {currentPriceText}
-      </div>
     </div>
   );
 }
@@ -5538,32 +5414,29 @@ function TradePage({
         )}
       </section>
 
-      <section className="proTradeChartCard binaryChartWithDigits finalBinaryChartCard">
+      <section className={`proTradeChartCard binaryChartWithDigits finalBinaryChartCard ${digitMode ? "digitOnlyCard" : "priceOnlyCard"}`}>
         {!digitMode && (
           <>
-            <div className="proChartTitle finalBinaryChartTitle">
-              <div className="binarySelectedMarketMini"><span>{binaryMarket?.short || "V100 1s"}</span><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></div>
-              <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
-              <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
-              <button className="binaryFullscreenButton" type="button">⛶</button>
-            </div>
+        <div className="proChartTitle finalBinaryChartTitle">
+          <div className="binarySelectedMarketMini"><span>{binaryMarket?.short || "V100 1s"}</span><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></div>
+          <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
+          <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
+          <button className="binaryFullscreenButton" type="button">⛶</button>
+        </div>
 
-            <div className="proChartArea finalBinaryChartArea">
-              <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
-              <div className="proChartCanvas">
-                <LineChart
-                  data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
-                  currentPriceText={indexValue.toFixed(2)}
-                />
-                <div className="worldMapGlow"></div>
-                <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
-                {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
-                {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
-                {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
-              </div>
-            </div>
+        <div className="proChartArea finalBinaryChartArea">
+          <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
+          <div className="proChartCanvas">
+            <LineChart data={prices.map((value) => value * Number(binaryMarket?.scale || 800))} />
+            <div className="worldMapGlow"></div>
+            <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
+            {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
+            {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
+            {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
+          </div>
+        </div>
 
-            <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
+        <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
           </>
         )}
 
@@ -5579,7 +5452,23 @@ function TradePage({
 
         {digitMode ? (
           <div className={`mbDigitBoardV7 ${activeBinaryTrade ? "isTrading" : ""}`}>
-            <div className="mbDigitGridV7" aria-label="Digit percentages" style={{ "--active-col": lastDigit % 5, "--active-row": Math.floor(lastDigit / 5) }}>
+            <div className="digitBoardHeaderV21">
+              <span><small>LIVE LAST DIGIT</small><strong>{lastDigit}</strong></span>
+              <div>
+                <small>{binaryMarket?.short || "V100 1s"}</small>
+                <strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong>
+              </div>
+              <b>Statistics from last {DIGIT_HISTORY_LIMIT} ticks</b>
+            </div>
+            <div
+              className="mbDigitGridV7"
+              aria-label="Digit percentages"
+              style={{
+                "--mb-active-digit": lastDigit,
+                "--mb-active-col": lastDigit % 5,
+                "--mb-active-row": Math.floor(lastDigit / 5),
+              }}
+            >
               {digitStats.map((percent, digit) => {
                 const isHighest = Math.abs(percent - highestPercent) < 0.01;
                 const isLowest = Math.abs(percent - lowestPercent) < 0.01;
@@ -5634,8 +5523,7 @@ function TradePage({
                   </button>
                 );
               })}
-              {/* Single smooth sliding cursor */}
-              <div className="singleDigitCursorV7" aria-hidden="true" />
+              <i className="singleDigitCursorV7" aria-hidden="true" />
             </div>
           </div>
         ) : (
@@ -5648,7 +5536,9 @@ function TradePage({
           </div>
         )}
 
-        <div className="chartToolRow finalChartToolRow"><button type="button">⌁</button><button type="button">▥</button><button type="button">▱</button><button type="button">⛶</button></div>
+        {!digitMode && (
+          <div className="chartToolRow finalChartToolRow"><button type="button">⌁</button><button type="button">▥</button><button type="button">▱</button><button type="button">⛶</button></div>
+        )}
       </section>
 
       <section className="proBinaryOrderCard finalBinaryOrderCard">
@@ -5660,7 +5550,7 @@ function TradePage({
         )}
         <div className="orderInputsTop finalOrderInputs">
           <label className="finalTicksControl"><span>Ticks</span><div className="finalTicksBox"><button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button><select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>{tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}</select><button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button></div></label>
-          <label className="finalStakeControl"><span>Amount to trade</span><div className="finalStakeBox"><button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button><div className="finalStakeInputWrap"><input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} /><small>USD</small></div><button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button></div><div className="quickStakeRow">{quickStakeValues.map((value) => <button key={value} type="button" onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div></label>
+          <label className="finalStakeControl"><span>Amount to trade</span><div className="proStakeBox finalStakeBox"><button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button><div className="finalStakeInputWrap"><input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} /><small>USD</small></div><button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button></div><div className="quickStakeRow">{quickStakeValues.map((value) => <button key={value} type="button" onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div></label>
         </div>
         <div className="proTradeButtons finalTradeButtons">
           <button
@@ -6039,7 +5929,7 @@ function BotLivePage({
   );
 }
 
-function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage, openKyc, openSupport }) {
+function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage }) {
   const realBalance = balances?.real || 0;
   const demoBalance = balances?.demo || 10000;
   const accountId = user?.brokerId || "MB168844";
@@ -6087,7 +5977,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
       text: "Verify your identity to unlock all platform features",
       button: user?.verified ? "Verified ✓" : "Start Verification",
       color: "green",
-      action: openKyc,
+      action: () => {},
     },
     {
       icon: "💳",
@@ -6193,7 +6083,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
               <strong>● Online</strong>
             </div>
 
-            <button onClick={openSupport}>Contact Support ›</button>
+            <button>Contact Support ›</button>
           </div>
         </div>
 
@@ -6442,185 +6332,42 @@ function ReferralDashboardPage({ dashboard, loading, applyReferralProgram, refre
   );
 }
 
-function HistoryPage({ transactions, closedPositions }) {
-  const [tab, setTab] = useState("wallet");
-
-  const walletTx = transactions.filter((tx) => 
-    tx.type.toLowerCase().includes("deposit") || 
-    tx.type.toLowerCase().includes("withdraw") ||
-    tx.type.toLowerCase().includes("transfer")
-  );
-
-  const binaryTx = transactions.filter((tx) => 
-    tx.type.toLowerCase().includes("profit") || 
-    tx.type.toLowerCase().includes("loss")
-  );
-
-  const forexTx = closedPositions;
-
+function HistoryPage({ transactions }) {
   return (
-    <div className="page reportsPage listPage">
-      <h1>History Dashboard</h1>
-      
-      <div className="marketsCategoryTabs" style={{ marginBottom: "16px" }}>
-        <button className={tab === "wallet" ? "active" : ""} onClick={() => setTab("wallet")}>
-          💰 Wallet
-        </button>
-        <button className={tab === "binary" ? "active" : ""} onClick={() => setTab("binary")}>
-          ↕ Binary Options
-        </button>
-        <button className={tab === "forex" ? "active" : ""} onClick={() => setTab("forex")}>
-          📈 Forex CFDs
-        </button>
-      </div>
+    <div className="page listPage">
+      <h1>History</h1>
 
-      <section className="listPanel" style={{ background: "rgba(10, 24, 43, 0.72)", backdropFilter: "blur(16px)", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)" }}>
-        {tab === "wallet" && (
-          <>
-            {walletTx.length === 0 && <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "20px" }}>No deposits or withdrawals yet.</p>}
-            {walletTx.map((tx) => (
-              <div key={tx.id} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <span>
-                  <strong style={{ color: "#fff", display: "block" }}>{tx.type}</strong>
-                  <small style={{ color: "var(--mb-muted)", fontSize: "11px" }}>{tx.time}</small>
-                </span>
-                <b className={tx.amount >= 0 ? "green" : "red"} style={{ fontSize: "15px" }}>
-                  {tx.amount >= 0 ? "+" : ""}{money(tx.amount)} USD
-                </b>
-              </div>
-            ))}
-          </>
-        )}
+      <section className="listPanel">
+        {transactions.length === 0 && <p>No history yet.</p>}
 
-        {tab === "binary" && (
-          <>
-            {binaryTx.length === 0 && <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "20px" }}>No binary contracts settled yet.</p>}
-            {binaryTx.map((tx) => (
-              <div key={tx.id} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <span>
-                  <strong style={{ color: "#fff", display: "block" }}>{tx.status} · {tx.details}</strong>
-                  <small style={{ color: "var(--mb-muted)", fontSize: "11px" }}>{tx.time} ({tx.method})</small>
-                </span>
-                <b className={tx.amount >= 0 ? "green" : "red"} style={{ fontSize: "15px" }}>
-                  {tx.amount >= 0 ? "+" : ""}{money(tx.amount)} USD
-                </b>
-              </div>
-            ))}
-          </>
-        )}
+        {transactions.slice(0, 14).map((tx) => (
+          <div key={tx.id}>
+            <span>
+              <strong>{tx.type}</strong>
+              <small>{tx.time}</small>
+            </span>
 
-        {tab === "forex" && (
-          <>
-            {forexTx.length === 0 && <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "20px" }}>No Forex positions closed yet.</p>}
-            {forexTx.map((pos) => {
-              const profit = Number(pos.pl || 0);
-              return (
-                <div key={pos.id} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                  <span>
-                    <strong style={{ color: "#fff", display: "block" }}>{pos.side} {pos.instrument}</strong>
-                    <small style={{ color: "var(--mb-muted)", fontSize: "11px" }}>Vol: {pos.volume} lot · Entry: {pos.openPrice}</small>
-                  </span>
-                  <b className={profit >= 0 ? "green" : "red"} style={{ fontSize: "15px" }}>
-                    {profit >= 0 ? "+" : ""}{money(profit)} USD
-                  </b>
-                </div>
-              );
-            })}
-          </>
-        )}
+            <b className={tx.amount >= 0 ? "green" : "red"}>
+              {tx.amount >= 0 ? "+" : ""}
+              {money(tx.amount)} USD
+            </b>
+          </div>
+        ))}
       </section>
     </div>
   );
 }
 
 function ReportsPage({ transactions, closedPositions, botTrades }) {
-  const settledBinary = transactions.filter((tx) => 
-    tx.type.toLowerCase().includes("profit") || 
-    tx.type.toLowerCase().includes("loss")
-  );
-
-  const totalBinaryPnl = settledBinary.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-  const totalForexPnl = closedPositions.reduce((sum, pos) => sum + Number(pos.pl || 0), 0);
-  const totalBotPnl = botTrades.reduce((sum, bt) => sum + Number(bt.net || 0), 0);
-  const netPnl = totalBinaryPnl + totalForexPnl + totalBotPnl;
-
-  const totalTrades = settledBinary.length + closedPositions.length + botTrades.length;
-  const winsCount = 
-    settledBinary.filter((tx) => tx.status === "WON").length + 
-    closedPositions.filter((pos) => Number(pos.pl || 0) >= 0).length + 
-    botTrades.filter((bt) => bt.won).length;
-
-  const winRate = totalTrades > 0 ? ((winsCount / totalTrades) * 100).toFixed(1) : "0.0";
-
-  const pnlHistory = [
-    ...settledBinary.map((tx) => ({ amount: tx.amount, date: tx.time })),
-    ...closedPositions.map((pos) => ({ amount: pos.pl, date: pos.closedAt })),
-  ]
-    .slice(-8)
-    .map((item) => Number(item.amount || 0));
-
   return (
     <div className="page reportsPage">
-      <h1>Reports Dashboard</h1>
+      <h1>Reports</h1>
 
       <section className="homeStats">
-        <div className="statCard">
-          <b>💰</b>
-          <span>
-            <strong className={netPnl >= 0 ? "green" : "red"}>
-              {netPnl >= 0 ? "+" : ""}{money(netPnl)} USD
-            </strong>
-            <small>Total Net P/L</small>
-          </span>
-        </div>
-
-        <div className="statCard">
-          <b>🎯</b>
-          <span>
-            <strong>{winRate}%</strong>
-            <small>Win Rate</small>
-          </span>
-        </div>
-
-        <div className="statCard">
-          <b>📊</b>
-          <span>
-            <strong>{totalTrades}</strong>
-            <small>Total Contracts</small>
-          </span>
-        </div>
-
-        <div className="statCard">
-          <b>🤖</b>
-          <span>
-            <strong className={totalBotPnl >= 0 ? "green" : "red"}>
-              {totalBotPnl >= 0 ? "+" : ""}{money(totalBotPnl)} USD
-            </strong>
-            <small>Bot Profits</small>
-          </span>
-        </div>
-      </section>
-
-      <section className="listPanel" style={{ background: "rgba(10, 24, 43, 0.72)", backdropFilter: "blur(16px)", padding: "20px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", marginTop: "12px" }}>
-        <h3 style={{ color: "#fff", marginBottom: "12px", fontSize: "15px", fontWeight: "700" }}>Performance Visualizer</h3>
-        
-        {pnlHistory.length === 0 ? (
-          <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "30px 0" }}>Trade to generate performance graph data.</p>
-        ) : (
-          <div style={{ display: "flex", alignItems: "flex-end", justifySelf: "center", height: "120px", gap: "10px", padding: "10px 0", maxWidth: "100%", overflowX: "auto" }}>
-            {pnlHistory.map((val, idx) => {
-              const limit = Math.max(...pnlHistory.map(Math.abs), 1);
-              const heightPct = Math.min(100, Math.max(12, (Math.abs(val) / limit) * 100));
-              return (
-                <div key={idx} style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                  <span style={{ fontSize: "10px", color: val >= 0 ? "#00c853" : "#ff3d00" }}>{val >= 0 ? "+" : ""}{val.toFixed(1)}</span>
-                  <div style={{ width: "24px", height: `${heightPct}px`, background: val >= 0 ? "linear-gradient(to top, rgba(0,200,83,0.1), #00c853)" : "linear-gradient(to top, rgba(255,61,0,0.1), #ff3d00)", borderRadius: "4px" }} />
-                  <span style={{ fontSize: "9px", color: "var(--mb-muted)" }}>#{idx + 1}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <Stat value={transactions.length} label="Transactions" spark="blue" />
+        <Stat value={closedPositions.length} label="Forex Closed" spark="green" />
+        <Stat value={botTrades.filter((x) => x.won).length} label="Bot Wins" spark="purple" />
+        <Stat value={botTrades.filter((x) => !x.won).length} label="Bot Losses" spark="yellow" />
       </section>
     </div>
   );
@@ -6778,10 +6525,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [progress, setProgress] = useState(0);
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
-  const [position, setPosition] = useState(() => readStore(STORE.aiPosition, {
-    x: typeof window !== "undefined" ? window.innerWidth - 74 : 290,
-    y: typeof window !== "undefined" ? window.innerHeight - 180 : 480
-  }));
+  const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
   const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10 });
   const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
 
@@ -6792,7 +6536,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const buttonSize = window.innerWidth <= 760 ? 58 : 66;
       const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
       const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
-      const reservedBottom = 88;
+      const reservedBottom = activePage === "trade" ? 254 : activePage === "botLive" ? 92 : 78;
       const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
       setPosition((old) => ({
         x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, Number(old?.x || window.innerWidth - buttonSize - 16))),
@@ -7003,51 +6747,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
           <footer>
             <button className="aiScanAgain" onClick={scan} disabled={scanning || autoSession?.running}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>
-            {result && !autoSession?.running && (
-              <button
-                className="aiUseSetup"
-                onClick={() => {
-                  const merged = {
-                    ...result,
-                    stake: config.stake,
-                    takeProfit: config.takeProfit,
-                    stopLoss: config.stopLoss,
-                    config: result.config ? {
-                      ...result.config,
-                      stake: config.stake,
-                      takeProfit: config.takeProfit,
-                      stopLoss: config.stopLoss,
-                    } : undefined,
-                  };
-                  onApply(merged);
-                  setOpen(false);
-                }}
-              >
-                Use Setup
-              </button>
-            )}
-            {result && !autoSession?.running && (
-              <button
-                className="aiStartAuto"
-                onClick={() => {
-                  const merged = {
-                    ...result,
-                    stake: config.stake,
-                    takeProfit: config.takeProfit,
-                    stopLoss: config.stopLoss,
-                    config: result.config ? {
-                      ...result.config,
-                      stake: config.stake,
-                      takeProfit: config.takeProfit,
-                      stopLoss: config.stopLoss,
-                    } : undefined,
-                  };
-                  void onAutoTrade(merged);
-                }}
-              >
-                Start AI Auto-Trade
-              </button>
-            )}
+            {result && !autoSession?.running && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use Setup</button>}
+            {result && !autoSession?.running && <button className="aiStartAuto" onClick={() => void onAutoTrade(result)}>Start AI Auto-Trade</button>}
           </footer>
           <small className="aiSafetyNote">Pressing Start AI Auto-Trade is your confirmation. It continues until the target profit, stop loss, insufficient balance, an error, or manual stop. Results are not guaranteed.</small>
         </section>
@@ -7129,7 +6830,7 @@ function PaymentButton({ icon, title, text, onClick }) {
 }
 
 
-function SupportChat({ user, activePage, account, isOpenOverride, setIsOpenOverride }) {
+function SupportChat({ user, activePage, account }) {
   const categories = [
     ["wallet", "Deposit or withdrawal"],
     ["trading", "Trading or Forex"],
@@ -7137,9 +6838,7 @@ function SupportChat({ user, activePage, account, isOpenOverride, setIsOpenOverr
     ["account", "Account or password"],
     ["other", "Something else"],
   ];
-  const [localOpen, setLocalOpen] = useState(false);
-  const open = isOpenOverride !== undefined ? isOpenOverride : localOpen;
-  const setOpen = setIsOpenOverride !== undefined ? setIsOpenOverride : setLocalOpen;
+  const [open, setOpen] = useState(false);
   const [stage, setStage] = useState("topic");
   const [category, setCategory] = useState("");
   const [details, setDetails] = useState("");
@@ -7937,122 +7636,6 @@ function Toast({ toast }) {
       <div>
         <strong>{toast.title}</strong>
         <span>{toast.message}</span>
-      </div>
-    </div>
-  );
-}
-
-function KycModal({ close, user, onVerified }) {
-  const [docType, setDocType] = useState("National ID");
-  const [docNumber, setDocNumber] = useState("");
-  const [fullName, setFullName] = useState(user?.fullName || "");
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (submitting) return;
-    if (!docNumber.trim()) {
-      setError("Please enter your document number.");
-      return;
-    }
-    setSubmitting(true);
-    setError("");
-
-    try {
-      const token = localStorage.getItem("mb_auth_token") || "";
-      const response = await fetch(`${API_URL}/api/settings/kyc`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ docType, docNumber, fullName }),
-      });
-      const data = await response.json();
-      if (!response.ok || data.ok === false) {
-        throw new Error(data.message || "KYC verification failed.");
-      }
-      setSuccess(true);
-      if (onVerified) onVerified(data.user);
-      setTimeout(() => {
-        close();
-      }, 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div className="modalLayer">
-      <div className="depositModal kycModal" role="dialog" aria-modal="true" aria-label="Identity Verification">
-        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
-          ×
-        </button>
-        {success ? (
-          <div style={{ textAlign: "center", padding: "20px 0" }}>
-            <h2 style={{ color: "#35e5b8", fontSize: "32px", marginBottom: "10px" }}>✓ Verified</h2>
-            <p>Your identity has been verified successfully!</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <h2>KYC Verification</h2>
-            <p>Verify your identity to unlock deposits, withdrawals, and live trading.</p>
-
-            {error && <div className="kycError" style={{ color: "#ff4057", marginBottom: "10px", fontSize: "14px" }}>{error}</div>}
-
-            <label>Full Legal Name</label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              disabled={submitting}
-              required
-            />
-
-            <label>Document Type</label>
-            <select value={docType} onChange={(e) => setDocType(e.target.value)} disabled={submitting}>
-              <option value="National ID">National ID</option>
-              <option value="Passport">Passport</option>
-              <option value="Driver's License">Driver's License</option>
-            </select>
-
-            <label>Document Number</label>
-            <input
-              type="text"
-              placeholder="e.g. 12345678"
-              value={docNumber}
-              onChange={(e) => setDocNumber(e.target.value)}
-              disabled={submitting}
-              required
-            />
-
-            <label>Upload Document Photo</label>
-            <div
-              className="kycUploadBox"
-              style={{
-                border: "1px dashed rgba(255,255,255,0.15)",
-                borderRadius: "8px",
-                padding: "20px",
-                textAlign: "center",
-                background: "rgba(255,255,255,0.02)",
-                cursor: "pointer",
-                marginBottom: "20px",
-              }}
-            >
-              <span style={{ fontSize: "24px", display: "block" }}>📁</span>
-              <span style={{ fontSize: "12px", color: "var(--mb-muted)", display: "block", marginTop: "5px" }}>
-                Drag and drop your ID scan, or click to browse
-              </span>
-            </div>
-
-            <button type="submit" className="modalPrimary" disabled={submitting}>
-              {submitting ? "Verifying details..." : "Submit Verification"}
-            </button>
-          </form>
-        )}
       </div>
     </div>
   );

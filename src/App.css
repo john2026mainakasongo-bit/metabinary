@@ -28988,4 +28988,606 @@ body,
   }
 }
 
+/* ==========================================================================
+   METABINARY V21 — CONTRACT-SPECIFIC CHART + RESPONSIVE FOREX FINAL OVERRIDES
+   Added 2026-07-15. Keep this block at the very end of App.css so these
+   rules win over older responsive experiments without changing app logic.
+   ========================================================================== */
+
+/* ---------- Binary trade: digit contracts do not render the price chart ---------- */
+.finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard .mbDigitBoardV7 {
+  margin: 0 !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 14px !important;
+  padding: 11px 14px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, rgba(8, 25, 43, 0.96), rgba(2, 10, 19, 0.98)) !important;
+  border: 1px solid rgba(80, 160, 255, 0.22) !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 > span {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  align-content: center !important;
+  background: rgba(0, 140, 255, 0.12) !important;
+  border: 1px solid rgba(0, 184, 255, 0.45) !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 > span small,
+.finalBinaryTradePage .digitBoardHeaderV21 > div small {
+  color: #8fa6c0 !important;
+  font-size: 9px !important;
+  line-height: 1.1 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.35px !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 > span strong {
+  color: #ffffff !important;
+  font-size: 25px !important;
+  line-height: 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 > div {
+  min-width: 0 !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 > div strong {
+  display: block !important;
+  margin-top: 3px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
+
+.finalBinaryTradePage .digitBoardHeaderV21 > b {
+  color: #9fb0c5 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+/* One cursor only. It slides between digits instead of creating one arrow per circle. */
+.finalBinaryTradePage .mbDigitGridV7 {
+  position: relative !important;
+}
+
+.finalBinaryTradePage .singleDigitCursorV7 {
+  position: absolute !important;
+  z-index: 40 !important;
+  left: calc((var(--mb-active-digit) + 0.5) * 10%) !important;
+  bottom: -2px !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 8px solid transparent !important;
+  border-right: 8px solid transparent !important;
+  border-bottom: 12px solid #ff4a55 !important;
+  border-top: 0 !important;
+  background: transparent !important;
+  filter: drop-shadow(0 -3px 7px rgba(255, 74, 85, 0.65)) !important;
+  transform: translateX(-50%) !important;
+  transition:
+    left 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.34s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .mbDigitCellV7.mbDigitCurrentV7 {
+  animation: mbDigitLandingV21 0.42s ease-out !important;
+}
+
+@keyframes mbDigitLandingV21 {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.13); }
+  100% { transform: scale(1); }
+}
+
+/* Highest = cyan/turquoise, lowest = red. Settlement colors stay stronger. */
+.finalBinaryTradePage .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  filter: drop-shadow(0 0 8px rgba(0, 224, 255, 0.68)) !important;
+}
+
+.finalBinaryTradePage .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(from 270deg, #08d9ff 0deg 180deg, #566270 180deg 360deg) !important;
+}
+
+.finalBinaryTradePage .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  filter: drop-shadow(0 0 8px rgba(255, 64, 87, 0.62)) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultWinV7 {
+  filter: drop-shadow(0 0 12px rgba(0, 232, 132, 0.8)) !important;
+}
+
+.finalBinaryTradePage .mbDigitResultLossV7 {
+  filter: drop-shadow(0 0 12px rgba(255, 64, 87, 0.8)) !important;
+}
+
+/* ---------- Forex: reliable desktop/laptop sizing ---------- */
+.forexPage.realMarketPublishPage {
+  min-width: 0 !important;
+}
+
+.forexPage .realMarketHeaderCard,
+.forexPage .singleTimeframeBar,
+.forexPage .realMarketChartPanel,
+.forexPage .marketOrderStack {
+  min-width: 0 !important;
+}
+
+.forexPage .realMarketChartPanel,
+.forexPage .realChartShell,
+.forexPage .realTradingViewWidget,
+.forexPage .realTradingViewWidget > div,
+.forexPage .realTradingViewWidget iframe {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.forexPage .realTradingViewWidget,
+.forexPage .realTradingViewWidget > div,
+.forexPage .realTradingViewWidget iframe {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+@media (min-width: 761px) and (max-width: 1280px) {
+  .forexPage.realMarketPublishPage {
+    grid-template-rows: auto auto minmax(360px, 1fr) auto !important;
+    gap: 10px !important;
+    overflow-y: auto !important;
+  }
+
+  .forexPage .realMarketHeaderCard {
+    grid-template-columns: 42px minmax(190px, 1.25fr) minmax(150px, 1fr) auto auto !important;
+    gap: 10px !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketHighLow {
+    display: none !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    min-height: 380px !important;
+    height: min(52vh, 560px) !important;
+    max-height: 560px !important;
+  }
+
+  .forexPage .marketOrderStack {
+    grid-template-columns: minmax(260px, 0.9fr) minmax(430px, 1.4fr) !important;
+    align-items: stretch !important;
+  }
+
+  .forexPage .viewOpenTradesBtn,
+  .forexPage .realMarketStats,
+  .forexPage .marketKeyNotice {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* ---------- Forex: phone/tablet layout that scrolls instead of clipping ---------- */
+@media (max-width: 760px) {
+  .mainScreen:has(.forexPage) {
+    height: auto !important;
+    min-height: calc(100svh - 64px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 6px 6px calc(var(--mb-mobile-nav-height, 64px) + 34px + env(safe-area-inset-bottom)) !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .forexPage.realMarketPublishPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    padding: 0 0 18px !important;
+  }
+
+  .forexPage .hubNav {
+    flex: 0 0 auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    grid-template-columns: repeat(6, minmax(82px, 1fr)) !important;
+    scrollbar-width: none !important;
+  }
+
+  .forexPage .hubNav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .forexPage .realMarketHeaderCard {
+    flex: 0 0 auto !important;
+    display: grid !important;
+    grid-template-columns: 38px minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "back symbol status"
+      "name name price"
+      "stats stats stats" !important;
+    gap: 8px 10px !important;
+    align-items: center !important;
+    padding: 10px !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketBack {
+    grid-area: back !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 38px !important;
+  }
+
+  .forexPage .realMarketHeaderCard .symbolPicker,
+  .forexPage .realMarketHeaderCard .realSymbolPicker {
+    grid-area: symbol !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .forexPage .realMarketHeaderCard .symbolPicker select,
+  .forexPage .realMarketHeaderCard .realSymbolPicker select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: 13px !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketNameBlock {
+    grid-area: name !important;
+    min-width: 0 !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketNameBlock strong {
+    font-size: 16px !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketNameBlock small {
+    font-size: 11px !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketPriceBlock {
+    grid-area: price !important;
+    text-align: right !important;
+    min-width: 0 !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketPriceBlock strong {
+    font-size: 17px !important;
+    white-space: nowrap !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketPriceBlock small {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketHighLow {
+    grid-area: stats !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketHighLow p {
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketStatusPill {
+    grid-area: status !important;
+    justify-self: end !important;
+    white-space: nowrap !important;
+    font-size: 10px !important;
+    padding: 6px 8px !important;
+  }
+
+  .forexPage .singleTimeframeBar {
+    flex: 0 0 auto !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    align-items: center !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 8px 10px !important;
+  }
+
+  .forexPage .singleTimeframeBar .marketFeedMessage {
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
+  }
+
+  .forexPage .singleTimeframeBar .marketFeedMessage small {
+    white-space: normal !important;
+    line-height: 1.35 !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: clamp(310px, 46svh, 470px) !important;
+    min-height: 310px !important;
+    max-height: 470px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+  }
+
+  .forexPage .realChartShell {
+    height: 100% !important;
+    min-height: 100% !important;
+  }
+
+  .forexPage .realChartCaption {
+    min-height: 42px !important;
+    padding: 7px 10px !important;
+  }
+
+  .forexPage .chartGestureHint {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+  }
+
+  .forexPage .forexLiveTradeLines {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .forexPage .forexLiveTradeSummary {
+    display: grid !important;
+    grid-template-columns: minmax(92px, 1.15fr) minmax(64px, 0.75fr) minmax(84px, 1fr) auto !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+  }
+
+  .forexPage .marketOrderStack {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    overflow: visible !important;
+    padding: 10px !important;
+  }
+
+  .forexPage .marketActionColumn,
+  .forexPage .tradeActionColumn,
+  .forexPage .realMarketOrderForm {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .forexPage .buySellProBox {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .forexPage .buySellProBox > button {
+    min-width: 0 !important;
+    min-height: 86px !important;
+    height: auto !important;
+    padding: 10px !important;
+  }
+
+  .forexPage .buySellProBox > button strong {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: clamp(14px, 4.2vw, 19px) !important;
+  }
+
+  .forexPage .realMarketOrderForm .orderTabs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .forexPage .realMarketOrderForm .orderInputs {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .forexPage .realMarketOrderForm .orderInput,
+  .forexPage .realMarketOrderForm .orderInput > div {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .forexPage .realMarketOrderForm .orderInput input,
+  .forexPage .realMarketOrderForm .orderInput select {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .forexPage .viewOpenTradesBtn {
+    width: 100% !important;
+  }
+
+  .forexPage .realMarketStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .forexPage .realMarketStats p {
+    min-width: 0 !important;
+  }
+
+  .forexPage .marketKeyNotice {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Binary page should scroll naturally on shorter phones instead of cutting buttons. */
+  .mainScreen:has(.finalBinaryTradePage) {
+    height: auto !important;
+    min-height: calc(100svh - 64px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: calc(var(--mb-mobile-nav-height, 64px) + 34px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    justify-content: flex-start !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard.priceOnlyCard {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryChartCard.priceOnlyCard .finalBinaryChartArea {
+    height: clamp(230px, 36svh, 380px) !important;
+    min-height: 230px !important;
+    max-height: 380px !important;
+  }
+
+  .finalBinaryTradePage .digitOnlyCard {
+    flex: 0 0 auto !important;
+  }
+
+  .finalBinaryTradePage .digitBoardHeaderV21 {
+    grid-template-columns: 50px minmax(0, 1fr) !important;
+    gap: 9px !important;
+    margin-bottom: 9px !important;
+    padding: 8px 9px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardHeaderV21 > span {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardHeaderV21 > span strong {
+    font-size: 21px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardHeaderV21 > b {
+    grid-column: 1 / -1 !important;
+    white-space: normal !important;
+    font-size: 10px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitBoardV7 {
+    padding: 10px 8px 22px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitGridV7 {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 54px) !important;
+    gap: 12px 4px !important;
+    min-height: 120px !important;
+    padding: 2px 0 14px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCellV7,
+  .finalBinaryTradePage .mbDigitCellV7:disabled {
+    width: clamp(44px, 13vw, 54px) !important;
+    height: clamp(44px, 13vw, 54px) !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 54px !important;
+    max-height: 54px !important;
+  }
+
+  .finalBinaryTradePage .mbDigitCoreV7 > strong {
+    font-size: clamp(14px, 4.2vw, 18px) !important;
+  }
+
+  .finalBinaryTradePage .mbDigitPercentV7 {
+    font-size: clamp(8px, 2.4vw, 10px) !important;
+  }
+
+  .finalBinaryTradePage .singleDigitCursorV7 {
+    left: calc((var(--mb-active-col) + 0.5) * 20%) !important;
+    top: calc((var(--mb-active-row) + 1) * 50% + 2px) !important;
+    bottom: auto !important;
+    transform: translate(-50%, -1px) !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .forexPage .realMarketHeaderCard {
+    grid-template-columns: 34px minmax(0, 1fr) auto !important;
+  }
+
+  .forexPage .realMarketHeaderCard .marketHighLow {
+    gap: 6px !important;
+  }
+
+  .forexPage .realMarketChartPanel {
+    height: 320px !important;
+    min-height: 320px !important;
+    max-height: 320px !important;
+  }
+
+  .forexPage .realMarketOrderForm .orderInputs {
+    grid-template-columns: 1fr !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs {
+    grid-template-columns: 1fr !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    min-height: 64px !important;
+    padding: 9px !important;
+  }
+}
 
