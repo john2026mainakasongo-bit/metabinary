@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Fragment } from "react";
 import "./App.css";
 
 function ensureResponsiveViewportMeta() {
@@ -4874,7 +4874,7 @@ function ForexPage({
           const tpPercent = 50 + (pos.side === "Buy" ? -1 : 1) * (pos.takeProfit > 0 ? Math.min(35, (currentTpDiff / (pos.openPrice * 0.01)) * 15) : 15);
 
           return (
-            <React.Fragment key={pos.id}>
+            <Fragment key={pos.id}>
               {/* Entry Price Line with live numbers showing P/L */}
               <div className="chartPositionLine entry" style={{ top: "50%" }}>
                 <span>{pos.side} {pos.volume} lot @ {pos.openPrice}</span>
@@ -4905,7 +4905,7 @@ function ForexPage({
                 <span>TP: {pos.takeProfit > 0 ? pos.takeProfit.toFixed(market.decimals || 2) : "Drag to set TP"}</span>
                 <div className="dragHandle">⇅</div>
               </div>
-            </React.Fragment>
+            </Fragment>
           );
         })}
       </section>
