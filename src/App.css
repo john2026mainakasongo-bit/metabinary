@@ -28826,12 +28826,55 @@ body,
 
   .finalBinaryTradePage .tradeActionsV7 {
     flex: 0 0 auto !important;
-    gap: 8px !important;
+    display: flex !important;
+    gap: 16px !important;
   }
   
   .finalBinaryTradePage .tradeActionsV7 button {
     height: 48px !important;
     min-height: 48px !important;
+  }
+
+  /* Centered digits inside circles (no overlapping percentages on mobile) */
+  .finalBinaryTradePage .mbDigitPercentV7 {
+    display: none !important;
+  }
+  .finalBinaryTradePage .mbDigitCoreV7 {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+  }
+  .finalBinaryTradePage .mbDigitCoreV7 > strong {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #fff !important;
+  }
+
+  /* Triangle cursor pointing up under active cell digits */
+  .finalBinaryTradePage .mbDigitCursorV7 {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: -15px !important;
+    top: auto !important;
+    z-index: 10 !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 8px solid transparent !important;
+    border-right: 8px solid transparent !important;
+    border-bottom: 12px solid #ff444f !important;
+    border-top: 0 !important;
+    background: transparent !important;
+    filter: drop-shadow(0 -3px 6px rgba(255, 68, 79, 0.6)) !important;
+    opacity: 0 !important;
+    transform: translateX(-50%) !important;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  }
+  .finalBinaryTradePage .mbDigitCurrentV7 .mbDigitCursorV7 {
+    opacity: 1 !important;
   }
 
   /* Profile Page Mobile Typography Adjustments (No microscopic text) */
