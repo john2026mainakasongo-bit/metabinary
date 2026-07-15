@@ -325,56 +325,74 @@ const DEFAULT_NOTIFICATIONS = [
 
 const BOT_TEMPLATES = [
   {
-    id: "bot-1",
-    code: "NE",
-    name: "Neon Eclipse",
+    id: "ai-vortex",
+    code: "VX",
+    name: "AI Vortex",
     type: "Even/Odd",
     market: "Volatility 100 (1s) Index",
-    stake: 10,
+    marketShort: "V100 1s",
+    engine: "Parity Pulse",
+    risk: "Medium",
+    description: "Scans live digit parity and recent tick distribution before every entry.",
+    stake: 1,
     duration: 5,
-    status: "Running",
-    profit: 250.75,
-    winRate: 72.5,
-    trades: 36,
+    status: "Ready",
   },
   {
-    id: "bot-2",
-    code: "QS",
-    name: "Quantum Surge",
+    id: "ai-velocity",
+    code: "VY",
+    name: "AI Velocity",
     type: "Rise/Fall",
     market: "Volatility 75 Index",
-    stake: 15,
+    marketShort: "V75",
+    engine: "Momentum Flow",
+    risk: "Medium",
+    description: "Tracks short-term momentum shifts and waits for cleaner directional entries.",
+    stake: 1,
     duration: 5,
-    status: "Stopped",
-    profit: 180.4,
-    winRate: 68,
-    trades: 34,
+    status: "Ready",
   },
   {
-    id: "bot-3",
-    code: "AO",
-    name: "Alpha OverUnder",
+    id: "ai-vector",
+    code: "VT",
+    name: "AI Vector",
     type: "Over/Under",
     market: "Volatility 100 Index",
-    stake: 10,
+    marketShort: "V100",
+    engine: "Digit Threshold",
+    risk: "Low–Medium",
+    description: "Ranks digit thresholds using recent frequency, movement and payout conditions.",
+    stake: 1,
     duration: 5,
-    status: "Stopped",
-    profit: -45,
-    winRate: 45,
-    trades: 23,
+    status: "Ready",
   },
   {
-    id: "bot-4",
-    code: "MD",
-    name: "Matrix Differ",
+    id: "ai-vision",
+    code: "VS",
+    name: "AI Vision",
     type: "Matches/Differs",
     market: "Volatility 50 Index",
-    stake: 20,
+    marketShort: "V50",
+    engine: "Pattern Vision",
+    risk: "High",
+    description: "Looks for repeating last-digit behaviour and manages selective match/differ entries.",
+    stake: 1,
     duration: 5,
-    status: "Stopped",
-    profit: -120,
-    winRate: 40,
-    trades: 20,
+    status: "Ready",
+  },
+  {
+    id: "ai-vanguard",
+    code: "VG",
+    name: "AI Vanguard",
+    type: "Touch/No Touch",
+    market: "Volatility 25 (1s) Index",
+    marketShort: "V25 1s",
+    engine: "Adaptive Recovery",
+    risk: "High",
+    description: "Combines entry filtering, controlled recovery steps and session risk limits.",
+    stake: 1,
+    duration: 5,
+    status: "Ready",
   },
 ];
 
@@ -3064,6 +3082,15 @@ function TradingApp() {
   }
 
   function configureBot(bot) {
+    const selectedId = selectedBot?.botId || selectedBot?.id || "";
+    const isCurrentRunning = Boolean(botRunningRef.current && selectedId === bot.id);
+
+    if (isCurrentRunning) {
+      setBotTab("transactions");
+      setActivePage("botLive");
+      return;
+    }
+
     const nextConfig = createBotConfig(bot);
     setSelectedBot({ ...bot, ...nextConfig });
     setBotConfig(nextConfig);
@@ -3694,7 +3721,7 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "bots" && <BotsPage bots={BOT_TEMPLATES} configureBot={configureBot} />}
+        {activePage === "bots" && <BotsPage bots={BOT_TEMPLATES} configureBot={configureBot} selectedBot={selectedBot} botRunning={botRunning} />}
 
         {activePage === "botSetup" && (
           <BotSetupPage
@@ -5623,57 +5650,71 @@ function TradePage({
   );
 }
 
-function BotsPage({ bots, configureBot }) {
-  const running = bots.filter((item) => item.status === "Running").length;
-  const stopped = bots.length - running;
+function BotsPage({ bots, configureBot, selectedBot, botRunning }) {
+  const activeBotId = botRunning ? (selectedBot?.botId || selectedBot?.id || "") : "";
+  const running = activeBotId ? 1 : 0;
+  const ready = Math.max(0, bots.length - running);
 
   return (
-    <div className="page botsPage finalBotsPage">
-      <header className="botsTopBar finalBotsHeader">
+    <div className="page botsPage finalBotsPage vSeriesBotsPage">
+      <header className="botsTopBar finalBotsHeader vSeriesBotsHeader">
         <div>
-          <small>Automated strategies</small>
-          <h1>Trading Bots</h1>
+          <small>MetaBinary AI automation</small>
+          <h1>AI Trading Bots</h1>
+          <p>Load a strategy, set your risk controls, then start it when you are ready.</p>
         </div>
-        <span className="botsHeaderStatus">
+        <span className={`botsHeaderStatus ${running ? "hasActive" : "allReady"}`}>
           <i></i>
-          {running} active
+          {running ? `${running} active` : "Ready"}
         </span>
       </header>
 
-      <section className="botStats compactBotStats finalBotStats">
-        <Stat icon="🤖" value={bots.length} label="Strategies" spark="blue" />
+      <section className="botStats compactBotStats finalBotStats vSeriesBotStats">
+        <Stat icon="AI" value={bots.length} label="AI Bots" spark="blue" />
         <Stat icon="▶" value={running} label="Active" spark="green" />
-        <Stat icon="Ⅱ" value={stopped} label="Ready" spark="yellow" />
+        <Stat icon="Ⅱ" value={ready} label="Ready" spark="yellow" />
         <Stat icon="✓" value="1–10" label="Ticks" spark="purple" />
       </section>
 
-      <section className="botGrid finalBotGrid">
+      <section className="botGrid finalBotGrid vSeriesBotGrid">
         {bots.map((bot, index) => {
-          const isRunning = bot.status === "Running";
+          const isRunning = Boolean(activeBotId && activeBotId === bot.id);
           return (
-            <article className={`botCard finalBotCard ${isRunning ? "botRunning" : "botReady"}`} key={bot.id}>
-              <div className="finalBotCardHead">
-                <div className={`botIcon botIcon${index + 1}`}>{bot.code}</div>
+            <article className={`botCard finalBotCard vSeriesBotCard ${isRunning ? "botRunning" : "botReady"}`} key={bot.id}>
+              <div className="finalBotCardHead vSeriesBotCardHead">
+                <div className={`botIcon botIcon${(index % 4) + 1} vSeriesBotIcon`}>
+                  <span>AI</span>
+                  <strong>{bot.code}</strong>
+                </div>
                 <span className={`botStatusPill ${isRunning ? "running" : "ready"}`}>
                   <i></i>
                   {isRunning ? "Running" : "Ready"}
                 </span>
               </div>
 
-              <div className="botCardCopy">
+              <div className="botCardCopy vSeriesBotCopy">
                 <h2>{bot.name}</h2>
                 <p>{bot.type} <b>·</b> {bot.market}</p>
-                <small>Set the market, stake, ticks, martingale and risk limits before starting.</small>
+                <small>{bot.description}</small>
               </div>
 
-              <div className="botMetrics compactBotMetrics finalBotMetrics">
-                <p><span>Stake</span><strong>{money(bot.stake)} USD</strong></p>
-                <p><span>Score</span><strong>{bot.winRate}/100</strong></p>
-                <p><span>Runs</span><strong>{bot.trades}</strong></p>
+              <div className="vSeriesMeta">
+                <p>
+                  <span>Strategy</span>
+                  <strong>{bot.engine}</strong>
+                </p>
+                <p>
+                  <span>Market</span>
+                  <strong>{bot.marketShort}</strong>
+                </p>
+                <p>
+                  <span>Risk</span>
+                  <strong className={`risk${String(bot.risk).replace(/[^a-z]/gi, "")}`}>{bot.risk}</strong>
+                </p>
               </div>
 
-              <button className={`botAction finalBotAction ${isRunning ? "running" : "ready"}`} onClick={() => configureBot(bot)}>
-                <span>{isRunning ? "Manage Bot" : "Configure Bot"}</span>
+              <button className={`botAction finalBotAction vSeriesBotAction ${isRunning ? "running" : "ready"}`} onClick={() => configureBot(bot)}>
+                <span>{isRunning ? "OPEN BOT" : "LOAD BOT"}</span>
                 <b>›</b>
               </button>
             </article>
@@ -5701,7 +5742,7 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
     <div className="page botSetupPage">
       <header className="botSetupTop">
         <button type="button" onClick={back}>‹ Back</button>
-        <div><small>Configure strategy</small><strong>{bot.name}</strong></div>
+        <div><small>Loaded AI strategy</small><strong>{bot.name}</strong></div>
         <span>{config.martingaleEnabled ? `MG ×${config.martingaleMultiplier}` : "Fixed stake"}</span>
       </header>
 
@@ -5792,7 +5833,7 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
         <div><span>Limits</span><strong>+{money(config.takeProfit)} / -{money(config.stopLoss)}</strong></div>
       </section>
 
-      <button className="startConfiguredBot" type="button" onClick={() => startBot(config)}>▶ Start Bot & Open Transactions</button>
+      <button className="startConfiguredBot" type="button" onClick={() => startBot(config)}>▶ START AI BOT</button>
     </div>
   );
 }
