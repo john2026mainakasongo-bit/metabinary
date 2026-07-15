@@ -5260,7 +5260,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [] }) {
+function LineChart({ data = [], currentPriceText }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -5290,17 +5290,61 @@ function LineChart({ data = [] }) {
 
   const areaPath = `${linePath} L100,100 L0,100 Z`;
 
+  const lastPoint = points[points.length - 1] || [100, 50];
+  const lastY = lastPoint[1];
+  const isUp = safeValues.length >= 2 ? safeValues[safeValues.length - 1] >= safeValues[safeValues.length - 2] : true;
+  const accentColor = isUp ? "#00c853" : "#ff3d00";
+
   return (
-    <div className="lineChart" aria-hidden="true">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path className="areaPath" d={areaPath} />
+    <div className="lineChart" aria-hidden="true" style={{ position: "relative", width: "100%", height: "100%" }}>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: "100%", height: "100%", overflow: "visible" }}>
+        <path className="areaPath" d={areaPath} style={{ fill: `url(#areaGradient-${isUp ? 'up' : 'down'})`, opacity: 0.15 }} />
+        
+        <defs>
+          <linearGradient id="areaGradient-up" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#00c853" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+          <linearGradient id="areaGradient-down" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ff3d00" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+
+        <line x1="0" y1={lastY} x2="100" y2={lastY} stroke={accentColor} strokeDasharray="1.5,1.5" strokeWidth="0.3" opacity="0.7" />
+
         <path
           className="linePath"
           d={linePath}
+          stroke={accentColor}
+          strokeWidth="1.2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          fill="none"
         />
+
+        <circle cx="100" cy={lastY} r="1.4" fill={accentColor} />
+        <circle cx="100" cy={lastY} r="3" fill="none" stroke={accentColor} strokeWidth="0.4" opacity="0.8" className="pulseCircle" />
       </svg>
+
+      <div className="dynamicPriceLabel" style={{
+        position: "absolute",
+        right: "0px",
+        top: `${lastY}%`,
+        transform: "translateY(-50%)",
+        background: accentColor,
+        color: "#fff",
+        fontSize: "12px",
+        fontWeight: "bold",
+        padding: "4px 8px",
+        borderRadius: "6px",
+        zIndex: 10,
+        boxShadow: `0 0 12px ${accentColor}80`,
+        pointerEvents: "none",
+        transition: "top 0.15s ease-out"
+      }}>
+        {currentPriceText}
+      </div>
     </div>
   );
 }
@@ -5455,7 +5499,10 @@ function TradePage({
         <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
           <div className="proChartCanvas">
-            <LineChart data={prices.map((value) => value * Number(binaryMarket?.scale || 800))} />
+            <LineChart
+              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+              currentPriceText={indexValue.toFixed(2)}
+            />
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
             {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}

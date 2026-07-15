@@ -27818,9 +27818,84 @@ body {
   }
 }
 
+/* ==========================================================================
+   Premium Slate-Grey Matte Theme & Dynamic Chart/Digit Controls
+   ========================================================================== */
+:root {
+  --mb-bg: #101520 !important; /* Matte Slate-Grey */
+  --mb-panel: #16202e !important; /* Matte Dark Steel */
+  --mb-panel-2: #1b2637 !important; /* Steel Card highlight */
+  --mb-line: rgba(255, 255, 255, 0.08) !important;
+  --mb-muted: #8fa1b6 !important;
+}
 
+/* Force global container background */
+html,
+body,
+#root {
+  background: var(--mb-bg, #101520) !important;
+}
 
+/* Red/Green glowing overlays on app wrapper */
+.app {
+  background:
+    radial-gradient(circle at top left, rgba(255, 68, 79, 0.07), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(0, 200, 83, 0.05), transparent 45%),
+    var(--mb-bg, #101520) !important;
+}
 
+/* Hide the old static green live price box when using dynamic tracking cursor */
+.proChartCanvas .chartLivePrice {
+  display: none !important;
+}
 
+/* Dynamic Chart Canvas Style Tweaks */
+.proChartCanvas {
+  background: #151d2a !important; /* Darker steel panel inside the card */
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
 
+/* Current tick digit cell highlighting: glows, scales and places pointer-arrow on TOP */
+.finalBinaryTradePage .mbDigitCellV7.mbDigitCurrentV7 {
+  border-color: #ff444f !important;
+  box-shadow: 0 0 16px rgba(255, 68, 79, 0.7), inset 0 0 10px rgba(255, 68, 79, 0.35) !important;
+  transform: scale(1.08) !important;
+  z-index: 12 !important;
+  background: rgba(255, 68, 79, 0.12) !important;
+}
 
+.finalBinaryTradePage .mbDigitCurrentV7 .mbDigitCoreV7 > strong {
+  color: #ff444f !important; /* Glow target digit number in red */
+  text-shadow: 0 0 8px rgba(255, 68, 79, 0.6) !important;
+}
+
+.finalBinaryTradePage .mbDigitCurrentV7 .mbDigitCursorV7 {
+  opacity: 1 !important;
+  top: -14px !important; /* Position arrow to point down from top edge of cell (prevents bottom cut-off) */
+  bottom: auto !important;
+  border-top: 0 !important;
+  border-bottom: 12px solid #ff444f !important;
+  border-left: 8px solid transparent !important;
+  border-right: 8px solid transparent !important;
+  filter: drop-shadow(0 -3px 6px rgba(255, 68, 79, 0.5)) !important;
+}
+
+/* Legible Scale Coordinates & Digit Percentages on mobile screens */
+@media (max-width: 760px) {
+  .finalBinaryTradePage .priceScale {
+    font-size: 11px !important;
+    color: #cbd5e1 !important;
+  }
+  .finalBinaryTradePage .finalChartTimeRow,
+  .finalBinaryTradePage .chartTimeRow {
+    font-size: 10px !important;
+    color: #94a3b8 !important;
+    height: 16px !important;
+    min-height: 16px !important;
+  }
+  .finalBinaryTradePage .mbDigitPercentV7 {
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    color: #94a3b8 !important;
+  }
+}
