@@ -3744,7 +3744,12 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "history" && <HistoryPage transactions={transactions} />}
+        {activePage === "history" && (
+          <HistoryPage
+            transactions={transactions}
+            closedPositions={closedPositions}
+          />
+        )}
 
         {activePage === "reports" && (
           <ReportsPage
@@ -6335,42 +6340,185 @@ function ReferralDashboardPage({ dashboard, loading, applyReferralProgram, refre
   );
 }
 
-function HistoryPage({ transactions }) {
+function HistoryPage({ transactions, closedPositions }) {
+  const [tab, setTab] = useState("wallet");
+
+  const walletTx = transactions.filter((tx) => 
+    tx.type.toLowerCase().includes("deposit") || 
+    tx.type.toLowerCase().includes("withdraw") ||
+    tx.type.toLowerCase().includes("transfer")
+  );
+
+  const binaryTx = transactions.filter((tx) => 
+    tx.type.toLowerCase().includes("profit") || 
+    tx.type.toLowerCase().includes("loss")
+  );
+
+  const forexTx = closedPositions;
+
   return (
-    <div className="page listPage">
-      <h1>History</h1>
+    <div className="page reportsPage listPage">
+      <h1>History Dashboard</h1>
+      
+      <div className="marketsCategoryTabs" style={{ marginBottom: "16px" }}>
+        <button className={tab === "wallet" ? "active" : ""} onClick={() => setTab("wallet")}>
+          💰 Wallet
+        </button>
+        <button className={tab === "binary" ? "active" : ""} onClick={() => setTab("binary")}>
+          ↕ Binary Options
+        </button>
+        <button className={tab === "forex" ? "active" : ""} onClick={() => setTab("forex")}>
+          📈 Forex CFDs
+        </button>
+      </div>
 
-      <section className="listPanel">
-        {transactions.length === 0 && <p>No history yet.</p>}
+      <section className="listPanel" style={{ background: "rgba(10, 24, 43, 0.72)", backdropFilter: "blur(16px)", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+        {tab === "wallet" && (
+          <>
+            {walletTx.length === 0 && <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "20px" }}>No deposits or withdrawals yet.</p>}
+            {walletTx.map((tx) => (
+              <div key={tx.id} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <span>
+                  <strong style={{ color: "#fff", display: "block" }}>{tx.type}</strong>
+                  <small style={{ color: "var(--mb-muted)", fontSize: "11px" }}>{tx.time}</small>
+                </span>
+                <b className={tx.amount >= 0 ? "green" : "red"} style={{ fontSize: "15px" }}>
+                  {tx.amount >= 0 ? "+" : ""}{money(tx.amount)} USD
+                </b>
+              </div>
+            ))}
+          </>
+        )}
 
-        {transactions.slice(0, 14).map((tx) => (
-          <div key={tx.id}>
-            <span>
-              <strong>{tx.type}</strong>
-              <small>{tx.time}</small>
-            </span>
+        {tab === "binary" && (
+          <>
+            {binaryTx.length === 0 && <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "20px" }}>No binary contracts settled yet.</p>}
+            {binaryTx.map((tx) => (
+              <div key={tx.id} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <span>
+                  <strong style={{ color: "#fff", display: "block" }}>{tx.status} · {tx.details}</strong>
+                  <small style={{ color: "var(--mb-muted)", fontSize: "11px" }}>{tx.time} ({tx.method})</small>
+                </span>
+                <b className={tx.amount >= 0 ? "green" : "red"} style={{ fontSize: "15px" }}>
+                  {tx.amount >= 0 ? "+" : ""}{money(tx.amount)} USD
+                </b>
+              </div>
+            ))}
+          </>
+        )}
 
-            <b className={tx.amount >= 0 ? "green" : "red"}>
-              {tx.amount >= 0 ? "+" : ""}
-              {money(tx.amount)} USD
-            </b>
-          </div>
-        ))}
+        {tab === "forex" && (
+          <>
+            {forexTx.length === 0 && <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "20px" }}>No Forex positions closed yet.</p>}
+            {forexTx.map((pos) => {
+              const profit = Number(pos.pl || 0);
+              return (
+                <div key={pos.id} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span>
+                    <strong style={{ color: "#fff", display: "block" }}>{pos.side} {pos.instrument}</strong>
+                    <small style={{ color: "var(--mb-muted)", fontSize: "11px" }}>Vol: {pos.volume} lot · Entry: {pos.openPrice}</small>
+                  </span>
+                  <b className={profit >= 0 ? "green" : "red"} style={{ fontSize: "15px" }}>
+                    {profit >= 0 ? "+" : ""}{money(profit)} USD
+                  </b>
+                </div>
+              );
+            })}
+          </>
+        )}
       </section>
     </div>
   );
 }
 
 function ReportsPage({ transactions, closedPositions, botTrades }) {
+  const settledBinary = transactions.filter((tx) => 
+    tx.type.toLowerCase().includes("profit") || 
+    tx.type.toLowerCase().includes("loss")
+  );
+
+  const totalBinaryPnl = settledBinary.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+  const totalForexPnl = closedPositions.reduce((sum, pos) => sum + Number(pos.pl || 0), 0);
+  const totalBotPnl = botTrades.reduce((sum, bt) => sum + Number(bt.net || 0), 0);
+  const netPnl = totalBinaryPnl + totalForexPnl + totalBotPnl;
+
+  const totalTrades = settledBinary.length + closedPositions.length + botTrades.length;
+  const winsCount = 
+    settledBinary.filter((tx) => tx.status === "WON").length + 
+    closedPositions.filter((pos) => Number(pos.pl || 0) >= 0).length + 
+    botTrades.filter((bt) => bt.won).length;
+
+  const winRate = totalTrades > 0 ? ((winsCount / totalTrades) * 100).toFixed(1) : "0.0";
+
+  const pnlHistory = [
+    ...settledBinary.map((tx) => ({ amount: tx.amount, date: tx.time })),
+    ...closedPositions.map((pos) => ({ amount: pos.pl, date: pos.closedAt })),
+  ]
+    .slice(-8)
+    .map((item) => Number(item.amount || 0));
+
   return (
     <div className="page reportsPage">
-      <h1>Reports</h1>
+      <h1>Reports Dashboard</h1>
 
       <section className="homeStats">
-        <Stat value={transactions.length} label="Transactions" spark="blue" />
-        <Stat value={closedPositions.length} label="Forex Closed" spark="green" />
-        <Stat value={botTrades.filter((x) => x.won).length} label="Bot Wins" spark="purple" />
-        <Stat value={botTrades.filter((x) => !x.won).length} label="Bot Losses" spark="yellow" />
+        <div className="statCard">
+          <b>💰</b>
+          <span>
+            <strong className={netPnl >= 0 ? "green" : "red"}>
+              {netPnl >= 0 ? "+" : ""}{money(netPnl)} USD
+            </strong>
+            <small>Total Net P/L</small>
+          </span>
+        </div>
+
+        <div className="statCard">
+          <b>🎯</b>
+          <span>
+            <strong>{winRate}%</strong>
+            <small>Win Rate</small>
+          </span>
+        </div>
+
+        <div className="statCard">
+          <b>📊</b>
+          <span>
+            <strong>{totalTrades}</strong>
+            <small>Total Contracts</small>
+          </span>
+        </div>
+
+        <div className="statCard">
+          <b>🤖</b>
+          <span>
+            <strong className={totalBotPnl >= 0 ? "green" : "red"}>
+              {totalBotPnl >= 0 ? "+" : ""}{money(totalBotPnl)} USD
+            </strong>
+            <small>Bot Profits</small>
+          </span>
+        </div>
+      </section>
+
+      <section className="listPanel" style={{ background: "rgba(10, 24, 43, 0.72)", backdropFilter: "blur(16px)", padding: "20px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.08)", marginTop: "12px" }}>
+        <h3 style={{ color: "#fff", marginBottom: "12px", fontSize: "15px", fontWeight: "700" }}>Performance Visualizer</h3>
+        
+        {pnlHistory.length === 0 ? (
+          <p style={{ color: "var(--mb-muted)", textAlign: "center", padding: "30px 0" }}>Trade to generate performance graph data.</p>
+        ) : (
+          <div style={{ display: "flex", alignItems: "flex-end", justifySelf: "center", height: "120px", gap: "10px", padding: "10px 0", maxWidth: "100%", overflowX: "auto" }}>
+            {pnlHistory.map((val, idx) => {
+              const limit = Math.max(...pnlHistory.map(Math.abs), 1);
+              const heightPct = Math.min(100, Math.max(12, (Math.abs(val) / limit) * 100));
+              return (
+                <div key={idx} style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                  <span style={{ fontSize: "10px", color: val >= 0 ? "#00c853" : "#ff3d00" }}>{val >= 0 ? "+" : ""}{val.toFixed(1)}</span>
+                  <div style={{ width: "24px", height: `${heightPct}px`, background: val >= 0 ? "linear-gradient(to top, rgba(0,200,83,0.1), #00c853)" : "linear-gradient(to top, rgba(255,61,0,0.1), #ff3d00)", borderRadius: "4px" }} />
+                  <span style={{ fontSize: "9px", color: "var(--mb-muted)" }}>#{idx + 1}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
     </div>
   );
