@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-digit-stats-v31-2026-07-16";
+const FRONTEND_BUILD = "metabinary-profile-clean-v32-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -3913,20 +3913,22 @@ function TradingApp() {
 
       <BottomNav activePage={activePage} setActivePage={setActivePage} />
 
-      <DraggableAIAssistant
-        activePage={activePage}
-        account={account}
-        binaryMarketStates={binaryMarketStates}
-        volatilityOptions={VOLATILITY_OPTIONS}
-        marketFeed={marketFeed}
-        forexMarkets={MARKET_OPTIONS}
-        botTemplates={BOT_TEMPLATES}
-        currentStake={Number(stake || 1)}
-        onApply={applyAiSetup}
-        onAutoTrade={startAiAutoTrade}
-        onStopAutoTrade={stopAiAutoTrade}
-        autoSession={aiAutoSession}
-      />
+      {activePage !== "profile" && (
+        <DraggableAIAssistant
+          activePage={activePage}
+          account={account}
+          binaryMarketStates={binaryMarketStates}
+          volatilityOptions={VOLATILITY_OPTIONS}
+          marketFeed={marketFeed}
+          forexMarkets={MARKET_OPTIONS}
+          botTemplates={BOT_TEMPLATES}
+          currentStake={Number(stake || 1)}
+          onApply={applyAiSetup}
+          onAutoTrade={startAiAutoTrade}
+          onStopAutoTrade={stopAiAutoTrade}
+          autoSession={aiAutoSession}
+        />
+      )}
 
       {activePage === "profile" && (
         <SupportChat
@@ -6154,9 +6156,12 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
     referral?.commissionRate ?? user?.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT
   );
   const accountLabel = account === "real" ? "Real Account" : "Demo Account";
-  const tradeTransactions = (transactions || []).filter(
-    (tx) => ["Manual", "Bot", "Forex"].includes(tx.method) && Number(tx.amount) !== 0
-  );
+  const tradeTransactions = (transactions || []).filter((tx) => {
+    if (!["Manual", "Bot", "Forex", "AI Auto-Trade", "AI Forex"].includes(tx.method)) return false;
+    if (Number(tx.amount) === 0) return false;
+    const status = String(tx.status || "").trim().toLowerCase();
+    return !status || ["complete", "completed", "settled", "won", "lost", "success", "successful", "closed"].includes(status);
+  });
   const totalProfit = tradeTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
   const winningTrades = tradeTransactions.filter((tx) => Number(tx.amount) > 0).length;
   const winRate = tradeTransactions.length
@@ -6272,7 +6277,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
                 <h3>{card.title}</h3>
                 <p>{card.text}</p>
 
-                <span className={card.title === "KYC Verification" ? "verifiedMiniBtn" : ""}>
+                <span className={`profileActionCta ${card.title === "KYC Verification" ? "verifiedMiniBtn" : ""}`}>
                   {card.button} <em>›</em>
                 </span>
               </div>

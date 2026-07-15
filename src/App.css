@@ -32375,3 +32375,348 @@ body,
   border-color: #ff8b9d !important;
   box-shadow: 0 0 20px rgba(255, 52, 82, .7) !important;
 }
+
+/* ========================================================================== 
+   METABINARY V32 — CLEAN MOBILE PROFILE
+   - AI scanner is not rendered on Profile; Support remains available there.
+   - Account ID and account status wrap fully instead of using ellipsis.
+   - Profile action cards are compact and their CTA is a real button-style pill.
+   - More profile content is visible before scrolling and fixed bottom nav never
+     covers the final cards.
+   ========================================================================== */
+
+/* Profile metadata should remain readable at every width. */
+.proProfilePage .profileMetaRow strong,
+.proProfilePage .activeStatus {
+  max-width: 100% !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+/* Make every profile action link look like an intentional CTA, not an input. */
+.proProfilePage .profileActionCta {
+  width: fit-content !important;
+  max-width: 100% !important;
+  min-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+  padding: 6px 12px !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(43, 144, 255, .36) !important;
+  background: rgba(20, 115, 255, .10) !important;
+  color: #4da4ff !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+.proProfilePage .profileActionCta em {
+  margin: 0 !important;
+  font-style: normal !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+
+.proProfilePage .profileActionCta.verifiedMiniBtn {
+  border-color: rgba(0, 213, 132, .32) !important;
+  background: rgba(0, 213, 132, .10) !important;
+  color: #31db98 !important;
+}
+
+/* Extra guard: Profile never shows the draggable AI orb. */
+.floatingAiButton.aiPage-profile {
+  display: none !important;
+}
+
+@media (max-width: 899px) {
+  .mainScreen:has(.proProfilePage) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+  }
+
+  .proProfilePage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: max-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 8px 8px calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .proProfilePage .proProfileHero {
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 70px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+    overflow: visible !important;
+  }
+
+  .proProfilePage .proProfileAvatarWrap,
+  .proProfilePage .proProfileAvatar {
+    width: 64px !important;
+    height: 64px !important;
+  }
+
+  .proProfilePage .proProfileAvatar {
+    font-size: 25px !important;
+    line-height: 1 !important;
+  }
+
+  .proProfilePage .proProfileIdentity {
+    min-width: 0 !important;
+  }
+
+  .proProfilePage .proProfileIdentity h1 {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    margin: 1px 0 3px !important;
+    font-size: clamp(20px, 5.8vw, 25px) !important;
+    line-height: 1.12 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .proProfilePage .proProfileIdentity h1 span {
+    margin: 0 !important;
+    font-size: 16px !important;
+  }
+
+  .proProfilePage .proProfileIdentity p {
+    margin: 0 0 7px !important;
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .proProfilePage .profileVerifiedRow b {
+    height: 25px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+
+  .proProfilePage .profileMetaRow {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 7px !important;
+    margin-top: 10px !important;
+  }
+
+  .proProfilePage .profileMetaRow i {
+    display: none !important;
+  }
+
+  .proProfilePage .profileMetaRow span {
+    min-width: 0 !important;
+    display: block !important;
+    padding: 7px 9px !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, .035) !important;
+    border: 1px solid rgba(255, 255, 255, .055) !important;
+    color: #8fa1b6 !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+  }
+
+  .proProfilePage .profileMetaRow strong {
+    display: block !important;
+    margin-top: 4px !important;
+    color: #f6f9ff !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  .proProfilePage .profileHeroArt {
+    display: none !important;
+  }
+
+  .proProfilePage .proProfileStats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+
+  .proProfilePage .profileBalanceCard {
+    min-width: 0 !important;
+    min-height: 96px !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 9px !important;
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .proProfilePage .profileBalanceIcon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    font-size: 17px !important;
+  }
+
+  .proProfilePage .profileBalanceCard span {
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+  }
+
+  .proProfilePage .profileBalanceCard strong {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 5px !important;
+    font-size: clamp(17px, 4.7vw, 22px) !important;
+    line-height: 1.1 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .proProfilePage .profileBalanceCard em {
+    display: none !important;
+  }
+
+  .proProfilePage .proProfileMain,
+  .proProfilePage .profileCardsGrid {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: none !important;
+    gap: 9px !important;
+    overflow: visible !important;
+  }
+
+  .proProfilePage .profileActionCard {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 11px !important;
+    padding: 13px !important;
+    border-radius: 14px !important;
+    text-align: left !important;
+  }
+
+  .proProfilePage .profileActionIcon {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    border-radius: 10px !important;
+    font-size: 18px !important;
+  }
+
+  .proProfilePage .profileActionCard h3,
+  .proProfilePage .supportWideCard h3 {
+    margin: 0 !important;
+    font-size: 16px !important;
+    line-height: 1.15 !important;
+  }
+
+  .proProfilePage .profileActionCard p,
+  .proProfilePage .supportWideCard p {
+    margin: 4px 0 0 !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+
+  .proProfilePage .profileActionCta {
+    min-height: 30px !important;
+    margin-top: 8px !important;
+    padding: 6px 11px !important;
+  }
+
+  .proProfilePage .supportWideCard {
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    gap: 10px !important;
+    padding: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .proProfilePage .supportWideCard .responseTime,
+  .proProfilePage .supportWideCard > button {
+    grid-column: 1 / -1 !important;
+  }
+
+  .proProfilePage .supportWideCard .responseTime {
+    margin-top: 2px !important;
+    padding: 8px 10px !important;
+  }
+
+  .proProfilePage .supportWideCard > button {
+    min-height: 38px !important;
+    height: 38px !important;
+    border-radius: 9px !important;
+  }
+
+  .proProfilePage .referralPanel {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 14px !important;
+  }
+
+  .proProfilePage .proLogoutButton {
+    min-height: 58px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 10px 16px !important;
+    border-radius: 12px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .proProfilePage .proProfileHero {
+    grid-template-columns: 60px minmax(0, 1fr) !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  .proProfilePage .proProfileAvatarWrap,
+  .proProfilePage .proProfileAvatar {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .proProfilePage .proProfileIdentity h1 {
+    font-size: 19px !important;
+  }
+
+  .proProfilePage .profileBalanceCard {
+    min-height: 90px !important;
+    padding: 10px !important;
+  }
+
+  .proProfilePage .profileBalanceCard strong {
+    font-size: 16px !important;
+  }
+}
