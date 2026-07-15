@@ -5629,14 +5629,18 @@ function BotsPage({ bots, configureBot }) {
 
   return (
     <div className="page botsPage finalBotsPage">
-      <header className="botsTopBar">
+      <header className="botsTopBar finalBotsHeader">
         <div>
           <small>Automated strategies</small>
           <h1>Trading Bots</h1>
         </div>
+        <span className="botsHeaderStatus">
+          <i></i>
+          {running} active
+        </span>
       </header>
 
-      <section className="botStats compactBotStats">
+      <section className="botStats compactBotStats finalBotStats">
         <Stat icon="🤖" value={bots.length} label="Strategies" spark="blue" />
         <Stat icon="▶" value={running} label="Active" spark="green" />
         <Stat icon="Ⅱ" value={stopped} label="Ready" spark="yellow" />
@@ -5644,22 +5648,37 @@ function BotsPage({ bots, configureBot }) {
       </section>
 
       <section className="botGrid finalBotGrid">
-        {bots.map((bot, index) => (
-          <article className="botCard finalBotCard" key={bot.id}>
-            <div className={`botIcon botIcon${index + 1}`}>{bot.code}</div>
-            <div className="botCardCopy">
-              <h2>{bot.name}</h2>
-              <p>{bot.type} · {bot.market}</p>
-              <small>Configure market, stake, ticks, martingale and limits before starting.</small>
-            </div>
-            <div className="botMetrics compactBotMetrics">
-              <p><span>Example stake</span><strong>{money(bot.stake)} USD</strong></p>
-              <p><span>Template score</span><strong>{bot.winRate}/100</strong></p>
-              <p><span>Previous runs</span><strong>{bot.trades}</strong></p>
-            </div>
-            <button className="botAction" onClick={() => configureBot(bot)}>Configure Bot</button>
-          </article>
-        ))}
+        {bots.map((bot, index) => {
+          const isRunning = bot.status === "Running";
+          return (
+            <article className={`botCard finalBotCard ${isRunning ? "botRunning" : "botReady"}`} key={bot.id}>
+              <div className="finalBotCardHead">
+                <div className={`botIcon botIcon${index + 1}`}>{bot.code}</div>
+                <span className={`botStatusPill ${isRunning ? "running" : "ready"}`}>
+                  <i></i>
+                  {isRunning ? "Running" : "Ready"}
+                </span>
+              </div>
+
+              <div className="botCardCopy">
+                <h2>{bot.name}</h2>
+                <p>{bot.type} <b>·</b> {bot.market}</p>
+                <small>Set the market, stake, ticks, martingale and risk limits before starting.</small>
+              </div>
+
+              <div className="botMetrics compactBotMetrics finalBotMetrics">
+                <p><span>Stake</span><strong>{money(bot.stake)} USD</strong></p>
+                <p><span>Score</span><strong>{bot.winRate}/100</strong></p>
+                <p><span>Runs</span><strong>{bot.trades}</strong></p>
+              </div>
+
+              <button className={`botAction finalBotAction ${isRunning ? "running" : "ready"}`} onClick={() => configureBot(bot)}>
+                <span>{isRunning ? "Manage Bot" : "Configure Bot"}</span>
+                <b>›</b>
+              </button>
+            </article>
+          );
+        })}
       </section>
     </div>
   );
