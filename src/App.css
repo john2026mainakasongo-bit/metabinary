@@ -31870,3 +31870,218 @@ body,
     gap: 6px;
   }
 }
+
+/* =========================================================
+   V28 — BOT LIVE: FIXED COUNTERS + SCROLLABLE RUN HISTORY
+   Keep the session counters together while only the run list scrolls.
+   ========================================================= */
+@media (max-width: 760px) {
+  .mainScreen:has(.finalBotLivePage) {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 4px 6px 0 !important;
+    overscroll-behavior: none !important;
+  }
+
+  .finalBotLivePage,
+  .botLivePage.finalBotLivePage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: grid !important;
+    grid-template-rows: auto auto auto auto minmax(0, 1fr) 68px !important;
+    gap: 6px !important;
+    padding: 6px 6px 8px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage .botLiveTop,
+  .finalBotLivePage .finalRunnerBox,
+  .finalBotLivePage .botLiveMetrics,
+  .finalBotLivePage .runnerTabs,
+  .finalBotLivePage .runnerStats {
+    flex: none !important;
+    min-width: 0 !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics {
+    min-height: 62px !important;
+    height: 62px !important;
+    padding: 7px !important;
+    gap: 6px !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics div {
+    min-width: 0 !important;
+    height: 100% !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 3px !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics span {
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics strong {
+    font-size: 14px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .runnerTabs.runnerTabsWithReset {
+    min-height: 38px !important;
+    height: 38px !important;
+  }
+
+  .finalBotLivePage .runnerBody {
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  .finalBotLivePage .runnerList,
+  .finalBotLivePage .finalRunnerList,
+  .finalBotLivePage .botJournalList {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    touch-action: pan-y !important;
+    padding-bottom: 4px !important;
+  }
+
+  .finalBotLivePage .runnerList::-webkit-scrollbar,
+  .finalBotLivePage .finalRunnerList::-webkit-scrollbar,
+  .finalBotLivePage .botJournalList::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+
+  .finalBotLivePage .runnerList p {
+    flex: 0 0 auto !important;
+    min-height: 54px !important;
+    padding: 8px 11px !important;
+  }
+
+  .finalBotLivePage .runnerStats {
+    box-sizing: border-box !important;
+    position: relative !important;
+    z-index: 20 !important;
+    width: 100% !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 13px !important;
+    background: #061423 !important;
+    box-shadow: 0 -10px 26px rgba(0, 0, 0, 0.24) !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 2px !important;
+    padding: 4px 3px !important;
+    border: 1px solid rgba(255, 255, 255, 0.075) !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.035) !important;
+    text-align: center !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard > div {
+    min-width: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    gap: 2px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard strong {
+    font-size: 17px !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard span {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    color: #8ea0b9 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Do not let the floating scanner cover the scrollable history or counters. */
+  .mainScreen:has(.finalBotLivePage) .floatingAi,
+  .mainScreen:has(.finalBotLivePage) .aiFloating,
+  .mainScreen:has(.finalBotLivePage) .finalAiButton,
+  .mainScreen:has(.finalBotLivePage) .aiScanFloat,
+  .mainScreen:has(.finalBotLivePage) .floatingAiButton {
+    display: none !important;
+  }
+}
+
+@media (max-width: 390px), (max-height: 720px) and (max-width: 760px) {
+  .finalBotLivePage,
+  .botLivePage.finalBotLivePage {
+    grid-template-rows: auto auto 56px 35px minmax(0, 1fr) 62px !important;
+    gap: 4px !important;
+    padding: 4px 4px 6px !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics {
+    height: 56px !important;
+    min-height: 56px !important;
+    padding: 5px !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics span {
+    font-size: 8.5px !important;
+  }
+
+  .finalBotLivePage .botLiveMetrics strong {
+    font-size: 12px !important;
+  }
+
+  .finalBotLivePage .runnerStats {
+    height: 62px !important;
+    min-height: 62px !important;
+    max-height: 62px !important;
+    gap: 4px !important;
+    padding: 4px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard strong {
+    font-size: 15px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard span {
+    font-size: 9px !important;
+  }
+}

@@ -449,6 +449,44 @@ function createBotConfig(bot = BOT_TEMPLATES[0]) {
   };
 }
 
+const LEGACY_BOT_TEMPLATE_IDS = Object.freeze({
+  "Neon Eclipse": "ai-vortex",
+  "Quantum Surge": "ai-velocity",
+  "Alpha OverUnder": "ai-vector",
+  "Matrix Differ": "ai-vision",
+  "bot-1": "ai-vortex",
+  "bot-2": "ai-velocity",
+  "bot-3": "ai-vector",
+  "bot-4": "ai-vision",
+});
+
+function normalizeStoredBotConfig(value) {
+  if (!value || typeof value !== "object") {
+    return createBotConfig(BOT_TEMPLATES[0]);
+  }
+
+  const replacementId =
+    LEGACY_BOT_TEMPLATE_IDS[value.name] ||
+    LEGACY_BOT_TEMPLATE_IDS[value.botId] ||
+    "";
+
+  if (!replacementId) return value;
+
+  const replacement =
+    BOT_TEMPLATES.find((template) => template.id === replacementId) ||
+    BOT_TEMPLATES[0];
+  const defaults = createBotConfig(replacement);
+
+  return {
+    ...defaults,
+    ...value,
+    botId: replacement.id,
+    name: replacement.name,
+    type: replacement.type,
+    action: value.action || defaultBotAction(replacement.type),
+  };
+}
+
 function createAiAutoSession(overrides = {}) {
   return {
     id: "",
@@ -981,7 +1019,9 @@ function TradingApp() {
 
   const [selectedBot, setSelectedBot] = useState(null);
   const [botConfig, setBotConfig] = useState(() =>
-    readStore(STORE.botConfig, createBotConfig(BOT_TEMPLATES[0]))
+    normalizeStoredBotConfig(
+      readStore(STORE.botConfig, createBotConfig(BOT_TEMPLATES[0]))
+    )
   );
   const [botRunning, setBotRunning] = useState(false);
   const [botTab, setBotTab] = useState("transactions");
