@@ -34225,3 +34225,32 @@ body,
     padding-inline: 1px !important;
   }
 }
+
+/* ==========================================================================\n   METABINARY V42 — LOWER ACTION BUTTONS TOWARD TRADE NAV\n   - Keeps quick presets inside the control card.\n   - Brings ODD/EVEN and other contract action buttons closer to the bottom\n     Trade navigation line while preserving a safe non-overlap gap.\n   ========================================================================== */
+@media (max-width: 760px) {
+  .mainScreen:has(.finalBinaryTradePage) {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard,
+  .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    gap: 14px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .mainScreen:has(.finalBinaryTradePage) {
+    padding-bottom: calc(52px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 10px !important;
+  }
+}
