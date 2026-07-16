@@ -1814,7 +1814,7 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
         description: `MetaBinary account deposit ${depositId}`.slice(0, 100),
         callback_url: callbackUrl,
         cancellation_url: cancellationUrl,
-        redirect_mode: "TOP_WINDOW",
+        redirect_mode: "PARENT_WINDOW",
         notification_id: notificationId,
         branch: "MetaBinary",
         billing_address: {
@@ -1954,11 +1954,64 @@ app.get("/api/pesapal/callback", async (req, res, next) => {
     );
     if (deposit) deposit = await reconcileDeposit(db, deposit);
 
+    const status = String(deposit?.status || "PENDING").toUpperCase();
     const redirectUrl = new URL(FRONTEND_PUBLIC_URL);
-    redirectUrl.searchParams.set("payment", String(deposit?.status || "pending").toLowerCase());
+    redirectUrl.searchParams.set("payment", status.toLowerCase());
     if (deposit?.id) redirectUrl.searchParams.set("depositId", deposit.id);
-    if (notification.orderTrackingId) redirectUrl.searchParams.set("orderTrackingId", notification.orderTrackingId);
-    return res.redirect(302, redirectUrl.toString());
+    if (notification.orderTrackingId) {
+      redirectUrl.searchParams.set("orderTrackingId", notification.orderTrackingId);
+    }
+
+    const frontendOrigin = new URL(FRONTEND_PUBLIC_URL).origin;
+    const payload = JSON.stringify({
+      type: "METABINARY_PESAPAL_RESULT",
+      status,
+      depositId: deposit?.id || "",
+      orderTrackingId: notification.orderTrackingId || deposit?.orderTrackingId || "",
+      credited: Boolean(deposit?.credited),
+    }).replace(/</g, "\u003c");
+
+    const heading = status === "COMPLETED"
+      ? "Payment confirmed"
+      : status === "FAILED" || status === "REVERSED"
+        ? "Payment not completed"
+        : "Payment received";
+
+    return res
+      .status(200)
+      .type("html")
+      .send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>${heading}</title>
+  <style>
+    body{margin:0;background:#07111d;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px;box-sizing:border-box}
+    .box{max-width:520px;text-align:center;background:#111d2d;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px}
+    h2{margin:0 0 10px}.muted{color:#a9b7c8;line-height:1.5}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>${heading}</h2>
+    <div class="muted">MetaBinary is confirming your transaction and updating your Real Balance.</div>
+  </div>
+  <script>
+    (function () {
+      const payload = ${payload};
+      const targetOrigin = ${JSON.stringify(frontendOrigin)};
+      try { window.parent.postMessage(payload, targetOrigin); } catch (e) {}
+      try { if (window.top !== window) window.top.postMessage(payload, targetOrigin); } catch (e) {}
+      if (window.top === window) {
+        window.setTimeout(function () {
+          window.location.replace(${JSON.stringify(redirectUrl.toString())});
+        }, 500);
+      }
+    })();
+  </script>
+</body>
+</html>`);
   } catch (error) {
     next(error);
   }
