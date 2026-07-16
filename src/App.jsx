@@ -50,9 +50,11 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-public-landing-ai-entry-v50-2026-07-16";
+const FRONTEND_BUILD = "metabinary-trade-resilience-v51-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
+const TRADE_API_TIMEOUT_MS = 7000;
+const TRADE_API_RETRIES = 1;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(import.meta.env.VITE_REFERRAL_COMMISSION_PERCENT || 5))
@@ -688,6 +690,87 @@ async function readApiResponse(response) {
   }
 }
 
+function makeApiError(response, result, fallbackMessage) {
+  const error = new Error(
+    result?.message ||
+      result?.error ||
+      fallbackMessage ||
+      `Request failed with HTTP ${response?.status || 0}.`
+  );
+  error.status = Number(response?.status || 0);
+  error.payload = result || null;
+  return error;
+}
+
+function isTransientTradeError(error) {
+  const status = Number(error?.status || 0);
+  if ([408, 409, 425, 429].includes(status) || status >= 500) return true;
+  if (error?.name === "AbortError" || error?.code === "TRADE_TIMEOUT") return true;
+
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    !status ||
+    message.includes("network") ||
+    message.includes("failed to fetch") ||
+    message.includes("load failed") ||
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("temporarily") ||
+    message.includes("connection")
+  );
+}
+
+async function requestJsonWithRetry(
+  url,
+  options = {},
+  {
+    timeoutMs = TRADE_API_TIMEOUT_MS,
+    retries = TRADE_API_RETRIES,
+  } = {}
+) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      const result = await readApiResponse(response);
+
+      if ((response.status === 429 || response.status >= 500) && attempt < retries) {
+        await wait(350 + attempt * 450);
+        continue;
+      }
+
+      return { response, result };
+    } catch (caught) {
+      let error = caught;
+      if (caught?.name === "AbortError") {
+        error = new Error("Trading server took too long to respond.");
+        error.code = "TRADE_TIMEOUT";
+        error.status = 408;
+      }
+
+      lastError = error;
+
+      if (attempt < retries && isTransientTradeError(error)) {
+        await wait(350 + attempt * 450);
+        continue;
+      }
+
+      throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
+  throw lastError || new Error("Trading server is temporarily unavailable.");
+}
+
 function normalizeApiUser(raw = {}) {
   const fullName = raw.fullName || raw.name || String(raw.email || "MetaBinary User").split("@")[0];
   const brokerId = raw.brokerId || raw.accountId || "";
@@ -1200,6 +1283,45 @@ function TradingApp() {
 
   useEffect(() => saveStore(MARKET_CACHE_KEY, marketFeed), [marketFeed]);
 
+  useEffect(() => {
+    if (!API_URL) return undefined;
+
+    let disposed = false;
+    let timer = 0;
+
+    const keepTradingBackendWarm = async () => {
+      try {
+        await requestJsonWithRetry(
+          `${API_URL}/api/health`,
+          { method: "GET", cache: "no-store" },
+          { timeoutMs: 5000, retries: 0 }
+        );
+      } catch {
+        // A later trade request will retry automatically. This ping is only to avoid cold starts.
+      }
+
+      if (!disposed) {
+        timer = window.setTimeout(keepTradingBackendWarm, 4 * 60 * 1000);
+      }
+    };
+
+    void keepTradingBackendWarm();
+
+    const wakeWhenVisible = () => {
+      if (document.visibilityState !== "visible" || disposed) return;
+      window.clearTimeout(timer);
+      void keepTradingBackendWarm();
+    };
+
+    document.addEventListener("visibilitychange", wakeWhenVisible);
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", wakeWhenVisible);
+    };
+  }, []);
+
   /*
    * V17 market quote loop.
    * V16 rendered the TradingView chart but no longer refreshed marketFeed,
@@ -1591,6 +1713,8 @@ function TradingApp() {
     let timer = 0;
     let requestBusy = false;
     let localCompatibilityMode = false;
+    let consecutiveTickFailures = 0;
+    let pendingTickRequestId = "";
     const openTrade = { ...activeBinaryTrade };
     const tradeTickDelay = Math.max(250, Number(openTrade.tickMs || DIGIT_TICK_MS));
     let localRemainingTicks = Math.max(
@@ -1623,12 +1747,13 @@ function TradingApp() {
               remainingTicks: Math.max(0, Number(remainingTicks || 0)),
               currentPrice: nextPrice || current.currentPrice,
               touched: Boolean(tickResult.touched ?? tickResult.trade?.touched ?? current.touched),
+              connectionState: "connected",
             }
           : current
       );
     };
 
-    const requestServerTick = async () => {
+    const requestServerTick = async (requestId) => {
       const encodedId = encodeURIComponent(openTrade.id);
       const candidates = [
         `${API_URL}/api/trades/${encodedId}/tick`,
@@ -1638,13 +1763,17 @@ function TradingApp() {
       let lastRouteError = null;
 
       for (const url of candidates) {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-          cache: "no-store",
-          body: JSON.stringify({}),
-        });
-        const result = await readApiResponse(response);
+        const { response, result } = await requestJsonWithRetry(
+          url,
+          {
+            method: "POST",
+            headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+            cache: "no-store",
+            body: JSON.stringify({ requestId }),
+          },
+          { timeoutMs: 5000, retries: 1 }
+        );
+
         const routeMissing =
           response.status === 404 &&
           /route not found|cannot post/i.test(String(result.message || result.error || ""));
@@ -1661,6 +1790,7 @@ function TradingApp() {
     };
 
     const runCompatibilityTick = async () => {
+      pendingTickRequestId = "";
       const tickDigit = Math.floor(Math.random() * 10);
       localRemainingTicks = Math.max(0, localRemainingTicks - 1);
       showTick(tickDigit, localRemainingTicks);
@@ -1685,9 +1815,14 @@ function TradingApp() {
           return;
         }
 
-        const { response, result, routeMissing } = await requestServerTick();
+        if (!pendingTickRequestId) {
+          pendingTickRequestId = `tick-${openTrade.id}-${uid()}`;
+        }
+
+        const { response, result, routeMissing } = await requestServerTick(pendingTickRequestId);
 
         if (routeMissing || !response) {
+          pendingTickRequestId = "";
           localCompatibilityMode = true;
           await runCompatibilityTick();
           return;
@@ -1699,11 +1834,15 @@ function TradingApp() {
         }
 
         if (!response.ok || result.ok === false) {
-          throw new Error(result.message || "The next trade tick could not be loaded.");
+          throw makeApiError(response, result, "The next trade tick could not be loaded.");
         }
+
+        pendingTickRequestId = "";
+        consecutiveTickFailures = 0;
 
         const tickDigit = Number(result.digit ?? result.resultDigit);
         const remainingTicks = Math.max(0, Number(result.remainingTicks || 0));
+        localRemainingTicks = remainingTicks;
         showTick(tickDigit, remainingTicks, result);
 
         if (result.settled || result.trade?.status === "SETTLED") {
@@ -1716,16 +1855,44 @@ function TradingApp() {
         schedule(tradeTickDelay);
       } catch (error) {
         if (cancelled) return;
-        console.error("Trade tick failed:", error);
-        activeBinaryTradeRef.current = null;
-        setActiveBinaryTrade(null);
-        notify(
-          "loss",
-          "Trade tick failed",
-          error instanceof Error ? error.message : "The trade could not continue.",
-          4500
+        console.error("Trade tick interrupted:", error);
+
+        const status = Number(error?.status || 0);
+        const terminal = [400, 401, 403, 404].includes(status);
+
+        if (terminal) {
+          activeBinaryTradeRef.current = null;
+          setActiveBinaryTrade(null);
+          notify(
+            "loss",
+            "Trade could not continue",
+            error instanceof Error ? error.message : "The trade session is no longer available.",
+            4500
+          );
+          await refreshUser();
+          return;
+        }
+
+        consecutiveTickFailures += 1;
+        setActiveBinaryTrade((current) =>
+          current?.id === openTrade.id
+            ? {
+                ...current,
+                connectionState: "reconnecting",
+              }
+            : current
         );
-        await refreshUser();
+
+        if (consecutiveTickFailures === 1) {
+          notify(
+            "open",
+            "Reconnecting trade",
+            "Connection was interrupted briefly. Your trade is still open and will continue automatically.",
+            2800
+          );
+        }
+
+        schedule(Math.min(3000, 700 + consecutiveTickFailures * 450));
       } finally {
         requestBusy = false;
       }
@@ -1868,11 +2035,14 @@ function TradingApp() {
   async function refreshUser() {
     if (!user?.email || !authToken) return;
     try {
-      const res = await fetch(`${API_URL}/api/user/${encodeURIComponent(user.email)}`, {
-        headers: apiHeaders({}, authToken),
-        cache: "no-store",
-      });
-      const data = await readApiResponse(res);
+      const { response: res, result: data } = await requestJsonWithRetry(
+        `${API_URL}/api/user/${encodeURIComponent(user.email)}`,
+        {
+          headers: apiHeaders({}, authToken),
+          cache: "no-store",
+        },
+        { timeoutMs: 6500, retries: 0 }
+      );
 
       if (res.status === 401 || res.status === 403) {
         localStorage.removeItem(STORE.token);
@@ -2651,7 +2821,7 @@ function TradingApp() {
     if (!openTrade?.id || !authToken) return;
 
     try {
-      const response = await fetch(
+      const { response, result } = await requestJsonWithRetry(
         `${API_URL}/api/trades/${encodeURIComponent(openTrade.id)}/settle`,
         {
           method: "POST",
@@ -2660,10 +2830,9 @@ function TradingApp() {
           body: JSON.stringify({
             forceTickSettlement: Boolean(options.forceTickSettlement),
           }),
-        }
+        },
+        { timeoutMs: 6500, retries: 2 }
       );
-
-      const result = await readApiResponse(response);
 
       if (response.status === 409 && Number(result.remainingMs) > 0) {
         window.setTimeout(
@@ -2674,12 +2843,24 @@ function TradingApp() {
       }
 
       if (!response.ok || result.ok === false) {
-        throw new Error(result.message || "Trade could not be settled.");
+        throw makeApiError(response, result, "Trade could not be settled.");
       }
 
       await applyBinaryTradeSettlement(openTrade, result);
     } catch (error) {
-      console.error("Trade settlement failed:", error);
+      console.error("Trade settlement interrupted:", error);
+
+      if (isTransientTradeError(error)) {
+        notify(
+          "open",
+          "Finalizing trade",
+          "Connection was interrupted. The final result is being synced automatically.",
+          2800
+        );
+        window.setTimeout(() => void settleBinaryTrade(openTrade, options), 1400);
+        return;
+      }
+
       notify(
         "loss",
         "Trade settlement delayed",
@@ -2728,29 +2909,34 @@ function TradingApp() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/trades/open`, {
-        method: "POST",
-        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-        cache: "no-store",
-        body: JSON.stringify({
-          account,
-          type,
-          action,
-          stake: usedStake,
-          prediction,
-          ticks: usedTicks,
-          entryPrice: livePrice,
-          currentPrice: livePrice,
-          barrier: Number(options.barrier || 0),
-          barrierDistance: Number(options.barrierDistance || 0),
-          marketStep: Number(activeBinaryMarket.step || 0.0002),
-          market: activeBinaryMarket.label,
-        }),
-      });
+      const requestId = `manual-${uid()}`;
+      const { response, result } = await requestJsonWithRetry(
+        `${API_URL}/api/trades/open`,
+        {
+          method: "POST",
+          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+          cache: "no-store",
+          body: JSON.stringify({
+            requestId,
+            account,
+            type,
+            action,
+            stake: usedStake,
+            prediction,
+            ticks: usedTicks,
+            entryPrice: livePrice,
+            currentPrice: livePrice,
+            barrier: Number(options.barrier || 0),
+            barrierDistance: Number(options.barrierDistance || 0),
+            marketStep: Number(activeBinaryMarket.step || 0.0002),
+            market: activeBinaryMarket.label,
+          }),
+        },
+        { timeoutMs: 7000, retries: 1 }
+      );
 
-      const result = await readApiResponse(response);
       if (!response.ok || result.ok === false) {
-        throw new Error(result.message || "Trade could not be opened.");
+        throw makeApiError(response, result, "Trade could not be opened.");
       }
 
       const opened = result.trade || {};
@@ -2935,31 +3121,36 @@ function TradingApp() {
       setStake(usedStake);
       setActivePage("trade");
 
-      const response = await fetch(`${API_URL}/api/trades/open`, {
-        method: "POST",
-        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-        cache: "no-store",
-        body: JSON.stringify({
-          account: currentAccount,
-          type: signal.type,
-          action: signal.action,
-          stake: usedStake,
-          prediction: usedPrediction,
-          ticks: usedTicks,
-          entryPrice,
-          currentPrice: entryPrice,
-          barrier: Number(signal.barrier || 0),
-          barrierDistance: Number(signal.barrierDistance || 0),
-          marketStep: Number(market.step || 0.0002),
-          market: market.label,
-          source: "ai",
-          strategy: "MetaBinary AI Auto-Trade",
-        }),
-      });
+      const requestId = `ai-${session.id}-${Number(session.trades || 0) + 1}`;
+      const { response, result } = await requestJsonWithRetry(
+        `${API_URL}/api/trades/open`,
+        {
+          method: "POST",
+          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+          cache: "no-store",
+          body: JSON.stringify({
+            requestId,
+            account: currentAccount,
+            type: signal.type,
+            action: signal.action,
+            stake: usedStake,
+            prediction: usedPrediction,
+            ticks: usedTicks,
+            entryPrice,
+            currentPrice: entryPrice,
+            barrier: Number(signal.barrier || 0),
+            barrierDistance: Number(signal.barrierDistance || 0),
+            marketStep: Number(market.step || 0.0002),
+            market: market.label,
+            source: "ai",
+            strategy: "MetaBinary AI Auto-Trade",
+          }),
+        },
+        { timeoutMs: 7000, retries: 1 }
+      );
 
-      const result = await readApiResponse(response);
       if (!response.ok || result.ok === false) {
-        throw new Error(result.message || "AI trade could not be opened.");
+        throw makeApiError(response, result, "AI trade could not be opened.");
       }
 
       const opened = result.trade || {};
@@ -3011,6 +3202,28 @@ function TradingApp() {
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : "The AI trade could not be opened.";
+
+      if (isTransientTradeError(error)) {
+        const latest = aiAutoSessionRef.current;
+        if (latest.running && latest.id === session.id && latest.mode === "trade") {
+          const reconnecting = {
+            ...latest,
+            status: "Connection interrupted · reconnecting automatically…",
+          };
+          aiAutoSessionRef.current = reconnecting;
+          setAiAutoSession(reconnecting);
+          window.clearTimeout(aiAutoTimerRef.current);
+          aiAutoTimerRef.current = window.setTimeout(() => {
+            const current = aiAutoSessionRef.current;
+            if (current.running && current.id === session.id && current.mode === "trade") {
+              void openAiBinaryTrade(current.signal || signal);
+            }
+          }, 1400);
+          notify("open", "AI reconnecting", "The trade server was briefly unavailable. Retrying automatically.", 2600);
+          return false;
+        }
+      }
+
       stopAiAutoTrade(message, false);
       notify("loss", "AI Auto-Trade stopped", message, 5000);
       await refreshUser();
@@ -3269,33 +3482,38 @@ function TradingApp() {
     }
 
     try {
-      const openResponse = await fetch(`${API_URL}/api/trades/open`, {
-        method: "POST",
-        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-        cache: "no-store",
-        body: JSON.stringify({
-          account: botAccount,
-          type: bot.type,
-          action: bot.action,
-          stake: usedStake,
-          prediction: Number(bot.prediction || 0),
-          ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
-          entryPrice: livePriceRef.current,
-          currentPrice: livePriceRef.current,
-          barrier:
-            bot.type === "Touch/No Touch"
-              ? Number((livePriceRef.current + Number(market.step || 0.0002) * 8).toFixed(6))
-              : 0,
-          barrierDistance: 3,
-          marketStep: Number(market.step || 0.0002),
-          market: market.label,
-          source: "bot",
-          strategy: bot.name,
-        }),
-      });
-      const opened = await readApiResponse(openResponse);
+      const requestId = `bot-${sessionVersion}-${Date.now()}-${step}`;
+      const { response: openResponse, result: opened } = await requestJsonWithRetry(
+        `${API_URL}/api/trades/open`,
+        {
+          method: "POST",
+          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+          cache: "no-store",
+          body: JSON.stringify({
+            requestId,
+            account: botAccount,
+            type: bot.type,
+            action: bot.action,
+            stake: usedStake,
+            prediction: Number(bot.prediction || 0),
+            ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
+            entryPrice: livePriceRef.current,
+            currentPrice: livePriceRef.current,
+            barrier:
+              bot.type === "Touch/No Touch"
+                ? Number((livePriceRef.current + Number(market.step || 0.0002) * 8).toFixed(6))
+                : 0,
+            barrierDistance: 3,
+            marketStep: Number(market.step || 0.0002),
+            market: market.label,
+            source: "bot",
+            strategy: bot.name,
+          }),
+        },
+        { timeoutMs: 7000, retries: 1 }
+      );
       if (!openResponse.ok || opened.ok === false) {
-        throw new Error(opened.message || "Bot trade could not be opened.");
+        throw makeApiError(openResponse, opened, "Bot trade could not be opened.");
       }
 
       if (opened.user) {
@@ -3313,15 +3531,18 @@ function TradingApp() {
       const waitMs = Math.max(350, new Date(trade.settleAt).getTime() - Date.now() + 160);
       await wait(waitMs);
 
-      const settleResponse = await fetch(`${API_URL}/api/trades/${encodeURIComponent(trade.id)}/settle`, {
-        method: "POST",
-        headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
-        cache: "no-store",
-        body: JSON.stringify({}),
-      });
-      const settled = await readApiResponse(settleResponse);
+      const { response: settleResponse, result: settled } = await requestJsonWithRetry(
+        `${API_URL}/api/trades/${encodeURIComponent(trade.id)}/settle`,
+        {
+          method: "POST",
+          headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+          cache: "no-store",
+          body: JSON.stringify({}),
+        },
+        { timeoutMs: 7000, retries: 2 }
+      );
       if (!settleResponse.ok || settled.ok === false) {
-        throw new Error(settled.message || "Bot trade could not be settled.");
+        throw makeApiError(settleResponse, settled, "Bot trade could not be settled.");
       }
 
       if (sessionVersion !== botSessionVersionRef.current) {
@@ -3402,6 +3623,13 @@ function TradingApp() {
       return row;
     } catch (error) {
       console.error("Bot cycle failed:", error);
+
+      if (isTransientTradeError(error) && botRunningRef.current) {
+        notify("open", "Bot reconnecting", "Temporary connection issue. The bot will retry automatically.", 2600);
+        await wait(1200);
+        return null;
+      }
+
       botRunningRef.current = false;
       setBotRunning(false);
       notify(
@@ -3562,6 +3790,7 @@ function TradingApp() {
 
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
+    const phone = String(data.phone || "").trim();
     const method = "pesapal";
 
     if (!API_URL) {
@@ -3578,6 +3807,11 @@ function TradingApp() {
       return false;
     }
 
+    if (!phone) {
+      notify("loss", "Phone required", "Enter the M-Pesa phone number.");
+      return false;
+    }
+
     try {
       const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
@@ -3586,7 +3820,7 @@ function TradingApp() {
         body: JSON.stringify({
           method,
           amountUsd,
-          phone: "",
+          phone,
           email: user.email,
           name: user.name || user.email,
           requestId: uid(),
@@ -3601,40 +3835,37 @@ function TradingApp() {
         );
       }
 
+      if (result.checkoutUrl) {
+        window.location.assign(result.checkoutUrl);
+        return true;
+      }
+
       if (!result.depositId) {
         throw new Error(
           result.message || "The backend did not return a deposit reference."
         );
       }
 
+      setDepositOpen(false);
       setAccount("real");
 
       addTx({
         type: "Deposit pending",
-        method: "PesaPal",
+        method: "PesaPal / M-Pesa",
         account: "real",
         amount: amountUsd,
         status: "Pending",
-        details: "Secure PesaPal checkout",
+        details: phone,
       });
-
-      void pollDepositStatus(result.depositId);
-
-      if (result.checkoutUrl) {
-        return {
-          ok: true,
-          checkoutUrl: result.checkoutUrl,
-          depositId: result.depositId,
-          amountUsd,
-        };
-      }
 
       notify(
         "open",
         "Deposit started",
-        result.message || "Your deposit request has been created."
+        result.message || "Continue with PesaPal to complete the M-Pesa payment."
       );
-      return { ok: true, depositId: result.depositId, amountUsd };
+
+      void pollDepositStatus(result.depositId);
+      return true;
     } catch (error) {
       console.error("Deposit request failed:", error);
 
@@ -7317,125 +7548,48 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
 function DepositModal({ close, submit }) {
   const [amountUsd, setAmountUsd] = useState(10);
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [checkout, setCheckout] = useState(null);
-  const quickAmounts = [5, 10, 20, 50, 100];
+  const customAmountRef = useRef(null);
+  const quickAmounts = [5, 10, 15, 20, 100];
+
   const safeAmount = Math.max(0, Number(amountUsd || 0));
+  const amountKes = Math.max(0, Math.round(safeAmount * 129));
 
   async function handleSubmit() {
-    if (submitting || safeAmount < 1) return;
+    if (submitting) return;
+    if (!phone.trim()) return;
 
     setSubmitting(true);
-    const result = await submit({
+    const completed = await submit({
       method: "pesapal",
       amountUsd: safeAmount,
+      phone: phone.trim(),
     });
 
-    if (!result) {
-      setSubmitting(false);
-      return;
-    }
-
-    if (result.checkoutUrl) {
-      setCheckout({
-        url: result.checkoutUrl,
-        depositId: result.depositId || "",
-        amountUsd: result.amountUsd || safeAmount,
-      });
-      setSubmitting(false);
-      return;
-    }
-
-    setSubmitting(false);
+    if (!completed) setSubmitting(false);
   }
 
-  if (checkout?.url) {
-    return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
-        <div
-          className="depositModal pesapalCheckoutModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Complete PesaPal deposit"
-        >
-          <div className="pesapalCheckoutHeader">
-            <div>
-              <small>SECURE DEPOSIT</small>
-              <h2>Complete your payment</h2>
-              <p>${money(checkout.amountUsd)} USD deposit</p>
-            </div>
-            <button
-              type="button"
-              className="pesapalCheckoutClose"
-              onClick={close}
-              aria-label="Close payment"
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="pesapalCheckoutFrameWrap">
-            <iframe
-              className="pesapalCheckoutFrame"
-              title="PesaPal secure checkout"
-              src={checkout.url}
-              allow="payment *"
-            />
-          </div>
-
-          <div className="pesapalCheckoutFooter">
-            <span>Complete the payment above. MetaBinary stays open while you pay.</span>
-            <button type="button" onClick={() => setCheckout(null)}>
-              Change amount
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  function chooseCustomAmount() {
+    setAmountUsd("");
+    window.setTimeout(() => customAmountRef.current?.focus(), 0);
   }
 
   return (
     <div className="modalLayer pesapalDepositLayer">
-      <div
-        className="depositModal pesapalDepositModal simplePesapalDepositModal"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Deposit funds"
-      >
+      <div className="depositModal pesapalDepositModal" role="dialog" aria-modal="true" aria-label="Deposit via PesaPal">
         <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
           ×
         </button>
 
-        <div className="simpleDepositHead">
-          <span>＋</span>
-          <div>
-            <small>REAL ACCOUNT</small>
-            <h2>Deposit Funds</h2>
-            <p>Enter how much you want to deposit.</p>
-          </div>
+        <div className="pesapalDepositTitle">
+          <span>🌐</span>
+          <h2>Deposit via PesaPal</h2>
         </div>
+        <p className="pesapalDepositIntro">Choose an amount, enter your M-Pesa number, then continue to the secure PesaPal payment page.</p>
 
-        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">
-          AMOUNT (USD $)
-        </label>
-
-        <div className="simpleDepositAmountBox">
-          <span>$</span>
-          <input
-            id="pesapalAmount"
-            type="number"
-            min="1"
-            step="1"
-            inputMode="decimal"
-            value={amountUsd}
-            onChange={(event) => setAmountUsd(event.target.value)}
-            disabled={submitting}
-            autoFocus
-          />
-          <b>USD</b>
-        </div>
-
-        <div className="simpleDepositQuickAmounts" aria-label="Quick deposit amounts">
+        <label className="pesapalSectionLabel">SELECT AMOUNT (USD $)</label>
+        <div className="pesapalQuickAmounts">
           {quickAmounts.map((value) => (
             <button
               key={value}
@@ -7447,23 +7601,68 @@ function DepositModal({ close, submit }) {
               ${value}
             </button>
           ))}
+          <button
+            type="button"
+            className={!quickAmounts.includes(Number(amountUsd)) ? "active" : ""}
+            onClick={chooseCustomAmount}
+            disabled={submitting}
+          >
+            Custom
+          </button>
         </div>
 
+        <div className="pesapalConversionBox">
+          <div>
+            <small>YOU PAY via M-Pesa</small>
+            <strong>KES {amountKes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+          </div>
+          <div>
+            <span>1 USD = <b>129</b> KES</span>
+            <small>Display rate</small>
+          </div>
+        </div>
+
+        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">AMOUNT (USD $)</label>
+        <input
+          ref={customAmountRef}
+          id="pesapalAmount"
+          className="pesapalDepositInput"
+          type="number"
+          min="1"
+          step="1"
+          value={amountUsd}
+          onChange={(event) => setAmountUsd(event.target.value)}
+          disabled={submitting}
+        />
+
+        <label className="pesapalSectionLabel" htmlFor="pesapalPhone">M-PESA PHONE NUMBER</label>
+        <input
+          id="pesapalPhone"
+          className="pesapalDepositInput"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="2547XXXXXXXX"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+          disabled={submitting}
+        />
+
         <button
-          className="modalPrimary pesapalContinueButton simpleDepositConfirm"
+          className="modalPrimary pesapalContinueButton"
           onClick={handleSubmit}
-          disabled={submitting || safeAmount < 1}
+          disabled={submitting || safeAmount < 1 || !phone.trim()}
         >
-          {submitting ? "Opening secure payment…" : `Confirm $${money(safeAmount)} Deposit`}
+          {submitting ? "Opening PesaPal…" : "Continue with PesaPal"}
         </button>
 
-        <p className="simpleDepositSecurity">
-          🔒 Secure payment powered by PesaPal
+        <p className="pesapalDepositNote">
+          On the secure PesaPal page, choose M-Pesa and complete the payment. Your real balance updates after payment confirmation.
         </p>
       </div>
     </div>
   );
 }
+
 
 function SupportChat({ user, activePage, account }) {
   const categories = [
