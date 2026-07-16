@@ -36992,3 +36992,256 @@ body,
     margin-bottom: 90px;
   }
 }
+
+/* =========================================================
+   PESAPAL-ONLY DEPOSIT MODAL — ONLY THIS SECTION WAS CHANGED
+   ========================================================= */
+.pesapalDepositLayer {
+  z-index: 26000 !important;
+  background: rgba(0, 4, 10, 0.78) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.pesapalDepositModal {
+  width: min(660px, calc(100vw - 32px)) !important;
+  max-width: 660px !important;
+  padding: 36px !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(0, 132, 255, 0.11), transparent 34%),
+    #101a2c !important;
+  border: 1px solid rgba(101, 139, 198, 0.28) !important;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.62) !important;
+}
+
+.pesapalDepositModal .closeModal {
+  top: 14px !important;
+  right: 18px !important;
+  color: #7887a0 !important;
+}
+
+.pesapalDepositTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 3px 34px 28px;
+}
+
+.pesapalDepositTitle span {
+  font-size: 29px;
+}
+
+.pesapalDepositTitle h2 {
+  margin: 0 !important;
+  color: #11a4ff;
+  font-size: 29px !important;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.pesapalDepositIntro {
+  margin: -13px auto 25px !important;
+  max-width: 520px;
+  text-align: center;
+  color: #8f9cb3 !important;
+  line-height: 1.45;
+}
+
+.pesapalSectionLabel {
+  display: block;
+  margin: 0 0 10px !important;
+  color: #71819b !important;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.pesapalQuickAmounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.pesapalQuickAmounts button {
+  min-height: 68px;
+  border-radius: 13px;
+  border: 1px solid #273754;
+  background: rgba(17, 28, 47, 0.88);
+  color: #7f8da5;
+  font-size: 23px;
+  font-weight: 800;
+  transition: 0.18s ease;
+}
+
+.pesapalQuickAmounts button:hover,
+.pesapalQuickAmounts button.active {
+  color: #299dff;
+  border-color: #238cff;
+  background: rgba(31, 91, 171, 0.25);
+  box-shadow: 0 0 0 2px rgba(35, 140, 255, 0.12), 0 0 24px rgba(35, 140, 255, 0.16);
+}
+
+.pesapalConversionBox {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 20px;
+  min-height: 102px;
+  margin: 4px 0 18px;
+  padding: 17px 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(28, 107, 207, 0.48);
+  background: rgba(19, 38, 69, 0.72);
+}
+
+.pesapalConversionBox > div:first-child small,
+.pesapalConversionBox > div:first-child strong,
+.pesapalConversionBox > div:last-child span,
+.pesapalConversionBox > div:last-child small {
+  display: block;
+}
+
+.pesapalConversionBox > div:first-child small,
+.pesapalConversionBox > div:last-child small,
+.pesapalConversionBox > div:last-child span {
+  color: #76859e;
+}
+
+.pesapalConversionBox > div:first-child strong {
+  margin-top: 5px;
+  color: #4a9cff;
+  font-size: 29px;
+  letter-spacing: 0.03em;
+}
+
+.pesapalConversionBox > div:last-child {
+  text-align: right;
+  line-height: 1.55;
+}
+
+.pesapalConversionBox > div:last-child b {
+  color: #d5ddea;
+}
+
+.pesapalDepositModal .pesapalDepositInput {
+  width: 100% !important;
+  height: 58px !important;
+  margin: 0 0 17px !important;
+  padding: 0 18px !important;
+  border-radius: 13px !important;
+  border: 1px solid #28364d !important;
+  background: #202a3a !important;
+  color: #f4f7fb !important;
+  font-size: 21px !important;
+  font-weight: 700;
+}
+
+.pesapalContinueButton {
+  height: 62px !important;
+  margin-top: 2px;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #078b4c, #00964e) !important;
+  color: white !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 14px 34px rgba(0, 150, 78, 0.2);
+}
+
+.pesapalContinueButton:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+
+.pesapalDepositNote {
+  margin: 17px 4px 0 !important;
+  color: #6f829e !important;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .pesapalDepositLayer {
+    align-items: center !important;
+    padding: 14px !important;
+    overflow-y: auto !important;
+  }
+
+  .pesapalDepositModal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow-y: auto !important;
+    border-radius: 22px !important;
+    padding: 28px 20px 22px !important;
+    border-bottom: 1px solid rgba(101, 139, 198, 0.28) !important;
+    animation: none !important;
+  }
+
+  .pesapalDepositTitle {
+    margin-bottom: 22px;
+  }
+
+  .pesapalDepositTitle h2 {
+    font-size: 24px !important;
+  }
+
+  .pesapalQuickAmounts {
+    gap: 9px;
+  }
+
+  .pesapalQuickAmounts button {
+    min-height: 58px;
+    font-size: 19px;
+  }
+
+  .pesapalConversionBox {
+    min-height: 88px;
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .pesapalConversionBox > div:first-child strong {
+    font-size: clamp(21px, 7vw, 28px);
+  }
+
+  .pesapalConversionBox > div:last-child {
+    font-size: 12px;
+  }
+
+  .pesapalDepositModal .pesapalDepositInput {
+    height: 55px !important;
+    font-size: 18px !important;
+  }
+
+  .pesapalContinueButton {
+    height: 58px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .pesapalDepositModal {
+    padding: 25px 15px 18px !important;
+  }
+
+  .pesapalQuickAmounts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pesapalQuickAmounts button {
+    min-height: 53px;
+    font-size: 17px;
+  }
+
+  .pesapalConversionBox {
+    grid-template-columns: 1fr;
+  }
+
+  .pesapalConversionBox > div:last-child {
+    text-align: left;
+  }
+}
+
