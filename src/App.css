@@ -34058,3 +34058,135 @@ body,
     display: none;
   }
 }
+
+/* ==========================================================================\n   METABINARY V40 — QUICK PRESETS INSIDE CONTROL CARD\n   - Keeps tick / amount presets fully inside the bordered control panel.\n   - Adds clear breathing room before contract action buttons.\n   - Preserves the draggable AI orb and all existing trading logic.\n   ========================================================================== */
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .finalBinaryOrderCard,
+  .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    gap: 12px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    height: auto !important;
+    min-height: 118px !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+    padding: 9px 10px 11px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksControl,
+  .finalBinaryTradePage .finalStakeControl {
+    height: auto !important;
+    min-height: 96px !important;
+    grid-template-rows: 14px 52px 30px !important;
+    align-content: stretch !important;
+    gap: 4px !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow,
+  .finalBinaryTradePage .quickStakeRow {
+    position: static !important;
+    width: 100% !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-self: end !important;
+    overflow: visible !important;
+    z-index: 2 !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow button,
+  .finalBinaryTradePage .quickStakeRow button {
+    height: 30px !important;
+    min-height: 30px !important;
+    border-radius: 8px !important;
+    font-size: 10.5px !important;
+    padding: 0 3px !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow button small,
+  .finalBinaryTradePage .quickStakeRow button small {
+    font-size: 6.5px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 2px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    min-height: 111px !important;
+    padding: 8px 8px 10px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksControl,
+  .finalBinaryTradePage .finalStakeControl {
+    min-height: 91px !important;
+    grid-template-rows: 13px 49px 27px !important;
+    gap: 3px !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow,
+  .finalBinaryTradePage .quickStakeRow,
+  .finalBinaryTradePage .quickTickRow button,
+  .finalBinaryTradePage .quickStakeRow button {
+    height: 27px !important;
+    min-height: 27px !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow button,
+  .finalBinaryTradePage .quickStakeRow button {
+    font-size: 9.5px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 4px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    min-height: 106px !important;
+    padding: 7px 7px 9px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksControl,
+  .finalBinaryTradePage .finalStakeControl {
+    min-height: 87px !important;
+    grid-template-rows: 12px 46px 26px !important;
+    gap: 3px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox,
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button,
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow,
+  .finalBinaryTradePage .quickStakeRow,
+  .finalBinaryTradePage .quickTickRow button,
+  .finalBinaryTradePage .quickStakeRow button {
+    height: 26px !important;
+    min-height: 26px !important;
+  }
+
+  .finalBinaryTradePage .quickTickRow button,
+  .finalBinaryTradePage .quickStakeRow button {
+    font-size: 8.7px !important;
+  }
+}
