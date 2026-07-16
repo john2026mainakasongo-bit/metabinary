@@ -7229,49 +7229,36 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
               Real
             </button>
           </div>
-        </section>
 
-        <div className="drawerGrid">
-          <DrawerBlock title="TRADING">
-            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
-            <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
-          </DrawerBlock>
-
-          <DrawerBlock title="FUNDS">
-            <DrawerButton
-              icon="▱"
-              label="Cashier / Deposit"
+          <div className="drawerQuickFunds" aria-label="Wallet actions">
+            <button
+              type="button"
+              className="drawerQuickDeposit"
               onClick={() => {
                 openDeposit();
                 close();
               }}
-            />
-
-            <DrawerButton
-              icon="⇧"
-              label="Withdraw"
+            >
+              <span>＋</span> Deposit
+            </button>
+            <button
+              type="button"
+              className="drawerQuickWithdraw"
               onClick={() => {
                 openWithdraw();
                 close();
               }}
-            />
+            >
+              <span>⇧</span> Withdraw
+            </button>
+          </div>
+        </section>
 
-            <DrawerButton icon="↺" label="History" onClick={() => go("history")} />
-          </DrawerBlock>
-
-          <DrawerBlock title="AUTOMATION">
-            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
-            <DrawerButton icon="🤖" label="My Bots" onClick={() => go("bots")} />
-            <DrawerButton icon="▶" label="Running Bots" onClick={() => go("botLive")} />
-            <DrawerButton icon="▣" label="Reports" onClick={() => go("reports")} />
-          </DrawerBlock>
-
-          <DrawerBlock title="ACCOUNT">
+        <div className="drawerGrid drawerMainOnly">
+          <DrawerBlock title="MAIN MENU">
+            <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
+            <DrawerButton icon="🤖" label="Bots" onClick={() => go("bots")} />
             <DrawerButton icon="♙" label="Profile" onClick={() => go("profile")} />
-            <DrawerButton icon="👥" label="Referrals" onClick={() => go("referrals")} />
-            <DrawerButton icon="⚙" label="Settings" onClick={() => go("settings")} />
-            <DrawerButton icon="?" label="Support Center" onClick={() => go("profile")} />
-            <DrawerButton icon="🔔" label="Notifications" badge="3" onClick={() => go("settings")} />
           </DrawerBlock>
         </div>
 

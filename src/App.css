@@ -37830,3 +37830,79 @@ body,
   color: inherit !important;
   transform: none !important;
 }
+
+/* ===== MINIMAL MOBILE/DESKTOP DRAWER: TRADE | BOTS | PROFILE ===== */
+.drawerQuickFunds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.drawerQuickFunds button {
+  min-height: 38px;
+  border-radius: 9px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.drawerQuickFunds button span {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.drawerQuickDeposit {
+  background: linear-gradient(135deg, #087cff, #0048ff);
+  box-shadow: 0 8px 22px rgba(0,119,255,.2);
+}
+
+.drawerQuickWithdraw {
+  background: rgba(255,255,255,.055);
+}
+
+.drawerMainOnly {
+  grid-template-columns: 1fr !important;
+  align-content: start;
+}
+
+.drawerMainOnly .drawerBlock {
+  width: 100%;
+}
+
+.drawerMainOnly .drawerButton {
+  min-height: 52px;
+  height: 52px;
+}
+
+@media (min-width: 901px) {
+  .sideDrawer {
+    grid-template-rows: 54px 188px 1fr 54px;
+  }
+}
+
+@media (max-width: 900px) {
+  .drawerQuickFunds {
+    gap: 7px !important;
+    margin-top: 8px !important;
+  }
+
+  .drawerQuickFunds button {
+    min-height: 40px !important;
+    font-size: 12px !important;
+  }
+
+  .drawerMainOnly .drawerButton {
+    min-height: 50px !important;
+    height: 50px !important;
+  }
+
+  .drawerMainOnly .drawerButton strong {
+    font-size: 15px !important;
+  }
+}
