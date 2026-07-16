@@ -37797,3 +37797,36 @@ body,
     justify-content: flex-end;
   }
 }
+
+
+/* =========================================================
+   METABINARY PRIMARY NAV — TRADE | BOTS | PROFILE ONLY
+   Keep History and AI available elsewhere without showing
+   them in the fixed primary navigation.
+========================================================= */
+.bottomNav {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.bottomNav button,
+.bottomNav button:nth-child(3),
+.app > .bottomNav button:nth-child(3),
+.app.activePage-trade > .bottomNav button:nth-child(3),
+.app.activePage-bots > .bottomNav button:nth-child(3),
+.app.activePage-profile > .bottomNav button:nth-child(3) {
+  transform: none !important;
+}
+
+.bottomNav button:nth-child(3) span,
+.app > .bottomNav button:nth-child(3) span,
+.app.activePage-trade > .bottomNav button:nth-child(3) span,
+.app.activePage-bots > .bottomNav button:nth-child(3) span,
+.app.activePage-profile > .bottomNav button:nth-child(3) span {
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  transform: none !important;
+}

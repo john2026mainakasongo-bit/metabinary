@@ -409,7 +409,6 @@ function readPublicEntryPage() {
 
 const TRADING_PAGES = new Set([
   "trade",
-  "markets",
   "ai",
   "bots",
   "botSetup",
@@ -3343,7 +3342,7 @@ function TradingApp() {
       setAiAutoSession(next);
       setMarketSymbol(market.symbol);
       setAiForexSetup({ ...result, preparedAt: Date.now() });
-      setActivePage("markets");
+      setActivePage("trade");
 
       const opened = await placeForexOrder({
         side: result.side || "Buy",
@@ -3419,7 +3418,7 @@ function TradingApp() {
     if (result.mode === "forex") {
       setMarketSymbol(result.symbol || "EUR/USD");
       setAiForexSetup({ ...result, preparedAt: Date.now() });
-      setActivePage("markets");
+      setActivePage("trade");
       notify("win", "Forex setup prepared", `${result.symbol} · ${result.side}`);
       return;
     }
@@ -4055,17 +4054,6 @@ function TradingApp() {
             setActivePage={setActivePage}
           />
         )}
-
-        {activePage === "markets" && (
-          <MarketsPage
-            marketStates={binaryMarketStates}
-            volatilityOptions={VOLATILITY_OPTIONS}
-            setBinaryMarketId={setBinaryMarketId}
-            setActivePage={setActivePage}
-          />
-        )}
-
-
 
         {activePage === "trade" && (
           <TradePage
@@ -4826,7 +4814,7 @@ function Header({
 
 function HubNav({ active, setActivePage, openDeposit }) {
   const items = [
-    ["Markets", "◎", "markets"],
+    ["AI", "AI", "ai"],
     ["Reports", "▤", "reports"],
     ["History", "↺", "history"],
     ["Bots", "🤖", "bots"],
@@ -5336,7 +5324,7 @@ function ForexPage({
         <button
           className="marketBack"
           aria-label="Back to markets"
-          onClick={() => setActivePage("markets")}
+          onClick={() => setActivePage("trade")}
         >
           ‹
         </button>
@@ -7173,8 +7161,6 @@ function ReportsPage({ transactions, closedPositions, botTrades }) {
 
 function BottomNav({ activePage, setActivePage }) {
   const items = [
-    ["markets", "Markets", "◎"],
-    ["history", "History", "↺"],
     ["trade", "Trade", "↕"],
     ["bots", "Bots", "🤖"],
     ["profile", "Profile", "♙"],
@@ -7247,7 +7233,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
 
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
-            <DrawerButton icon="◎" label="Markets" onClick={() => go("markets")} />
+            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
             <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
           </DrawerBlock>
 
