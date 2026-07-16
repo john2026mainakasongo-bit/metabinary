@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-trade-quick-presets-v45-2026-07-16";
+const FRONTEND_BUILD = "metabinary-public-landing-ai-entry-v50-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -396,9 +396,19 @@ const BOT_TEMPLATES = [
   },
 ];
 
+const PUBLIC_ENTRY_KEY = "metabinary_public_entry_page";
+const PUBLIC_ENTRY_PAGES = new Set(["home", "trade", "ai", "bots"]);
+
+function readPublicEntryPage() {
+  if (typeof window === "undefined") return "home";
+  const stored = window.sessionStorage.getItem(PUBLIC_ENTRY_KEY) || "home";
+  return PUBLIC_ENTRY_PAGES.has(stored) ? stored : "home";
+}
+
 const TRADING_PAGES = new Set([
   "home",
   "trade",
+  "ai",
   "bots",
   "botSetup",
   "botLive",
@@ -1036,6 +1046,9 @@ function TradingApp() {
   const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
   const [authMode, setAuthMode] = useState(() =>
     new URLSearchParams(window.location.search).get("reset_token") ? "reset" : "login"
+  );
+  const [publicView, setPublicView] = useState(() =>
+    new URLSearchParams(window.location.search).get("reset_token") ? "auth" : "landing"
   );
 
   const [activePage, setActivePage] = useState(initialTradingPage);
@@ -2163,6 +2176,26 @@ function TradingApp() {
     }
   }
 
+  function openPublicAuth(mode = "login", destination = "home") {
+    const nextPage = PUBLIC_ENTRY_PAGES.has(destination) ? destination : "home";
+    window.sessionStorage.setItem(PUBLIC_ENTRY_KEY, nextPage);
+    setAuthMode(mode);
+    setPublicView("auth");
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  function returnToPublicLanding() {
+    setPublicView("landing");
+    setAuthMode("login");
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  function consumePublicEntryPage() {
+    const nextPage = readPublicEntryPage();
+    window.sessionStorage.removeItem(PUBLIC_ENTRY_KEY);
+    return nextPage;
+  }
+
   async function requestPasswordReset(email) {
     try {
       const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
@@ -2227,7 +2260,7 @@ function TradingApp() {
         demo: Number(logged.demoBalance ?? 10000),
         real: Number(logged.realBalance ?? 0),
       });
-      setActivePage("home");
+      setActivePage(consumePublicEntryPage());
       notify("win", "Welcome back", result.message || "Login successful.");
       return true;
     } catch (error) {
@@ -2275,7 +2308,7 @@ function TradingApp() {
         demo: Number(created.demoBalance ?? 10000),
         real: Number(created.realBalance ?? 0),
       });
-      setActivePage("home");
+      setActivePage(consumePublicEntryPage());
       notify("win", "Account created", result.message || "Your MetaBinary account is ready.");
       return true;
     } catch (error) {
@@ -2292,6 +2325,7 @@ function TradingApp() {
     setMenuOpen(false);
     setActivePage("home");
     setAuthMode("login");
+    setPublicView("landing");
   }
 
   async function placeForexOrder({
@@ -3701,6 +3735,19 @@ function TradingApp() {
   }
 
   if (!user || !authToken) {
+    if (publicView === "landing" && authMode !== "reset") {
+      return (
+        <>
+          <PublicLandingPage
+            openLogin={() => openPublicAuth("login", "home")}
+            openRegister={(destination = "home") => openPublicAuth("register", destination)}
+            openExperience={(destination) => openPublicAuth("register", destination)}
+          />
+          {toast && <Toast toast={toast} />}
+        </>
+      );
+    }
+
     return (
       <>
         <AuthScreen
@@ -3710,6 +3757,7 @@ function TradingApp() {
           register={register}
           requestPasswordReset={requestPasswordReset}
           resetPassword={resetPasswordWithEmail}
+          backToLanding={returnToPublicLanding}
         />
         {toast && <Toast toast={toast} />}
       </>
@@ -3760,6 +3808,15 @@ function TradingApp() {
             prices={prices}
             setActivePage={setActivePage}
             openDeposit={() => setDepositOpen(true)}
+          />
+        )}
+
+        {activePage === "ai" && (
+          <AITradingEntryPage
+            account={account}
+            balance={balance}
+            autoSession={aiAutoSession}
+            setActivePage={setActivePage}
           />
         )}
 
@@ -3927,6 +3984,7 @@ function TradingApp() {
           onAutoTrade={startAiAutoTrade}
           onStopAutoTrade={stopAiAutoTrade}
           autoSession={aiAutoSession}
+          forceOpen={activePage === "ai"}
         />
       )}
 
@@ -4001,7 +4059,246 @@ function PasswordField({ value, onChange, placeholder, autoComplete, minLength, 
   );
 }
 
-function AuthScreen({ mode, setMode, login, register, requestPasswordReset, resetPassword }) {
+function PublicLandingPage({ openLogin, openRegister, openExperience }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [previewMode, setPreviewMode] = useState("manual");
+
+  const scrollToSection = (id) => {
+    const target = document.getElementById(id);
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setMenuOpen(false);
+  };
+
+  return (
+    <div className="publicLanding">
+      <header className="publicNav">
+        <button type="button" className="publicBrand" onClick={() => scrollToSection("top")} aria-label="MetaBinary home">
+          <span className="publicBrandMark">M</span>
+          <strong>Meta<span>Binary</span></strong>
+        </button>
+
+        <nav className={menuOpen ? "publicNavLinks open" : "publicNavLinks"}>
+          <button type="button" onClick={() => scrollToSection("platform")}>Platform</button>
+          <button type="button" onClick={() => scrollToSection("experiences")}>Trading</button>
+          <button type="button" onClick={() => scrollToSection("how")}>How it works</button>
+          <button type="button" onClick={openLogin}>Login</button>
+        </nav>
+
+        <div className="publicNavActions">
+          <button type="button" className="publicLoginButton" onClick={openLogin}>Login</button>
+          <button type="button" className="publicGetStarted" onClick={() => openRegister("home")}>Get Started</button>
+          <button type="button" className="publicMenuButton" onClick={() => setMenuOpen((open) => !open)} aria-label="Open navigation menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+
+      <main id="top" className="publicLandingMain">
+        <section className="publicHero publicSection">
+          <div className="publicHeroGlow publicHeroGlowOne"></div>
+          <div className="publicHeroGlow publicHeroGlowTwo"></div>
+          <div className="publicHeroCopy">
+            <span className="publicEyebrow"><i></i> Manual trading, AI analysis and automated bots</span>
+            <h1>One platform.<br/><em>Three smarter ways to trade.</em></h1>
+            <p>
+              Trade volatility markets manually, scan setups with MetaBinary AI, or automate a strategy with configurable trading bots — from one account.
+            </p>
+            <div className="publicHeroButtons">
+              <button type="button" className="publicPrimaryCta" onClick={() => openRegister("home")}>Get Started — It&apos;s Free <span>→</span></button>
+              <button type="button" className="publicSecondaryCta" onClick={() => openRegister("trade")}><span>▶</span> Try Demo Trading</button>
+            </div>
+            <div className="publicTrustRow">
+              <span>✓ Demo &amp; Real wallets</span>
+              <span>✓ AI market scanner</span>
+              <span>✓ Configurable trading bots</span>
+            </div>
+          </div>
+
+          <div className="publicHeroTerminal" aria-label="MetaBinary platform preview">
+            <div className="publicTerminalTop">
+              <div><i></i><i></i><i></i></div>
+              <span><b></b> Volatility 100 (1s) — Live</span>
+              <strong>Demo $10,000.00</strong>
+            </div>
+            <div className="publicTerminalTabs">
+              <button className={previewMode === "manual" ? "active" : ""} onClick={() => setPreviewMode("manual")}>Manual</button>
+              <button className={previewMode === "ai" ? "active" : ""} onClick={() => setPreviewMode("ai")}>AI Scan</button>
+              <button className={previewMode === "bots" ? "active" : ""} onClick={() => setPreviewMode("bots")}>Bots</button>
+            </div>
+
+            {previewMode === "manual" && (
+              <div className="publicPreviewBody">
+                <div className="publicMiniChart">
+                  <div className="publicChartGrid"></div>
+                  <svg viewBox="0 0 680 250" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="landingChartFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#08a6ff" stopOpacity=".34" />
+                        <stop offset="100%" stopColor="#08a6ff" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M0 196 C38 190,48 160,82 168 S132 217,164 180 S211 119,250 139 S296 177,332 135 S386 74,420 108 S469 145,505 92 S558 111,598 65 S646 70,680 38 L680 250 L0 250 Z" fill="url(#landingChartFill)" />
+                    <path d="M0 196 C38 190,48 160,82 168 S132 217,164 180 S211 119,250 139 S296 177,332 135 S386 74,420 108 S469 145,505 92 S558 111,598 65 S646 70,680 38" fill="none" stroke="#13b7ff" strokeWidth="4" strokeLinecap="round" />
+                  </svg>
+                  <span className="publicLivePrice">1,284.927</span>
+                </div>
+                <div className="publicDigitBoard">
+                  {[0,1,2,3,4,5,6,7,8,9].map((digit) => <span key={digit} className={digit === 7 ? "hot" : digit === 2 ? "cold" : ""}>{digit}</span>)}
+                </div>
+                <div className="publicTradePreviewRow">
+                  <div><small>Contract</small><strong>Even / Odd</strong></div>
+                  <div><small>Stake</small><strong>$10.00</strong></div>
+                  <button type="button" onClick={() => openExperience("trade")}>Open Manual Trader</button>
+                </div>
+              </div>
+            )}
+
+            {previewMode === "ai" && (
+              <div className="publicAiPreview publicPreviewBody">
+                <div className="publicAiRadar"><span></span><i></i><b>AI</b></div>
+                <div className="publicAiCopy">
+                  <small>METABINARY INTELLIGENCE</small>
+                  <h3>Market scan prepared</h3>
+                  <p>Volatility 50 (1s) · Over 4 · 5 ticks</p>
+                  <div className="publicConfidence"><span><i style={{ width: "78%" }}></i></span><strong>78% setup score</strong></div>
+                  <button type="button" onClick={() => openExperience("ai")}>Open AI Trading</button>
+                </div>
+              </div>
+            )}
+
+            {previewMode === "bots" && (
+              <div className="publicBotPreview publicPreviewBody">
+                {[
+                  ["AI Vortex", "Even / Odd", "Balanced"],
+                  ["AI Vector", "Over / Under", "Low"],
+                  ["AI Vanguard", "Touch / No Touch", "High"],
+                ].map(([name, type, risk]) => (
+                  <article key={name}><span>AI</span><div><strong>{name}</strong><small>{type} · {risk} risk</small></div><b>Ready</b></article>
+                ))}
+                <button type="button" className="publicBotOpen" onClick={() => openExperience("bots")}>Explore Trading Bots →</button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <div className="publicMarketStrip" aria-hidden="true">
+          {["V10 1s", "V25 1s", "V50 1s", "V75 1s", "V100 1s", "XAU/USD", "BTC/USD"].map((market, index) => (
+            <span key={market}><b>{market}</b><em>{index % 2 ? "+0.42%" : "+1.18%"}</em></span>
+          ))}
+        </div>
+
+        <section id="experiences" className="publicSection publicExperiences">
+          <div className="publicSectionHeading">
+            <span>CHOOSE YOUR EXPERIENCE</span>
+            <h2>Trade your way</h2>
+            <p>Start with the method that matches how you want to work. Switch between them from your MetaBinary account at any time.</p>
+          </div>
+          <div className="publicExperienceGrid">
+            <article className="publicExperienceCard manual">
+              <div className="publicExperienceIcon">↕</div>
+              <span>MANUAL TRADER</span>
+              <h3>Control every trade</h3>
+              <p>Trade Even/Odd, Matches/Differs, Over/Under, Rise/Fall and Touch/No Touch with live digit statistics.</p>
+              <ul><li>10 volatility markets</li><li>1–10 tick contracts</li><li>Demo and Real accounts</li></ul>
+              <button type="button" onClick={() => openExperience("trade")}>Open Manual Trader <b>→</b></button>
+            </article>
+
+            <article className="publicExperienceCard ai featured">
+              <div className="publicExperienceBadge">SMART ASSIST</div>
+              <div className="publicExperienceIcon">AI</div>
+              <span>METABINARY AI</span>
+              <h3>Scan before you trade</h3>
+              <p>Analyze volatility, Forex and bot strategies, prepare a setup and review it before starting a session.</p>
+              <ul><li>Market context scanning</li><li>Prepared trade parameters</li><li>Target and stop controls</li></ul>
+              <button type="button" onClick={() => openExperience("ai")}>Launch AI Trading <b>→</b></button>
+            </article>
+
+            <article className="publicExperienceCard bots">
+              <div className="publicExperienceIcon">⌁</div>
+              <span>TRADING BOTS</span>
+              <h3>Automate your strategy</h3>
+              <p>Choose a bot, configure stake, ticks, recovery steps, take profit and stop loss, then monitor every transaction.</p>
+              <ul><li>5 AI bot templates</li><li>Configurable recovery</li><li>Live session P/L</li></ul>
+              <button type="button" onClick={() => openExperience("bots")}>Explore Bot Hub <b>→</b></button>
+            </article>
+          </div>
+        </section>
+
+        <section id="platform" className="publicSection publicPlatformFeatures">
+          <div className="publicSectionHeading left">
+            <span>METABINARY PLATFORM</span>
+            <h2>Built around the whole trading workflow</h2>
+          </div>
+          <div className="publicFeatureGrid">
+            <article><div>⚡</div><h3>Fast trade workflow</h3><p>Move from market selection to contract setup and settlement without leaving the trading workspace.</p></article>
+            <article><div>◉</div><h3>Live market views</h3><p>Monitor volatility digit activity alongside Forex, metals and crypto market views.</p></article>
+            <article><div>AI</div><h3>Context-aware assistant</h3><p>The floating AI changes its scan mode depending on whether you are trading, viewing Forex or configuring bots.</p></article>
+            <article><div>◇</div><h3>Risk controls</h3><p>Configure stake, recovery limits, take profit and stop loss for supported automated sessions.</p></article>
+            <article><div>▣</div><h3>History and reports</h3><p>Review transactions, closed positions and bot activity from the same account.</p></article>
+            <article><div>◎</div><h3>Mobile and desktop</h3><p>The interface is arranged for normal 100% browser zoom on phones and laptops.</p></article>
+          </div>
+        </section>
+
+        <section id="how" className="publicSection publicHowSection">
+          <div className="publicSectionHeading">
+            <span>GET STARTED</span>
+            <h2>From account to trading in three steps</h2>
+          </div>
+          <div className="publicHowGrid">
+            <article><b>1</b><h3>Create your account</h3><p>Register once and access your MetaBinary Trader&apos;s Hub, demo wallet and trading tools.</p></article>
+            <article><b>2</b><h3>Choose how to trade</h3><p>Open Manual Trader, launch MetaBinary AI, or select a strategy from the Bot Hub.</p></article>
+            <article><b>3</b><h3>Set your risk and start</h3><p>Review the amount and settings before you place a trade or start an automated session.</p></article>
+          </div>
+        </section>
+
+        <section className="publicSection publicFinalCta">
+          <span>YOUR METABINARY ACCOUNT</span>
+          <h2>Ready to enter the Trader&apos;s Hub?</h2>
+          <p>Start in Demo, explore the platform and choose between manual trading, AI analysis and automation.</p>
+          <div><button type="button" onClick={() => openRegister("home")}>Create Free Account <b>→</b></button><button type="button" onClick={() => openRegister("trade")}>Try Demo Trading</button></div>
+        </section>
+      </main>
+
+      <footer className="publicFooter">
+        <div className="publicBrand"><span className="publicBrandMark">M</span><strong>Meta<span>Binary</span></strong></div>
+        <p>Trading involves risk. AI scores and automated strategies do not guarantee profitable results.</p>
+        <small>© 2026 MetaBinary. Platform access subject to account terms.</small>
+      </footer>
+    </div>
+  );
+}
+
+function AITradingEntryPage({ account, balance, autoSession, setActivePage }) {
+  const running = Boolean(autoSession?.running);
+  const pnl = Number(autoSession?.pnl || 0);
+  return (
+    <div className="page aiTradingEntryPage">
+      <section className="aiEntryHero">
+        <div className="aiEntryHeroCopy">
+          <span className="aiEntryEyebrow"><i></i> METABINARY INTELLIGENCE</span>
+          <h1>AI Trading</h1>
+          <p>Scan the current trading context, review a prepared setup and decide when to start. The AI scanner opens automatically on this page.</p>
+          <div className="aiEntryAccount"><small>{account === "real" ? "Real Account" : "Demo Account"}</small><strong>{money(balance)} USD</strong></div>
+        </div>
+        <div className="aiEntryOrb"><span></span><i></i><b>AI</b><small>{running ? `${pnl >= 0 ? "+" : ""}${money(pnl)} USD` : "READY TO SCAN"}</small></div>
+      </section>
+
+      <section className="aiEntryModeGrid">
+        <button type="button" onClick={() => setActivePage("trade")}><span>01</span><div><small>VOLATILITY AI</small><strong>Scan digit contracts</strong><p>Prepare market, contract, action, prediction, stake and ticks.</p></div><b>→</b></button>
+        <button type="button" onClick={() => setActivePage("forex")}><span>02</span><div><small>FOREX AI</small><strong>Prepare Buy / Sell setups</strong><p>Review live market direction with prepared entry, Stop Loss and Take Profit.</p></div><b>→</b></button>
+        <button type="button" onClick={() => setActivePage("bots")}><span>03</span><div><small>BOT AI</small><strong>Match a strategy</strong><p>Scan the available bot templates and prepare a configuration for review.</p></div><b>→</b></button>
+      </section>
+
+      <section className="aiEntrySafety">
+        <div><span>✓</span><p><strong>Review before starting</strong><small>Prepared setups remain visible so you can check the market, stake and session controls.</small></p></div>
+        <div><span>◎</span><p><strong>Target and stop controls</strong><small>Automated AI sessions can be configured to stop at the selected target profit or stop loss.</small></p></div>
+        <div><span>!</span><p><strong>No guaranteed results</strong><small>AI analysis is an estimate. Trading outcomes can still be losses.</small></p></div>
+      </section>
+    </div>
+  );
+}
+
+function AuthScreen({ mode, setMode, login, register, requestPasswordReset, resetPassword, backToLanding }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [resetEmail, setResetEmail] = useState("");
   const [resetData, setResetData] = useState({ password: "", confirmPassword: "" });
@@ -4047,6 +4344,11 @@ function AuthScreen({ mode, setMode, login, register, requestPasswordReset, rese
 
   return (
     <div className="authPage">
+      {mode !== "reset" && backToLanding && (
+        <button type="button" className="authBackLanding" onClick={backToLanding}>
+          <span>←</span> Back to MetaBinary
+        </button>
+      )}
       {mode === "forgot" ? (
         <section className="authCard loginCard">
           <Logo />
@@ -4404,7 +4706,7 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
 
             <p>Advanced algorithms analyze market patterns in real-time to deliver smarter trade signals.</p>
 
-            <button onClick={() => setActivePage("bots")}>Explore AI Tools →</button>
+            <button onClick={() => setActivePage("ai")}>Explore AI Tools →</button>
           </div>
         </div>
 
@@ -4416,7 +4718,7 @@ function HomePage({ livePrice, prices, setActivePage, openDeposit }) {
               📉<span>New Trade</span>
             </button>
 
-            <button onClick={() => setActivePage("bots")}>
+            <button onClick={() => setActivePage("ai")}>
               🧠<span>AI Signals</span>
             </button>
 
@@ -6731,6 +7033,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
           </DrawerBlock>
 
           <DrawerBlock title="AUTOMATION">
+            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
             <DrawerButton icon="🤖" label="My Bots" onClick={() => go("bots")} />
             <DrawerButton icon="▶" label="Running Bots" onClick={() => go("botLive")} />
             <DrawerButton icon="▣" label="Reports" onClick={() => go("reports")} />
@@ -6773,7 +7076,7 @@ function DrawerButton({ icon, label, badge, onClick }) {
   );
 }
 
-function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, marketFeed, forexMarkets, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession }) {
+function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, marketFeed, forexMarkets, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession, forceOpen = false }) {
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -6784,6 +7087,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
 
   useEffect(() => saveStore(STORE.aiPosition, position), [position]);
+
+  useEffect(() => {
+    if (forceOpen) setOpen(true);
+  }, [forceOpen, activePage]);
 
   useEffect(() => {
     const clampToScreen = () => {
