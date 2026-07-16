@@ -34254,3 +34254,68 @@ body,
     margin-top: 10px !important;
   }
 }
+
+/* ==========================================================================\n   METABINARY V43 — FIVE AMOUNT PRESETS + LOWER ACTION DOCK\n   - Forces all 10 / 25 / 50 / 100 / 250 amount shortcuts to remain visible.\n   - Removes repeated USD text from tiny preset pills so every value fits.\n   - Moves contract action buttons closer to the fixed Trade navigation line.\n   ========================================================================== */
+.finalBinaryTradePage .quickStakeRow {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+  overflow: visible !important;
+}
+
+.finalBinaryTradePage .quickStakeRow button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 1px !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  font-size: 10px !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 30px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .mainScreen:has(.finalBinaryTradePage) {
+    padding-bottom: calc(38px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .finalBinaryTradePage .quickStakeRow {
+    gap: 3px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow button {
+    font-size: 9.5px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 34px !important;
+  }
+
+  .mainScreen:has(.finalBinaryTradePage) {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .finalBinaryTradePage .quickStakeRow button {
+    font-size: 8.5px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 26px !important;
+  }
+}
