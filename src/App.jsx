@@ -6749,7 +6749,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const buttonSize = window.innerWidth <= 760 ? 58 : 66;
       const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
       const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
-      const reservedBottom = activePage === "trade" ? 254 : activePage === "botLive" ? 92 : 78;
+      const reservedBottom = activePage === "trade" ? 104 : activePage === "botLive" ? 92 : 78;
       const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
       setPosition((old) => ({
         x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, Number(old?.x || window.innerWidth - buttonSize - 16))),
@@ -6873,7 +6873,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     const buttonSize = window.innerWidth <= 760 ? 58 : 66;
     const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
     const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
-    const reservedBottom = activePage === "trade" ? 254 : activePage === "botLive" ? 92 : 78;
+    const reservedBottom = activePage === "trade" ? 104 : activePage === "botLive" ? 92 : 78;
     const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
     setPosition({
       x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, event.clientX - dragRef.current.offsetX)),

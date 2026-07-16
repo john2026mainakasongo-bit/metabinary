@@ -33619,3 +33619,312 @@ body,
   border-color: #ff9aaa !important;
   box-shadow: 0 0 18px rgba(255, 63, 89, .68) !important;
 }
+
+
+/* ==========================================================================\n   METABINARY V38 — COMPACT MOBILE ORDER AREA + TRUE DRAGGABLE AI + RING CLEANUP\n   - Ticks and stake fit in one compact aligned row.\n   - Action buttons live directly below the controls instead of floating with a gap.\n   - The AI orb uses its real drag coordinates again on mobile.\n   - Normal ranked digit rings are flat: no outer cyan/orange glow.\n   ========================================================================== */
+
+/* Absolute final cleanup for ordinary digit statistics. Result flashes are\n   deliberately excluded so the one-shot win/loss animation still works. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  background: transparent !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitRingV7:not(.mbDigitResultWinV7 .mbDigitRingV7):not(.mbDigitResultLossV7 .mbDigitRingV7) {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Highest = flat green top half, grey bottom half. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: linear-gradient(to bottom, #18b979 0 50%, #596471 50% 100%) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Lowest = small flat red arc centered at the bottom, grey everywhere else. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(from -135deg, #596471 0deg 225deg, #df3f55 225deg 285deg, #596471 285deg 360deg) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+@media (max-width: 760px) {
+  /* Keep enough room only for the fixed app navigation. The order controls and\n     action buttons now stay together in normal flow, eliminating the empty gap. */
+  .mainScreen:has(.finalBinaryTradePage) {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .finalBinaryTradePage .finalBinaryOrderCard,
+  .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 9px 10px !important;
+    margin: 0 !important;
+    border-radius: 17px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksControl,
+  .finalBinaryTradePage .finalStakeControl {
+    grid-template-rows: 14px 52px !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs > label > span {
+    min-height: 14px !important;
+    padding-left: 2px !important;
+    font-size: 10px !important;
+    line-height: 14px !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    border-radius: 13px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    font-size: 22px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    height: 52px !important;
+    min-height: 52px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    font-size: clamp(17px, 4.7vw, 20px) !important;
+    line-height: 1 !important;
+  }
+
+  .finalBinaryTradePage .finalStakeInputWrap {
+    gap: 5px !important;
+    padding: 0 8px !important;
+  }
+
+  .finalBinaryTradePage .finalStakeInputWrap small {
+    font-size: 10px !important;
+  }
+
+  /* ODD/EVEN (and the other contract actions) sit immediately beneath the\n     control panel. No fixed positioning, no empty middle space. */
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 6px !important;
+    background: transparent !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 106px !important;
+    min-height: 106px !important;
+    max-height: 106px !important;
+    padding: 14px 14px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button > span {
+    display: none !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: clamp(29px, 8vw, 36px) !important;
+    line-height: .95 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons .tradePayoutText {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 3px !important;
+    margin-top: 9px !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+    font-size: clamp(9.5px, 2.8vw, 11.5px) !important;
+    line-height: 1.15 !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons .tradePayoutText > span {
+    max-width: 100% !important;
+    white-space: nowrap !important;
+  }
+
+  /* Respect the live x/y coordinates from the drag code. Previous mobile rules\n     force-docked the orb and made it appear non-draggable. */
+  .floatingAiButton.aiPage-trade {
+    left: var(--ai-x, calc(100vw - 68px)) !important;
+    top: var(--ai-y, 250px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    touch-action: none !important;
+    cursor: grab !important;
+    z-index: 11920 !important;
+  }
+
+  .floatingAiButton.aiPage-trade:active {
+    cursor: grabbing !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksControl,
+  .finalBinaryTradePage .finalStakeControl {
+    grid-template-rows: 13px 49px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs > label > span {
+    font-size: 9.5px !important;
+    line-height: 13px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    grid-template-columns: 35px minmax(0, 1fr) 35px !important;
+    height: 49px !important;
+    min-height: 49px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button {
+    width: 35px !important;
+    min-width: 35px !important;
+    height: 49px !important;
+    min-height: 49px !important;
+    font-size: 21px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    height: 49px !important;
+    min-height: 49px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox select,
+  .finalBinaryTradePage .finalStakeInputWrap input {
+    font-size: clamp(15px, 4.7vw, 19px) !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    gap: 9px !important;
+    padding: 0 5px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    height: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+    padding: 13px 11px !important;
+    border-radius: 17px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: clamp(27px, 8.2vw, 34px) !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons .tradePayoutText {
+    margin-top: 8px !important;
+    font-size: clamp(9px, 2.65vw, 10.5px) !important;
+  }
+
+  .floatingAiButton.aiPage-trade {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    gap: 6px !important;
+    padding: 7px !important;
+  }
+
+  .finalBinaryTradePage .finalOrderInputs > label > span {
+    font-size: 8.7px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox,
+  .finalBinaryTradePage .finalStakeBox {
+    grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+  }
+
+  .finalBinaryTradePage .finalTicksBox button,
+  .finalBinaryTradePage .finalStakeBox > button {
+    width: 32px !important;
+    min-width: 32px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons > button {
+    height: 96px !important;
+    min-height: 96px !important;
+    max-height: 96px !important;
+    padding: 11px 9px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: 26px !important;
+  }
+}
