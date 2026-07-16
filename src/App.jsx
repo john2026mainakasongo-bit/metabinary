@@ -303,7 +303,7 @@ const DEFAULT_NOTIFICATIONS = [
     message: "Your trading dashboard is ready.",
     time: "Just now",
     read: false,
-    page: "home",
+    page: "trade",
   },
   {
     id: "security-notification",
@@ -399,17 +399,19 @@ const BOT_TEMPLATES = [
 ];
 
 const PUBLIC_ENTRY_KEY = "metabinary_public_entry_page";
-const PUBLIC_ENTRY_PAGES = new Set(["home", "trade", "ai", "bots"]);
+const PUBLIC_ENTRY_PAGES = new Set(["trade", "ai", "bots"]);
 
 function readPublicEntryPage() {
-  if (typeof window === "undefined") return "home";
-  const stored = window.sessionStorage.getItem(PUBLIC_ENTRY_KEY) || "home";
-  return PUBLIC_ENTRY_PAGES.has(stored) ? stored : "home";
+  if (typeof window === "undefined") return "trade";
+  const stored = window.sessionStorage.getItem(PUBLIC_ENTRY_KEY) || "trade";
+  return PUBLIC_ENTRY_PAGES.has(stored) ? stored : "trade";
 }
 
 const TRADING_PAGES = new Set([
-  "home",
   "trade",
+  "markets",
+  "forex",
+  "openTrades",
   "ai",
   "bots",
   "botSetup",
@@ -422,9 +424,9 @@ const TRADING_PAGES = new Set([
 ]);
 
 function initialTradingPage() {
-  if (typeof window === "undefined") return "home";
+  if (typeof window === "undefined") return "trade";
   const page = window.location.hash.replace(/^#/, "");
-  return TRADING_PAGES.has(page) ? page : "home";
+  return TRADING_PAGES.has(page) ? page : "trade";
 }
 
 function defaultBotAction(type) {
@@ -1622,7 +1624,7 @@ function TradingApp() {
         ? statePage
         : TRADING_PAGES.has(hashPage)
         ? hashPage
-        : "home";
+        : "trade";
       historyPopRef.current = true;
       setActivePage(resolvedPage);
     };
@@ -2346,8 +2348,8 @@ function TradingApp() {
     }
   }
 
-  function openPublicAuth(mode = "login", destination = "home") {
-    const nextPage = PUBLIC_ENTRY_PAGES.has(destination) ? destination : "home";
+  function openPublicAuth(mode = "login", destination = "trade") {
+    const nextPage = PUBLIC_ENTRY_PAGES.has(destination) ? destination : "trade";
     window.sessionStorage.setItem(PUBLIC_ENTRY_KEY, nextPage);
     setAuthMode(mode);
     setPublicView("auth");
@@ -2396,7 +2398,7 @@ function TradingApp() {
       if (!response.ok || result.ok === false) throw new Error(result.message || "Unable to reset the password.");
       const url = new URL(window.location.href);
       url.searchParams.delete("reset_token");
-      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}#home`);
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}#trade`);
       setAuthMode("login");
       notify("win", "Password updated", result.message || "Login with your new password.", 5000);
       return true;
@@ -2493,7 +2495,7 @@ function TradingApp() {
     setAuthToken("");
     setUser(null);
     setMenuOpen(false);
-    setActivePage("home");
+    setActivePage("trade");
     setAuthMode("login");
     setPublicView("landing");
   }
@@ -3967,8 +3969,8 @@ function TradingApp() {
       return (
         <>
           <PublicLandingPage
-            openLogin={() => openPublicAuth("login", "home")}
-            openRegister={(destination = "home") => openPublicAuth("register", destination)}
+            openLogin={() => openPublicAuth("login", "trade")}
+            openRegister={(destination = "trade") => openPublicAuth("register", destination)}
             openExperience={(destination) => openPublicAuth("register", destination)}
           />
           {toast && <Toast toast={toast} />}
@@ -4029,14 +4031,6 @@ function TradingApp() {
           >
             ‹ Back
           </button>
-        )}
-        {activePage === "home" && (
-          <HomePage
-            livePrice={livePrice}
-            prices={prices}
-            setActivePage={setActivePage}
-            openDeposit={() => setDepositOpen(true)}
-          />
         )}
 
         {activePage === "ai" && (
@@ -4314,7 +4308,7 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
 
         <div className="publicNavActions">
           <button type="button" className="publicLoginButton" onClick={openLogin}>Login</button>
-          <button type="button" className="publicGetStarted" onClick={() => openRegister("home")}>Get Started</button>
+          <button type="button" className="publicGetStarted" onClick={() => openRegister("trade")}>Get Started</button>
           <button type="button" className="publicMenuButton" onClick={() => setMenuOpen((open) => !open)} aria-label="Open navigation menu">
             <span></span><span></span><span></span>
           </button>
@@ -4332,7 +4326,7 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
               Trade volatility markets manually, scan setups with MetaBinary AI, or automate a strategy with configurable trading bots — from one account.
             </p>
             <div className="publicHeroButtons">
-              <button type="button" className="publicPrimaryCta" onClick={() => openRegister("home")}>Get Started — It&apos;s Free <span>→</span></button>
+              <button type="button" className="publicPrimaryCta" onClick={() => openRegister("trade")}>Get Started — It&apos;s Free <span>→</span></button>
               <button type="button" className="publicSecondaryCta" onClick={() => openRegister("trade")}><span>▶</span> Try Demo Trading</button>
             </div>
             <div className="publicTrustRow">
@@ -4481,9 +4475,9 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
 
         <section className="publicSection publicFinalCta">
           <span>YOUR METABINARY ACCOUNT</span>
-          <h2>Ready to enter the Trader&apos;s Hub?</h2>
+          <h2>Ready to start trading?</h2>
           <p>Start in Demo, explore the platform and choose between manual trading, AI analysis and automation.</p>
-          <div><button type="button" onClick={() => openRegister("home")}>Create Free Account <b>→</b></button><button type="button" onClick={() => openRegister("trade")}>Try Demo Trading</button></div>
+          <div><button type="button" onClick={() => openRegister("trade")}>Create Free Account <b>→</b></button><button type="button" onClick={() => openRegister("trade")}>Try Demo Trading</button></div>
         </section>
       </main>
 
@@ -4505,10 +4499,10 @@ function AITradingEntryPage({ account, balance, autoSession, setActivePage }) {
         <div className="aiEntryHeroCopy">
           <span className="aiEntryEyebrow"><i></i> METABINARY INTELLIGENCE</span>
           <h1>AI Trading</h1>
-          <p>Scan the current trading context, review a prepared setup and decide when to start. The AI scanner opens automatically on this page.</p>
+          <p>AI is scanning live volatility markets now. It will select the strongest market and contract type, then open Auto-Trade automatically.</p>
           <div className="aiEntryAccount"><small>{account === "real" ? "Real Account" : "Demo Account"}</small><strong>{money(balance)} USD</strong></div>
         </div>
-        <div className="aiEntryOrb"><span></span><i></i><b>AI</b><small>{running ? `${pnl >= 0 ? "+" : ""}${money(pnl)} USD` : "READY TO SCAN"}</small></div>
+        <div className="aiEntryOrb"><span></span><i></i><b>AI</b><small>{running ? `${pnl >= 0 ? "+" : ""}${money(pnl)} USD` : "AUTO SCAN"}</small></div>
       </section>
 
       <section className="aiEntryModeGrid">
@@ -4829,7 +4823,7 @@ function Header({
 
 function HubNav({ active, setActivePage, openDeposit }) {
   const items = [
-    ["Trader’s Hub", "⌂", "home"],
+    ["Markets", "◎", "markets"],
     ["Reports", "▤", "reports"],
     ["History", "↺", "history"],
     ["Bots", "🤖", "bots"],
@@ -5323,7 +5317,7 @@ function ForexPage({
         <button
           className="marketBack"
           aria-label="Back to markets"
-          onClick={() => setActivePage("home")}
+          onClick={() => setActivePage("markets")}
         >
           ‹
         </button>
@@ -7160,7 +7154,7 @@ function ReportsPage({ transactions, closedPositions, botTrades }) {
 
 function BottomNav({ activePage, setActivePage }) {
   const items = [
-    ["home", "Home", "⌂"],
+    ["markets", "Markets", "◎"],
     ["history", "History", "↺"],
     ["trade", "Trade", "↕"],
     ["bots", "Bots", "🤖"],
@@ -7234,7 +7228,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
 
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
-            <DrawerButton icon="⌂" label="Trader’s Hub" onClick={() => go("home")} />
+            <DrawerButton icon="◎" label="Markets" onClick={() => go("markets")} />
             <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
           </DrawerBlock>
 
@@ -7311,14 +7305,30 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
   const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
-  const [config, setConfig] = useState({ stake: Math.max(0.3, Number(currentStake || 1)), takeProfit: 20, stopLoss: 10 });
+  const scanTimerRef = useRef(0);
+  const autoLaunchTimerRef = useRef(0);
+  const scanActiveRef = useRef(false);
   const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
+  const aiStake = Math.max(0.3, Number(currentStake || 1));
+  const aiTakeProfit = 20;
+  const aiStopLoss = 10;
 
   useEffect(() => saveStore(STORE.aiPosition, position), [position]);
 
   useEffect(() => {
-    if (forceOpen) setOpen(true);
+    if (!forceOpen) return undefined;
+    setOpen(true);
+    const launchTimer = window.setTimeout(() => {
+      if (!autoSession?.running) scan(true);
+    }, 180);
+    return () => window.clearTimeout(launchTimer);
   }, [forceOpen, activePage]);
+
+  useEffect(() => () => {
+    scanActiveRef.current = false;
+    window.clearInterval(scanTimerRef.current);
+    window.clearTimeout(autoLaunchTimerRef.current);
+  }, []);
 
   useEffect(() => {
     const clampToScreen = () => {
@@ -7361,14 +7371,14 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const sl = side === "Buy" ? price - market.slDistance : price + market.slDistance;
       const tp = side === "Buy" ? price + market.tpDistance : price - market.tpDistance;
       const suggestedVolume = market.category === "Metals" || market.category === "Crypto" ? 0.001 : 0.01;
-      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: suggestedVolume, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: Math.max(0.3, Number(config.takeProfit || 20)), sessionStopLoss: Math.max(0.3, Number(config.stopLoss || 10)) };
+      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: suggestedVolume, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: aiTakeProfit, sessionStopLoss: aiStopLoss };
     }
     if (mode === "bot") {
       const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
       const market = volatilityOptions[Math.floor(Math.random() * volatilityOptions.length)] || volatilityOptions[0];
       const type = template.type === "Rise/Fall" ? "Rise/Fall" : Math.random() > 0.45 ? "Over/Under" : template.type;
       const action = defaultBotAction(type);
-      return { mode, confidence, botId: template.id, marketLabel: market.label, config: { marketId: market.id, type, action, prediction: type === "Over/Under" ? 2 : 0, stake: config.stake, ticks: 3 + Math.floor(Math.random() * 3), martingaleEnabled: true, martingaleMultiplier: 2, martingaleSteps: 3, takeProfit: config.takeProfit, stopLoss: config.stopLoss } };
+      return { mode, confidence, botId: template.id, marketLabel: market.label, config: { marketId: market.id, type, action, prediction: type === "Over/Under" ? 2 : 0, stake: aiStake, ticks: 3 + Math.floor(Math.random() * 3), martingaleEnabled: true, martingaleMultiplier: 2, martingaleSteps: 3, takeProfit: aiTakeProfit, stopLoss: aiStopLoss } };
     }
     const scored = volatilityOptions.map((market, index) => {
       const state = binaryMarketStates?.[market.id] || {};
@@ -7377,56 +7387,125 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       const trend = recent.length > 1 ? recent[recent.length - 1] - recent[0] : 0;
       const stats = state.digitStats || [10];
       const spread = Math.max(...stats) - Math.min(...stats);
-      return { market, score: Math.abs(trend) * 100000 + spread + Math.random() * 2 + index * 0.01 };
+      return { market, score: Math.abs(trend) * 100000 + spread + index * 0.01 };
     }).sort((a, b) => b.score - a.score);
     const market = scored[0]?.market || volatilityOptions[0];
-    const typeChoices = ["Over/Under", "Matches/Differs", "Rise/Fall"];
-    const type = typeChoices[Math.floor(Math.random() * typeChoices.length)];
-    const recentPrices = binaryMarketStates?.[market.id]?.prices || [];
-    const recentTrend = recentPrices.length > 2 ? Number(recentPrices[recentPrices.length - 1]) - Number(recentPrices[Math.max(0, recentPrices.length - 8)]) : 0;
-    const thresholds = [1, 6, 9];
-    const prediction = type === "Over/Under" ? thresholds[Math.floor(Math.random() * thresholds.length)] : Math.floor(Math.random() * 10);
-    const action = type === "Matches/Differs"
-      ? "Differs"
-      : type === "Rise/Fall"
-      ? (recentTrend >= 0 ? "Rise" : "Fall")
-      : prediction >= 8
-      ? "Under"
-      : prediction === 6
-      ? (recentTrend >= 0 ? "Over" : "Under")
-      : "Over";
-    return { mode, confidence, marketId: market.id, marketLabel: market.label, type, action, prediction, ticks: 3 + Math.floor(Math.random() * 4), stake: config.stake, takeProfit: config.takeProfit, stopLoss: config.stopLoss };
+    const state = binaryMarketStates?.[market.id] || {};
+    const recentPrices = Array.isArray(state.prices) ? state.prices : [];
+    const recentTrend = recentPrices.length > 2
+      ? Number(recentPrices[recentPrices.length - 1]) - Number(recentPrices[Math.max(0, recentPrices.length - 8)])
+      : 0;
+    const rawDigitStats = Array.from({ length: 10 }, (_, digit) => Math.max(0, Number(state.digitStats?.[digit] ?? 10)));
+    const digitTotal = rawDigitStats.reduce((sum, value) => sum + value, 0) || 100;
+    const digitProbability = (digit) => rawDigitStats[digit] / digitTotal;
+    const probabilityFor = (digits) => digits.reduce((sum, digit) => sum + digitProbability(digit), 0);
+    const ticks = 3 + Math.floor(Math.random() * 4);
+    const candidates = [];
+    const addCandidate = (type, action, prediction, probability, signalBonus = 0) => {
+      const multiplier = estimatedContractMultiplier(type, action, prediction, { ticks, barrierDistance: 2 });
+      if (!Number.isFinite(multiplier) || multiplier <= 0) return;
+      const expectedValue = probability * multiplier;
+      candidates.push({ type, action, prediction, probability, score: expectedValue + signalBonus });
+    };
+
+    const evenProbability = probabilityFor([0, 2, 4, 6, 8]);
+    const oddProbability = probabilityFor([1, 3, 5, 7, 9]);
+    addCandidate("Even/Odd", evenProbability >= oddProbability ? "Even" : "Odd", 0, Math.max(evenProbability, oddProbability), Math.abs(evenProbability - oddProbability) * 0.35);
+
+    for (let threshold = 1; threshold <= 8; threshold += 1) {
+      const overProbability = probabilityFor(Array.from({ length: 9 - threshold }, (_, index) => threshold + 1 + index));
+      const underProbability = probabilityFor(Array.from({ length: threshold }, (_, index) => index));
+      addCandidate("Over/Under", "Over", threshold, overProbability, Math.abs(overProbability - 0.5) * 0.08);
+      addCandidate("Over/Under", "Under", threshold, underProbability, Math.abs(underProbability - 0.5) * 0.08);
+    }
+
+    const strongestDigit = rawDigitStats.indexOf(Math.max(...rawDigitStats));
+    const weakestDigit = rawDigitStats.indexOf(Math.min(...rawDigitStats));
+    addCandidate("Matches/Differs", "Matches", strongestDigit, digitProbability(strongestDigit), 0.01);
+    addCandidate("Matches/Differs", "Differs", weakestDigit, 1 - digitProbability(weakestDigit), 0.025);
+
+    const trendScale = Math.max(Number(market.step || 0.0002) * 8, 0.000001);
+    const trendStrength = Math.min(0.22, Math.abs(recentTrend) / trendScale * 0.12);
+    addCandidate("Rise/Fall", recentTrend >= 0 ? "Rise" : "Fall", 0, 0.5 + trendStrength, trendStrength * 0.4);
+
+    const best = candidates.sort((a, b) => b.score - a.score)[0] || {
+      type: "Over/Under",
+      action: recentTrend >= 0 ? "Over" : "Under",
+      prediction: 5,
+      probability: 0.5,
+    };
+    const bestConfidence = Math.max(72, Math.min(94, Math.round(68 + best.probability * 26)));
+    return {
+      mode,
+      confidence: bestConfidence,
+      marketId: market.id,
+      marketLabel: market.label,
+      type: best.type,
+      action: best.action,
+      prediction: best.prediction,
+      ticks,
+      stake: aiStake,
+      takeProfit: aiTakeProfit,
+      stopLoss: aiStopLoss,
+    };
   }
 
-  function scan() {
-    if (scanning) return;
-    const scanDurationMs = 12000;
+  function scan(autoStart = true) {
+    if (scanActiveRef.current || scanning || autoSession?.running) return;
+    scanActiveRef.current = true;
+    window.clearInterval(scanTimerRef.current);
+    window.clearTimeout(autoLaunchTimerRef.current);
+
+    const scanDurationMs = 4800;
     const startedAt = Date.now();
+    setOpen(true);
     setScanning(true);
     setProgress(1);
     setResult(null);
-    setScanMessage("Connecting to market feeds…");
+    setScanMessage("Connecting to live market data…");
 
-    const timer = window.setInterval(() => {
+    scanTimerRef.current = window.setInterval(() => {
       const elapsed = Date.now() - startedAt;
       const value = Math.min(99, Math.max(1, Math.floor((elapsed / scanDurationMs) * 100)));
       setProgress(value);
       setScanMessage(
-        value < 20 ? "Connecting to market feeds…" :
-        value < 42 ? "Reading price movement and momentum…" :
-        value < 64 ? "Comparing payouts and digit distribution…" :
-        value < 84 ? "Checking recovery paths and entry timing…" :
-        "Ranking the strongest market setup…"
+        value < 20 ? "Connecting to live market data…" :
+        value < 42 ? "Comparing volatility markets…" :
+        value < 64 ? "Testing contract types and payout conditions…" :
+        value < 84 ? "Ranking entry quality and digit distribution…" :
+        "Selecting the strongest market and contract…"
       );
 
       if (elapsed >= scanDurationMs) {
-        window.clearInterval(timer);
+        window.clearInterval(scanTimerRef.current);
+        const nextResult = buildResult();
         setProgress(100);
-        setScanMessage("Strongest setup found");
-        setResult(buildResult());
+        setScanMessage("Best setup found · launching Auto-Trade");
+        setResult(nextResult);
         setScanning(false);
+        scanActiveRef.current = false;
+
+        if (autoStart) {
+          autoLaunchTimerRef.current = window.setTimeout(async () => {
+            const started = await onAutoTrade(nextResult);
+            if (started === false) {
+              setResult(null);
+              setScanMessage("Auto-Trade could not start. Tap AI to scan again.");
+              return;
+            }
+            setOpen(false);
+          }, 850);
+        }
       }
-    }, 300);
+    }, 180);
+  }
+
+  function closeScanner() {
+    scanActiveRef.current = false;
+    window.clearInterval(scanTimerRef.current);
+    window.clearTimeout(autoLaunchTimerRef.current);
+    setScanning(false);
+    setOpen(false);
   }
 
   function pointerDown(event) {
@@ -7460,7 +7539,13 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   function pointerUp() {
     const moved = dragRef.current.moved;
     dragRef.current.dragging = false;
-    if (!moved) setOpen((shown) => !shown);
+    if (moved) return;
+    if (autoSession?.running) {
+      setOpen(true);
+      return;
+    }
+    setOpen(true);
+    window.setTimeout(() => scan(true), 80);
   }
 
   const mode = pageMode();
@@ -7483,7 +7568,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
           onPointerUp={pointerUp}
-          aria-label="Open AI market scanner"
+          aria-label="Scan markets and start AI Auto-Trade"
         >
           <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : autoSession?.running ? `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}` : "SCAN"}</b>
         </button>
@@ -7491,23 +7576,18 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
       {open && (
         <section className="aiScannerPanel" style={panelStyle}>
-          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={() => setOpen(false)}>×</button></header>
+          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Auto-Trade Scanner</h2></div><button onClick={closeScanner}>×</button></header>
           <div className="aiContextPill">Scanning mode: <strong>{mode === "trade" ? "Volatility contracts" : mode === "forex" ? "Forex markets" : "Trading bots"}</strong></div>
-          <div className="aiScannerInputs">
-            <label><span>Starting amount</span><input type="number" min="0.3" step="0.1" value={config.stake} onChange={(e) => setConfig((old) => ({ ...old, stake: Number(e.target.value) }))} /><small>USD</small></label>
-            <label><span>Target profit</span><input type="number" min="0" value={config.takeProfit} onChange={(e) => setConfig((old) => ({ ...old, takeProfit: Number(e.target.value) }))} /><small>USD</small></label>
-            <label><span>Stop loss</span><input type="number" min="0" value={config.stopLoss} onChange={(e) => setConfig((old) => ({ ...old, stopLoss: Number(e.target.value) }))} /><small>USD</small></label>
-          </div>
 
           {scanning && (
             <div className="aiScanningState" aria-live="polite">
               <div className="aiRadarScanner"><span></span><i></i><b>AI</b></div>
               <div className="aiScanProgress"><div><span style={{ width: `${progress}%` }}></span></div><strong>{progress}%</strong><small>{scanMessage}</small></div>
               <ul className="aiDataFindingList">
-                <li className={progress >= 20 ? "done" : "active"}>Market feed connected</li>
-                <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Momentum and distribution analysed</li>
-                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Payout and entry timing compared</li>
-                <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Recommended market selected</li>
+                <li className={progress >= 20 ? "done" : "active"}>Live market feed connected</li>
+                <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Best volatility market ranked</li>
+                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Contract types and payouts compared</li>
+                <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Best market and trade type selected</li>
               </ul>
             </div>
           )}
@@ -7534,12 +7614,14 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
             </div>
           )}
 
-          <footer>
-            <button className="aiScanAgain" onClick={scan} disabled={scanning || autoSession?.running}>{scanning ? "Scanning…" : result ? "Scan Again" : "Scan Markets"}</button>
-            {result && !autoSession?.running && <button className="aiUseSetup" onClick={() => { onApply(result); setOpen(false); }}>Use Setup</button>}
-            {result && !autoSession?.running && <button className="aiStartAuto" onClick={() => void onAutoTrade(result)}>Start AI Auto-Trade</button>}
-          </footer>
-          <small className="aiSafetyNote">Pressing Start AI Auto-Trade is your confirmation. It continues until the target profit, stop loss, insufficient balance, an error, or manual stop. Results are not guaranteed.</small>
+          {!autoSession?.running && (
+            <footer>
+              <button className="aiScanAgain" onClick={() => scan(true)} disabled={scanning || Boolean(result)}>
+                {scanning ? "AI is searching…" : result ? "Launching Auto-Trade…" : "Scan & Start Auto-Trade"}
+              </button>
+            </footer>
+          )}
+          <small className="aiSafetyNote">AI automatically ranks the current markets and contract types, then starts the strongest available setup. Results are not guaranteed.</small>
         </section>
       )}
     </>
