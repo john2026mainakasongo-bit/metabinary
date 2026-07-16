@@ -1,13 +1,8 @@
 import crypto from "node:crypto";
-import { createRequire } from "node:module";
-
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
-
-const require = createRequire(import.meta.url);
-const IntaSend = require("intasend-node");
 
 dotenv.config();
 
@@ -20,11 +15,20 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-small-phone-scroll-v20-2026-07-14";
+const BACKEND_BUILD = "metabinary-pesapal-v21-2026-07-16";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
-const TEST_MODE = String(process.env.INTASEND_TEST_MODE || "true").toLowerCase() === "true";
+const PESAPAL_ENV = ["live", "production"].includes(String(process.env.PESAPAL_ENV || "sandbox").trim().toLowerCase())
+  ? "live"
+  : "sandbox";
+const TEST_MODE = PESAPAL_ENV !== "live";
+const PESAPAL_BASE_URL = PESAPAL_ENV === "live"
+  ? "https://pay.pesapal.com/v3"
+  : "https://cybqa.pesapal.com/pesapalv3";
+const PESAPAL_CONSUMER_KEY = String(process.env.PESAPAL_CONSUMER_KEY || "").trim();
+const PESAPAL_CONSUMER_SECRET = String(process.env.PESAPAL_CONSUMER_SECRET || "").trim();
+const PESAPAL_IPN_ID = String(process.env.PESAPAL_IPN_ID || "").trim();
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
 const TOKEN_SECRET = String(process.env.JWT_SECRET || process.env.ADMIN_SECRET || "").trim();
@@ -34,8 +38,6 @@ const FRONTEND_URLS = String(process.env.FRONTEND_URL || "http://localhost:5173"
   .split(",")
   .map((value) => value.trim().replace(/\/$/, ""))
   .filter(Boolean);
-const PUBLIC_KEY = String(process.env.INTASEND_PUBLIC_KEY || "").trim();
-const SECRET_KEY = String(process.env.INTASEND_SECRET_KEY || "").trim();
 const TWELVE_DATA_API_KEY = String(
   process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
 ).trim();
@@ -44,7 +46,6 @@ const FRONTEND_PUBLIC_URL = String(process.env.FRONTEND_PUBLIC_URL || FRONTEND_U
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const PASSWORD_RESET_FROM_EMAIL = String(process.env.PASSWORD_RESET_FROM_EMAIL || "MetaBinary <noreply@metabinaryfx.com>").trim();
 const PASSWORD_RESET_TTL_MINUTES = Math.max(5, Math.min(60, Number(process.env.PASSWORD_RESET_TTL_MINUTES || 15)));
-const INTASEND_CALLBACK_SECRET = String(process.env.INTASEND_CALLBACK_SECRET || "").trim();
 
 const PASSWORD_ITERATIONS = 120000;
 const PASSWORD_KEY_LENGTH = 32;
@@ -266,6 +267,8 @@ async function ensureIndexes() {
     deposits.createIndex({ email: 1, status: 1, completedAt: -1 }),
     deposits.createIndex({ invoiceId: 1 }, { sparse: true }),
     deposits.createIndex({ apiRef: 1 }, { sparse: true }),
+    deposits.createIndex({ orderTrackingId: 1 }, { unique: true, sparse: true }),
+    deposits.createIndex({ merchantReference: 1 }, { unique: true, sparse: true }),
     withdrawals.createIndex({ id: 1 }, { unique: true }),
     db.collection("processedInvoices").createIndex({ invoiceKey: 1 }, { unique: true }),
     db.collection("transactions").createIndex({ email: 1, createdAt: -1 }),
@@ -814,15 +817,13 @@ function publicForexPosition(position) {
   };
 }
 
-function ensurePaymentKeys() {
-  if (!PUBLIC_KEY || !SECRET_KEY) {
-    throw httpError(503, "IntaSend keys are not configured on the backend.");
-  }
-}
+let pesapalTokenCache = { token: "", expiresAt: 0 };
+let pesapalIpnIdCache = PESAPAL_IPN_ID;
 
-function intasendClient() {
-  ensurePaymentKeys();
-  return new IntaSend(PUBLIC_KEY, SECRET_KEY, TEST_MODE);
+function ensurePaymentKeys() {
+  if (!PESAPAL_CONSUMER_KEY || !PESAPAL_CONSUMER_SECRET) {
+    throw httpError(503, "Pesapal consumer key and consumer secret are not configured on the backend.");
+  }
 }
 
 function providerErrorMessage(error) {
@@ -842,7 +843,7 @@ function providerErrorMessage(error) {
   try {
     const parsed = JSON.parse(raw);
     const nested = parsed?.errors?.[0]?.detail || parsed?.errors?.[0]?.message;
-    return parsed.message || parsed.detail || parsed.error || nested || raw;
+    return parsed.message || parsed.detail || parsed.error?.message || parsed.error || nested || raw;
   } catch {
     return String(raw).slice(0, 500);
   }
@@ -852,86 +853,145 @@ function pickFirst(...values) {
   return values.find((value) => value !== undefined && value !== null && String(value).trim() !== "");
 }
 
-function extractInvoiceId(payload = {}) {
-  return String(
-    pickFirst(
-      payload.invoice_id,
-      payload.invoiceId,
-      payload.invoice?.invoice_id,
-      payload.invoice?.id,
-      payload.data?.invoice_id,
-      payload.data?.invoice?.invoice_id,
-      payload.result?.invoice_id,
-      payload.id
-    ) || ""
-  );
+async function readProviderJson(response) {
+  const text = await response.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text.slice(0, 500) };
+  }
 }
 
-function extractApiRef(payload = {}) {
-  return String(
-    pickFirst(
-      payload.api_ref,
-      payload.apiRef,
-      payload.invoice?.api_ref,
-      payload.data?.api_ref,
-      payload.data?.invoice?.api_ref
-    ) || ""
-  );
+async function getPesapalToken(forceRefresh = false) {
+  ensurePaymentKeys();
+  if (!forceRefresh && pesapalTokenCache.token && Date.now() < pesapalTokenCache.expiresAt) {
+    return pesapalTokenCache.token;
+  }
+
+  const response = await fetch(`${PESAPAL_BASE_URL}/api/Auth/RequestToken`, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify({
+      consumer_key: PESAPAL_CONSUMER_KEY,
+      consumer_secret: PESAPAL_CONSUMER_SECRET,
+    }),
+    signal: AbortSignal.timeout(20000),
+  });
+  const data = await readProviderJson(response);
+  if (!response.ok || !data?.token || data?.error) {
+    throw httpError(response.status || 502, providerErrorMessage(data) || "Pesapal authentication failed.");
+  }
+
+  // Pesapal tokens are short lived. Refresh a little before the documented expiry window.
+  pesapalTokenCache = { token: data.token, expiresAt: Date.now() + 4 * 60 * 1000 };
+  return data.token;
 }
 
-function extractCheckoutUrl(payload = {}) {
-  return String(
-    pickFirst(
-      payload.url,
-      payload.checkout_url,
-      payload.checkoutUrl,
-      payload.payment_url,
-      payload.data?.url,
-      payload.data?.checkout_url,
-      payload.invoice?.url
-    ) || ""
-  );
-}
+async function pesapalRequest(path, options = {}) {
+  const method = String(options.method || "GET").toUpperCase();
+  const token = await getPesapalToken(Boolean(options.forceRefresh));
+  const response = await fetch(`${PESAPAL_BASE_URL}${path}`, {
+    method,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    signal: AbortSignal.timeout(25000),
+  });
 
-function extractTrackingId(payload = {}) {
-  return String(
-    pickFirst(
-      payload.tracking_id,
-      payload.trackingId,
-      payload.id,
-      payload.data?.tracking_id,
-      payload.transactions?.[0]?.tracking_id,
-      payload.data?.transactions?.[0]?.tracking_id
-    ) || ""
-  );
+  if (response.status === 401 && !options._retried) {
+    pesapalTokenCache = { token: "", expiresAt: 0 };
+    return pesapalRequest(path, { ...options, forceRefresh: true, _retried: true });
+  }
+
+  const data = await readProviderJson(response);
+  if (!response.ok || data?.error?.message || (data?.status && String(data.status) !== "200" && !data?.redirect_url)) {
+    throw httpError(response.status || 502, providerErrorMessage(data) || "Pesapal request failed.");
+  }
+  return data;
 }
 
 function normalizeStatus(payload = {}) {
   const raw = pickFirst(
+    payload.payment_status_description,
+    payload.paymentStatusDescription,
     payload.state,
-    payload.status,
-    payload.invoice?.state,
-    payload.invoice?.status,
-    payload.data?.state,
-    payload.data?.status,
-    payload.data?.invoice?.state,
-    payload.data?.invoice?.status,
-    payload.transactions?.[0]?.status,
-    payload.data?.transactions?.[0]?.status
+    payload.status_description,
+    payload.status
   );
-  return String(raw || "PENDING").trim().toUpperCase().replace(/\s+/g, "_");
+  const status = String(raw || "PENDING").trim().toUpperCase().replace(/\s+/g, "_");
+  return status === "COMPLETE" ? "COMPLETED" : status;
 }
 
-async function findDepositByProviderReference(db, invoiceId, apiRef) {
+function pesapalNotificationValues(req) {
+  const source = { ...(req.query || {}), ...(req.body || {}) };
+  return {
+    orderTrackingId: String(
+      pickFirst(source.OrderTrackingId, source.orderTrackingId, source.order_tracking_id) || ""
+    ).trim(),
+    merchantReference: String(
+      pickFirst(source.OrderMerchantReference, source.orderMerchantReference, source.merchant_reference) || ""
+    ).trim(),
+    notificationType: String(
+      pickFirst(source.OrderNotificationType, source.orderNotificationType, source.order_notification_type) || "IPNCHANGE"
+    ).trim(),
+  };
+}
+
+async function getPesapalIpnId(db) {
+  if (pesapalIpnIdCache) return pesapalIpnIdCache;
+  if (!PUBLIC_BACKEND_URL) {
+    throw httpError(503, "PUBLIC_BACKEND_URL is required before Pesapal payments can be created.");
+  }
+
+  const key = `pesapal-ipn-${PESAPAL_ENV}`;
+  const ipnUrl = `${PUBLIC_BACKEND_URL}/api/pesapal/ipn`;
+  const stored = await db.collection("appSettings").findOne({ key });
+  if (stored?.ipnId && stored?.url === ipnUrl) {
+    pesapalIpnIdCache = String(stored.ipnId);
+    return pesapalIpnIdCache;
+  }
+
+  const data = await pesapalRequest("/api/URLSetup/RegisterIPN", {
+    method: "POST",
+    body: { url: ipnUrl, ipn_notification_type: "POST" },
+  });
+  const ipnId = String(data?.ipn_id || "").trim();
+  if (!ipnId) throw httpError(502, "Pesapal did not return an IPN ID.");
+
+  pesapalIpnIdCache = ipnId;
+  await db.collection("appSettings").updateOne(
+    { key },
+    { $set: { key, provider: "pesapal", environment: PESAPAL_ENV, ipnId, url: ipnUrl, updatedAt: nowIso() } },
+    { upsert: true }
+  );
+  return ipnId;
+}
+
+async function getPesapalTransactionStatus(orderTrackingId) {
+  if (!orderTrackingId) throw httpError(400, "Pesapal order tracking ID is missing.");
+  return pesapalRequest(
+    `/api/Transactions/GetTransactionStatus?orderTrackingId=${encodeURIComponent(orderTrackingId)}`
+  );
+}
+
+async function findDepositByProviderReference(db, orderTrackingId, merchantReference) {
   const clauses = [];
-  if (invoiceId) clauses.push({ invoiceId });
-  if (apiRef) clauses.push({ apiRef });
+  if (orderTrackingId) {
+    clauses.push({ orderTrackingId }, { invoiceId: orderTrackingId });
+  }
+  if (merchantReference) {
+    clauses.push({ merchantReference }, { apiRef: merchantReference }, { id: merchantReference });
+  }
   return clauses.length ? db.collection("deposits").findOne({ $or: clauses }) : null;
 }
 
 async function creditDepositOnce(db, deposit, verifiedStatus) {
   if (!deposit || deposit.credited || !PAID_STATUSES.has(verifiedStatus)) return deposit;
-  const invoiceKey = deposit.invoiceId || deposit.id;
+  const invoiceKey = deposit.orderTrackingId || deposit.invoiceId || deposit.merchantReference || deposit.id;
 
   try {
     await db.collection("processedInvoices").insertOne({
@@ -941,10 +1001,6 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
     });
   } catch (error) {
     if (error?.code === 11000) {
-      await db.collection("deposits").updateOne(
-        { id: deposit.id },
-        { $set: { credited: true, status: "COMPLETED", updatedAt: nowIso() } }
-      );
       return db.collection("deposits").findOne({ id: deposit.id });
     }
     throw error;
@@ -988,7 +1044,7 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
           method: "Referral",
           amount: referralCommissionAmount,
           status: "COMPLETED",
-          reference: deposit.invoiceId || deposit.apiRef || deposit.id,
+          reference: invoiceKey,
           details: `${referralCommissionRate}% commission from ${deposit.email}`,
           sourceEmail: deposit.email,
           depositId: deposit.id,
@@ -1016,27 +1072,61 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
     id: makeId("tx"),
     email: deposit.email,
     type: "deposit",
-    method: deposit.method,
+    method: deposit.paymentMethod || deposit.method || "Pesapal",
     amount: Number(deposit.amountUsd),
     amountKes: Number(deposit.amountKes),
     status: "COMPLETED",
-    reference: deposit.invoiceId || deposit.apiRef || deposit.id,
+    reference: invoiceKey,
     createdAt: completedAt,
   });
   return db.collection("deposits").findOne({ id: deposit.id });
 }
 
 async function reconcileDeposit(db, deposit) {
-  if (!deposit?.invoiceId || deposit.credited || FAILED_STATUSES.has(deposit.status)) return deposit;
+  const orderTrackingId = deposit?.orderTrackingId || deposit?.invoiceId;
+  if (!orderTrackingId || deposit.credited || FAILED_STATUSES.has(deposit.status)) return deposit;
+
   try {
-    const providerResponse = await intasendClient().collection().status(deposit.invoiceId);
+    const providerResponse = await getPesapalTransactionStatus(orderTrackingId);
     const status = normalizeStatus(providerResponse);
-    await db.collection("deposits").updateOne(
-      { id: deposit.id },
-      { $set: { providerStatusResponse: providerResponse, status, updatedAt: nowIso() } }
-    );
-    const updated = { ...deposit, providerStatusResponse: providerResponse, status };
-    return PAID_STATUSES.has(status) ? creditDepositOnce(db, updated, status) : updated;
+    const providerReference = String(providerResponse?.merchant_reference || "").trim();
+    const expectedReference = String(deposit.merchantReference || deposit.apiRef || deposit.id || "").trim();
+    const paidCurrency = String(providerResponse?.currency || "").trim().toUpperCase();
+    const paidAmount = Number(providerResponse?.amount);
+    const expectedAmountKes = Number(deposit.amountKes);
+
+    let verificationError = "";
+    if (providerReference && expectedReference && providerReference !== expectedReference) {
+      verificationError = "Pesapal merchant reference did not match this deposit.";
+    } else if (status === "COMPLETED" && paidCurrency && paidCurrency !== "KES") {
+      verificationError = `Unexpected payment currency ${paidCurrency}.`;
+    } else if (
+      status === "COMPLETED" &&
+      Number.isFinite(paidAmount) &&
+      Number.isFinite(expectedAmountKes) &&
+      Math.abs(paidAmount - expectedAmountKes) > 0.01
+    ) {
+      verificationError = "Paid amount did not match the requested deposit amount.";
+    }
+
+    const storedStatus = verificationError && status === "COMPLETED" ? "PAYMENT_REVIEW" : status;
+    const update = {
+      providerStatusResponse: providerResponse,
+      status: storedStatus,
+      paymentMethod: providerResponse?.payment_method || deposit.paymentMethod || deposit.method,
+      confirmationCode: providerResponse?.confirmation_code || deposit.confirmationCode || "",
+      paymentAccount: providerResponse?.payment_account || deposit.paymentAccount || "",
+      verifiedAmountKes: Number.isFinite(paidAmount) ? paidAmount : null,
+      verifiedCurrency: paidCurrency,
+      verificationError,
+      updatedAt: nowIso(),
+    };
+    await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
+    const updated = { ...deposit, ...update };
+
+    return !verificationError && PAID_STATUSES.has(status)
+      ? creditDepositOnce(db, updated, status)
+      : updated;
   } catch (error) {
     await db.collection("deposits").updateOne(
       { id: deposit.id },
@@ -1051,9 +1141,12 @@ async function responseForDeposit(db, deposit) {
   return {
     ok: true,
     depositId: deposit.id,
-    invoiceId: deposit.invoiceId,
+    invoiceId: deposit.orderTrackingId || deposit.invoiceId || "",
+    orderTrackingId: deposit.orderTrackingId || deposit.invoiceId || "",
+    merchantReference: deposit.merchantReference || deposit.apiRef || deposit.id,
+    checkoutUrl: deposit.checkoutUrl || "",
     status: deposit.status,
-    method: deposit.method,
+    method: deposit.paymentMethod || deposit.method,
     phone: deposit.phone,
     amountUsd: deposit.amountUsd,
     amountKes: deposit.amountKes,
@@ -1062,9 +1155,11 @@ async function responseForDeposit(db, deposit) {
     message:
       deposit.status === "COMPLETED"
         ? "Deposit completed successfully."
-        : FAILED_STATUSES.has(deposit.status)
-          ? `Deposit ${String(deposit.status).toLowerCase()}.`
-          : "Payment is still pending.",
+        : deposit.status === "PAYMENT_REVIEW"
+          ? "Payment was received but requires review before the balance can be credited."
+          : FAILED_STATUSES.has(deposit.status)
+            ? `Deposit ${String(deposit.status).toLowerCase()}.`
+            : "Payment is still pending.",
   };
 }
 
@@ -1087,7 +1182,7 @@ app.get("/", async (_req, res, next) => {
     res.json({
       ok: true,
       service: "MetaBinary MongoDB payments and account backend",
-      mode: TEST_MODE ? "sandbox" : "live",
+      mode: PESAPAL_ENV,
       database: MONGODB_DB,
       time: nowIso(),
     });
@@ -1103,7 +1198,7 @@ app.get("/api/health", async (_req, res) => {
     res.json({
       ok: true,
       build: BACKEND_BUILD,
-      mode: TEST_MODE ? "sandbox" : "live",
+      mode: PESAPAL_ENV,
       mongo: "connected",
       database: MONGODB_DB,
       referralCommissionPercent: REFERRAL_COMMISSION_PERCENT,
@@ -1112,10 +1207,12 @@ app.get("/api/health", async (_req, res) => {
       aiTradeTickMs: AI_TRADE_TICK_MS,
       passwordResetEmailConfigured: Boolean(RESEND_API_KEY),
       publicBackendUrlConfigured: Boolean(PUBLIC_BACKEND_URL),
-      paymentCallbackProtected: Boolean(INTASEND_CALLBACK_SECRET),
+      paymentProvider: "pesapal",
+      paymentConfigured: Boolean(PESAPAL_CONSUMER_KEY && PESAPAL_CONSUMER_SECRET),
+      pesapalIpnConfigured: Boolean(PESAPAL_IPN_ID || PUBLIC_BACKEND_URL),
     });
   } catch (error) {
-    res.status(503).json({ ok: false, mode: TEST_MODE ? "sandbox" : "live", mongo: "disconnected", message: error.message });
+    res.status(503).json({ ok: false, mode: PESAPAL_ENV, mongo: "disconnected", message: error.message });
   }
 });
 
@@ -1643,7 +1740,8 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const user = req.user;
     const email = cleanEmail(user.email);
     const name = cleanText(user.fullName || user.name || req.body.name || "MetaBinary User", 120);
-    const method = String(req.body.method || "mpesa").trim().toLowerCase();
+    const requestedMethod = String(req.body.method || "mpesa").trim().toLowerCase();
+    const method = ["mpesa", "card", "pesapal"].includes(requestedMethod) ? requestedMethod : "pesapal";
     const amountUsd = Number(req.body.amountUsd);
     const requestId = cleanText(req.body.requestId || makeId("client"), 120);
 
@@ -1654,120 +1752,111 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const existing = await db.collection("deposits").findOne({ email, requestId });
     if (existing) return res.json(await responseForDeposit(db, existing));
 
-    if (!PUBLIC_KEY || !SECRET_KEY || process.env.SIMULATE_PAYMENTS === "true") {
-      const depositId = makeId("dep");
-      const invoiceId = `SIM-${depositId}`;
-      const amountKes = Math.round(amountUsd * USD_RATE);
+    const amountKes = Math.max(1, Math.round(amountUsd * USD_RATE));
+    const depositId = makeId("dep");
+    const merchantReference = depositId.slice(0, 50);
+    const rawPhone = req.body.phone || user.phone || "";
+    const phone = rawPhone ? normalizeKenyanPhone(rawPhone) : "";
+
+    if (String(process.env.SIMULATE_PAYMENTS || "false").toLowerCase() === "true") {
       const deposit = {
         id: depositId,
         requestId,
-        apiRef: `MB-SIM-${depositId}`,
-        invoiceId,
+        apiRef: merchantReference,
+        merchantReference,
+        invoiceId: `SIM-${depositId}`,
+        orderTrackingId: `SIM-${depositId}`,
         email,
         method,
-        phone: req.body.phone || "",
+        phone,
         amountUsd: roundMoney(amountUsd),
         amountKes,
         status: "COMPLETED",
         credited: true,
+        provider: "simulation",
         providerResponse: { simulated: true },
         createdAt: nowIso(),
         updatedAt: nowIso(),
         completedAt: nowIso(),
       };
-
       await db.collection("deposits").insertOne(deposit);
-
       await db.collection("users").updateOne(
         { email },
         { $inc: { realBalance: Number(deposit.amountUsd) }, $set: { updatedAt: nowIso() } }
       );
-
       await db.collection("transactions").insertOne({
         id: makeId("tx"),
         email,
         type: "deposit",
         amount: Number(deposit.amountUsd),
-        method: method === "mpesa" ? "M-Pesa" : "Card",
-        reference: invoiceId,
+        amountKes,
+        method: "Simulation",
+        reference: deposit.orderTrackingId,
         status: "COMPLETED",
         createdAt: nowIso(),
       });
-
-      return res.status(201).json({
-        ok: true,
-        depositId,
-        invoiceId,
-        status: "COMPLETED",
-        amountUsd: deposit.amountUsd,
-        amountKes,
-        message: `Simulated ${method === "mpesa" ? "M-Pesa" : "Card"} deposit successful! Credited $${deposit.amountUsd} USD.`,
-      });
+      return res.status(201).json(await responseForDeposit(db, deposit));
     }
 
-    const amountKes = Math.max(1, Math.round(amountUsd * USD_RATE));
-    const depositId = makeId("dep");
-    const apiRef = `MB-${depositId}`.slice(0, 64);
+    ensurePaymentKeys();
+    const notificationId = await getPesapalIpnId(db);
+    const [firstName = "MetaBinary", ...restNames] = name.split(/\s+/).filter(Boolean);
+    const lastName = restNames.join(" ") || "User";
+    const callbackUrl = `${PUBLIC_BACKEND_URL}/api/pesapal/callback`;
+    const cancellationUrl = `${FRONTEND_PUBLIC_URL}/?payment=cancelled`;
 
-    if (method === "card") {
-      const providerResponse = await intasendClient().collection().charge({
-        first_name: String(name.split(/\s+/)[0] || "MetaBinary"),
-        last_name: String(name.split(/\s+/).slice(1).join(" ") || "User"),
-        email,
-        host: FRONTEND_URLS[0] || "http://localhost:5173",
-        amount: roundMoney(amountUsd),
-        currency: "USD",
-        api_ref: apiRef,
-      });
-      const deposit = {
-        id: depositId,
-        requestId,
-        apiRef,
-        invoiceId: extractInvoiceId(providerResponse),
-        email,
-        method: "card",
-        phone: "",
-        amountUsd: roundMoney(amountUsd),
-        amountKes,
-        status: normalizeStatus(providerResponse),
-        credited: false,
-        providerResponse,
-        createdAt: nowIso(),
-        updatedAt: nowIso(),
-      };
-      await db.collection("deposits").insertOne(deposit);
-      return res.status(201).json({
-        ok: true,
-        depositId,
-        invoiceId: deposit.invoiceId,
-        checkoutUrl: extractCheckoutUrl(providerResponse),
-        status: deposit.status,
-        message: "Continue to the secure card checkout.",
-      });
+    const providerResponse = await pesapalRequest("/api/Transactions/SubmitOrderRequest", {
+      method: "POST",
+      body: {
+        id: merchantReference,
+        currency: "KES",
+        amount: amountKes,
+        description: `MetaBinary account deposit ${depositId}`.slice(0, 100),
+        callback_url: callbackUrl,
+        cancellation_url: cancellationUrl,
+        redirect_mode: "TOP_WINDOW",
+        notification_id: notificationId,
+        branch: "MetaBinary",
+        billing_address: {
+          email_address: email,
+          phone_number: phone,
+          country_code: "KE",
+          first_name: firstName,
+          middle_name: "",
+          last_name: lastName,
+          line_1: "",
+          line_2: "",
+          city: "",
+          state: "",
+          postal_code: "",
+          zip_code: "",
+        },
+      },
+    });
+
+    const orderTrackingId = String(providerResponse?.order_tracking_id || "").trim();
+    const checkoutUrl = String(providerResponse?.redirect_url || "").trim();
+    if (!orderTrackingId || !checkoutUrl) {
+      throw httpError(502, "Pesapal did not return a valid checkout session.");
     }
 
-    if (method !== "mpesa") throw httpError(400, "Choose M-Pesa or card deposit.");
-    const phone = normalizeKenyanPhone(req.body.phone || user.phone);
-    const payload = { phone_number: phone, name, email, amount: amountKes, api_ref: apiRef };
-    const generatedCallbackUrl = PUBLIC_BACKEND_URL
-      ? `${PUBLIC_BACKEND_URL}/api/intasend/callback${INTASEND_CALLBACK_SECRET ? `?token=${encodeURIComponent(INTASEND_CALLBACK_SECRET)}` : ""}`
-      : "";
-    const callbackUrl = String(process.env.INTASEND_CALLBACK_URL || generatedCallbackUrl).trim();
-    if (callbackUrl) payload.callback_url = callbackUrl;
-
-    const providerResponse = await intasendClient().collection().mpesaStkPush(payload);
     const deposit = {
       id: depositId,
       requestId,
-      apiRef,
-      invoiceId: extractInvoiceId(providerResponse),
+      apiRef: merchantReference,
+      merchantReference,
+      invoiceId: orderTrackingId,
+      orderTrackingId,
+      checkoutUrl,
       email,
-      method: "mpesa",
+      method,
       phone,
       amountUsd: roundMoney(amountUsd),
       amountKes,
-      status: normalizeStatus(providerResponse),
+      currency: "KES",
+      status: "PENDING",
       credited: false,
+      provider: "pesapal",
       providerResponse,
       createdAt: nowIso(),
       updatedAt: nowIso(),
@@ -1775,13 +1864,8 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     await db.collection("deposits").insertOne(deposit);
 
     res.status(201).json({
-      ok: true,
-      depositId,
-      invoiceId: deposit.invoiceId,
-      status: deposit.status,
-      amountUsd: deposit.amountUsd,
-      amountKes,
-      message: "M-Pesa request sent. Complete it on your phone.",
+      ...(await responseForDeposit(db, deposit)),
+      message: "Continue to the secure Pesapal checkout to pay with M-Pesa or card.",
     });
   } catch (error) {
     if (!error.status) error.status = 502;
@@ -1802,73 +1886,88 @@ app.get("/api/deposit/:depositId/status", requireUser, async (req, res, next) =>
   }
 });
 
-async function paymentCallback(req, res, next) {
+async function pesapalIpn(req, res) {
+  const notification = pesapalNotificationValues(req);
   try {
-    const suppliedToken = String(req.query?.token || req.headers["x-callback-token"] || "").trim();
-    const callbackProtected = Boolean(INTASEND_CALLBACK_SECRET);
-    if (callbackProtected) {
-      const left = Buffer.from(suppliedToken);
-      const right = Buffer.from(INTASEND_CALLBACK_SECRET);
-      if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) {
-        throw httpError(401, "Invalid payment callback token.");
-      }
+    if (!notification.orderTrackingId && !notification.merchantReference) {
+      return res.status(400).json({
+        orderNotificationType: notification.notificationType,
+        orderTrackingId: notification.orderTrackingId,
+        orderMerchantReference: notification.merchantReference,
+        status: 500,
+      });
     }
 
     const db = await getDb();
-    const invoiceId = extractInvoiceId(req.body);
-    const apiRef = extractApiRef(req.body);
-    let deposit = await findDepositByProviderReference(db, invoiceId, apiRef);
-    if (!deposit) return res.status(202).json({ ok: true, message: "Callback received; no matching local deposit yet." });
-
-    if (invoiceId && !deposit.invoiceId) {
-      await db.collection("deposits").updateOne({ id: deposit.id }, { $set: { invoiceId, updatedAt: nowIso() } });
-      deposit = { ...deposit, invoiceId };
-    }
-
-    const callbackStatus = normalizeStatus(req.body || {});
-    const callbackAt = nowIso();
-    const statusPatch = PAID_STATUSES.has(callbackStatus) || FAILED_STATUSES.has(callbackStatus)
-      ? { status: callbackStatus }
-      : {};
-
-    await db.collection("deposits").updateOne(
-      { id: deposit.id },
-      {
-        $set: {
-          callbackPayload: req.body,
-          callbackStatus,
-          callbackReceivedAt: callbackAt,
-          updatedAt: callbackAt,
-          ...statusPatch,
-        },
-      }
+    let deposit = await findDepositByProviderReference(
+      db,
+      notification.orderTrackingId,
+      notification.merchantReference
     );
-    deposit = { ...deposit, ...statusPatch, callbackStatus, callbackReceivedAt: callbackAt };
 
-    // A protected callback can be credited immediately. Without the shared secret,
-    // verify the invoice with IntaSend before changing a real-money balance.
-    if (callbackProtected && PAID_STATUSES.has(callbackStatus)) {
-      deposit = await creditDepositOnce(db, deposit, callbackStatus);
-    } else if (callbackProtected && FAILED_STATUSES.has(callbackStatus)) {
-      deposit = await db.collection("deposits").findOne({ id: deposit.id });
-    } else {
-      deposit = await reconcileDeposit(db, deposit);
+    if (deposit) {
+      if (notification.orderTrackingId && !deposit.orderTrackingId) {
+        await db.collection("deposits").updateOne(
+          { id: deposit.id },
+          {
+            $set: {
+              orderTrackingId: notification.orderTrackingId,
+              invoiceId: notification.orderTrackingId,
+              updatedAt: nowIso(),
+            },
+          }
+        );
+        deposit = { ...deposit, orderTrackingId: notification.orderTrackingId, invoiceId: notification.orderTrackingId };
+      }
+      await reconcileDeposit(db, deposit);
     }
 
-    res.json(await responseForDeposit(db, deposit));
+    return res.json({
+      orderNotificationType: notification.notificationType || "IPNCHANGE",
+      orderTrackingId: notification.orderTrackingId,
+      orderMerchantReference: notification.merchantReference,
+      status: 200,
+    });
   } catch (error) {
-    next(error);
+    console.error("Pesapal IPN error:", error);
+    return res.status(500).json({
+      orderNotificationType: notification.notificationType || "IPNCHANGE",
+      orderTrackingId: notification.orderTrackingId,
+      orderMerchantReference: notification.merchantReference,
+      status: 500,
+    });
   }
 }
 
-app.post("/api/payment/callback", paymentCallback);
-app.post("/api/intasend/callback", paymentCallback);
+app.get("/api/pesapal/ipn", pesapalIpn);
+app.post("/api/pesapal/ipn", pesapalIpn);
+app.post("/api/payment/callback", pesapalIpn);
+
+app.get("/api/pesapal/callback", async (req, res, next) => {
+  try {
+    const notification = pesapalNotificationValues(req);
+    const db = await getDb();
+    let deposit = await findDepositByProviderReference(
+      db,
+      notification.orderTrackingId,
+      notification.merchantReference
+    );
+    if (deposit) deposit = await reconcileDeposit(db, deposit);
+
+    const redirectUrl = new URL(FRONTEND_PUBLIC_URL);
+    redirectUrl.searchParams.set("payment", String(deposit?.status || "pending").toLowerCase());
+    if (deposit?.id) redirectUrl.searchParams.set("depositId", deposit.id);
+    if (notification.orderTrackingId) redirectUrl.searchParams.set("orderTrackingId", notification.orderTrackingId);
+    return res.redirect(302, redirectUrl.toString());
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.post("/api/withdraw", requireUser, async (req, res, next) => {
   try {
     const db = await getDb();
     const email = cleanEmail(req.user.email);
-    const name = cleanText(req.user.fullName || req.user.name || "MetaBinary User", 120);
     const amountUsd = Number(req.body.amountUsd);
     const requestId = cleanText(req.body.requestId || makeId("client"), 120);
     const phone = normalizeKenyanPhone(req.body.phone || req.user.phone);
@@ -1876,13 +1975,15 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
     if (!Number.isFinite(amountUsd) || amountUsd < MIN_WITHDRAW_USD) {
       throw httpError(400, `Minimum withdrawal is ${MIN_WITHDRAW_USD} USD.`);
     }
-    if (amountUsd > MAX_WITHDRAW_USD) throw httpError(400, `Maximum withdrawal is ${MAX_WITHDRAW_USD} USD.`);
+    if (amountUsd > MAX_WITHDRAW_USD) {
+      throw httpError(400, `Maximum withdrawal is ${MAX_WITHDRAW_USD} USD.`);
+    }
 
     const existing = await db.collection("withdrawals").findOne({ email, requestId });
     if (existing) {
       const current = await db.collection("users").findOne({ email });
       return res.json({
-        ok: existing.status !== "FAILED",
+        ok: !["FAILED", "REJECTED", "CANCELLED"].includes(existing.status),
         withdrawalId: existing.id,
         status: existing.status,
         realBalance: roundMoney(current?.realBalance),
@@ -1890,7 +1991,6 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
       });
     }
 
-    ensurePaymentKeys();
     const updatedUser = await db.collection("users").findOneAndUpdate(
       { email, status: { $nin: ["banned", "suspended"] }, realBalance: { $gte: amountUsd } },
       { $inc: { realBalance: -amountUsd }, $set: { updatedAt: nowIso() } },
@@ -1901,70 +2001,130 @@ app.post("/api/withdraw", requireUser, async (req, res, next) => {
 
     const withdrawalId = makeId("wd");
     const amountKes = Math.max(1, Math.round(amountUsd * USD_RATE));
+    const createdAt = nowIso();
     const withdrawal = {
       id: withdrawalId,
       requestId,
       email,
       phone,
+      method: "mpesa",
       amountUsd: roundMoney(amountUsd),
       amountKes,
-      status: "SUBMITTING",
+      status: "PENDING",
       refunded: false,
-      createdAt: nowIso(),
-      updatedAt: nowIso(),
+      provider: "manual-processing",
+      message: "Withdrawal request submitted for processing.",
+      createdAt,
+      updatedAt: createdAt,
     };
     await db.collection("withdrawals").insertOne(withdrawal);
+    await db.collection("transactions").insertOne({
+      id: makeId("tx"),
+      email,
+      type: "withdrawal",
+      method: "M-Pesa",
+      amount: -amountUsd,
+      amountKes: -amountKes,
+      status: "PENDING",
+      reference: withdrawalId,
+      createdAt,
+    });
 
-    try {
-      const providerResponse = await intasendClient().payouts().mpesa({
-        currency: "KES",
-        requires_approval: String(process.env.INTASEND_PAYOUT_REQUIRES_APPROVAL || "YES").toUpperCase(),
-        transactions: [{ name, account: phone, amount: String(amountKes), narrative: `MetaBinary withdrawal ${withdrawalId}` }],
-      });
-      const providerStatus = normalizeStatus(providerResponse);
-      const status = FAILED_STATUSES.has(providerStatus) ? "FAILED" : providerStatus === "PENDING" ? "PROCESSING" : providerStatus;
-      const trackingId = extractTrackingId(providerResponse);
-      let message = status === "FAILED" ? "The payout was rejected and the balance was restored." : "Withdrawal submitted to M-Pesa.";
+    return res.status(201).json({
+      ok: true,
+      withdrawalId,
+      status: "PENDING",
+      amountUsd,
+      amountKes,
+      realBalance: roundMoney(userAfterDebit?.realBalance),
+      message: withdrawal.message,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
-      if (status === "FAILED") {
-        await db.collection("users").updateOne({ email }, { $inc: { realBalance: amountUsd }, $set: { updatedAt: nowIso() } });
-      }
-      await db.collection("withdrawals").updateOne(
-        { id: withdrawalId },
-        { $set: { status, trackingId, providerResponse, refunded: status === "FAILED", message, updatedAt: nowIso() } }
+app.get("/api/admin/withdrawals", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const status = cleanText(req.query.status || "", 30).toUpperCase();
+    const query = status && status !== "ALL" ? { status } : {};
+    const withdrawals = await db.collection("withdrawals").find(query).sort({ createdAt: -1 }).limit(500).toArray();
+    res.json({ ok: true, withdrawals });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/withdrawals/:id/complete", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const withdrawal = await db.collection("withdrawals").findOne({ id: req.params.id });
+    if (!withdrawal) throw httpError(404, "Withdrawal was not found.");
+    if (withdrawal.status === "REJECTED") throw httpError(400, "A rejected withdrawal cannot be completed.");
+
+    const completedAt = nowIso();
+    await db.collection("withdrawals").updateOne(
+      { id: withdrawal.id },
+      { $set: { status: "COMPLETED", completedAt, message: "Withdrawal completed.", updatedAt: completedAt } }
+    );
+    await db.collection("transactions").updateOne(
+      { email: withdrawal.email, type: "withdrawal", reference: withdrawal.id },
+      { $set: { status: "COMPLETED" } }
+    );
+    await auditAdmin(db, req, "complete-withdrawal", withdrawal.email, { withdrawalId: withdrawal.id, amountUsd: withdrawal.amountUsd });
+    res.json({ ok: true, status: "COMPLETED", message: "Withdrawal marked as completed." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/withdrawals/:id/reject", requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    const withdrawal = await db.collection("withdrawals").findOne({ id: req.params.id });
+    if (!withdrawal) throw httpError(404, "Withdrawal was not found.");
+    if (withdrawal.status === "COMPLETED") throw httpError(400, "A completed withdrawal cannot be rejected.");
+
+    const rejectedAt = nowIso();
+    if (!withdrawal.refunded) {
+      await db.collection("users").updateOne(
+        { email: withdrawal.email },
+        { $inc: { realBalance: Number(withdrawal.amountUsd) }, $set: { updatedAt: rejectedAt } }
       );
       await db.collection("transactions").insertOne({
         id: makeId("tx"),
-        email,
-        type: "withdrawal",
-        method: "mpesa",
-        amount: -amountUsd,
-        amountKes: -amountKes,
-        status,
-        reference: trackingId || withdrawalId,
-        createdAt: nowIso(),
+        email: withdrawal.email,
+        type: "withdrawal-refund",
+        method: "M-Pesa",
+        amount: Number(withdrawal.amountUsd),
+        amountKes: Number(withdrawal.amountKes),
+        status: "COMPLETED",
+        reference: withdrawal.id,
+        createdAt: rejectedAt,
       });
-      const current = await db.collection("users").findOne({ email });
-      return res.status(201).json({
-        ok: status !== "FAILED",
-        withdrawalId,
-        trackingId,
-        status,
-        amountUsd,
-        amountKes,
-        realBalance: roundMoney(current?.realBalance),
-        message,
-      });
-    } catch (providerError) {
-      await db.collection("users").updateOne({ email }, { $inc: { realBalance: amountUsd }, $set: { updatedAt: nowIso() } });
-      const message = providerErrorMessage(providerError);
-      await db.collection("withdrawals").updateOne(
-        { id: withdrawalId },
-        { $set: { status: "FAILED", refunded: true, message, updatedAt: nowIso() } }
-      );
-      const restoredUser = await db.collection("users").findOne({ email });
-      return res.status(502).json({ ok: false, status: "FAILED", realBalance: roundMoney(restoredUser?.realBalance), message });
     }
+
+    await db.collection("withdrawals").updateOne(
+      { id: withdrawal.id },
+      {
+        $set: {
+          status: "REJECTED",
+          refunded: true,
+          rejectedAt,
+          rejectionReason: cleanText(req.body?.reason || "Rejected by administrator", 300),
+          message: "Withdrawal rejected and balance restored.",
+          updatedAt: rejectedAt,
+        },
+      }
+    );
+    await db.collection("transactions").updateOne(
+      { email: withdrawal.email, type: "withdrawal", reference: withdrawal.id },
+      { $set: { status: "REJECTED" } }
+    );
+    await auditAdmin(db, req, "reject-withdrawal", withdrawal.email, { withdrawalId: withdrawal.id, amountUsd: withdrawal.amountUsd });
+    const user = await db.collection("users").findOne({ email: withdrawal.email });
+    res.json({ ok: true, status: "REJECTED", realBalance: roundMoney(user?.realBalance), message: "Withdrawal rejected and balance restored." });
   } catch (error) {
     next(error);
   }
@@ -2693,5 +2853,5 @@ app.use((error, _req, res, _next) => {
 
 await ensureIndexes();
 app.listen(PORT, () => {
-  console.log(`MetaBinary V17 backend running on port ${PORT} (${TEST_MODE ? "sandbox" : "live"}, MongoDB: ${MONGODB_DB})`);
+  console.log(`MetaBinary backend running on port ${PORT} (Pesapal: ${PESAPAL_ENV}, MongoDB: ${MONGODB_DB})`);
 });
