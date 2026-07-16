@@ -5507,7 +5507,8 @@ function TradePage({
   const highestDigit = digitStats.indexOf(highestPercent);
   const lowestDigit = digitStats.indexOf(lowestPercent);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
-  const quickStakeValues = [1, 5, 10, 50, 100];
+  const quickTickValues = [1, 2, 3, 5, 10];
+  const quickStakeValues = [10, 25, 50];
 
   const actionMeta = Object.fromEntries(
     actions.map((action) => {
@@ -5717,8 +5718,55 @@ function TradePage({
           </div>
         )}
         <div className="orderInputsTop finalOrderInputs">
-          <label className="finalTicksControl"><span>Ticks</span><div className="finalTicksBox"><button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button><select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>{tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}</select><button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button></div></label>
-          <label className="finalStakeControl"><span>Amount to trade</span><div className="proStakeBox finalStakeBox"><button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button><div className="finalStakeInputWrap"><input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} /><small>USD</small></div><button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button></div><div className="quickStakeRow">{quickStakeValues.map((value) => <button key={value} type="button" onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div></label>
+          <label className="finalTicksControl">
+            <span>Ticks</span>
+            <div className="finalTicksBox">
+              <button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button>
+              <select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>
+                {tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}
+              </select>
+              <button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button>
+            </div>
+            <div className="quickTickRow" aria-label="Quick tick choices">
+              {quickTickValues.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={Number(duration) === value ? "active" : ""}
+                  aria-pressed={Number(duration) === value}
+                  onClick={() => setDuration(value)}
+                  disabled={Boolean(activeBinaryTrade)}
+                >
+                  {value}<small>t</small>
+                </button>
+              ))}
+            </div>
+          </label>
+          <label className="finalStakeControl">
+            <span>Amount to trade</span>
+            <div className="proStakeBox finalStakeBox">
+              <button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button>
+              <div className="finalStakeInputWrap">
+                <input type="number" min="0.30" step="0.10" inputMode="decimal" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} />
+                <small>USD</small>
+              </div>
+              <button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button>
+            </div>
+            <div className="quickStakeRow" aria-label="Quick stake choices">
+              {quickStakeValues.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={Number(stake) === value ? "active" : ""}
+                  aria-pressed={Number(stake) === value}
+                  onClick={() => setStake(value)}
+                  disabled={Boolean(activeBinaryTrade)}
+                >
+                  {value}<small>USD</small>
+                </button>
+              ))}
+            </div>
+          </label>
         </div>
         <div className="proTradeButtons finalTradeButtons">
           <button
