@@ -34319,3 +34319,55 @@ body,
     margin-top: 26px !important;
   }
 }
+
+
+/* ==========================================================================\n   METABINARY V44 — FORCE ALL FIVE AMOUNT PRESETS VISIBLE\n   - Explicit JSX buttons for 10 / 25 / 50 / 100 / 250.\n   - Prevents older flex/min-width rules from clipping the last two pills.\n   ========================================================================== */
+.finalBinaryTradePage .finalStakeControl {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.finalBinaryTradePage .quickStakeRow.quickStakeRowV44 {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  gap: 3px !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+.finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 0 1px !important;
+  margin: 0 !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 430px) {
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 {
+    gap: 2px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+    font-size: 8.6px !important;
+    letter-spacing: -.15px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+    font-size: 8px !important;
+    padding-inline: 0 !important;
+  }
+}
