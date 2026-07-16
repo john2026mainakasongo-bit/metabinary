@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-bots-scroll-compact-v36-2026-07-16";
+const FRONTEND_BUILD = "metabinary-trade-rings-flash-v37-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -5640,7 +5640,7 @@ function TradePage({
               {digitStats.map((percent, digit) => {
                 const isHighest = digit === highestDigit;
                 const isLowest = digit === lowestDigit;
-                const isPicked = digit === prediction;
+                const isPicked = ["Matches/Differs", "Over/Under"].includes(tradeType) && digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
                 const isWinningZone = Boolean(

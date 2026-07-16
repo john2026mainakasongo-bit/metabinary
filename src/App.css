@@ -33475,3 +33475,147 @@ body,
     font-size: 7px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V37 — FINAL CALM DIGIT RINGS + ONE-SHOT SETTLEMENT FLASH
+   - Normal statistics never glow.
+   - Highest digit = flat green TOP half + grey BOTTOM half.
+   - Lowest digit = flat short red BOTTOM arc + grey remainder.
+   - Current tick uses only the moving cursor/brief landing motion.
+   - Even/Odd does not show an irrelevant single prediction highlight.
+   - Active winning digits keep a soft green cover with zero shadow.
+   - Only the settled landing digit flashes bright green/red once.
+   ========================================================================== */
+
+/* Kill every legacy glow on ordinary digit cells, ranked cells and the live tick. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  box-shadow: none !important;
+  filter: none !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Normal ring has no luminous halo. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitRingV7 {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Highest: exactly a flat green top half and flat grey bottom half.
+   Linear split is intentional so the top/bottom orientation is unambiguous. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: linear-gradient(
+    to bottom,
+    #20c77f 0%,
+    #20c77f 50%,
+    #596471 50%,
+    #596471 100%
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Lowest: grey ring with one small red arc centred at the bottom. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from 0deg,
+    #596471 0deg 135deg,
+    #e3485b 135deg 225deg,
+    #596471 225deg 360deg
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* The live tick is indicated by the cursor only, not by a red glow or red number. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .92) !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitPickedV7):not(.mbDigitWinningZoneV31):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitPickedV7):not(.mbDigitWinningZoneV31):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Prediction marker stays readable but flat; no blue halo. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  box-shadow: inset 0 0 0 1px rgba(91, 174, 241, .26) !important;
+  filter: none !important;
+}
+
+/* While a digit contract runs, every digit that can settle as a win gets only
+   a calm green cover. The statistic ring itself remains unchanged and flat. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: linear-gradient(180deg, #168f66, #0a684d) !important;
+  border-color: rgba(72, 207, 152, .62) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #effff8 !important;
+  text-shadow: none !important;
+}
+
+/* One settlement pulse only. The result state is cleared by React after 950 ms. */
+@keyframes mbSettlementWinV37 {
+  0%   { transform: scale(1); filter: none; }
+  36%  { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(44, 255, 155, .98)); }
+  100% { transform: scale(1); filter: none; }
+}
+
+@keyframes mbSettlementLossV37 {
+  0%   { transform: scale(1); filter: none; }
+  36%  { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(255, 55, 83, .98)); }
+  100% { transform: scale(1); filter: none; }
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 {
+  z-index: 40 !important;
+  animation: mbSettlementWinV37 .92s ease-out 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitRingV7 {
+  background: #31ec9f !important;
+  box-shadow: 0 0 20px rgba(49, 236, 159, .9) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 {
+  background: #08784c !important;
+  border-color: #8affca !important;
+  box-shadow: 0 0 18px rgba(49, 236, 159, .72) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
+  z-index: 40 !important;
+  animation: mbSettlementLossV37 .92s ease-out 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitRingV7 {
+  background: #ff3f59 !important;
+  box-shadow: 0 0 20px rgba(255, 63, 89, .88) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 {
+  background: #8c1329 !important;
+  border-color: #ff9aaa !important;
+  box-shadow: 0 0 18px rgba(255, 63, 89, .68) !important;
+}
