@@ -38399,3 +38399,520 @@ body,
     min-height: 54px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V51 — COMPACT UNIVERSAL MOBILE HEADER + LOGIN OPENING SCREEN
+   Final override: keeps notifications visible on every phone size, reduces
+   wasted top-bar space, and adds a short branded transition after login.
+   ========================================================================== */
+
+.platformOpeningScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 22px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(0, 122, 255, .16), transparent 34%),
+    linear-gradient(145deg, #010711 0%, #06111f 55%, #020812 100%);
+  color: #fff;
+}
+
+.platformOpeningGlow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .2;
+  pointer-events: none;
+}
+
+.platformOpeningGlowOne {
+  top: -110px;
+  right: -70px;
+  background: #008cff;
+}
+
+.platformOpeningGlowTwo {
+  bottom: -140px;
+  left: -90px;
+  background: #00d98a;
+}
+
+.platformOpeningCard {
+  position: relative;
+  z-index: 2;
+  width: min(420px, 100%);
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  padding: 30px 26px 24px;
+  border: 1px solid rgba(87, 145, 218, .2);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(0, 130, 255, .12), transparent 48%),
+    rgba(5, 17, 30, .88);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.platformOpeningBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.platformOpeningMark {
+  width: 42px;
+  height: 42px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.platformOpeningMark::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 11px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, #ff326f, #ff167d 46%, #067bff);
+  box-shadow: 0 0 25px rgba(0, 118, 255, .28);
+}
+
+.platformOpeningMark span {
+  position: relative;
+  z-index: 2;
+  font-size: 14px;
+  font-weight: 1000;
+  color: #0a7cff;
+}
+
+.platformOpeningBrand strong {
+  font-size: 27px;
+  line-height: 1;
+  letter-spacing: -.8px;
+}
+
+.platformOpeningBrand strong span {
+  color: #8e9bb0;
+}
+
+.platformOpeningLoader {
+  width: 76px;
+  height: 76px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 25px 0 18px;
+}
+
+.platformOpeningLoader::before,
+.platformOpeningLoader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 140, 255, .18);
+}
+
+.platformOpeningLoader::after {
+  border-color: #0b8cff transparent #00d98a transparent;
+  animation: mbOpeningSpin .85s linear infinite;
+}
+
+.platformOpeningLoader span {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 140, 255, .32), rgba(0, 100, 255, .05));
+  box-shadow: 0 0 28px rgba(0, 132, 255, .3);
+}
+
+.platformOpeningLoader i {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #00e884;
+  box-shadow: 0 0 14px rgba(0, 232, 132, .9);
+}
+
+@keyframes mbOpeningSpin {
+  to { transform: rotate(360deg); }
+}
+
+.platformOpeningCard h1 {
+  margin: 0;
+  font-size: clamp(24px, 7vw, 32px);
+  letter-spacing: -.8px;
+}
+
+.platformOpeningCard p {
+  max-width: 310px;
+  margin: 8px 0 18px;
+  color: #a9b7ca;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.platformOpeningProgress {
+  width: min(250px, 82%);
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+}
+
+.platformOpeningProgress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #087cff, #00d98a);
+  animation: mbOpeningProgress 1.05s cubic-bezier(.2,.7,.2,1) both;
+}
+
+@keyframes mbOpeningProgress {
+  from { transform: scaleX(.04); opacity: .7; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+.platformOpeningCard > small {
+  margin-top: 10px;
+  color: #6f8097;
+  font-size: 10px;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+}
+
+/* Consistent line-icon bell instead of device-dependent emoji rendering. */
+.notificationBellSvg {
+  width: 21px;
+  height: 21px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Tablets and phones: one clean row, including notifications on every width. */
+@media (max-width: 1023px) {
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader,
+  .topHeader.cleanBrokerHeader,
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .topHeader,
+  .app.activePage-trade > .brokerTopHeader {
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    display: grid !important;
+    grid-template-columns:
+      32px
+      minmax(90px, 1fr)
+      minmax(98px, 142px)
+      32px
+      36px !important;
+    grid-template-rows: 46px !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 6px 5px !important;
+    overflow: visible !important;
+  }
+
+  .cleanBrokerHeader .brokerMenuBtn {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 38px !important;
+    padding: 0 !important;
+  }
+
+  .cleanBrokerHeader .brokerMenuBtn span {
+    width: 25px !important;
+    height: 2.5px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogo,
+  .cleanBrokerHeader .logo {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    overflow: visible !important;
+  }
+
+  .cleanBrokerHeader .brokerLogoMark {
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    flex: 0 0 25px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogoMark::before,
+  .cleanBrokerHeader .brokerLogoMark::after {
+    inset: 4px !important;
+    border-radius: 7px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogoMark::after {
+    inset: 8px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogoMark span {
+    font-size: 9px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogo strong {
+    max-width: none !important;
+    min-width: 0 !important;
+    font-size: clamp(14px, 3.8vw, 19px) !important;
+    line-height: 1 !important;
+    letter-spacing: -.7px !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  .cleanBrokerHeader .brokerWallet {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 142px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 7px !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .cleanBrokerHeader .usdWalletSelectorV12,
+  .cleanBrokerHeader .demoWalletSelectorV12 {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+  }
+
+  .cleanBrokerHeader .usdFlagCircleV12 {
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px !important;
+  }
+
+  .cleanBrokerHeader .demoWalletBadgeV12 {
+    flex: 0 0 auto !important;
+    padding: 3px 4px !important;
+    font-size: 8px !important;
+  }
+
+  .cleanBrokerHeader .usdWalletInlineV12,
+  .cleanBrokerHeader .demoWalletInlineV12 {
+    min-width: 0 !important;
+    font-size: clamp(11px, 3.25vw, 15px) !important;
+    font-weight: 900 !important;
+    letter-spacing: -.25px !important;
+    white-space: nowrap !important;
+  }
+
+  .cleanBrokerHeader .workingBellButton,
+  .cleanBrokerHeader .brokerBellBtn {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    color: #d9e4f5 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 5 !important;
+  }
+
+  .cleanBrokerHeader .workingBellButton .notificationBellSvg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .cleanBrokerHeader .workingBellButton b,
+  .cleanBrokerHeader .brokerBellBtn b {
+    position: absolute !important;
+    top: -1px !important;
+    right: -2px !important;
+    width: 18px !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    padding: 0 3px !important;
+    border-radius: 999px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: #1677ff !important;
+    color: #fff !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    box-shadow: 0 0 12px rgba(22,119,255,.55) !important;
+  }
+
+  .cleanBrokerHeader .brokerAvatarBtn {
+    grid-column: 5 !important;
+    grid-row: 1 !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+  }
+
+  .cleanBrokerHeader .brokerAvatarBtn i {
+    right: 1px !important;
+    bottom: 1px !important;
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  /* Deposit remains available from the drawer; hiding it keeps the top row clean. */
+  .cleanBrokerHeader .compactDepositButton,
+  .cleanBrokerHeader .brokerDepositBtn {
+    display: none !important;
+  }
+
+  .notificationPanel {
+    position: fixed !important;
+    top: 62px !important;
+    right: 6px !important;
+    left: auto !important;
+    width: min(360px, calc(100vw - 12px)) !important;
+    max-height: calc(100svh - 78px) !important;
+    overflow-y: auto !important;
+    z-index: 50000 !important;
+    border-radius: 16px !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  .accountPickerPanel {
+    position: fixed !important;
+    top: 62px !important;
+    right: 48px !important;
+    left: auto !important;
+    width: min(320px, calc(100vw - 60px)) !important;
+    max-height: calc(100svh - 78px) !important;
+    overflow-y: auto !important;
+    z-index: 50000 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --mb-v20-header: 58px !important;
+  }
+
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader,
+  .topHeader.cleanBrokerHeader,
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .topHeader,
+  .app.activePage-trade > .brokerTopHeader {
+    grid-template-columns:
+      32px
+      minmax(90px, 1fr)
+      minmax(98px, 126px)
+      32px
+      36px !important;
+    gap: 3px !important;
+    padding-inline: 4px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogo strong {
+    font-size: clamp(14px, 4.05vw, 17px) !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  .cleanBrokerHeader .brokerWallet {
+    max-width: 126px !important;
+  }
+
+  .cleanBrokerHeader .usdWalletInlineV12,
+  .cleanBrokerHeader .demoWalletInlineV12 {
+    font-size: clamp(11px, 3.35vw, 13.5px) !important;
+  }
+
+  .notificationPanel {
+    top: 60px !important;
+    right: 4px !important;
+    width: calc(100vw - 8px) !important;
+    max-height: calc(100svh - 70px) !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .cleanBrokerHeader.topHeader,
+  .cleanBrokerHeader.brokerTopHeader,
+  .topHeader.cleanBrokerHeader,
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .topHeader,
+  .app.activePage-trade > .brokerTopHeader {
+    grid-template-columns:
+      30px
+      minmax(86px, 1fr)
+      minmax(92px, 108px)
+      30px
+      34px !important;
+    gap: 2px !important;
+    padding-inline: 3px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogoMark {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    flex-basis: 22px !important;
+  }
+
+  .cleanBrokerHeader .brokerLogo strong {
+    font-size: 13px !important;
+    letter-spacing: -.65px !important;
+  }
+
+  .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  .cleanBrokerHeader .brokerWallet {
+    max-width: 108px !important;
+    padding-inline: 4px !important;
+  }
+
+  .cleanBrokerHeader .usdFlagCircleV12 {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+  }
+
+  .cleanBrokerHeader .usdWalletInlineV12,
+  .cleanBrokerHeader .demoWalletInlineV12 {
+    font-size: 10.5px !important;
+  }
+}
