@@ -34371,3 +34371,91 @@ body,
     padding-inline: 0 !important;
   }
 }
+
+
+/* ==========================================================================\n   METABINARY V45 — EXPANDED MOBILE QUICK AMOUNT PRESETS\n   - Opens the 10 / 25 / 50 / 100 / 250 shortcuts downward in two rows.\n   - Uses the previously empty lower area instead of clipping the last values.\n   - Keeps ODD/EVEN safely above the fixed Trade navigation.\n   ========================================================================== */
+@media (max-width: 760px) {
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    min-height: 142px !important;
+    align-items: stretch !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .finalTicksControl,
+  .finalBinaryTradePage .finalStakeControl {
+    min-height: 124px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 28px) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 61px !important;
+    overflow: visible !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 4px !important;
+    font-size: 10px !important;
+    border-radius: 9px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(1),
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(2),
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(3) {
+    grid-column: span 2 !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(4),
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(5) {
+    grid-column: span 3 !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 14px !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .finalBinaryTradePage .finalOrderInputs,
+  .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    min-height: 140px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 {
+    grid-template-rows: repeat(2, 27px) !important;
+    gap: 4px !important;
+    min-height: 58px !important;
+  }
+
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+    height: 27px !important;
+    min-height: 27px !important;
+    font-size: 9.5px !important;
+  }
+
+  .finalBinaryTradePage .finalTradeButtons,
+  .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    margin-top: 12px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+    font-size: 9px !important;
+  }
+}

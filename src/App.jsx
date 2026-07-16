@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-trade-rings-flash-v37-2026-07-16";
+const FRONTEND_BUILD = "metabinary-trade-quick-presets-v45-2026-07-16";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const REFERRAL_COMMISSION_PERCENT = Math.max(
@@ -5508,7 +5508,7 @@ function TradePage({
   const lowestDigit = digitStats.indexOf(lowestPercent);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const quickTickValues = [1, 2, 3, 5, 10];
-  const quickStakeValues = [10, 25, 50];
+  const quickStakeValues = [10, 25, 50, 100, 250];
 
   const actionMeta = Object.fromEntries(
     actions.map((action) => {
@@ -5752,19 +5752,12 @@ function TradePage({
               </div>
               <button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button>
             </div>
-            <div className="quickStakeRow" aria-label="Quick stake choices">
-              {quickStakeValues.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={Number(stake) === value ? "active" : ""}
-                  aria-pressed={Number(stake) === value}
-                  onClick={() => setStake(value)}
-                  disabled={Boolean(activeBinaryTrade)}
-                >
-                  {value}<small>USD</small>
-                </button>
-              ))}
+            <div className="quickStakeRow quickStakeRowV44" aria-label="Quick stake choices">
+              <button type="button" className={Number(stake) === 10 ? "active" : ""} aria-pressed={Number(stake) === 10} onClick={() => setStake(10)} disabled={Boolean(activeBinaryTrade)}>10</button>
+              <button type="button" className={Number(stake) === 25 ? "active" : ""} aria-pressed={Number(stake) === 25} onClick={() => setStake(25)} disabled={Boolean(activeBinaryTrade)}>25</button>
+              <button type="button" className={Number(stake) === 50 ? "active" : ""} aria-pressed={Number(stake) === 50} onClick={() => setStake(50)} disabled={Boolean(activeBinaryTrade)}>50</button>
+              <button type="button" className={Number(stake) === 100 ? "active" : ""} aria-pressed={Number(stake) === 100} onClick={() => setStake(100)} disabled={Boolean(activeBinaryTrade)}>100</button>
+              <button type="button" className={Number(stake) === 250 ? "active" : ""} aria-pressed={Number(stake) === 250} onClick={() => setStake(250)} disabled={Boolean(activeBinaryTrade)}>250</button>
             </div>
           </label>
         </div>
