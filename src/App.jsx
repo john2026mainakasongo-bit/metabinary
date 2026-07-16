@@ -1132,8 +1132,6 @@ function TradingApp() {
   const [publicView, setPublicView] = useState(() =>
     new URLSearchParams(window.location.search).get("reset_token") ? "auth" : "landing"
   );
-  const [platformOpening, setPlatformOpening] = useState(false);
-  const platformOpeningTimerRef = useRef(null);
 
   const [activePage, setActivePage] = useState(initialTradingPage);
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
@@ -2407,18 +2405,6 @@ function TradingApp() {
     }
   }
 
-  function showPlatformOpening() {
-    window.clearTimeout(platformOpeningTimerRef.current);
-    setPlatformOpening(true);
-    platformOpeningTimerRef.current = window.setTimeout(() => {
-      setPlatformOpening(false);
-    }, 1150);
-  }
-
-  useEffect(() => {
-    return () => window.clearTimeout(platformOpeningTimerRef.current);
-  }, []);
-
   async function login(data) {
     if (!data.email || !data.password) {
       notify("loss", "Login failed", "Enter email and password.");
@@ -2444,7 +2430,6 @@ function TradingApp() {
         real: Number(logged.realBalance ?? 0),
       });
       setActivePage(consumePublicEntryPage());
-      showPlatformOpening();
       notify("win", "Welcome back", result.message || "Login successful.");
       return true;
     } catch (error) {
@@ -2493,7 +2478,6 @@ function TradingApp() {
         real: Number(created.realBalance ?? 0),
       });
       setActivePage(consumePublicEntryPage());
-      showPlatformOpening();
       notify("win", "Account created", result.message || "Your MetaBinary account is ready.");
       return true;
     } catch (error) {
@@ -3993,10 +3977,6 @@ function TradingApp() {
     }
   }
 
-  if (platformOpening && user && authToken) {
-    return <PlatformOpeningScreen user={user} />;
-  }
-
   if (!user || !authToken) {
     if (publicView === "landing" && authMode !== "reset") {
       return (
@@ -4244,37 +4224,6 @@ function Logo() {
       <strong>
         Meta<span>Binary</span>
       </strong>
-    </div>
-  );
-}
-
-function PlatformOpeningScreen({ user }) {
-  const firstName = String(user?.firstName || user?.name || "Trader").trim().split(/\s+/)[0] || "Trader";
-
-  return (
-    <div className="platformOpeningScreen" role="status" aria-live="polite">
-      <div className="platformOpeningGlow platformOpeningGlowOne"></div>
-      <div className="platformOpeningGlow platformOpeningGlowTwo"></div>
-
-      <section className="platformOpeningCard">
-        <div className="platformOpeningBrand">
-          <div className="platformOpeningMark"><span>M</span></div>
-          <strong>Meta<span>Binary</span></strong>
-        </div>
-
-        <div className="platformOpeningLoader" aria-hidden="true">
-          <span></span>
-          <i></i>
-        </div>
-
-        <h1>Opening MetaBinary</h1>
-        <p>Welcome back, {firstName}. Preparing your trading workspace…</p>
-
-        <div className="platformOpeningProgress" aria-hidden="true">
-          <span></span>
-        </div>
-        <small>Secure account session ready</small>
-      </section>
     </div>
   );
 }
@@ -4760,10 +4709,7 @@ function Header({
           setAccountMenuOpen(false);
         }}
       >
-        <svg className="notificationBellSvg" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-          <path d="M10 21h4" />
-        </svg>
+        <i aria-hidden="true">🔔</i>
         {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
       </button>
 
@@ -7283,36 +7229,49 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
               Real
             </button>
           </div>
+        </section>
 
-          <div className="drawerQuickFunds" aria-label="Wallet actions">
-            <button
-              type="button"
-              className="drawerQuickDeposit"
+        <div className="drawerGrid">
+          <DrawerBlock title="TRADING">
+            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
+            <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
+          </DrawerBlock>
+
+          <DrawerBlock title="FUNDS">
+            <DrawerButton
+              icon="▱"
+              label="Cashier / Deposit"
               onClick={() => {
                 openDeposit();
                 close();
               }}
-            >
-              <span>＋</span> Deposit
-            </button>
-            <button
-              type="button"
-              className="drawerQuickWithdraw"
+            />
+
+            <DrawerButton
+              icon="⇧"
+              label="Withdraw"
               onClick={() => {
                 openWithdraw();
                 close();
               }}
-            >
-              <span>⇧</span> Withdraw
-            </button>
-          </div>
-        </section>
+            />
 
-        <div className="drawerGrid drawerMainOnly">
-          <DrawerBlock title="MAIN MENU">
-            <DrawerButton icon="↕" label="Trade" onClick={() => go("trade")} />
-            <DrawerButton icon="🤖" label="Bots" onClick={() => go("bots")} />
+            <DrawerButton icon="↺" label="History" onClick={() => go("history")} />
+          </DrawerBlock>
+
+          <DrawerBlock title="AUTOMATION">
+            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
+            <DrawerButton icon="🤖" label="My Bots" onClick={() => go("bots")} />
+            <DrawerButton icon="▶" label="Running Bots" onClick={() => go("botLive")} />
+            <DrawerButton icon="▣" label="Reports" onClick={() => go("reports")} />
+          </DrawerBlock>
+
+          <DrawerBlock title="ACCOUNT">
             <DrawerButton icon="♙" label="Profile" onClick={() => go("profile")} />
+            <DrawerButton icon="👥" label="Referrals" onClick={() => go("referrals")} />
+            <DrawerButton icon="⚙" label="Settings" onClick={() => go("settings")} />
+            <DrawerButton icon="?" label="Support Center" onClick={() => go("profile")} />
+            <DrawerButton icon="🔔" label="Notifications" badge="3" onClick={() => go("settings")} />
           </DrawerBlock>
         </div>
 
