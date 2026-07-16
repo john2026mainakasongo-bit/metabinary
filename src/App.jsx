@@ -410,8 +410,6 @@ function readPublicEntryPage() {
 const TRADING_PAGES = new Set([
   "trade",
   "markets",
-  "forex",
-  "openTrades",
   "ai",
   "bots",
   "botSetup",
@@ -1422,7 +1420,7 @@ function TradingApp() {
       }
 
       if (!disposed) {
-        const delay = activePage === "forex" || activePage === "openTrades" ? 3500 : 7000;
+        const delay = activePage === "markets" ? 3500 : 7000;
         timerId = window.setTimeout(refreshMarketQuotes, delay);
       }
     }
@@ -3345,7 +3343,7 @@ function TradingApp() {
       setAiAutoSession(next);
       setMarketSymbol(market.symbol);
       setAiForexSetup({ ...result, preparedAt: Date.now() });
-      setActivePage("forex");
+      setActivePage("markets");
 
       const opened = await placeForexOrder({
         side: result.side || "Buy",
@@ -3421,7 +3419,7 @@ function TradingApp() {
     if (result.mode === "forex") {
       setMarketSymbol(result.symbol || "EUR/USD");
       setAiForexSetup({ ...result, preparedAt: Date.now() });
-      setActivePage("forex");
+      setActivePage("markets");
       notify("win", "Forex setup prepared", `${result.symbol} · ${result.side}`);
       return;
     }
@@ -3774,11 +3772,25 @@ function TradingApp() {
             "Deposit successful",
             `${money(data.amountUsd)} USD has been added to your Real Account.`
           );
+          window.dispatchEvent(
+            new CustomEvent("metabinary:deposit-status", {
+              detail: {
+                depositId,
+                status: "completed",
+                amountUsd: Number(data.amountUsd || 0),
+              },
+            })
+          );
           return;
         }
 
         if (failed.has(status)) {
           notify("loss", "Deposit not completed", data.message || `Payment status: ${status}.`);
+          window.dispatchEvent(
+            new CustomEvent("metabinary:deposit-status", {
+              detail: { depositId, status: "failed", message: data.message || `Payment status: ${status}.` },
+            })
+          );
           return;
         }
       } catch (error) {
@@ -3788,11 +3800,15 @@ function TradingApp() {
 
     await refreshUser();
     notify("open", "Deposit still pending", "Open History later to confirm the final payment status.");
+    window.dispatchEvent(
+      new CustomEvent("metabinary:deposit-status", {
+        detail: { depositId, status: "pending" },
+      })
+    );
   }
 
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
-    const phone = String(data.phone || "").trim();
     const method = "pesapal";
 
     if (!API_URL) {
@@ -3809,11 +3825,6 @@ function TradingApp() {
       return false;
     }
 
-    if (!phone) {
-      notify("loss", "Phone required", "Enter the M-Pesa phone number.");
-      return false;
-    }
-
     try {
       const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
@@ -3822,7 +3833,7 @@ function TradingApp() {
         body: JSON.stringify({
           method,
           amountUsd,
-          phone,
+          phone: "",
           email: user.email,
           name: user.name || user.email,
           requestId: uid(),
@@ -3837,37 +3848,40 @@ function TradingApp() {
         );
       }
 
-      if (result.checkoutUrl) {
-        window.location.assign(result.checkoutUrl);
-        return true;
-      }
-
       if (!result.depositId) {
         throw new Error(
           result.message || "The backend did not return a deposit reference."
         );
       }
 
-      setDepositOpen(false);
       setAccount("real");
 
       addTx({
         type: "Deposit pending",
-        method: "PesaPal / M-Pesa",
+        method: "PesaPal",
         account: "real",
         amount: amountUsd,
         status: "Pending",
-        details: phone,
+        details: "Secure PesaPal checkout",
       });
+
+      void pollDepositStatus(result.depositId);
+
+      if (result.checkoutUrl) {
+        return {
+          ok: true,
+          checkoutUrl: result.checkoutUrl,
+          depositId: result.depositId,
+          amountUsd,
+        };
+      }
 
       notify(
         "open",
         "Deposit started",
-        result.message || "Continue with PesaPal to complete the M-Pesa payment."
+        result.message || "Your deposit request has been created."
       );
-
-      void pollDepositStatus(result.depositId);
-      return true;
+      return { ok: true, depositId: result.depositId, amountUsd };
     } catch (error) {
       console.error("Deposit request failed:", error);
 
@@ -4046,45 +4060,12 @@ function TradingApp() {
           <MarketsPage
             marketStates={binaryMarketStates}
             volatilityOptions={VOLATILITY_OPTIONS}
-            marketFeed={marketFeed}
             setBinaryMarketId={setBinaryMarketId}
-            setMarketSymbol={setMarketSymbol}
             setActivePage={setActivePage}
           />
         )}
 
-        {activePage === "forex" && (
-          <ForexPage
-            account={account}
-            balance={balance}
-            symbol={marketSymbol}
-            setSymbol={setMarketSymbol}
-            timeframe={marketTimeframe}
-            setTimeframe={setMarketTimeframe}
-            market={activeMarket}
-            marketFeed={activeMarketFeed}
-            livePrice={marketPrice}
-            candles={marketCandles}
-            positions={positions}
-            placeForexOrder={placeForexOrder}
-            setActivePage={setActivePage}
-            openDeposit={() => setDepositOpen(true)}
-            preparedSetup={aiForexSetup}
-          />
-        )}
 
-        {activePage === "openTrades" && (
-          <OpenTradesPage
-            account={account}
-            balance={balance}
-            positions={positions}
-            closedPositions={closedPositions}
-            updatePosition={updatePosition}
-            closePosition={closePosition}
-            closeAllPositions={closeAllPositions}
-            back={() => setActivePage("forex")}
-          />
-        )}
 
         {activePage === "trade" && (
           <TradePage
@@ -4198,8 +4179,6 @@ function TradingApp() {
           account={account}
           binaryMarketStates={binaryMarketStates}
           volatilityOptions={VOLATILITY_OPTIONS}
-          marketFeed={marketFeed}
-          forexMarkets={MARKET_OPTIONS}
           botTemplates={BOT_TEMPLATES}
           currentStake={Number(stake || 1)}
           onApply={applyAiSetup}
@@ -4430,7 +4409,7 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
               <div className="publicExperienceIcon">AI</div>
               <span>METABINARY AI</span>
               <h3>Scan before you trade</h3>
-              <p>Analyze volatility, Forex and bot strategies, prepare a setup and review it before starting a session.</p>
+              <p>Analyze volatility markets and bot strategies, prepare a setup and review it before starting a session.</p>
               <ul><li>Market context scanning</li><li>Prepared trade parameters</li><li>Target and stop controls</li></ul>
               <button type="button" onClick={() => openExperience("ai")}>Launch AI Trading <b>→</b></button>
             </article>
@@ -4453,8 +4432,8 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
           </div>
           <div className="publicFeatureGrid">
             <article><div>⚡</div><h3>Fast trade workflow</h3><p>Move from market selection to contract setup and settlement without leaving the trading workspace.</p></article>
-            <article><div>◉</div><h3>Live market views</h3><p>Monitor volatility digit activity alongside Forex, metals and crypto market views.</p></article>
-            <article><div>AI</div><h3>Context-aware assistant</h3><p>The floating AI changes its scan mode depending on whether you are trading, viewing Forex or configuring bots.</p></article>
+            <article><div>◉</div><h3>Live market views</h3><p>Monitor live volatility digit activity across all available synthetic markets.</p></article>
+            <article><div>AI</div><h3>Context-aware assistant</h3><p>The floating AI scans volatility markets and adapts its setup when you are trading or configuring bots.</p></article>
             <article><div>◇</div><h3>Risk controls</h3><p>Configure stake, recovery limits, take profit and stop loss for supported automated sessions.</p></article>
             <article><div>▣</div><h3>History and reports</h3><p>Review transactions, closed positions and bot activity from the same account.</p></article>
             <article><div>◎</div><h3>Mobile and desktop</h3><p>The interface is arranged for normal 100% browser zoom on phones and laptops.</p></article>
@@ -4493,27 +4472,51 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
 function AITradingEntryPage({ account, balance, autoSession, setActivePage }) {
   const running = Boolean(autoSession?.running);
   const pnl = Number(autoSession?.pnl || 0);
+
   return (
     <div className="page aiTradingEntryPage">
       <section className="aiEntryHero">
         <div className="aiEntryHeroCopy">
           <span className="aiEntryEyebrow"><i></i> METABINARY INTELLIGENCE</span>
           <h1>AI Trading</h1>
-          <p>AI is scanning live volatility markets now. It will select the strongest market and contract type, then open Auto-Trade automatically.</p>
-          <div className="aiEntryAccount"><small>{account === "real" ? "Real Account" : "Demo Account"}</small><strong>{money(balance)} USD</strong></div>
+          <p>AI automatically scans all volatility markets, compares the available contract types, selects the strongest setup and opens Auto-Trade.</p>
+          <div className="aiEntryAccount">
+            <small>{account === "real" ? "Real Account" : "Demo Account"}</small>
+            <strong>{money(balance)} USD</strong>
+          </div>
         </div>
-        <div className="aiEntryOrb"><span></span><i></i><b>AI</b><small>{running ? `${pnl >= 0 ? "+" : ""}${money(pnl)} USD` : "AUTO SCAN"}</small></div>
+
+        <div className="aiEntryOrb">
+          <span></span><i></i><b>AI</b>
+          <small>{running ? `${pnl >= 0 ? "+" : ""}${money(pnl)} USD` : "AUTO SCAN"}</small>
+        </div>
       </section>
 
-      <section className="aiEntryModeGrid">
-        <button type="button" onClick={() => setActivePage("trade")}><span>01</span><div><small>VOLATILITY AI</small><strong>Scan digit contracts</strong><p>Prepare market, contract, action, prediction, stake and ticks.</p></div><b>→</b></button>
-        <button type="button" onClick={() => setActivePage("forex")}><span>02</span><div><small>FOREX AI</small><strong>Prepare Buy / Sell setups</strong><p>Review live market direction with prepared entry, Stop Loss and Take Profit.</p></div><b>→</b></button>
-        <button type="button" onClick={() => setActivePage("bots")}><span>03</span><div><small>BOT AI</small><strong>Match a strategy</strong><p>Scan the available bot templates and prepare a configuration for review.</p></div><b>→</b></button>
+      <section className="aiEntryModeGrid aiEntryModeGridTwo">
+        <button type="button" onClick={() => setActivePage("trade")}>
+          <span>01</span>
+          <div>
+            <small>AI AUTO-TRADE</small>
+            <strong>Best market + best trade type</strong>
+            <p>Scans all volatility markets and automatically launches the strongest available contract setup.</p>
+          </div>
+          <b>→</b>
+        </button>
+
+        <button type="button" onClick={() => setActivePage("bots")}>
+          <span>02</span>
+          <div>
+            <small>TRADING BOTS</small>
+            <strong>Choose an automated strategy</strong>
+            <p>Open the bot hub to configure recovery, stake and session controls.</p>
+          </div>
+          <b>→</b>
+        </button>
       </section>
 
       <section className="aiEntrySafety">
-        <div><span>✓</span><p><strong>Review before starting</strong><small>Prepared setups remain visible so you can check the market, stake and session controls.</small></p></div>
-        <div><span>◎</span><p><strong>Target and stop controls</strong><small>Automated AI sessions can be configured to stop at the selected target profit or stop loss.</small></p></div>
+        <div><span>✓</span><p><strong>Automatic market selection</strong><small>The scanner compares the current volatility markets before every AI session.</small></p></div>
+        <div><span>◎</span><p><strong>Automatic contract selection</strong><small>The AI chooses the market, contract type, direction and entry setup automatically.</small></p></div>
         <div><span>!</span><p><strong>No guaranteed results</strong><small>AI analysis is an estimate. Trading outcomes can still be losses.</small></p></div>
       </section>
     </div>
@@ -5124,36 +5127,52 @@ function MiniSpark({ type = "blue" }) {
   );
 }
 
-function MarketsPage({ marketFeed, setMarketSymbol, setActivePage }) {
-  function openForex(market) {
-    setMarketSymbol(market.symbol);
-    setActivePage("forex");
+function MarketsPage({ marketStates, volatilityOptions, setBinaryMarketId, setActivePage }) {
+  function openVolatility(market) {
+    setBinaryMarketId(market.id);
+    setActivePage("trade");
   }
 
   return (
-    <div className="page marketsPage professionalMarketsPage forexOnlyMarketsPage">
+    <div className="page marketsPage professionalMarketsPage volatilityMarketsPage">
       <header className="marketsPageHero">
         <div>
-          <small>FOREX, METALS & CRYPTO</small>
+          <small>VOLATILITY MARKETS</small>
           <h1>Markets</h1>
-          <p>Select a market to open its live chart and Buy/Sell controls.</p>
+          <p>Select a volatility market to open it directly in the Manual Trader.</p>
         </div>
-        <span>Live global markets</span>
+        <span>24/7 synthetic markets</span>
       </header>
 
-      <section className="marketCategoryPanel forexOnlyMarketPanel">
+      <section className="marketCategoryPanel volatilityOnlyMarketPanel">
         <header>
-          <div><small>GLOBAL MARKETS</small><h2>Forex, Metals & Crypto</h2></div>
-          <span>{MARKET_OPTIONS.length} markets</span>
+          <div><small>AVAILABLE MARKETS</small><h2>Volatility Indices</h2></div>
+          <span>{volatilityOptions.length} markets</span>
         </header>
-        <div className="forexMarketGrid">
-          {MARKET_OPTIONS.map((market) => {
-            const feed = marketFeed?.[market.symbol] || {};
+
+        <div className="volatilityMarketGrid">
+          {volatilityOptions.map((market, index) => {
+            const state = marketStates?.[market.id] || {};
+            const prices = Array.isArray(state.prices) ? state.prices : [];
+            const price = Number(prices[prices.length - 1] || market.start || 0);
+            const lastDigit = Number.isInteger(Number(state.lastDigit))
+              ? Number(state.lastDigit)
+              : Math.abs(Math.floor(price * 1000)) % 10;
+
             return (
-              <button key={market.symbol} type="button" className="forexMarketCard" onClick={() => openForex(market)}>
-                <span>{market.category === "Crypto" ? "₿" : market.category === "Metals" ? "◆" : "FX"}</span>
-                <div><strong>{market.label}</strong><small>{market.symbol} · {feed.isOpen === false ? "CLOSED" : "OPEN"}</small></div>
-                <b>{formatMarketPrice(feed.price || market.defaultPrice, market)}</b>
+              <button
+                key={market.id}
+                type="button"
+                className="volatilityMarketCard"
+                onClick={() => openVolatility(market)}
+              >
+                <span>{market.short}</span>
+                <div>
+                  <strong>{market.label}</strong>
+                  <small>OPEN · 24/7</small>
+                </div>
+                <b>{price.toFixed(5)}</b>
+                <em>{lastDigit}</em>
                 <i>›</i>
               </button>
             );
@@ -5308,7 +5327,7 @@ function ForexPage({
   return (
     <div className="page forexPage forexPublishPage realMarketPublishPage">
       <HubNav
-        active="Forex"
+        active="Markets"
         setActivePage={setActivePage}
         openDeposit={openDeposit}
       />
@@ -6722,7 +6741,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
   );
   const accountLabel = account === "real" ? "Real Account" : "Demo Account";
   const tradeTransactions = (transactions || []).filter((tx) => {
-    if (!["Manual", "Bot", "Forex", "AI Auto-Trade", "AI Forex"].includes(tx.method)) return false;
+    if (!["Manual", "Bot", "AI Auto-Trade"].includes(tx.method)) return false;
     if (Number(tx.amount) === 0) return false;
     const status = String(tx.status || "").trim().toLowerCase();
     return !status || ["complete", "completed", "settled", "won", "lost", "success", "successful", "closed"].includes(status);
@@ -7298,7 +7317,7 @@ function DrawerButton({ icon, label, badge, onClick }) {
   );
 }
 
-function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, marketFeed, forexMarkets, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession, forceOpen = false }) {
+function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession, forceOpen = false }) {
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -7352,7 +7371,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   }, [activePage]);
 
   function pageMode() {
-    if (["forex", "openTrades"].includes(activePage)) return "forex";
     if (["bots", "botSetup", "botLive"].includes(activePage)) return "bot";
     return "trade";
   }
@@ -7360,19 +7378,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   function buildResult() {
     const confidence = 77 + Math.floor(Math.random() * 17);
     const mode = pageMode();
-    if (mode === "forex") {
-      const openMarkets = forexMarkets.filter(
-        (market) => market.alwaysOpen || (likelyMarketOpen(market) && Number(marketFeed?.[market.symbol]?.price || 0) > 0)
-      );
-      const market = openMarkets[Math.floor(Math.random() * Math.max(1, openMarkets.length))] || forexMarkets[2];
-      const price = Number(marketFeed?.[market.symbol]?.price || market.defaultPrice);
-      const momentum = Number(marketFeed?.[market.symbol]?.change || 0);
-      const side = momentum >= 0 ? "Buy" : "Sell";
-      const sl = side === "Buy" ? price - market.slDistance : price + market.slDistance;
-      const tp = side === "Buy" ? price + market.tpDistance : price - market.tpDistance;
-      const suggestedVolume = market.category === "Metals" || market.category === "Crypto" ? 0.001 : 0.01;
-      return { mode, confidence, symbol: market.symbol, marketLabel: market.label, side, volume: suggestedVolume, entry: price, stopLoss: Number(sl.toFixed(market.decimals)), takeProfit: Number(tp.toFixed(market.decimals)), sessionTakeProfit: aiTakeProfit, sessionStopLoss: aiStopLoss };
-    }
     if (mode === "bot") {
       const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
       const market = volatilityOptions[Math.floor(Math.random() * volatilityOptions.length)] || volatilityOptions[0];
@@ -7577,7 +7582,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       {open && (
         <section className="aiScannerPanel" style={panelStyle}>
           <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Auto-Trade Scanner</h2></div><button onClick={closeScanner}>×</button></header>
-          <div className="aiContextPill">Scanning mode: <strong>{mode === "trade" ? "Volatility contracts" : mode === "forex" ? "Forex markets" : "Trading bots"}</strong></div>
+          <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
 
           {scanning && (
             <div className="aiScanningState" aria-live="polite">
@@ -7598,7 +7603,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
               <div className="aiSignalCopy">
                 <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
                 {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
-                {result.mode === "forex" && <p>{result.side} · Entry {formatMarketPrice(result.entry, result.symbol)} · AI exit levels prepared</p>}
                 {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}
                 <em>Signal confidence is an estimate, not a guaranteed win rate.</em>
               </div>
@@ -7630,48 +7634,192 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
 function DepositModal({ close, submit }) {
   const [amountUsd, setAmountUsd] = useState(10);
-  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const customAmountRef = useRef(null);
-  const quickAmounts = [5, 10, 15, 20, 100];
-
+  const [checkout, setCheckout] = useState(null);
+  const [checkoutStatus, setCheckoutStatus] = useState("");
+  const [checkoutMessage, setCheckoutMessage] = useState("");
+  const quickAmounts = [5, 10, 20, 50, 100];
   const safeAmount = Math.max(0, Number(amountUsd || 0));
-  const amountKes = Math.max(0, Math.round(safeAmount * 129));
+
+  useEffect(() => {
+    const acceptStatus = (detail = {}) => {
+      const currentDepositId = String(checkout?.depositId || "");
+      const incomingDepositId = String(detail.depositId || "");
+      if (!currentDepositId || (incomingDepositId && incomingDepositId !== currentDepositId)) return;
+
+      const nextStatus = String(detail.status || "").toLowerCase();
+      if (!nextStatus) return;
+      setCheckoutStatus(nextStatus);
+      if (detail.message) setCheckoutMessage(String(detail.message));
+    };
+
+    const handleDepositStatus = (event) => acceptStatus(event.detail || {});
+    const handlePesapalMessage = (event) => {
+      const data = event.data;
+      if (!data || data.type !== "metabinary:pesapal:return") return;
+      try {
+        const apiOrigin = new URL(API_URL, window.location.href).origin;
+        if (event.origin && event.origin !== apiOrigin) return;
+      } catch {
+        // The server-side status poll still verifies the real payment state.
+      }
+      acceptStatus(data);
+    };
+
+    window.addEventListener("metabinary:deposit-status", handleDepositStatus);
+    window.addEventListener("message", handlePesapalMessage);
+    return () => {
+      window.removeEventListener("metabinary:deposit-status", handleDepositStatus);
+      window.removeEventListener("message", handlePesapalMessage);
+    };
+  }, [checkout?.depositId]);
 
   async function handleSubmit() {
-    if (submitting) return;
-    if (!phone.trim()) return;
+    if (submitting || safeAmount < 1) return;
 
     setSubmitting(true);
-    const completed = await submit({
+    const result = await submit({
       method: "pesapal",
       amountUsd: safeAmount,
-      phone: phone.trim(),
     });
 
-    if (!completed) setSubmitting(false);
+    if (!result) {
+      setSubmitting(false);
+      return;
+    }
+
+    if (result.checkoutUrl) {
+      setCheckoutStatus("pending");
+      setCheckoutMessage("");
+      setCheckout({
+        url: result.checkoutUrl,
+        depositId: result.depositId || "",
+        amountUsd: result.amountUsd || safeAmount,
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
   }
 
-  function chooseCustomAmount() {
-    setAmountUsd("");
-    window.setTimeout(() => customAmountRef.current?.focus(), 0);
+  if (checkout?.url && checkoutStatus === "completed") {
+    return (
+      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit complete">
+          <div className="pesapalCheckoutResultIcon success">✓</div>
+          <small>PAYMENT CONFIRMED</small>
+          <h2>Deposit successful</h2>
+          <p>${money(checkout.amountUsd)} USD has been added to your Real Account.</p>
+          <button type="button" className="simpleDepositConfirm" onClick={close}>Done</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (checkout?.url && checkoutStatus === "failed") {
+    return (
+      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit not completed">
+          <div className="pesapalCheckoutResultIcon failed">!</div>
+          <small>PAYMENT NOT COMPLETED</small>
+          <h2>Try again</h2>
+          <p>{checkoutMessage || "The payment was not completed. You can return and start another deposit."}</p>
+          <button type="button" className="simpleDepositConfirm" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>Back to deposit</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (checkout?.url) {
+    return (
+      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+        <div
+          className="depositModal pesapalCheckoutModal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Complete PesaPal deposit"
+        >
+          <div className="pesapalCheckoutHeader">
+            <div>
+              <small>SECURE DEPOSIT</small>
+              <h2>Complete your payment</h2>
+              <p>${money(checkout.amountUsd)} USD deposit</p>
+            </div>
+            <button
+              type="button"
+              className="pesapalCheckoutClose"
+              onClick={close}
+              aria-label="Close payment"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="pesapalCheckoutFrameWrap">
+            <iframe
+              className="pesapalCheckoutFrame"
+              title="PesaPal secure checkout"
+              src={checkout.url}
+              allow="payment *; clipboard-read; clipboard-write"
+              sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+
+          <div className="pesapalCheckoutFooter">
+            <span>Complete the payment above. MetaBinary stays open while you pay.</span>
+            <button type="button" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>
+              Change amount
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="modalLayer pesapalDepositLayer">
-      <div className="depositModal pesapalDepositModal" role="dialog" aria-modal="true" aria-label="Deposit via PesaPal">
+      <div
+        className="depositModal pesapalDepositModal simplePesapalDepositModal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Deposit funds"
+      >
         <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
           ×
         </button>
 
-        <div className="pesapalDepositTitle">
-          <span>🌐</span>
-          <h2>Deposit via PesaPal</h2>
+        <div className="simpleDepositHead">
+          <span>＋</span>
+          <div>
+            <small>REAL ACCOUNT</small>
+            <h2>Deposit Funds</h2>
+            <p>Enter how much you want to deposit.</p>
+          </div>
         </div>
-        <p className="pesapalDepositIntro">Choose an amount, enter your M-Pesa number, then continue to the secure PesaPal payment page.</p>
 
-        <label className="pesapalSectionLabel">SELECT AMOUNT (USD $)</label>
-        <div className="pesapalQuickAmounts">
+        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">
+          AMOUNT (USD $)
+        </label>
+
+        <div className="simpleDepositAmountBox">
+          <span>$</span>
+          <input
+            id="pesapalAmount"
+            type="number"
+            min="1"
+            step="1"
+            inputMode="decimal"
+            value={amountUsd}
+            onChange={(event) => setAmountUsd(event.target.value)}
+            disabled={submitting}
+            autoFocus
+          />
+          <b>USD</b>
+        </div>
+
+        <div className="simpleDepositQuickAmounts" aria-label="Quick deposit amounts">
           {quickAmounts.map((value) => (
             <button
               key={value}
@@ -7683,68 +7831,23 @@ function DepositModal({ close, submit }) {
               ${value}
             </button>
           ))}
-          <button
-            type="button"
-            className={!quickAmounts.includes(Number(amountUsd)) ? "active" : ""}
-            onClick={chooseCustomAmount}
-            disabled={submitting}
-          >
-            Custom
-          </button>
         </div>
-
-        <div className="pesapalConversionBox">
-          <div>
-            <small>YOU PAY via M-Pesa</small>
-            <strong>KES {amountKes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-          </div>
-          <div>
-            <span>1 USD = <b>129</b> KES</span>
-            <small>Display rate</small>
-          </div>
-        </div>
-
-        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">AMOUNT (USD $)</label>
-        <input
-          ref={customAmountRef}
-          id="pesapalAmount"
-          className="pesapalDepositInput"
-          type="number"
-          min="1"
-          step="1"
-          value={amountUsd}
-          onChange={(event) => setAmountUsd(event.target.value)}
-          disabled={submitting}
-        />
-
-        <label className="pesapalSectionLabel" htmlFor="pesapalPhone">M-PESA PHONE NUMBER</label>
-        <input
-          id="pesapalPhone"
-          className="pesapalDepositInput"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="2547XXXXXXXX"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          disabled={submitting}
-        />
 
         <button
-          className="modalPrimary pesapalContinueButton"
+          className="modalPrimary pesapalContinueButton simpleDepositConfirm"
           onClick={handleSubmit}
-          disabled={submitting || safeAmount < 1 || !phone.trim()}
+          disabled={submitting || safeAmount < 1}
         >
-          {submitting ? "Opening PesaPal…" : "Continue with PesaPal"}
+          {submitting ? "Opening secure payment…" : `Confirm $${money(safeAmount)} Deposit`}
         </button>
 
-        <p className="pesapalDepositNote">
-          On the secure PesaPal page, choose M-Pesa and complete the payment. Your real balance updates after payment confirmation.
+        <p className="simpleDepositSecurity">
+          🔒 Secure payment powered by PesaPal
         </p>
       </div>
     </div>
   );
 }
-
 
 function SupportChat({ user, activePage, account }) {
   const categories = [

@@ -37245,3 +37245,555 @@ body,
   }
 }
 
+/* =========================================================
+   PESAPAL DEPOSIT V2 — SIMPLE AMOUNT + IN-APP CHECKOUT
+   ========================================================= */
+.simplePesapalDepositModal {
+  width: min(470px, calc(100vw - 28px)) !important;
+  max-width: 470px !important;
+  padding: 30px !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(0, 139, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, #101a2c 0%, #0c1525 100%) !important;
+  border: 1px solid rgba(91, 129, 188, 0.3) !important;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.62) !important;
+}
+
+.simpleDepositHead {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.simpleDepositHead > span {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(0, 145, 255, 0.24), rgba(0, 92, 255, 0.12));
+  border: 1px solid rgba(48, 150, 255, 0.35);
+  color: #2da8ff;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.simpleDepositHead small {
+  display: block;
+  color: #4aaeff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+
+.simpleDepositHead h2 {
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 25px !important;
+  line-height: 1.12;
+}
+
+.simpleDepositHead p {
+  margin: 5px 0 0 !important;
+  color: #8d9bb0 !important;
+  font-size: 13px;
+  text-align: left !important;
+}
+
+.simpleDepositAmountBox {
+  height: 72px;
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(73, 112, 168, 0.4);
+  background: #182338;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.16);
+}
+
+.simpleDepositAmountBox:focus-within {
+  border-color: #168dff;
+  box-shadow: 0 0 0 3px rgba(22, 141, 255, 0.13), inset 0 0 24px rgba(0, 0, 0, 0.16);
+}
+
+.simpleDepositAmountBox > span {
+  color: #4b9fff;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.simpleDepositAmountBox input {
+  width: 100% !important;
+  height: 70px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 32px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+  min-width: 0;
+}
+
+.simpleDepositAmountBox input::-webkit-outer-spin-button,
+.simpleDepositAmountBox input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.simpleDepositAmountBox > b {
+  color: #7789a4;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.simpleDepositQuickAmounts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 12px 0 22px;
+}
+
+.simpleDepositQuickAmounts button {
+  height: 39px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #92a0b5;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.simpleDepositQuickAmounts button:hover,
+.simpleDepositQuickAmounts button.active {
+  color: #fff;
+  border-color: rgba(28, 143, 255, 0.58);
+  background: rgba(28, 143, 255, 0.16);
+}
+
+.simpleDepositConfirm {
+  width: 100% !important;
+  margin: 0 !important;
+  height: 58px !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #087cff 0%, #005fe6 100%) !important;
+  box-shadow: 0 14px 30px rgba(0, 105, 255, 0.22) !important;
+}
+
+.simpleDepositSecurity {
+  margin: 14px 0 0 !important;
+  color: #71819a !important;
+  font-size: 12px !important;
+  text-align: center !important;
+}
+
+.pesapalCheckoutLayer {
+  padding: 14px !important;
+  align-items: center !important;
+}
+
+.pesapalCheckoutModal {
+  width: min(980px, calc(100vw - 28px)) !important;
+  height: min(820px, calc(100dvh - 28px)) !important;
+  max-width: 980px !important;
+  max-height: 820px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 20px !important;
+  background: #0d1625 !important;
+  border: 1px solid rgba(92, 129, 185, 0.32) !important;
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.68) !important;
+}
+
+.pesapalCheckoutHeader {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 18px 14px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(18, 31, 50, 0.98), rgba(12, 22, 37, 0.98));
+}
+
+.pesapalCheckoutHeader small {
+  display: block;
+  color: #2ca7ff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.pesapalCheckoutHeader h2 {
+  margin: 3px 0 0 !important;
+  font-size: 20px !important;
+  color: #fff !important;
+}
+
+.pesapalCheckoutHeader p {
+  margin: 3px 0 0 !important;
+  color: #8c9ab0 !important;
+  font-size: 12px;
+  text-align: left !important;
+}
+
+.pesapalCheckoutClose {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a3afc2;
+  font-size: 25px;
+}
+
+.pesapalCheckoutFrameWrap {
+  min-height: 0;
+  background: #fff;
+}
+
+.pesapalCheckoutFrame {
+  width: 100%;
+  height: 100%;
+  min-height: 560px;
+  display: block;
+  border: 0;
+  background: #fff;
+}
+
+.pesapalCheckoutFooter {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 16px 10px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #7f8da4;
+  font-size: 12px;
+}
+
+.pesapalCheckoutFooter button {
+  min-width: 120px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #dce6f5;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .simplePesapalDepositModal {
+    width: 100% !important;
+    padding: 25px 18px 20px !important;
+    border-radius: 20px !important;
+  }
+
+  .simpleDepositHead {
+    grid-template-columns: 46px 1fr;
+    gap: 12px;
+    margin-bottom: 23px;
+  }
+
+  .simpleDepositHead > span {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    font-size: 25px;
+  }
+
+  .simpleDepositHead h2 {
+    font-size: 22px !important;
+  }
+
+  .simpleDepositAmountBox {
+    height: 66px;
+    grid-template-columns: 30px 1fr auto;
+    padding: 0 14px;
+  }
+
+  .simpleDepositAmountBox input {
+    height: 64px !important;
+    font-size: 28px !important;
+  }
+
+  .simpleDepositQuickAmounts {
+    gap: 6px;
+  }
+
+  .simpleDepositQuickAmounts button {
+    height: 38px;
+    font-size: 12px;
+  }
+
+  .pesapalCheckoutLayer {
+    padding: 0 !important;
+  }
+
+  .pesapalCheckoutModal {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+  }
+
+  .pesapalCheckoutHeader {
+    min-height: 70px;
+    padding: 11px 12px 11px 15px;
+  }
+
+  .pesapalCheckoutHeader h2 {
+    font-size: 17px !important;
+  }
+
+  .pesapalCheckoutFrame {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .pesapalCheckoutFooter {
+    min-height: 58px;
+    padding: 8px 10px 8px 14px;
+  }
+
+  .pesapalCheckoutFooter span {
+    max-width: 62%;
+    line-height: 1.35;
+  }
+
+  .pesapalCheckoutFooter button {
+    min-width: 104px;
+    font-size: 11px;
+  }
+}
+
+
+/* =========================================================
+   NO-FOREX PLATFORM NAV + VOLATILITY MARKETS
+   ========================================================= */
+.aiEntryModeGridTwo {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.volatilityMarketsPage {
+  overflow: auto;
+}
+
+.volatilityOnlyMarketPanel {
+  min-height: 0;
+}
+
+.volatilityMarketGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.volatilityMarketCard {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto 42px 24px;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #fff;
+  text-align: left;
+}
+
+.volatilityMarketCard:hover {
+  border-color: rgba(0,140,255,.55);
+  background: rgba(0,119,255,.09);
+}
+
+.volatilityMarketCard > span {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(0,119,255,.14);
+  border: 1px solid rgba(0,140,255,.3);
+  color: #39a9ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.volatilityMarketCard div strong,
+.volatilityMarketCard div small {
+  display: block;
+}
+
+.volatilityMarketCard div small {
+  margin-top: 5px;
+  color: #00e884;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.volatilityMarketCard > b {
+  color: #dbe7ff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.volatilityMarketCard > em {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0,119,255,.13);
+  border: 1px solid rgba(0,140,255,.35);
+  color: #fff;
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.volatilityMarketCard > i {
+  color: #71819a;
+  font-style: normal;
+  font-size: 24px;
+}
+
+@media (max-width: 760px) {
+  .aiEntryModeGridTwo {
+    grid-template-columns: 1fr !important;
+  }
+
+  .volatilityMarketGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .volatilityMarketCard {
+    grid-template-columns: 52px minmax(0, 1fr) auto 34px;
+    gap: 9px;
+    padding: 11px 12px;
+    min-height: 72px;
+  }
+
+  .volatilityMarketCard > span {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 10px;
+  }
+
+  .volatilityMarketCard > b {
+    font-size: 13px;
+  }
+
+  .volatilityMarketCard > em {
+    width: 31px;
+    height: 31px;
+    font-size: 14px;
+  }
+
+  .volatilityMarketCard > i {
+    display: none;
+  }
+}
+
+
+
+/* =========================================================
+   PESAPAL CHECKOUT — LOCKED INSIDE METABINARY
+   ========================================================= */
+.pesapalCheckoutResultModal {
+  width: min(470px, calc(100vw - 28px)) !important;
+  max-width: 470px !important;
+  padding: 38px 30px 30px !important;
+  border-radius: 22px !important;
+  text-align: center !important;
+  background: linear-gradient(180deg, #111d31 0%, #0c1525 100%) !important;
+  border: 1px solid rgba(91, 129, 188, 0.32) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.66) !important;
+}
+
+.pesapalCheckoutResultIcon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 38px;
+  font-weight: 1000;
+}
+
+.pesapalCheckoutResultIcon.success {
+  background: linear-gradient(135deg, #04a75f, #087642);
+  box-shadow: 0 0 34px rgba(0, 232, 132, 0.24);
+}
+
+.pesapalCheckoutResultIcon.failed {
+  background: linear-gradient(135deg, #ff4057, #b3142d);
+  box-shadow: 0 0 34px rgba(255, 64, 87, 0.2);
+}
+
+.pesapalCheckoutResultModal > small {
+  display: block;
+  color: #39a9ff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.pesapalCheckoutResultModal h2 {
+  margin: 8px 0 10px !important;
+  color: #fff !important;
+  font-size: 27px !important;
+}
+
+.pesapalCheckoutResultModal p {
+  margin: 0 0 24px !important;
+  color: #91a0b5 !important;
+  line-height: 1.55 !important;
+  text-align: center !important;
+}
+
+/* The PesaPal iframe may navigate itself and open required popups,
+   but sandbox deliberately omits top-navigation permissions so the
+   payment page cannot replace the MetaBinary app. */
+.pesapalCheckoutFrame {
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 760px) {
+  .pesapalCheckoutModal {
+    width: calc(100vw - 16px) !important;
+    height: calc(100dvh - 16px) !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 16px !important;
+  }
+
+  .pesapalCheckoutFrame {
+    min-height: 0 !important;
+  }
+
+  .pesapalCheckoutFooter span {
+    display: none;
+  }
+
+  .pesapalCheckoutFooter {
+    justify-content: flex-end;
+  }
+}

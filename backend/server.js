@@ -215,11 +215,16 @@ async function getDb() {
   if (!mongoClientPromise) {
     const client = new MongoClient(MONGODB_URI, {
       maxPoolSize: 10,
+      minPoolSize: 1,
       family: 4,
-      connectTimeoutMS: 20000,
-      serverSelectionTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 12000,
+      socketTimeoutMS: 15000,
     });
-    mongoClientPromise = client.connect();
+    mongoClientPromise = client.connect().catch((error) => {
+      mongoClientPromise = null;
+      throw error;
+    });
   }
   const client = await mongoClientPromise;
   return client.db(MONGODB_DB);
@@ -287,6 +292,7 @@ async function ensureIndexes() {
 
   await ensurePartialRequestIndex(deposits, "uniq_deposit_email_requestId");
   await ensurePartialRequestIndex(withdrawals, "uniq_withdrawal_email_requestId");
+  await ensurePartialRequestIndex(db.collection("trades"), "uniq_trade_email_requestId");
 }
 
 function hashPassword(password) {
@@ -1802,7 +1808,7 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const notificationId = await getPesapalIpnId(db);
     const [firstName = "MetaBinary", ...restNames] = name.split(/\s+/).filter(Boolean);
     const lastName = restNames.join(" ") || "User";
-    const callbackUrl = `${PUBLIC_BACKEND_URL}/api/pesapal/callback`;
+    const callbackUrl = `${PUBLIC_BACKEND_URL}/api/pesapal/callback?embedded=1`;
     const cancellationUrl = `${FRONTEND_PUBLIC_URL}/?payment=cancelled`;
 
     const providerResponse = await pesapalRequest("/api/Transactions/SubmitOrderRequest", {
@@ -1954,64 +1960,66 @@ app.get("/api/pesapal/callback", async (req, res, next) => {
     );
     if (deposit) deposit = await reconcileDeposit(db, deposit);
 
-    const status = String(deposit?.status || "PENDING").toUpperCase();
-    const redirectUrl = new URL(FRONTEND_PUBLIC_URL);
-    redirectUrl.searchParams.set("payment", status.toLowerCase());
-    if (deposit?.id) redirectUrl.searchParams.set("depositId", deposit.id);
-    if (notification.orderTrackingId) {
-      redirectUrl.searchParams.set("orderTrackingId", notification.orderTrackingId);
-    }
+    const paymentStatus = String(deposit?.status || "pending").toLowerCase();
+    const embedded = String(req.query?.embedded || "") === "1";
 
-    const frontendOrigin = new URL(FRONTEND_PUBLIC_URL).origin;
-    const payload = JSON.stringify({
-      type: "METABINARY_PESAPAL_RESULT",
-      status,
-      depositId: deposit?.id || "",
-      orderTrackingId: notification.orderTrackingId || deposit?.orderTrackingId || "",
-      credited: Boolean(deposit?.credited),
-    }).replace(/</g, "\u003c");
+    if (embedded) {
+      let targetOrigin = "*";
+      try {
+        targetOrigin = new URL(FRONTEND_PUBLIC_URL).origin;
+      } catch {
+        // Keep wildcard only as a fallback for a malformed public frontend URL.
+      }
 
-    const heading = status === "COMPLETED"
-      ? "Payment confirmed"
-      : status === "FAILED" || status === "REVERSED"
-        ? "Payment not completed"
-        : "Payment received";
+      const payload = {
+        type: "metabinary:pesapal:return",
+        status: paymentStatus,
+        depositId: deposit?.id || "",
+        orderTrackingId: notification.orderTrackingId || "",
+      };
+      const safePayload = JSON.stringify(payload).replace(/</g, "\u003c");
+      const safeOrigin = JSON.stringify(targetOrigin);
 
-    return res
-      .status(200)
-      .type("html")
-      .send(`<!doctype html>
+      return res
+        .status(200)
+        .type("html")
+        .send(`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>${heading}</title>
+  <title>MetaBinary Payment</title>
   <style>
-    body{margin:0;background:#07111d;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px;box-sizing:border-box}
-    .box{max-width:520px;text-align:center;background:#111d2d;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px}
-    h2{margin:0 0 10px}.muted{color:#a9b7c8;line-height:1.5}
+    html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:#0d1625;color:#fff}
+    body{display:grid;place-items:center;padding:24px;box-sizing:border-box}
+    .card{max-width:460px;text-align:center;padding:34px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:#101b2e}
+    .icon{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;background:#0b8f52;font-size:34px;font-weight:900}
+    h1{font-size:24px;margin:0 0 10px}.muted{color:#9aabc2;line-height:1.5}
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>${heading}</h2>
-    <div class="muted">MetaBinary is confirming your transaction and updating your Real Balance.</div>
+  <div class="card">
+    <div class="icon">✓</div>
+    <h1>Payment received</h1>
+    <div class="muted">MetaBinary is confirming your deposit. You can keep this payment window open for a moment.</div>
   </div>
   <script>
-    (function () {
-      const payload = ${payload};
-      const targetOrigin = ${JSON.stringify(frontendOrigin)};
-      try { window.parent.postMessage(payload, targetOrigin); } catch (e) {}
-      try { if (window.top !== window) window.top.postMessage(payload, targetOrigin); } catch (e) {}
-      if (window.top === window) {
-        window.setTimeout(function () {
-          window.location.replace(${JSON.stringify(redirectUrl.toString())});
-        }, 500);
-      }
+    (function(){
+      var payload = ${safePayload};
+      var targetOrigin = ${safeOrigin};
+      try { if (window.parent && window.parent !== window) window.parent.postMessage(payload, targetOrigin); } catch (e) {}
+      try { if (window.top && window.top !== window) window.top.postMessage(payload, targetOrigin); } catch (e) {}
     })();
   </script>
 </body>
 </html>`);
+    }
+
+    const redirectUrl = new URL(FRONTEND_PUBLIC_URL);
+    redirectUrl.searchParams.set("payment", paymentStatus);
+    if (deposit?.id) redirectUrl.searchParams.set("depositId", deposit.id);
+    if (notification.orderTrackingId) redirectUrl.searchParams.set("orderTrackingId", notification.orderTrackingId);
+    return res.redirect(302, redirectUrl.toString());
   } catch (error) {
     next(error);
   }
@@ -2406,6 +2414,27 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const requestedSource = String(req.body?.source || "manual").trim().toLowerCase();
     const source = ["bot", "ai"].includes(requestedSource) ? requestedSource : "manual";
     const strategy = cleanText(req.body?.strategy || "", 100);
+    const requestId = cleanText(req.body?.requestId || "", 120);
+
+    if (requestId) {
+      const existingTrade = await db.collection("trades").findOne({
+        email: req.user.email,
+        requestId,
+      });
+
+      if (existingTrade) {
+        const currentUser = await db.collection("users").findOne({ _id: req.user._id });
+        const existingBalanceField = existingTrade.account === "real" ? "realBalance" : "demoBalance";
+        return res.status(200).json({
+          ok: true,
+          trade: publicTrade(existingTrade),
+          user: publicUser(currentUser || req.user),
+          balance: roundMoney((currentUser || req.user)?.[existingBalanceField]),
+          restored: true,
+          message: "Trade restored.",
+        });
+      }
+    }
 
     if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
     if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
@@ -2429,6 +2458,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const trade = {
       id,
       email: req.user.email,
+      ...(requestId ? { requestId } : {}),
       account,
       type,
       action,
@@ -2462,6 +2492,27 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
         { _id: req.user._id },
         { $inc: { [balanceField]: stake }, $set: { updatedAt: nowIso() } }
       );
+
+      if (error?.code === 11000 && requestId) {
+        const existingTrade = await db.collection("trades").findOne({
+          email: req.user.email,
+          requestId,
+        });
+        const currentUser = await db.collection("users").findOne({ _id: req.user._id });
+
+        if (existingTrade) {
+          const existingBalanceField = existingTrade.account === "real" ? "realBalance" : "demoBalance";
+          return res.status(200).json({
+            ok: true,
+            trade: publicTrade(existingTrade),
+            user: publicUser(currentUser || req.user),
+            balance: roundMoney((currentUser || req.user)?.[existingBalanceField]),
+            restored: true,
+            message: "Trade restored.",
+          });
+        }
+      }
+
       throw error;
     }
 
@@ -2481,6 +2532,7 @@ async function handleTradeTick(req, res, next) {
   try {
     const db = await getDb();
     const id = cleanText(req.params.id, 100);
+    const requestId = cleanText(req.body?.requestId || "", 120);
     let trade = await db.collection("trades").findOne({ id, email: req.user.email });
     if (!trade) throw httpError(404, "Trade was not found.");
 
@@ -2490,6 +2542,24 @@ async function handleTradeTick(req, res, next) {
     }
 
     const totalTicks = Math.min(10, Math.max(1, Number(trade.ticks || 1)));
+
+    if (requestId && trade.lastTickRequestId === requestId) {
+      const consumed = Math.max(0, Number(trade.ticksConsumed || 0));
+      const remainingTicks = Math.max(0, totalTicks - consumed);
+      return res.json({
+        ok: true,
+        settled: false,
+        replayed: true,
+        digit: Number(trade.lastTickDigit),
+        currentPrice: Number(trade.currentPrice || trade.entryPrice || 0),
+        touched: Boolean(trade.touched),
+        remainingTicks,
+        totalTicks,
+        trade: publicTrade(trade),
+        message: `${remainingTicks} tick${remainingTicks === 1 ? "" : "s"} remaining.`,
+      });
+    }
+
     const previousPrice = Number(trade.currentPrice || trade.entryPrice || 1);
     const movementUnit = Math.max(0.000001, Number(trade.marketStep || 0.0002));
     const randomFactor = crypto.randomInt(-1000, 1001) / 1000;
@@ -2499,9 +2569,17 @@ async function handleTradeTick(req, res, next) {
     const crossedBarrier = barrier > 0 && ((previousPrice <= barrier && nextPrice >= barrier) || (previousPrice >= barrier && nextPrice <= barrier));
     const touched = Boolean(trade.touched || crossedBarrier);
 
+    const tickSet = {
+      lastTickDigit: digit,
+      currentPrice: nextPrice,
+      touched,
+      updatedAt: nowIso(),
+      ...(requestId ? { lastTickRequestId: requestId } : {}),
+    };
+
     const advanced = await db.collection("trades").findOneAndUpdate(
       { _id: trade._id, status: "RUNNING", $or: [{ ticksConsumed: { $exists: false } }, { ticksConsumed: { $lt: totalTicks } }] },
-      { $inc: { ticksConsumed: 1 }, $set: { lastTickDigit: digit, currentPrice: nextPrice, touched, updatedAt: nowIso() } },
+      { $inc: { ticksConsumed: 1 }, $set: tickSet },
       { returnDocument: "after" }
     );
 
