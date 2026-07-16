@@ -34668,3 +34668,195 @@ body,
     font-size: 9px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V47 — TRUE SAME-PAGE MOBILE NORMALIZATION
+   - Removes the 430px mobile content cap that made wide-CSS phones show a
+     miniature centered trading page.
+   - Uses width-based sizing instead of viewport-height sizing, so tall and
+     short phones keep the same proportions.
+   - Restores bottom safe space for the fixed navigation so trade buttons are
+     never covered.
+   - Keeps the existing trade, payment, bot and AI drag logic unchanged.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app.activePage-trade {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    padding: 5px 0 calc(var(--mb-v20-nav, 72px) + env(safe-area-inset-bottom, 0px) + 22px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 7px clamp(8px, 2.2vw, 14px) 12px !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  /* Contract strip and market selector stay the same physical rhythm on all phones. */
+  .app.activePage-trade .finalBinaryTradePage .finalContractTabs {
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 4px !important;
+    gap: 5px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalContractTabs > button {
+    flex: 0 0 clamp(105px, 29vw, 128px) !important;
+    min-width: 105px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: clamp(10px, 3vw, 12px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .volatilitySwitchButton {
+    min-height: 68px !important;
+    height: 68px !important;
+  }
+
+  /* Width-based digit panel: no dvh growth on tall phones and no shrinking on short phones. */
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 1.72 / 1 !important;
+    max-height: 330px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: clamp(14px, 3.6vw, 20px) clamp(7px, 2vw, 12px) clamp(17px, 4vw, 23px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(50px, 15.2vw, 66px) !important;
+    --mb-v23-row-height: clamp(66px, 19vw, 82px) !important;
+    width: 100% !important;
+    max-width: none !important;
+    row-gap: clamp(13px, 4vw, 21px) !important;
+    column-gap: clamp(3px, 1.5vw, 9px) !important;
+  }
+
+  /* Stable controls independent of viewport height. */
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryOrderCard,
+  .app.activePage-trade .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    width: 100% !important;
+    margin: 0 !important;
+    gap: 10px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalOrderInputs,
+  .app.activePage-trade .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 148px !important;
+    padding: 9px 10px 10px !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalTicksControl,
+  .app.activePage-trade .finalBinaryTradePage .finalStakeControl {
+    min-height: 126px !important;
+    height: auto !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 30px) !important;
+    gap: 5px !important;
+    min-height: 65px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 3px !important;
+    font-size: clamp(9px, 2.8vw, 11px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(1),
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(2),
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(3) {
+    grid-column: span 2 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(4),
+  .app.activePage-trade .finalBinaryTradePage .quickStakeRow.quickStakeRowV44 > button:nth-child(5) {
+    grid-column: span 3 !important;
+  }
+
+  /* The action row has one stable size and always scrolls fully above the fixed nav. */
+  .app.activePage-trade .finalBinaryTradePage .finalTradeButtons,
+  .app.activePage-trade .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    width: 100% !important;
+    margin: 12px 0 0 !important;
+    padding: 0 4px !important;
+    gap: clamp(9px, 2.5vw, 12px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalTradeButtons > button {
+    height: 118px !important;
+    min-height: 118px !important;
+    max-height: 118px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalTradeButtons strong {
+    font-size: clamp(31px, 9vw, 40px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .tradePayoutText {
+    font-size: clamp(10px, 3vw, 12px) !important;
+  }
+}
+
+/* Narrow phones keep the same geometry; only the controls tighten slightly. */
+@media (max-width: 370px) {
+  .app.activePage-trade .finalBinaryTradePage {
+    padding-inline: 7px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
+    aspect-ratio: 1.66 / 1 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalOrderInputs,
+  .app.activePage-trade .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    padding-inline: 7px !important;
+    gap: 7px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalTradeButtons > button {
+    height: 112px !important;
+    min-height: 112px !important;
+    max-height: 112px !important;
+  }
+}
