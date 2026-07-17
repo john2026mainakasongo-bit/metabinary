@@ -5928,7 +5928,11 @@ function LineChart({ data = [], anchorValue = null }) {
   const rawMin = Math.min(...safeValues);
   const rawMax = Math.max(...safeValues);
   const numericAnchor = Number(anchorValue);
-  const hasAnchor = Number.isFinite(numericAnchor);
+  const hasAnchor =
+    anchorValue !== null &&
+    anchorValue !== undefined &&
+    anchorValue !== "" &&
+    Number.isFinite(numericAnchor);
 
   let min = rawMin;
   let max = rawMax;
@@ -5946,10 +5950,15 @@ function LineChart({ data = [], anchorValue = null }) {
     min = numericAnchor - halfRange;
     max = numericAnchor + halfRange;
   } else {
-    // Leave breathing room above and below the chart so the live line never
-    // disappears against the top or bottom edge.
-    const rawRange = rawMax - rawMin || Math.max(Math.abs(rawMax), 1) * 0.001;
-    const padding = rawRange * 0.18;
+    // Before a Rise/Fall trade starts there is no entry anchor. Auto-fit the
+    // live history itself so the user can still clearly see the green line
+    // moving instead of compressing it against the top of the chart.
+    const rawRange = rawMax - rawMin;
+    const visibleRange =
+      rawRange > 0.000001
+        ? rawRange
+        : Math.max(Math.abs((rawMin + rawMax) / 2) * 0.00005, 0.01);
+    const padding = visibleRange * 0.24;
     min = rawMin - padding;
     max = rawMax + padding;
   }
