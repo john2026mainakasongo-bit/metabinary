@@ -6155,7 +6155,7 @@ function TradePage({
     });
 
   return (
-    <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"}`}>
+    <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"} ${touchMode ? "touchContractPage" : ""} ${riseMode ? "riseContractPage" : ""}`.trim()}>
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
