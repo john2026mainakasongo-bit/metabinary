@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-mobile-trade-fit-v52-2026-07-17";
+const FRONTEND_BUILD = "metabinary-trade-chart-v60-2026-07-17";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -5913,7 +5913,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [] }) {
+function LineChart({ data = [], anchorValue = null }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -5925,14 +5925,46 @@ function LineChart({ data = [] }) {
       ? [values[0], values[0]]
       : [0, 0];
 
-  const min = Math.min(...safeValues);
-  const max = Math.max(...safeValues);
+  const rawMin = Math.min(...safeValues);
+  const rawMax = Math.max(...safeValues);
+  const numericAnchor = Number(anchorValue);
+  const hasAnchor = Number.isFinite(numericAnchor);
+
+  let min = rawMin;
+  let max = rawMax;
+
+  if (hasAnchor) {
+    // Keep the Rise/Fall entry level in the visual centre of the chart.
+    // The live price can then travel clearly above or below the entry line.
+    const largestDistance = Math.max(
+      ...safeValues.map((value) => Math.abs(value - numericAnchor)),
+      Math.abs(rawMax - rawMin) / 2,
+      Math.abs(numericAnchor || 1) * 0.00015,
+      0.000001
+    );
+    const halfRange = largestDistance * 1.35;
+    min = numericAnchor - halfRange;
+    max = numericAnchor + halfRange;
+  } else {
+    // Leave breathing room above and below the chart so the live line never
+    // disappears against the top or bottom edge.
+    const rawRange = rawMax - rawMin || Math.max(Math.abs(rawMax), 1) * 0.001;
+    const padding = rawRange * 0.18;
+    min = rawMin - padding;
+    max = rawMax + padding;
+  }
+
   const range = max - min || 1;
+  const chartTop = 10;
+  const chartBottom = 90;
+  const chartLeft = 2;
+  const chartRight = 98;
 
   const points = safeValues.map((value, index) => {
-    const x = (index / Math.max(1, safeValues.length - 1)) * 100;
-    const y = 88 - ((value - min) / range) * 70;
-    return [x, y];
+    const progress = index / Math.max(1, safeValues.length - 1);
+    const x = chartLeft + progress * (chartRight - chartLeft);
+    const y = chartBottom - ((value - min) / range) * (chartBottom - chartTop);
+    return [x, Math.max(chartTop, Math.min(chartBottom, y))];
   });
 
   const linePath = points
@@ -5941,7 +5973,7 @@ function LineChart({ data = [] }) {
     )
     .join(" ");
 
-  const areaPath = `${linePath} L100,100 L0,100 Z`;
+  const areaPath = `${linePath} L${chartRight},100 L${chartLeft},100 Z`;
 
   return (
     <div className="lineChart" aria-hidden="true">
@@ -6152,10 +6184,17 @@ function TradePage({
         <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
           <div className="proChartCanvas">
-            <LineChart data={prices.map((value) => value * Number(binaryMarket?.scale || 800))} />
+            <LineChart
+              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+              anchorValue={
+                riseMode && activeBinaryTrade
+                  ? activeTradeEntry * Number(binaryMarket?.scale || 800)
+                  : null
+              }
+            />
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
-            {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
+            {riseMode && activeBinaryTrade && <div className="entryPriceLine"><span>Entry {(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
             {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
             {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
           </div>

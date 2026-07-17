@@ -38551,3 +38551,113 @@ body,
     --mb-v58-cell-size: clamp(56px, 16.8vw, 62px);
   }
 }
+
+
+/* ========================================================================== 
+   METABINARY V60 — CLEAN RISE/FALL MOBILE CHART
+   Trade page only.
+   - Removes the explanatory sentence/status rows below the price chart.
+   - Gives the chart the full middle card height.
+   - Keeps the Rise/Fall entry line exactly through the chart centre.
+   - Leaves a small edge buffer so the moving price line never disappears.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceContractInfoPanel,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceContractLiveLine,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalChartToolRow,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartTitle {
+    display: none !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartCard.priceOnlyCard,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) 22px !important;
+    align-content: stretch !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartArea,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceOnlyCard .proChartArea {
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceScale {
+    min-width: 0 !important;
+    padding: 6px 0 5px 1px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .proChartCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .proChartCanvas .lineChart,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .proChartCanvas .lineChart svg {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    inset: 0 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .entryPriceLine {
+    top: 50% !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 30 !important;
+    border-top-width: 1px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .entryPriceLine span {
+    right: 8px !important;
+    top: -11px !important;
+    max-width: calc(100% - 16px) !important;
+    font-size: 8px !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalChartTimeRow {
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    margin: 0 !important;
+    padding: 0 7px 0 47px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalChartTimeRow span:nth-child(even) {
+    display: none !important;
+  }
+}
