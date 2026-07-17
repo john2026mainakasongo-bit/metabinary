@@ -38458,9 +38458,8 @@ body,
 }
 
 
-
 /* ========================================================================== 
-   METABINARY V66 — RESTORED EXACT DIGIT PLACEMENT
+   METABINARY V58 — EXACT REFERENCE DIGIT PLACEMENT
    Trade page only.
    Uses the full digit card itself as the positioning surface so older grid
    sizing rules cannot bunch the digits to the left. The five columns are
@@ -38553,123 +38552,119 @@ body,
   }
 }
 
+
 /* ========================================================================== 
-   METABINARY V65 — TOUCH / NO TOUCH MOBILE CONTROLS ONLY
-   Scope: Touch/No Touch page only. Other contract pages are untouched.
-   Keeps Barrier direction and Barrier distance fully visible above Ticks/Amount.
+   METABINARY V60 — CLEAN RISE/FALL MOBILE CHART
+   Trade page only.
+   - Removes the explanatory sentence/status rows below the price chart.
+   - Gives the chart the full middle card height.
+   - Keeps the Rise/Fall entry line exactly through the chart centre.
+   - Leaves a small edge buffer so the moving price line never disappears.
    ========================================================================== */
 @media (max-width: 760px) {
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage {
-    grid-template-rows:
-      38px
-      52px
-      minmax(0, 1fr)
-      clamp(220px, 31dvh, 238px) !important;
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceContractInfoPanel,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceContractLiveLine,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalChartToolRow,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartTitle {
+    display: none !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .finalBinaryOrderCard,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .proBinaryOrderCard.finalBinaryOrderCard {
-    grid-template-rows:
-      54px
-      minmax(72px, 1fr)
-      clamp(76px, 12.5dvh, 88px) !important;
-    gap: 5px !important;
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartCard.priceOnlyCard,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartCard {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) 22px !important;
+    align-content: stretch !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
     overflow: hidden !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow {
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalBinaryChartArea,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceOnlyCard .proChartArea {
+    grid-row: 1 !important;
     width: 100% !important;
-    min-width: 0 !important;
-    height: 54px !important;
-    min-height: 54px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    gap: 7px !important;
-    align-items: end !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    gap: 3px !important;
     overflow: hidden !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow label {
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .priceScale {
     min-width: 0 !important;
-    height: 54px !important;
-    display: grid !important;
-    grid-template-rows: 12px 38px !important;
-    gap: 4px !important;
-    margin: 0 !important;
+    padding: 6px 0 5px 1px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
     overflow: hidden !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow label > span {
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .proChartCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
     margin: 0 !important;
-    font-size: 9px !important;
-    line-height: 12px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .proChartCanvas .lineChart,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .proChartCanvas .lineChart svg {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    inset: 0 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .entryPriceLine {
+    top: 50% !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 30 !important;
+    border-top-width: 1px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .entryPriceLine span {
+    right: 8px !important;
+    top: -11px !important;
+    max-width: calc(100% - 16px) !important;
+    font-size: 8px !important;
     white-space: nowrap !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow select,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow label > div,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow input,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow button {
-    height: 38px !important;
-    min-height: 38px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow select {
-    min-width: 0 !important;
-    padding: 0 7px !important;
-    font-size: 10px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow label > div {
-    min-width: 0 !important;
-    grid-template-columns: 34px minmax(0, 1fr) 34px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow input {
-    min-width: 0 !important;
-    padding: 0 4px !important;
-    font-size: 11px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow button {
-    width: 34px !important;
-    min-width: 34px !important;
-    padding: 0 !important;
-    font-size: 17px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .finalOrderInputs,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .orderInputsTop.finalOrderInputs {
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalChartTimeRow {
     grid-row: 2 !important;
-    min-height: 72px !important;
+    width: 100% !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    margin: 0 !important;
+    padding: 0 7px 0 47px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
     overflow: hidden !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .finalTradeButtons,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .proTradeButtons.finalTradeButtons {
-    grid-row: 3 !important;
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage .finalChartTimeRow span:nth-child(even) {
+    display: none !important;
   }
 }
 
-@media (max-width: 760px) and (max-height: 620px) {
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage {
-    grid-template-rows:
-      34px
-      48px
-      minmax(0, 1fr)
-      208px !important;
-  }
 
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .finalBinaryOrderCard,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .proBinaryOrderCard.finalBinaryOrderCard {
-    grid-template-rows: 50px minmax(68px, 1fr) 70px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow,
-  .app.activePage-trade .finalBinaryTradePage.touchContractPage .barrierControlRow label {
-    height: 50px !important;
-    min-height: 50px !important;
-  }
+/* METABINARY V67 — Touch/No Touch removed; Rise/Fall remains on restored V60 chart layout. */
+.app.activePage-trade .finalBinaryTradePage .barrierControlRow,
+.app.activePage-trade .finalBinaryTradePage .barrierPriceLine {
+  display: none !important;
 }
