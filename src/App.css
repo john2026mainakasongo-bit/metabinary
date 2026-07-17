@@ -38630,3 +38630,93 @@ body,
     row-gap: clamp(16px, 2.8dvh, 26px) !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V56 — EVEN DIGIT SPACING + TRUE BELOW-DIGIT CURSOR
+   Trade page only.
+   - Gives every digit its own equal horizontal column so the circles never touch.
+   - Keeps equal space on the left and right sides of the card.
+   - Reserves vertical room under each circle for the live cursor.
+   - Uses the real mobile row gap in the cursor calculation, so row 5–9 cursors
+     stay below the selected circle instead of entering the circle.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    padding: 8px 10px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(56px, 15.8vw, 68px) !important;
+    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 20px) !important;
+    --mb-v56-row-gap: clamp(18px, 2.8dvh, 28px) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
+    column-gap: 0 !important;
+    row-gap: var(--mb-v56-row-gap) !important;
+    align-content: center !important;
+    align-items: center !important;
+    justify-items: center !important;
+    justify-content: stretch !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    width: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    max-width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+    max-height: var(--mb-v23-cell-size) !important;
+  }
+
+  /* Keep the ranked circles visually distinct without letting the enlarged
+     highest digit collide with the neighbouring digit. */
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) {
+    transform: scale(1.06) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
+    transform: scale(.96) !important;
+  }
+
+  /* Each column is exactly 20% wide, so the cursor remains centred under
+     digits 0–4 and 5–9. The row formula includes the actual V56 row gap. */
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    left: calc((var(--mb-active-col) + .5) * 20%) !important;
+    top: calc(
+      (var(--mb-active-row) * (var(--mb-v23-row-height) + var(--mb-v56-row-gap))) +
+      ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
+      var(--mb-v23-cell-size) + 5px
+    ) !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+    border-left: 6px solid transparent !important;
+    border-right: 6px solid transparent !important;
+    border-bottom: 9px solid #ff4a55 !important;
+    border-top: 0 !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    padding-inline: 8px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(52px, 15.4vw, 58px) !important;
+    --mb-v56-row-gap: clamp(16px, 2.5dvh, 22px) !important;
+  }
+}
