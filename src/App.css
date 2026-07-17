@@ -38457,3 +38457,67 @@ body,
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V53 — MOBILE DIGIT BOARD POSITION + FULL-SIZE FIX
+   Trade page only. Keeps the V52 compact header and no-scroll layout intact,
+   while making the 0–9 digit board use its card properly instead of floating
+   in a large empty middle area.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage {
+    grid-template-rows:
+      38px
+      52px
+      clamp(175px, 32dvh, 235px)
+      clamp(165px, 29dvh, 202px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    padding: 6px 6px 8px !important;
+    display: grid !important;
+    place-items: stretch !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(54px, min(16vw, 9dvh), 72px) !important;
+    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 18px) !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(var(--mb-v23-row-height), 1fr)) !important;
+    column-gap: 0 !important;
+    row-gap: 2px !important;
+    align-content: stretch !important;
+    align-items: center !important;
+    justify-items: center !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    width: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: clamp(20px, 6vw, 28px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    font-size: clamp(10px, 3.15vw, 13px) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    transform: scale(.9) !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(50px, 15.2vw, 58px) !important;
+  }
+}
