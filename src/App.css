@@ -38720,3 +38720,84 @@ body,
     --mb-v56-row-gap: clamp(16px, 2.5dvh, 22px) !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V57 — REFERENCE DIGIT BOARD SPACING
+   Trade page only.
+   Matches the requested reference: five evenly spaced circles per row,
+   balanced side margins, consistent circle size and cursor below the digit.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    padding: 8px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(52px, 14.5vw, 64px) !important;
+    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 18px) !important;
+    --mb-v57-row-gap: clamp(24px, 4.2dvh, 38px) !important;
+    box-sizing: border-box !important;
+    width: calc(100% - 28px) !important;
+    max-width: 680px !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
+    column-gap: 0 !important;
+    row-gap: var(--mb-v57-row-gap) !important;
+    align-content: center !important;
+    align-items: center !important;
+    justify-items: center !important;
+    justify-content: stretch !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    width: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    max-width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+    max-height: var(--mb-v23-cell-size) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* Reference layout keeps every circle the same outer size. */
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7),
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
+    transform: none !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    left: calc((var(--mb-active-col) + .5) * 20%) !important;
+    top: calc(
+      (var(--mb-active-row) * (var(--mb-v23-row-height) + var(--mb-v57-row-gap))) +
+      ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
+      var(--mb-v23-cell-size) + 6px
+    ) !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+    border-left: 6px solid transparent !important;
+    border-right: 6px solid transparent !important;
+    border-bottom: 9px solid #ff4a55 !important;
+    border-top: 0 !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(50px, 14.2vw, 55px) !important;
+    --mb-v57-row-gap: clamp(20px, 3.5dvh, 30px) !important;
+    width: calc(100% - 22px) !important;
+  }
+}
