@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-trade-resilience-v51-2026-07-16";
+const FRONTEND_BUILD = "metabinary-mobile-trade-fit-v52-2026-07-17";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -4654,7 +4654,16 @@ function Header({
 
   return (
     <header className="topHeader brokerTopHeader cleanBrokerHeader">
-      <button className="menuBtn brokerMenuBtn" onClick={openMenu} aria-label="Open menu">
+      <button
+        className="menuBtn brokerMenuBtn"
+        onClick={() => {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("metabinary:close-trade-overlays"));
+          }
+          openMenu();
+        }}
+        aria-label="Open menu"
+      >
         <span></span>
         <span></span>
         <span></span>
@@ -5980,6 +5989,17 @@ function TradePage({
   useEffect(() => {
     if (activeBinaryTrade) setMarketMenuOpen(false);
   }, [activeBinaryTrade]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const closeTradeOverlays = () => setMarketMenuOpen(false);
+    window.addEventListener("metabinary:close-trade-overlays", closeTradeOverlays);
+
+    return () => {
+      window.removeEventListener("metabinary:close-trade-overlays", closeTradeOverlays);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || window.innerWidth > 760) return;
