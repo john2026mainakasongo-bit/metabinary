@@ -38458,346 +38458,96 @@ body,
 }
 
 
-/* ==========================================================================
-   METABINARY V53 — MOBILE DIGIT BOARD POSITION + FULL-SIZE FIX
-   Trade page only. Keeps the V52 compact header and no-scroll layout intact,
-   while making the 0–9 digit board use its card properly instead of floating
-   in a large empty middle area.
-   ========================================================================== */
-@media (max-width: 760px) {
-  .app.activePage-trade .finalBinaryTradePage,
-  .app.activePage-trade .finalBinaryTradePage.digitContractPage {
-    grid-template-rows:
-      38px
-      52px
-      clamp(175px, 32dvh, 235px)
-      clamp(165px, 29dvh, 202px) !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
-    padding: 6px 6px 8px !important;
-    display: grid !important;
-    place-items: stretch !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(54px, min(16vw, 9dvh), 72px) !important;
-    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 18px) !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    grid-template-rows: repeat(2, minmax(var(--mb-v23-row-height), 1fr)) !important;
-    column-gap: 0 !important;
-    row-gap: 2px !important;
-    align-content: stretch !important;
-    align-items: center !important;
-    justify-items: center !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
-    width: var(--mb-v23-cell-size) !important;
-    min-width: var(--mb-v23-cell-size) !important;
-    height: var(--mb-v23-cell-size) !important;
-    min-height: var(--mb-v23-cell-size) !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
-    font-size: clamp(20px, 6vw, 28px) !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
-    font-size: clamp(10px, 3.15vw, 13px) !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
-    transform: scale(.9) !important;
-  }
-}
-
-@media (max-width: 370px) {
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(50px, 15.2vw, 58px) !important;
-  }
-}
-
-/* ==========================================================================
-   METABINARY V54 — FULL-HEIGHT MOBILE TRADE LAYOUT
-   Trade page only. The digit panel now takes the remaining available height
-   so the ODD/EVEN section sits directly above the bottom navigation instead
-   of leaving a large empty block underneath the trade buttons.
-   ========================================================================== */
-@media (max-width: 760px) {
-  .app.activePage-trade .finalBinaryTradePage,
-  .app.activePage-trade .finalBinaryTradePage.digitContractPage {
-    grid-template-rows:
-      38px
-      52px
-      minmax(175px, 1fr)
-      clamp(165px, 29dvh, 202px) !important;
-    align-content: stretch !important;
-  }
-
-  /* Let the digit card expand naturally into the free vertical space. */
-  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard,
-  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
-    min-height: 175px !important;
-    height: 100% !important;
-  }
-
-  /* Keep all ten digits large while distributing the two rows through the
-     complete card, instead of bunching them at the top or centre. */
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
-    height: 100% !important;
-    padding: 8px 6px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
-    align-content: stretch !important;
-    align-items: center !important;
-    justify-items: center !important;
-    row-gap: 0 !important;
-  }
-
-  /* The order/trade card remains the final row and therefore stays directly
-     above the navigation at every supported phone height. */
-  .app.activePage-trade .finalBinaryTradePage .finalBinaryOrderCard,
-  .app.activePage-trade .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
-    align-self: stretch !important;
-    margin-bottom: 0 !important;
-  }
-}
-
 /* ========================================================================== 
-   METABINARY V55 — BALANCED FULL DIGIT BOARD
-   Trade page only. Keeps all ten circles fully visible and large, but stops
-   the two digit rows from being stretched to opposite ends of a tall card.
-   The card can still absorb the spare screen height so the page remains
-   no-scroll and the trade buttons stay directly above the bottom navigation.
+   METABINARY V58 — EXACT REFERENCE DIGIT PLACEMENT
+   Trade page only.
+   Uses the full digit card itself as the positioning surface so older grid
+   sizing rules cannot bunch the digits to the left. The five columns are
+   fixed at 12%, 31%, 50%, 69% and 88%, matching the reference spacing.
    ========================================================================== */
 @media (max-width: 760px) {
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
-    display: grid !important;
-    place-items: center !important;
+    --mb-v58-cell-size: clamp(60px, 17.5vw, 72px);
+    position: relative !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
-    padding: 10px 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
     overflow: hidden !important;
   }
 
+  /* The grid no longer decides horizontal spacing. It only remains as the
+     semantic wrapper; each digit is positioned against the full card width. */
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(62px, 17vw, 76px) !important;
-    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 12px) !important;
+    position: static !important;
+    box-sizing: border-box !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
-    column-gap: 0 !important;
-    row-gap: clamp(18px, 3.2dvh, 34px) !important;
-    align-content: center !important;
-    align-items: center !important;
-    justify-items: center !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
   }
 
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
-    width: var(--mb-v23-cell-size) !important;
-    min-width: var(--mb-v23-cell-size) !important;
-    height: var(--mb-v23-cell-size) !important;
-    min-height: var(--mb-v23-cell-size) !important;
+    position: absolute !important;
+    left: var(--mb-v58-digit-left) !important;
+    top: var(--mb-v58-digit-top) !important;
+    width: var(--mb-v58-cell-size) !important;
+    min-width: var(--mb-v58-cell-size) !important;
+    max-width: var(--mb-v58-cell-size) !important;
+    height: var(--mb-v58-cell-size) !important;
+    min-height: var(--mb-v58-cell-size) !important;
+    max-height: var(--mb-v58-cell-size) !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  /* Keep the same outer diameter for every statistic, like the reference. */
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7),
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
+    transform: translate(-50%, -50%) !important;
   }
 
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
-    font-size: clamp(25px, 7.4vw, 34px) !important;
-    line-height: .92 !important;
+    font-size: clamp(25px, 7.2vw, 32px) !important;
+    line-height: .94 !important;
   }
 
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
     font-size: clamp(11px, 3.3vw, 14px) !important;
-  }
-}
-
-@media (max-width: 370px) {
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(54px, 16.4vw, 62px) !important;
-    row-gap: clamp(16px, 2.8dvh, 26px) !important;
-  }
-}
-
-/* ========================================================================== 
-   METABINARY V56 — EVEN DIGIT SPACING + TRUE BELOW-DIGIT CURSOR
-   Trade page only.
-   - Gives every digit its own equal horizontal column so the circles never touch.
-   - Keeps equal space on the left and right sides of the card.
-   - Reserves vertical room under each circle for the live cursor.
-   - Uses the real mobile row gap in the cursor calculation, so row 5–9 cursors
-     stay below the selected circle instead of entering the circle.
-   ========================================================================== */
-@media (max-width: 760px) {
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
-    padding: 8px 10px !important;
-    overflow: hidden !important;
+    line-height: 1 !important;
   }
 
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(56px, 15.8vw, 68px) !important;
-    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 20px) !important;
-    --mb-v56-row-gap: clamp(18px, 2.8dvh, 28px) !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
-    column-gap: 0 !important;
-    row-gap: var(--mb-v56-row-gap) !important;
-    align-content: center !important;
-    align-items: center !important;
-    justify-items: center !important;
-    justify-content: stretch !important;
-    overflow: visible !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
-    width: var(--mb-v23-cell-size) !important;
-    min-width: var(--mb-v23-cell-size) !important;
-    max-width: var(--mb-v23-cell-size) !important;
-    height: var(--mb-v23-cell-size) !important;
-    min-height: var(--mb-v23-cell-size) !important;
-    max-height: var(--mb-v23-cell-size) !important;
-  }
-
-  /* Keep the ranked circles visually distinct without letting the enlarged
-     highest digit collide with the neighbouring digit. */
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) {
-    transform: scale(1.06) !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
-    transform: scale(.96) !important;
-  }
-
-  /* Each column is exactly 20% wide, so the cursor remains centred under
-     digits 0–4 and 5–9. The row formula includes the actual V56 row gap. */
+  /* Cursor is positioned from the exact same row/column coordinates and sits
+     below the ring instead of entering it. */
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
-    left: calc((var(--mb-active-col) + .5) * 20%) !important;
-    top: calc(
-      (var(--mb-active-row) * (var(--mb-v23-row-height) + var(--mb-v56-row-gap))) +
-      ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
-      var(--mb-v23-cell-size) + 5px
-    ) !important;
+    position: absolute !important;
+    left: var(--mb-v58-cursor-left) !important;
+    top: calc(var(--mb-v58-cursor-top) + (var(--mb-v58-cell-size) / 2) + 8px) !important;
     bottom: auto !important;
+    width: 0 !important;
+    height: 0 !important;
     margin: 0 !important;
     transform: translateX(-50%) !important;
-    border-left: 6px solid transparent !important;
-    border-right: 6px solid transparent !important;
-    border-bottom: 9px solid #ff4a55 !important;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid transparent !important;
+    border-bottom: 10px solid #ff4a55 !important;
     border-top: 0 !important;
-    z-index: 20 !important;
+    z-index: 40 !important;
     pointer-events: none !important;
   }
 }
 
 @media (max-width: 370px) {
   .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
-    padding-inline: 8px !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(52px, 15.4vw, 58px) !important;
-    --mb-v56-row-gap: clamp(16px, 2.5dvh, 22px) !important;
-  }
-}
-
-/* ========================================================================== 
-   METABINARY V57 — REFERENCE DIGIT BOARD SPACING
-   Trade page only.
-   Matches the requested reference: five evenly spaced circles per row,
-   balanced side margins, consistent circle size and cursor below the digit.
-   ========================================================================== */
-@media (max-width: 760px) {
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
-    padding: 8px 0 !important;
-    overflow: hidden !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(52px, 14.5vw, 64px) !important;
-    --mb-v23-row-height: calc(var(--mb-v23-cell-size) + 18px) !important;
-    --mb-v57-row-gap: clamp(24px, 4.2dvh, 38px) !important;
-    box-sizing: border-box !important;
-    width: calc(100% - 28px) !important;
-    max-width: 680px !important;
-    min-width: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    display: grid !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
-    column-gap: 0 !important;
-    row-gap: var(--mb-v57-row-gap) !important;
-    align-content: center !important;
-    align-items: center !important;
-    justify-items: center !important;
-    justify-content: stretch !important;
-    overflow: visible !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
-    width: var(--mb-v23-cell-size) !important;
-    min-width: var(--mb-v23-cell-size) !important;
-    max-width: var(--mb-v23-cell-size) !important;
-    height: var(--mb-v23-cell-size) !important;
-    min-height: var(--mb-v23-cell-size) !important;
-    max-height: var(--mb-v23-cell-size) !important;
-    margin: 0 !important;
-    transform: none !important;
-  }
-
-  /* Reference layout keeps every circle the same outer size. */
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7),
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) {
-    transform: none !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
-    left: calc((var(--mb-active-col) + .5) * 20%) !important;
-    top: calc(
-      (var(--mb-active-row) * (var(--mb-v23-row-height) + var(--mb-v57-row-gap))) +
-      ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
-      var(--mb-v23-cell-size) + 6px
-    ) !important;
-    bottom: auto !important;
-    margin: 0 !important;
-    transform: translateX(-50%) !important;
-    border-left: 6px solid transparent !important;
-    border-right: 6px solid transparent !important;
-    border-bottom: 9px solid #ff4a55 !important;
-    border-top: 0 !important;
-    z-index: 20 !important;
-    pointer-events: none !important;
-  }
-}
-
-@media (max-width: 370px) {
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
-    --mb-v23-cell-size: clamp(50px, 14.2vw, 55px) !important;
-    --mb-v57-row-gap: clamp(20px, 3.5dvh, 30px) !important;
-    width: calc(100% - 22px) !important;
+    --mb-v58-cell-size: clamp(56px, 16.8vw, 62px);
   }
 }
