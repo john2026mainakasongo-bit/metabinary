@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-over-under-fast-tick-v68-2026-07-17";
+const FRONTEND_BUILD = "metabinary-stable-digits-normal-tick-speed-v69-2026-07-17";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -382,20 +382,6 @@ const BOT_TEMPLATES = [
     duration: 5,
     status: "Ready",
   },
-  {
-    id: "ai-vanguard",
-    code: "VG",
-    name: "AI Vanguard",
-    type: "Touch/No Touch",
-    market: "Volatility 25 (1s) Index",
-    marketShort: "V25 1s",
-    engine: "Adaptive Recovery",
-    risk: "High",
-    description: "Combines entry filtering, controlled recovery steps and session risk limits.",
-    stake: 1,
-    duration: 5,
-    status: "Ready",
-  },
 ];
 
 const PUBLIC_ENTRY_KEY = "metabinary_public_entry_page";
@@ -431,7 +417,7 @@ function defaultBotAction(type) {
   if (type === "Matches/Differs") return "Differs";
   if (type === "Over/Under") return "Over";
   if (type === "Rise/Fall") return "Rise";
-  return "No Touch";
+  return "Rise";
 }
 
 function createBotConfig(bot = BOT_TEMPLATES[0]) {
@@ -1169,9 +1155,16 @@ function TradingApp() {
   const [duration, setDuration] = useState(5);
   const [prediction, setPrediction] = useState(2);
   const lastDigit = Number(activeBinaryState.lastDigit || 0);
-  const digitStats = Array.isArray(activeBinaryState.digitStats)
+  // Always keep all ten digit statistics available for digit contracts.
+  // This prevents Matches/Differs or Over/Under from collapsing to a single
+  // digit if a temporary market update contains an incomplete stats array.
+  const storedDigitStats = Array.isArray(activeBinaryState.digitStats)
     ? activeBinaryState.digitStats
     : makeInitialDigitStats();
+  const digitStats = Array.from({ length: 10 }, (_, digit) => {
+    const value = Number(storedDigitStats[digit]);
+    return Number.isFinite(value) ? value : 10;
+  });
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
   const activeBinaryTradeRef = useRef(null);
@@ -1715,11 +1708,16 @@ function TradingApp() {
     let consecutiveTickFailures = 0;
     let pendingTickRequestId = "";
     const openTrade = { ...activeBinaryTrade };
-    const isFastOverUnderTrade = openTrade.type === "Over/Under";
-    const tradeTickDelay = isFastOverUnderTrade
-      ? 180
-      : Math.max(250, Number(openTrade.tickMs || DIGIT_TICK_MS));
-    const initialTickDelay = isFastOverUnderTrade ? 0 : DIGIT_TICK_MS;
+    const tradeTickDelay = Math.max(250, Number(openTrade.tickMs || DIGIT_TICK_MS));
+    const totalTradeTicks = Math.max(
+      1,
+      Number(openTrade.totalTicks || openTrade.remainingTicks || 1)
+    );
+    // Only a 1-tick Over/Under trade fires immediately. Other contracts keep
+    // their normal market-tick cadence instead of being globally accelerated.
+    const instantOneTickOverUnder =
+      openTrade.type === "Over/Under" && totalTradeTicks === 1;
+    const initialTickDelay = instantOneTickOverUnder ? 0 : tradeTickDelay;
     let localRemainingTicks = Math.max(
       1,
       Number(openTrade.remainingTicks || openTrade.totalTicks || 1)
@@ -1811,6 +1809,7 @@ function TradingApp() {
     const runTick = async () => {
       if (cancelled || requestBusy) return;
       requestBusy = true;
+      const tickStartedAt = Date.now();
 
       try {
         if (localCompatibilityMode) {
@@ -1855,7 +1854,11 @@ function TradingApp() {
           return;
         }
 
-        schedule(tradeTickDelay);
+        // Keep the visible tick rhythm close to the normal market speed.
+        // Network request time is deducted so clicking Odd/Even does not make
+        // the digits progressively slower than the live 1-second feed.
+        const requestElapsedMs = Date.now() - tickStartedAt;
+        schedule(Math.max(80, tradeTickDelay - requestElapsedMs));
       } catch (error) {
         if (cancelled) return;
         console.error("Trade tick interrupted:", error);
@@ -2749,7 +2752,7 @@ function TradingApp() {
     if (type === "Matches/Differs") return ["Matches", "Differs"];
     if (type === "Over/Under") return ["Over", "Under"];
     if (type === "Rise/Fall") return ["Rise", "Fall"];
-    return ["Touch", "No Touch"];
+    return ["Rise", "Fall"];
   }
 
   function payoutRate(type, action, predictionValue = prediction, options = {}) {
@@ -3502,10 +3505,7 @@ function TradingApp() {
             ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
             entryPrice: livePriceRef.current,
             currentPrice: livePriceRef.current,
-            barrier:
-              bot.type === "Touch/No Touch"
-                ? Number((livePriceRef.current + Number(market.step || 0.0002) * 8).toFixed(6))
-                : 0,
+            barrier: 0,
             barrierDistance: 3,
             marketStep: Number(market.step || 0.0002),
             market: market.label,
@@ -4364,7 +4364,6 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
                 {[
                   ["AI Vortex", "Even / Odd", "Balanced"],
                   ["AI Vector", "Over / Under", "Low"],
-                  ["AI Vanguard", "Touch / No Touch", "High"],
                 ].map(([name, type, risk]) => (
                   <article key={name}><span>AI</span><div><strong>{name}</strong><small>{type} · {risk} risk</small></div><b>Ready</b></article>
                 ))}
@@ -4391,7 +4390,7 @@ function PublicLandingPage({ openLogin, openRegister, openExperience }) {
               <div className="publicExperienceIcon">↕</div>
               <span>MANUAL TRADER</span>
               <h3>Control every trade</h3>
-              <p>Trade Even/Odd, Matches/Differs, Over/Under, Rise/Fall and Touch/No Touch with live digit statistics.</p>
+              <p>Trade Even/Odd, Matches/Differs, Over/Under and Rise/Fall with live market statistics.</p>
               <ul><li>10 volatility markets</li><li>1–10 tick contracts</li><li>Demo and Real accounts</li></ul>
               <button type="button" onClick={() => openExperience("trade")}>Open Manual Trader <b>→</b></button>
             </article>
@@ -5917,7 +5916,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [] }) {
+function LineChart({ data = [], anchorValue = null }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -5929,14 +5928,59 @@ function LineChart({ data = [] }) {
       ? [values[0], values[0]]
       : [0, 0];
 
-  const min = Math.min(...safeValues);
-  const max = Math.max(...safeValues);
+  const rawMin = Math.min(...safeValues);
+  const rawMax = Math.max(...safeValues);
+  const numericAnchor = Number(anchorValue);
+  const hasAnchor =
+    anchorValue !== null &&
+    anchorValue !== undefined &&
+    anchorValue !== "" &&
+    Number.isFinite(numericAnchor);
+
+  let min = rawMin;
+  let max = rawMax;
+
+  if (hasAnchor) {
+    // Keep the Rise/Fall entry level in the visual centre of the chart.
+    // The live price can then travel clearly above or below the entry line.
+    const largestDistance = Math.max(
+      ...safeValues.map((value) => Math.abs(value - numericAnchor)),
+      Math.abs(rawMax - rawMin) / 2,
+      Math.abs(numericAnchor || 1) * 0.00015,
+      0.000001
+    );
+    const halfRange = largestDistance * 1.35;
+    min = numericAnchor - halfRange;
+    max = numericAnchor + halfRange;
+  } else {
+    // Before a Rise/Fall trade starts there is no entry anchor. Auto-fit the
+    // live history itself so the user can still clearly see the green line
+    // moving instead of compressing it against the top of the chart.
+    const rawRange = rawMax - rawMin;
+    const visibleRange =
+      rawRange > 0.000001
+        ? rawRange
+        : Math.max(Math.abs((rawMin + rawMax) / 2) * 0.00005, 0.01);
+    const padding = visibleRange * 0.24;
+    min = rawMin - padding;
+    max = rawMax + padding;
+  }
+
   const range = max - min || 1;
+  const chartTop = 10;
+  const chartBottom = 90;
+  const chartLeft = 2;
+
+  // Keep the newest live tick around the middle-right of the chart instead of
+  // pinning it to the far-right edge. The empty space on the right acts as the
+  // forward area, so the price action remains easy to watch as new ticks arrive.
+  const livePointX = 58;
 
   const points = safeValues.map((value, index) => {
-    const x = (index / Math.max(1, safeValues.length - 1)) * 100;
-    const y = 88 - ((value - min) / range) * 70;
-    return [x, y];
+    const progress = index / Math.max(1, safeValues.length - 1);
+    const x = chartLeft + progress * (livePointX - chartLeft);
+    const y = chartBottom - ((value - min) / range) * (chartBottom - chartTop);
+    return [x, Math.max(chartTop, Math.min(chartBottom, y))];
   });
 
   const linePath = points
@@ -5945,7 +5989,8 @@ function LineChart({ data = [] }) {
     )
     .join(" ");
 
-  const areaPath = `${linePath} L100,100 L0,100 Z`;
+  const lastPoint = points[points.length - 1] || [livePointX, chartBottom];
+  const areaPath = `${linePath} L${lastPoint[0].toFixed(2)},100 L${chartLeft},100 Z`;
 
   return (
     <div className="lineChart" aria-hidden="true">
@@ -5986,8 +6031,6 @@ function TradePage({
   volatilityOptions,
 }) {
   const [marketMenuOpen, setMarketMenuOpen] = useState(false);
-  const [barrierDirection, setBarrierDirection] = useState("above");
-  const [barrierDistance, setBarrierDistance] = useState(2);
   const contractTabRefs = useRef({});
 
   useEffect(() => {
@@ -6024,19 +6067,10 @@ function TradePage({
   const actions = actionsFor(tradeType);
   const digitMode = isDigitContract(tradeType);
   const riseMode = tradeType === "Rise/Fall";
-  const touchMode = tradeType === "Touch/No Touch";
   const indexValue = livePrice * Number(binaryMarket?.scale || 800);
   const priceStep = Number(binaryMarket?.priceStep || 2);
   const safeStake = Math.max(0, Number(stake) || 0);
-  const safeBarrierDistance = Math.max(0.5, Number(barrierDistance || 2));
-  const rawBarrier = Number(
-    (
-      livePrice +
-      (barrierDirection === "above" ? 1 : -1) *
-        (safeBarrierDistance / Number(binaryMarket?.scale || 800))
-    ).toFixed(6)
-  );
-  const payoutOptions = { ticks: duration, barrierDistance: safeBarrierDistance };
+  const payoutOptions = { ticks: duration };
   const rateOne = payoutRate(tradeType, actions[0], prediction, payoutOptions);
   const rateTwo = payoutRate(tradeType, actions[1], prediction, payoutOptions);
   const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
@@ -6047,11 +6081,7 @@ function TradePage({
     ? activeBinaryTrade.action === "Rise"
       ? activeTradeCurrent > activeTradeEntry
       : activeTradeCurrent < activeTradeEntry
-    : touchMode && activeBinaryTrade
-      ? activeBinaryTrade.action === "Touch"
-        ? Boolean(activeBinaryTrade.touched)
-        : !activeBinaryTrade.touched
-      : false;
+    : false;
   const activePotentialPayout = Number(activeBinaryTrade?.payout || 0);
   const activeStake = Number(activeBinaryTrade?.stake || safeStake || 0);
   const activePreviewNet = activePriceWinning
@@ -6099,17 +6129,13 @@ function TradePage({
     setStake((current) => Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2)));
   };
 
-  const placeContract = (action) =>
-    runBinaryTrade(tradeType, action, {
-      barrier: touchMode ? rawBarrier : 0,
-      barrierDistance: safeBarrierDistance,
-    });
+  const placeContract = (action) => runBinaryTrade(tradeType, action);
 
   return (
     <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"}`}>
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
-        {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => (
+        {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall"].map((type) => (
           <button
             key={type}
             ref={(node) => {
@@ -6156,11 +6182,17 @@ function TradePage({
         <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
           <div className="proChartCanvas">
-            <LineChart data={prices.map((value) => value * Number(binaryMarket?.scale || 800))} />
+            <LineChart
+              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+              anchorValue={
+                riseMode && activeBinaryTrade
+                  ? activeTradeEntry * Number(binaryMarket?.scale || 800)
+                  : null
+              }
+            />
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
-            {riseMode && <div className="entryPriceLine"><span>Entry {Number(activeBinaryTrade?.entryPrice ? activeBinaryTrade.entryPrice * Number(binaryMarket?.scale || 800) : indexValue).toFixed(2)}</span></div>}
-            {touchMode && <div className={`barrierPriceLine ${barrierDirection}`} style={{ top: barrierDirection === "above" ? "28%" : "72%" }}><span>Barrier {(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
+            {riseMode && activeBinaryTrade && <div className="entryPriceLine"><span>Entry {(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
             {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
           </div>
         </div>
@@ -6236,6 +6268,8 @@ function TradePage({
                     style={{
                       "--mb-v7-white-sweep": `${whiteSweep}deg`,
                       "--mb-v7-white-start": `${whiteStart}deg`,
+                      "--mb-v58-digit-left": `${12 + (digit % 5) * 19}%`,
+                      "--mb-v58-digit-top": digit < 5 ? "36%" : "64%",
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                   >
@@ -6247,18 +6281,17 @@ function TradePage({
                   </button>
                 );
               })}
-              <i className="singleDigitCursorV7" aria-hidden="true" />
+              <i
+                className="singleDigitCursorV7"
+                aria-hidden="true"
+                style={{
+                  "--mb-v58-cursor-left": `${12 + (lastDigit % 5) * 19}%`,
+                  "--mb-v58-cursor-top": lastDigit < 5 ? "36%" : "64%",
+                }}
+              />
             </div>
           </div>
-        ) : (
-          <div className="priceContractInfoPanel">
-            {riseMode ? (
-              <><span className="contractInfoIcon">↕</span><div><strong>Rise / Fall price contract</strong><small>The exit price is compared with the entry price after the selected ticks. Digit statistics are not used.</small></div><b>{activeBinaryTrade ? `${activeBinaryTrade.remainingTicks} ticks left` : "Ready"}</b></>
-            ) : (
-              <><span className="contractInfoIcon">◎</span><div><strong>Touch / No Touch barrier</strong><small>The contract watches whether the live price reaches the barrier before expiry.</small></div><b>{(rawBarrier * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></>
-            )}
-          </div>
-        )}
+        ) : null}
 
         {!digitMode && (
           <div className="chartToolRow finalChartToolRow"><button type="button">⌁</button><button type="button">▥</button><button type="button">▱</button><button type="button">⛶</button></div>
@@ -6266,12 +6299,6 @@ function TradePage({
       </section>
 
       <section className="proBinaryOrderCard finalBinaryOrderCard">
-        {touchMode && (
-          <div className="barrierControlRow">
-            <label><span>Barrier direction</span><select value={barrierDirection} onChange={(event) => setBarrierDirection(event.target.value)} disabled={Boolean(activeBinaryTrade)}><option value="above">Above current price</option><option value="below">Below current price</option></select></label>
-            <label><span>Barrier distance</span><div><button type="button" onClick={() => setBarrierDistance((value) => Math.max(0.5, Number(value) - 0.5))}>−</button><input type="number" min="0.5" step="0.5" value={barrierDistance} onChange={(event) => setBarrierDistance(Number(event.target.value))} /><button type="button" onClick={() => setBarrierDistance((value) => Number(value) + 0.5)}>+</button></div></label>
-          </div>
-        )}
         <div className="orderInputsTop finalOrderInputs">
           <label className="finalTicksControl">
             <span>Ticks</span>
@@ -6481,7 +6508,7 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
               update({ type, action: defaultBotAction(type) });
             }}
           >
-            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((type) => <option key={type}>{type}</option>)}
+            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall"].map((type) => <option key={type}>{type}</option>)}
           </select>
         </label>
 
