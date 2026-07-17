@@ -38521,3 +38521,55 @@ body,
     --mb-v23-cell-size: clamp(50px, 15.2vw, 58px) !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V54 — FULL-HEIGHT MOBILE TRADE LAYOUT
+   Trade page only. The digit panel now takes the remaining available height
+   so the ODD/EVEN section sits directly above the bottom navigation instead
+   of leaving a large empty block underneath the trade buttons.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage {
+    grid-template-rows:
+      38px
+      52px
+      minmax(175px, 1fr)
+      clamp(165px, 29dvh, 202px) !important;
+    align-content: stretch !important;
+  }
+
+  /* Let the digit card expand naturally into the free vertical space. */
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard,
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
+    min-height: 175px !important;
+    height: 100% !important;
+  }
+
+  /* Keep all ten digits large while distributing the two rows through the
+     complete card, instead of bunching them at the top or centre. */
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    height: 100% !important;
+    padding: 8px 6px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    align-content: stretch !important;
+    align-items: center !important;
+    justify-items: center !important;
+    row-gap: 0 !important;
+  }
+
+  /* The order/trade card remains the final row and therefore stays directly
+     above the navigation at every supported phone height. */
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryOrderCard,
+  .app.activePage-trade .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    align-self: stretch !important;
+    margin-bottom: 0 !important;
+  }
+}
