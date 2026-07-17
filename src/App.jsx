@@ -50,7 +50,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-trade-chart-v60-2026-07-17";
+const FRONTEND_BUILD = "metabinary-trade-digit-guard-v63-2026-07-17";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -1169,9 +1169,16 @@ function TradingApp() {
   const [duration, setDuration] = useState(5);
   const [prediction, setPrediction] = useState(2);
   const lastDigit = Number(activeBinaryState.lastDigit || 0);
-  const digitStats = Array.isArray(activeBinaryState.digitStats)
+  // Always keep all ten digit statistics available for digit contracts.
+  // This prevents Matches/Differs or Over/Under from collapsing to a single
+  // digit if a temporary market update contains an incomplete stats array.
+  const storedDigitStats = Array.isArray(activeBinaryState.digitStats)
     ? activeBinaryState.digitStats
     : makeInitialDigitStats();
+  const digitStats = Array.from({ length: 10 }, (_, digit) => {
+    const value = Number(storedDigitStats[digit]);
+    return Number.isFinite(value) ? value : 10;
+  });
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
   const activeBinaryTradeRef = useRef(null);
