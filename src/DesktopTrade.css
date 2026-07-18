@@ -1252,3 +1252,78 @@
     min-width: 160px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V93 — RIGHT HEADER CONTROLS ONLY
+   Desktop/laptop only. No chart, grid, center, sidebar, trade panel or mobile
+   layout rules are changed here.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .brokerTopHeader,
+  .app.activePage-trade > .topHeader {
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .brokerWallet,
+  .app.activePage-trade .walletBox,
+  .app.activePage-trade .compactDepositButton,
+  .app.activePage-trade .brokerDepositBtn,
+  .app.activePage-trade .depositTop,
+  .app.activePage-trade .brokerBellBtn,
+  .app.activePage-trade .bellBtn,
+  .app.activePage-trade .brokerAvatarBtn,
+  .app.activePage-trade .avatarBtn {
+    position: relative !important;
+    top: 0 !important;
+    bottom: auto !important;
+    transform: none !important;
+    align-self: center !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    z-index: 120 !important;
+  }
+
+  .app.activePage-trade .brokerWallet,
+  .app.activePage-trade .walletBox {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+  }
+
+  .app.activePage-trade .compactDepositButton,
+  .app.activePage-trade .brokerDepositBtn,
+  .app.activePage-trade .depositTop {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+  }
+
+  .app.activePage-trade .brokerBellBtn,
+  .app.activePage-trade .bellBtn,
+  .app.activePage-trade .brokerAvatarBtn,
+  .app.activePage-trade .avatarBtn {
+    height: 38px !important;
+    width: 38px !important;
+    min-height: 38px !important;
+    min-width: 38px !important;
+    max-height: 38px !important;
+    max-width: 38px !important;
+  }
+
+  /* Keep the right cluster visually inside the header line. */
+  .app.activePage-trade .brokerWallet {
+    translate: 0 0 !important;
+  }
+
+  .app.activePage-trade .brokerBellBtn b {
+    top: -2px !important;
+    right: -2px !important;
+  }
+
+  .app.activePage-trade .brokerAvatarBtn i {
+    right: 3px !important;
+    bottom: 3px !important;
+  }
+}
