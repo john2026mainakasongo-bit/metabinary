@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
+import "./DesktopTrade.css";
 
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
