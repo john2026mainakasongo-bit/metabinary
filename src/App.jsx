@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import "./DesktopTrade.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
-
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
   let viewport = document.querySelector('meta[name="viewport"]');
