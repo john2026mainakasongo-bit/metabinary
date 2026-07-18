@@ -418,21 +418,50 @@
   }
 }
 
-/* ========================================================================== 
-   METABINARY V87 — COMPACT DESKTOP TRADE HEADER
-   Desktop/laptop only. Mobile/tablet below 1024px remains untouched.
+/* ==========================================================================
+   METABINARY V91 — FINAL DESKTOP HEADER OVERLAP FIX
+   Desktop/laptop only. Mobile/tablet remain untouched.
    ========================================================================== */
 @media screen and (min-width: 1024px) {
   .app.activePage-trade {
-    grid-template-rows: 64px minmax(0, 1fr) 0 !important;
+    grid-template-rows: 68px minmax(0, 1fr) 0 !important;
   }
 
   .app.activePage-trade > .cleanBrokerHeader,
   .app.activePage-trade > .brokerTopHeader,
   .app.activePage-trade > .topHeader {
-    height: 64px !important;
-    min-height: 64px !important;
+    position: relative !important;
+    z-index: 100 !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
     padding: 0 18px !important;
+    overflow: hidden !important;
+    align-items: center !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    position: relative !important;
+    z-index: 1 !important;
+    padding-top: 8px !important;
+  }
+
+  .app.activePage-trade .brokerLogo,
+  .app.activePage-trade .logo {
+    min-width: 0 !important;
+    align-items: center !important;
+  }
+
+  .app.activePage-trade .brokerLogoMark {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+  }
+
+  .app.activePage-trade .brokerLogo strong,
+  .app.activePage-trade .logo strong {
+    font-size: 27px !important;
+    line-height: 1 !important;
   }
 
   .app.activePage-trade .brokerMenuBtn {
@@ -441,58 +470,41 @@
   }
 
   .app.activePage-trade .brokerMenuBtn span {
-    width: 25px !important;
-    height: 2px !important;
-    gap: 5px !important;
+    width: 26px !important;
   }
 
-  .app.activePage-trade .brokerLogo,
-  .app.activePage-trade .logo {
-    gap: 10px !important;
-  }
-
-  .app.activePage-trade .brokerLogoMark {
-    width: 38px !important;
-    height: 38px !important;
-  }
-
-  .app.activePage-trade .brokerLogoMark span {
-    font-size: 13px !important;
-  }
-
-  .app.activePage-trade .brokerLogo strong,
-  .app.activePage-trade .logo strong {
-    font-size: 26px !important;
-    letter-spacing: -0.7px !important;
-  }
-
+  /* Keep all right-side controls strictly inside header */
   .app.activePage-trade .brokerWallet,
   .app.activePage-trade .walletBox {
-    height: 44px !important;
-    min-height: 44px !important;
-    padding: 0 12px !important;
-    border-radius: 14px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    margin: 0 !important;
+    align-self: center !important;
   }
 
-  .app.activePage-trade .brokerWallet strong {
+  .app.activePage-trade .brokerWallet strong,
+  .app.activePage-trade .walletBox strong {
     margin-top: 0 !important;
     font-size: 20px !important;
-    line-height: 44px !important;
+    line-height: 48px !important;
   }
 
-  .app.activePage-trade .brokerWallet small,
-  .app.activePage-trade .brokerWallet > span {
+  .app.activePage-trade .brokerWallet small {
     display: none !important;
   }
 
   .app.activePage-trade .brokerDepositBtn,
   .app.activePage-trade .depositTop {
-    width: 70px !important;
-    min-width: 70px !important;
-    height: 44px !important;
-    min-height: 44px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    margin: 0 !important;
+    align-self: center !important;
+    font-size: 0 !important;
+    width: 72px !important;
+    min-width: 72px !important;
     grid-template-columns: 1fr !important;
-    border-radius: 12px !important;
   }
 
   .app.activePage-trade .brokerDepositBtn span {
@@ -501,25 +513,29 @@
 
   .app.activePage-trade .brokerDepositBtn b {
     border-left: 0 !important;
-    background: transparent !important;
     font-size: 24px !important;
+    background: transparent !important;
   }
 
   .app.activePage-trade .brokerBellBtn,
   .app.activePage-trade .bellBtn {
-    width: 42px !important;
-    height: 42px !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    margin: 0 !important;
+    align-self: center !important;
   }
 
   .app.activePage-trade .brokerBellBtn i {
-    font-size: 23px !important;
+    font-size: 22px !important;
   }
 
   .app.activePage-trade .brokerBellBtn b {
+    top: -3px !important;
+    right: -3px !important;
     width: 22px !important;
     height: 22px !important;
-    top: -4px !important;
-    right: -3px !important;
     font-size: 11px !important;
   }
 
@@ -527,535 +543,57 @@
   .app.activePage-trade .avatarBtn {
     width: 44px !important;
     height: 44px !important;
-    font-size: 17px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    margin: 0 !important;
+    align-self: center !important;
+    font-size: 16px !important;
   }
 
   .app.activePage-trade .brokerAvatarBtn span {
     display: none !important;
   }
 
-  .app.activePage-trade > .mainScreen {
-    padding-top: 8px !important;
-  }
-}
-
-@media screen and (min-width: 1024px) and (max-width: 1365px) {
-  .app.activePage-trade > .cleanBrokerHeader,
-  .app.activePage-trade > .brokerTopHeader,
-  .app.activePage-trade > .topHeader {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+  /* Prevent header children from extending below the 68px header */
+  .app.activePage-trade > .cleanBrokerHeader > *,
+  .app.activePage-trade > .brokerTopHeader > *,
+  .app.activePage-trade > .topHeader > * {
+    max-height: 54px !important;
   }
 
-  .app.activePage-trade .brokerLogo strong,
-  .app.activePage-trade .logo strong {
-    font-size: 24px !important;
-  }
-
-  .app.activePage-trade .brokerWallet,
-  .app.activePage-trade .walletBox {
-    min-width: 184px !important;
-  }
-}
-
-/* ========================================================================== 
-   METABINARY V88 — MARKET SELECTOR INSIDE THE CHART
-   Desktop/laptop only. The separate market header is removed from the center
-   column and replaced by a compact floating market card inside the chart,
-   matching the requested broker-style reference. Mobile/tablet remain intact.
-   ========================================================================== */
-@media screen and (min-width: 1024px) {
-  .app.activePage-trade .mbDeskCenterV81 {
-    grid-template-rows: minmax(0, 1fr) !important;
-    gap: 0 !important;
-  }
-
-  .app.activePage-trade .mbDeskChartPanelV81 {
-    height: 100% !important;
-    grid-template-rows: 46px minmax(0, 1fr) 28px 92px !important;
-  }
-
-  .app.activePage-trade .mbDeskChartCanvasV81 {
-    isolation: isolate !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketCardV88 {
-    position: absolute !important;
-    top: 12px !important;
-    left: 12px !important;
-    z-index: 30 !important;
-    display: flex !important;
-    align-items: stretch !important;
-    gap: 8px !important;
-    pointer-events: auto !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingTimeBadgeV88 {
-    width: 44px !important;
-    min-width: 44px !important;
-    height: 54px !important;
-    display: grid !important;
-    place-items: center !important;
-    border-radius: 10px !important;
-    background: rgba(20, 49, 68, .96) !important;
-    border: 1px solid rgba(73, 153, 190, .28) !important;
-    color: #65d4df !important;
-    font-size: 13px !important;
-    font-weight: 900 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .22) !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
-    width: min(360px, 42vw) !important;
-    min-width: 300px !important;
-    height: 54px !important;
-    display: grid !important;
-    grid-template-columns: 42px minmax(0, 1fr) 22px !important;
-    gap: 10px !important;
-    align-items: center !important;
-    padding: 0 11px !important;
-    border-radius: 11px !important;
-    background: rgba(26, 38, 58, .97) !important;
-    border: 1px solid rgba(105, 132, 171, .28) !important;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, .28) !important;
-    backdrop-filter: blur(12px) !important;
-    cursor: pointer !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketIconV88 {
-    width: 36px !important;
-    height: 36px !important;
-    display: grid !important;
-    place-items: center !important;
-    border-radius: 9px !important;
-    background: rgba(30, 84, 104, .5) !important;
-    color: #51c8d5 !important;
-    font-size: 18px !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 > div {
-    min-width: 0 !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 select {
-    width: 100% !important;
-    min-width: 0 !important;
-    border: 0 !important;
-    outline: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
-    color: #f4f8ff !important;
-    font-size: 15px !important;
-    line-height: 1.1 !important;
-    font-weight: 900 !important;
-    cursor: pointer !important;
-    appearance: none !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 select:disabled {
-    opacity: .7 !important;
-    cursor: not-allowed !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 select option {
-    color: #fff !important;
-    background: #07111f !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin-top: 4px !important;
-    color: #c9d3e2 !important;
-    font-size: 10px !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small strong {
-    color: #edf4ff !important;
-    font-size: 11px !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small em {
-    color: #ff4b63 !important;
-    font-style: normal !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small i {
-    color: #ff4b63 !important;
-    font-style: normal !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 > b {
-    color: #a6b4c8 !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    justify-self: center !important;
-  }
-
-  /* Keep chart details from hiding behind the floating selector card. */
-  .app.activePage-trade .mbDeskIndicatorOverlayV85 {
-    top: 78px !important;
-  }
-
-  .app.activePage-trade .mbDeskActiveTradeBadgeV81 {
-    top: 82px !important;
-  }
-}
-
-@media screen and (min-width: 1024px) and (max-width: 1365px) {
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
-    width: min(300px, 38vw) !important;
-    min-width: 250px !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingTimeBadgeV88 {
-    width: 40px !important;
-    min-width: 40px !important;
-  }
-}
-
-/* ==========================================================================\n   METABINARY V89 — COMPACT HEADER + FULLY CLICKABLE MARKET + MOBILE-LIKE DIGITS\n   Desktop/laptop only. Mobile/tablet remain untouched.\n   ========================================================================== */
-@media screen and (min-width: 1024px) {
-  .app.activePage-trade {
-    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
-  }
-
-  .app.activePage-trade > .cleanBrokerHeader,
-  .app.activePage-trade > .brokerTopHeader,
-  .app.activePage-trade > .topHeader {
-    height: 58px !important;
-    min-height: 58px !important;
-    padding: 0 14px !important;
-    display: grid !important;
-    grid-template-columns: 42px auto minmax(300px, 1fr) auto 54px 46px 46px !important;
-    gap: 10px !important;
-    align-items: center !important;
-  }
-
-  .app.activePage-trade .brokerMenuBtn {
-    width: 38px !important;
-    height: 38px !important;
-  }
-  .app.activePage-trade .brokerMenuBtn span {
-    width: 24px !important;
-    height: 2px !important;
-  }
-  .app.activePage-trade .brokerLogo,
-  .app.activePage-trade .logo { gap: 8px !important; }
-  .app.activePage-trade .brokerLogoMark {
-    width: 38px !important;
-    height: 38px !important;
-  }
-  .app.activePage-trade .brokerLogo strong,
-  .app.activePage-trade .logo strong {
-    font-size: 24px !important;
-  }
-
-  .app.activePage-trade .desktopTradeHeaderActionsV89 {
-    min-width: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 4px !important;
-    margin-left: 10px !important;
-    overflow: hidden !important;
-  }
-  .app.activePage-trade .desktopTradeHeaderActionsV89 button {
-    height: 34px !important;
-    padding: 0 11px !important;
-    border-radius: 8px !important;
-    background: transparent !important;
-    color: #9eacc0 !important;
-    border: 1px solid transparent !important;
-    font-size: 12px !important;
-    font-weight: 800 !important;
-    white-space: nowrap !important;
-  }
-  .app.activePage-trade .desktopTradeHeaderActionsV89 button:hover {
-    color: #fff !important;
-    background: rgba(255,255,255,.045) !important;
-    border-color: rgba(255,255,255,.07) !important;
-  }
-
-  .app.activePage-trade .brokerWallet {
-    height: 42px !important;
-    min-width: 190px !important;
-    padding: 0 12px !important;
-    border-radius: 12px !important;
-    background: rgba(7,17,31,.84) !important;
-    border: 1px solid rgba(255,255,255,.12) !important;
-  }
-  .app.activePage-trade .usdWalletInlineV12,
-  .app.activePage-trade .demoWalletInlineV12 {
-    font-size: 18px !important;
-  }
-  .app.activePage-trade .compactDepositButton {
-    width: 54px !important;
-    min-width: 54px !important;
-    height: 42px !important;
-    grid-template-columns: 1fr !important;
-  }
-  .app.activePage-trade .compactDepositButton span { display: none !important; }
-  .app.activePage-trade .compactDepositButton b {
-    border-left: 0 !important;
-    font-size: 24px !important;
-  }
-  .app.activePage-trade .brokerBellBtn,
-  .app.activePage-trade .brokerAvatarBtn {
-    width: 42px !important;
-    height: 42px !important;
-  }
-  .app.activePage-trade .brokerAvatarBtn { font-size: 15px !important; }
-
-  /* The small floating timeframe badge next to the market card is removed. */
-  .app.activePage-trade .mbDeskFloatingTimeBadgeV88 { display: none !important; }
-  .app.activePage-trade .mbDeskFloatingMarketCardV88 {
-    display: block !important;
-  }
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
-    position: relative !important;
-    width: min(360px, 44vw) !important;
-    min-width: 280px !important;
-    cursor: pointer !important;
-  }
-  /* The real select covers the full card invisibly, so clicking anywhere opens the market list. */
-  .app.activePage-trade .mbDeskWholeCardMarketSelectV89 {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    opacity: 0 !important;
-    z-index: 20 !important;
-    cursor: pointer !important;
-  }
-  .app.activePage-trade .mbDeskWholeCardMarketSelectV89:disabled {
-    cursor: not-allowed !important;
-  }
-
-  /* Force the contract tabs to remain visible and clickable. */
-  .app.activePage-trade .mbDeskTradeTabsV81 {
-    min-height: 36px !important;
-    height: 36px !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    overflow: hidden !important;
-    border-radius: 8px !important;
-  }
-  .app.activePage-trade .mbDeskTradeTabsV81 button {
-    display: grid !important;
-    place-items: center !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    padding: 0 5px !important;
-    font-size: 9px !important;
-    line-height: 1 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-  .app.activePage-trade .mbDeskTradeTabsV81 button.active {
-    background: linear-gradient(135deg,#0d83ff,#0867e7) !important;
-    color: white !important;
-  }
-
-  /* Mobile-style live digit cursor while keeping all 10 digits in one row. */
-  .app.activePage-trade .mbDeskDigitsV81 {
-    grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
-  }
-  .app.activePage-trade .mbDeskDigitsV81 button.current::after {
-    display: none !important;
-  }
-  .app.activePage-trade .mbDeskDigitsV81 button.current::before {
-    content: "" !important;
-    position: absolute !important;
-    top: -13px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-left: 6px solid transparent !important;
-    border-right: 6px solid transparent !important;
-    border-bottom: 8px solid #ff465e !important;
-    filter: drop-shadow(0 0 6px rgba(255,70,94,.65)) !important;
-    z-index: 5 !important;
-  }
-  .app.activePage-trade .mbDeskDigitsV81.tradeRunning button.current {
-    box-shadow: 0 0 0 2px rgba(255,70,94,.18), 0 0 20px rgba(255,70,94,.12) !important;
-  }
-  .app.activePage-trade .mbDeskDigitsV81 button.win {
-    border-color: #00e884 !important;
-    background: rgba(0,232,132,.18) !important;
-    box-shadow: 0 0 22px rgba(0,232,132,.5) !important;
-    animation: mbV89WinFlash .55s ease-in-out 2 !important;
-  }
-  .app.activePage-trade .mbDeskDigitsV81 button.loss {
-    border-color: #ff4057 !important;
-    background: rgba(255,64,87,.16) !important;
-    box-shadow: 0 0 22px rgba(255,64,87,.45) !important;
-    animation: mbV89LossFlash .55s ease-in-out 2 !important;
-  }
-}
-
-@keyframes mbV89WinFlash {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-@keyframes mbV89LossFlash {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(.94); }
-}
-
-@media screen and (min-width: 1024px) and (max-width: 1280px) {
-  .app.activePage-trade > .cleanBrokerHeader,
-  .app.activePage-trade > .brokerTopHeader,
-  .app.activePage-trade > .topHeader {
-    grid-template-columns: 38px auto minmax(250px, 1fr) auto 48px 42px 42px !important;
-    gap: 7px !important;
-  }
-  .app.activePage-trade .desktopTradeHeaderActionsV89 button {
-    padding: 0 8px !important;
-    font-size: 11px !important;
-  }
-  .app.activePage-trade .brokerWallet { min-width: 165px !important; }
-}
-
-/* ========================================================================== 
-   METABINARY V90 — QUICK DESKTOP ALIGNMENT FIX
-   Fixes header overlap and restores the visible market name inside the chart.
-   Desktop/laptop only; phone/tablet remain untouched.
-   ========================================================================== */
-@media screen and (min-width: 1024px) {
-  .app.activePage-trade {
-    grid-template-rows: 54px minmax(0, 1fr) 0 !important;
-  }
-
-  .app.activePage-trade > .cleanBrokerHeader,
-  .app.activePage-trade > .brokerTopHeader,
-  .app.activePage-trade > .topHeader {
-    height: 54px !important;
-    min-height: 54px !important;
-    padding: 0 12px !important;
-    grid-template-columns: 40px auto minmax(260px, 1fr) auto 52px 42px 42px !important;
-    gap: 8px !important;
-    align-items: center !important;
-    overflow: visible !important;
-    position: relative !important;
-    z-index: 100 !important;
-  }
-
-  .app.activePage-trade .brokerMenuBtn,
-  .app.activePage-trade .brokerLogo,
-  .app.activePage-trade .logo,
-  .app.activePage-trade .desktopTradeHeaderActionsV89,
-  .app.activePage-trade .brokerWallet,
-  .app.activePage-trade .compactDepositButton,
-  .app.activePage-trade .brokerBellBtn,
-  .app.activePage-trade .brokerAvatarBtn {
-    position: relative !important;
-    inset: auto !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    transform: none !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    align-self: center !important;
-  }
-
-  .app.activePage-trade .brokerLogoMark {
-    width: 34px !important;
-    height: 34px !important;
-  }
-  .app.activePage-trade .brokerLogo strong,
-  .app.activePage-trade .logo strong {
-    font-size: 22px !important;
-  }
-
-  .app.activePage-trade .desktopTradeHeaderActionsV89 {
-    height: 100% !important;
-    margin-left: 8px !important;
-    display: flex !important;
-    align-items: center !important;
-    overflow: visible !important;
-  }
-  .app.activePage-trade .desktopTradeHeaderActionsV89 button {
-    height: 30px !important;
-    padding: 0 9px !important;
-    font-size: 11px !important;
-  }
-
-  .app.activePage-trade .brokerWallet {
-    height: 38px !important;
-    min-height: 38px !important;
-    min-width: 180px !important;
-  }
-  .app.activePage-trade .usdWalletInlineV12,
-  .app.activePage-trade .demoWalletInlineV12 {
-    font-size: 17px !important;
-  }
-  .app.activePage-trade .compactDepositButton {
-    width: 50px !important;
-    min-width: 50px !important;
-    height: 38px !important;
-  }
-  .app.activePage-trade .brokerBellBtn,
-  .app.activePage-trade .brokerAvatarBtn {
-    width: 38px !important;
-    height: 38px !important;
-  }
-
-  .app.activePage-trade > .mainScreen {
-    padding-top: 8px !important;
-  }
-
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
-    width: min(390px, 46vw) !important;
-    min-width: 310px !important;
-    height: 60px !important;
-  }
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 > div {
-    display: grid !important;
-    grid-template-rows: auto auto !important;
-    align-content: center !important;
-    gap: 3px !important;
-  }
-  .app.activePage-trade .mbDeskFloatingMarketNameV90 {
-    display: block !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    color: #f4f8ff !important;
-    font-size: 16px !important;
-    line-height: 1.05 !important;
-    font-weight: 900 !important;
-    pointer-events: none !important;
-  }
-  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small {
-    margin-top: 0 !important;
-  }
-
-  /* Keep the right panel safely below the compact header. */
-  .app.activePage-trade .mbDeskTradePanelV81 {
+  /* Right trade panel starts cleanly below the header */
+  .app.activePage-trade .mbDeskTradePanelV81,
+  .app.activePage-trade .mbDesktopTradeSplitV83 .mbDeskTradePanelV81 {
     position: relative !important;
     z-index: 1 !important;
   }
+
+  .app.activePage-trade .mbDeskPanelHeadV81 {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
 }
 
-@media screen and (min-width: 1024px) and (max-width: 1280px) {
+@media screen and (min-width: 1024px) and (max-width: 1365px) {
   .app.activePage-trade > .cleanBrokerHeader,
   .app.activePage-trade > .brokerTopHeader,
   .app.activePage-trade > .topHeader {
-    grid-template-columns: 38px auto minmax(210px, 1fr) auto 48px 38px 38px !important;
-    gap: 6px !important;
+    padding-inline: 12px !important;
   }
-  .app.activePage-trade .brokerWallet {
-    min-width: 160px !important;
+
+  .app.activePage-trade .brokerLogo strong,
+  .app.activePage-trade .logo strong {
+    font-size: 24px !important;
   }
-  .app.activePage-trade .desktopTradeHeaderActionsV89 button {
-    padding: 0 7px !important;
-    font-size: 10px !important;
+
+  .app.activePage-trade .brokerWallet strong,
+  .app.activePage-trade .walletBox strong {
+    font-size: 18px !important;
+  }
+
+  .app.activePage-trade .brokerDepositBtn,
+  .app.activePage-trade .depositTop {
+    width: 64px !important;
+    min-width: 64px !important;
   }
 }
