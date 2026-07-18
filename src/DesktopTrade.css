@@ -316,3 +316,57 @@
     height: 38px !important;
   }
 }
+
+/* MetaBinary V85 — interaction polish */
+@media screen and (min-width: 1024px) {
+  .mbDeskActivityTabsV81 button { cursor: pointer; }
+  .mbDeskActivityTabsV81 button:not(.active):hover { color: #dbe7ff; background: rgba(255,255,255,.025); }
+
+  .mbDeskChartToolbarV81 select {
+    height: 38px;
+    min-width: 64px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.035);
+    color: #dbe7ff;
+    padding: 0 10px;
+  }
+  .mbDeskChartToolbarV81 button.active {
+    color: #1f8cff;
+    border-color: rgba(31,140,255,.5);
+    background: rgba(31,140,255,.12);
+  }
+  .mbDeskChartPanelV81.chartMode-line .lineChartArea,
+  .mbDeskChartPanelV81.chartMode-line .areaPath {
+    opacity: .08 !important;
+  }
+
+  .mbDeskIndicatorOverlayV85 {
+    position: absolute;
+    left: 18px;
+    top: 16px;
+    z-index: 8;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 8px;
+    pointer-events: none;
+  }
+  .mbDeskIndicatorOverlayV85 span {
+    min-width: 92px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: rgba(2,10,20,.82);
+    border: 1px solid rgba(54,142,255,.22);
+    backdrop-filter: blur(8px);
+  }
+  .mbDeskIndicatorOverlayV85 small,
+  .mbDeskIndicatorOverlayV85 strong { display:block; }
+  .mbDeskIndicatorOverlayV85 small { color:#7f93b2; font-size:10px; }
+  .mbDeskIndicatorOverlayV85 strong { margin-top:3px; color:#f3f7ff; font-size:12px; }
+
+  .mbDeskActionV81:not(:disabled):active,
+  .mbDeskQuickStakeV81 button:not(:disabled):active,
+  .mbDeskStakeControlV81 button:not(:disabled):active,
+  .mbDeskDurationV81 button:not(:disabled):active,
+  .mbDeskAiCardV81:active { transform: translateY(1px); }
+}

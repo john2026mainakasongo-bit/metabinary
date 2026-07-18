@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useRef, useState } from "react";
 
 /**
  * Desktop-only MetaBinary trade workspace.
@@ -51,6 +51,11 @@ export default function DesktopTradePage({
     : (value) => Number(value || 0).toFixed(2);
   const safeStake = Math.max(0.3, Number(stake) || 0.3);
   const quickStakes = [10, 25, 50, 100, 250, 500];
+  const [activityTab, setActivityTab] = useState("open");
+  const [timeframe, setTimeframe] = useState("1S");
+  const [showIndicators, setShowIndicators] = useState(false);
+  const [chartMode, setChartMode] = useState("area");
+  const chartPanelRef = useRef(null);
   const recentTrades = (Array.isArray(closedPositions) ? closedPositions : [])
     .filter((item) => !item?.account || item.account === account)
     .slice(-7)
@@ -64,8 +69,30 @@ export default function DesktopTradePage({
 
   const openAiScanner = () => {
     const launcher = document.querySelector(".floatingAiButton.aiPage-trade");
-    if (launcher) launcher.click();
+    if (!launcher) {
+      window.location.hash = "ai";
+      return;
+    }
+
+    try {
+      launcher.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 1 }));
+    } catch {
+      launcher.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    }
   };
+
+  const toggleFullscreen = async () => {
+    const panel = chartPanelRef.current;
+    if (!panel) return;
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await panel.requestFullscreen?.();
+    } catch {
+      // Fullscreen can be blocked by browser policy; the rest of the page remains usable.
+    }
+  };
+
+  const openTrades = useMemo(() => activeBinaryTrade ? [activeBinaryTrade] : [], [activeBinaryTrade]);
 
   const scale = Number(binaryMarket?.scale || 800);
   const chartData = prices.map((value) => value * scale);
@@ -77,25 +104,43 @@ export default function DesktopTradePage({
     <div className="page mbDesktopTradeV81 mbDesktopTradeSplitV83">
       <aside className="mbDeskActivityV81">
         <div className="mbDeskActivityTabsV81">
-          <button className="active">Open {activeBinaryTrade ? "(1)" : "(0)"}</button>
-          <button type="button">Closed</button>
+          <button
+            type="button"
+            className={activityTab === "open" ? "active" : ""}
+            onClick={() => setActivityTab("open")}
+          >
+            Open ({openTrades.length})
+          </button>
+          <button
+            type="button"
+            className={activityTab === "closed" ? "active" : ""}
+            onClick={() => setActivityTab("closed")}
+          >
+            Closed ({recentTrades.length})
+          </button>
         </div>
 
         <div className="mbDeskActivityTitleV81">Recent activity</div>
 
         <div className="mbDeskActivityListV81">
-          {activeBinaryTrade && (
-            <article className="activeTrade">
-              <span className="mbDeskTradeDigitV81">{lastDigit}</span>
-              <div>
-                <strong>{String(activeBinaryTrade.action || tradeType).toUpperCase()}</strong>
-                <small>Stake {money(activeBinaryTrade.stake || safeStake)} USD</small>
+          {activityTab === "open" ? (
+            activeBinaryTrade ? (
+              <article className="activeTrade">
+                <span className="mbDeskTradeDigitV81">{lastDigit}</span>
+                <div>
+                  <strong>{String(activeBinaryTrade.action || tradeType).toUpperCase()}</strong>
+                  <small>Stake {money(activeBinaryTrade.stake || safeStake)} USD</small>
+                </div>
+                <b>{activeBinaryTrade.remainingTicks}t</b>
+              </article>
+            ) : (
+              <div className="mbDeskEmptyActivityV81">
+                <span>◎</span>
+                <strong>No open trades</strong>
+                <small>Your active contract will appear here.</small>
               </div>
-              <b>{activeBinaryTrade.remainingTicks}t</b>
-            </article>
-          )}
-
-          {recentTrades.length ? (
+            )
+          ) : recentTrades.length ? (
             recentTrades.map((item, index) => {
               const itemProfit = Number(item.profit ?? item.pnl ?? item.net ?? 0);
               const won = Boolean(item.won ?? (item.result === "win") ?? itemProfit > 0);
@@ -118,13 +163,13 @@ export default function DesktopTradePage({
                 </article>
               );
             })
-          ) : !activeBinaryTrade ? (
+          ) : (
             <div className="mbDeskEmptyActivityV81">
               <span>◎</span>
-              <strong>No recent trades</strong>
-              <small>Your completed trades will appear here.</small>
+              <strong>No closed trades</strong>
+              <small>Your completed contracts will appear here.</small>
             </div>
-          ) : null}
+          )}
         </div>
 
         <button
@@ -154,14 +199,32 @@ export default function DesktopTradePage({
           <div className="mbDeskMarketStatV81"><strong>{(indexValue - priceStep * 4.1).toFixed(2)}</strong><small>24h Low</small></div>
         </section>
 
-        <section className="mbDeskChartPanelV81">
+        <section ref={chartPanelRef} className={`mbDeskChartPanelV81 chartMode-${chartMode}`}>
           <div className="mbDeskChartToolbarV81">
-            <button type="button">1S⌄</button>
-            <button type="button">⌁</button>
-            <button type="button">▥</button>
-            <button type="button">Indicators⌄</button>
-            <button type="button">↶</button>
-            <button type="button">↷</button>
+            <select value={timeframe} onChange={(event) => setTimeframe(event.target.value)} aria-label="Chart timeframe">
+              <option value="1S">1S</option>
+              <option value="5S">5S</option>
+              <option value="10S">10S</option>
+            </select>
+            <button
+              type="button"
+              className={chartMode === "line" ? "active" : ""}
+              onClick={() => setChartMode("line")}
+              title="Line chart"
+            >⌁</button>
+            <button
+              type="button"
+              className={chartMode === "area" ? "active" : ""}
+              onClick={() => setChartMode("area")}
+              title="Area chart"
+            >▥</button>
+            <button
+              type="button"
+              className={showIndicators ? "active" : ""}
+              onClick={() => setShowIndicators((value) => !value)}
+            >Indicators⌄</button>
+            <button type="button" onClick={() => setPrediction(lastDigit)} title="Use current digit">◎</button>
+            <button type="button" onClick={toggleFullscreen} title="Fullscreen chart">⛶</button>
           </div>
 
           <div className="mbDeskChartCanvasV81">
@@ -169,6 +232,14 @@ export default function DesktopTradePage({
               <LineChartComponent data={chartData} anchorValue={chartAnchor} />
             ) : null}
             <div className="mbDeskChartPriceV81">{indexValue.toFixed(2)}</div>
+            {showIndicators && (
+              <div className="mbDeskIndicatorOverlayV85">
+                <span><small>Current digit</small><strong>{lastDigit}</strong></span>
+                <span><small>Highest</small><strong>{highestDigit} · {Number(digitStats[highestDigit] || 0).toFixed(1)}%</strong></span>
+                <span><small>Lowest</small><strong>{lowestDigit} · {Number(digitStats[lowestDigit] || 0).toFixed(1)}%</strong></span>
+                <span><small>View</small><strong>{timeframe}</strong></span>
+              </div>
+            )}
             <div className="mbDeskChartAxisV81">
               <span>{(indexValue + priceStep * 2).toFixed(2)}</span>
               <span>{(indexValue + priceStep).toFixed(2)}</span>
