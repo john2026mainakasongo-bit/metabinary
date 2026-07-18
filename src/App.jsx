@@ -4033,6 +4033,7 @@ function TradingApp() {
         setActivePage={setActivePage}
         openMenu={() => setMenuOpen(true)}
         openDeposit={() => setDepositOpen(true)}
+        openWithdraw={() => setWithdrawOpen(true)}
         notifications={notifications}
         markNotificationRead={markNotificationRead}
         markAllNotificationsRead={markAllNotificationsRead}
@@ -4634,6 +4635,7 @@ function Header({
   setActivePage,
   openMenu,
   openDeposit,
+  openWithdraw,
   notifications,
   markNotificationRead,
   markAllNotificationsRead,
@@ -4677,6 +4679,13 @@ function Header({
       </button>
 
       <Logo />
+
+      <nav className="desktopTradeHeaderActionsV89" aria-label="Trading shortcuts">
+        <button type="button" onClick={() => setActivePage("trade")}>Trade</button>
+        <button type="button" onClick={openDeposit}>Deposit</button>
+        <button type="button" onClick={openWithdraw}>Withdraw</button>
+        <button type="button" onClick={() => setActivePage("history")}>History</button>
+      </nav>
 
       <button
         type="button"

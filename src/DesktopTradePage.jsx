@@ -214,11 +214,11 @@ export default function DesktopTradePage({
 
           <div className="mbDeskChartCanvasV81">
             <div className="mbDeskFloatingMarketCardV88">
-              <span className="mbDeskFloatingTimeBadgeV88">{timeframe}</span>
               <label className="mbDeskFloatingMarketSelectorV88">
                 <span className="mbDeskFloatingMarketIconV88">▥</span>
                 <div>
                   <select
+                    className="mbDeskWholeCardMarketSelectV89"
                     value={binaryMarketId}
                     onChange={(event) => setBinaryMarketId(event.target.value)}
                     disabled={Boolean(activeBinaryTrade)}
@@ -270,7 +270,7 @@ export default function DesktopTradePage({
             <span>18:39:05</span><span>18:39:20</span><span>18:39:35</span><span>18:39:50</span>
           </div>
 
-          <div className="mbDeskDigitsV81">
+          <div className={`mbDeskDigitsV81 ${activeBinaryTrade ? "tradeRunning" : ""}`}>
             {digitStats.map((percent, digit) => {
               const isHighest = digit === highestDigit;
               const isLowest = digit === lowestDigit;
