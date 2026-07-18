@@ -6133,6 +6133,153 @@ function TradePage({
 
   return (
     <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"}`}>
+      <div className="desktopTradeWorkspaceV80">
+        <aside className="desktopActivityPanelV80">
+          <div className="desktopActivityTabsV80">
+            <button type="button" className="active">Open {activeBinaryTrade ? "(1)" : "(0)"}</button>
+            <button type="button">Market</button>
+          </div>
+
+          <div className="desktopActivityHeaderV80">
+            <small>LIVE ACTIVITY</small>
+            <strong>{activeBinaryTrade ? "Active contract" : "Recent digit flow"}</strong>
+          </div>
+
+          <div className="desktopActivityListV80">
+            {activeBinaryTrade ? (
+              <div className="desktopActiveTradeV80">
+                <span className="desktopActivityDigitV80 current">{lastDigit}</span>
+                <div>
+                  <strong>{activeBinaryTrade.action}</strong>
+                  <small>{binaryMarket?.short || "Volatility"} · Stake {money(activeBinaryTrade.stake)} USD</small>
+                </div>
+                <b>{activeBinaryTrade.remainingTicks}t</b>
+              </div>
+            ) : (
+              [...digitStats]
+                .map((percent, digit) => ({ digit, percent: Number(percent) }))
+                .sort((a, b) => b.percent - a.percent)
+                .slice(0, 7)
+                .map((item, index) => (
+                  <div className="desktopActivityItemV80" key={item.digit}>
+                    <span className={`desktopActivityDigitV80 ${item.digit === lastDigit ? "current" : ""}`}>{item.digit}</span>
+                    <div>
+                      <strong>Digit {item.digit}</strong>
+                      <small>{index === 0 ? "Highest frequency" : item.digit === lastDigit ? "Current live digit" : "Live distribution"}</small>
+                    </div>
+                    <b>{item.percent.toFixed(1)}%</b>
+                  </div>
+                ))
+            )}
+          </div>
+
+          <div className="desktopActivityFooterV80">
+            <span><i></i> Connected</span>
+            <small>Live synthetic feed</small>
+          </div>
+        </aside>
+
+        <main className="desktopChartColumnV80">
+          <section className="desktopMarketSummaryV80">
+            <div className="desktopMarketIdentityV80">
+              <span>{binaryMarket?.short || "V50"}</span>
+              <div><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 50 Index"}</strong></div>
+              <b><i></i> LIVE</b>
+            </div>
+            <div className="desktopMarketMetricsV80">
+              <span><small>Index</small><b>{indexValue.toFixed(2)}</b></span>
+              <span><small>Current digit</small><b>{lastDigit}</b></span>
+              <span><small>Ticks</small><b>{duration}</b></span>
+              <span><small>Stake</small><b>{money(safeStake)} USD</b></span>
+            </div>
+          </section>
+
+          <section className="desktopChartPanelV80">
+            <div className="desktopChartToolbarV80">
+              <button type="button">1S⌄</button>
+              <button type="button">⌁</button>
+              <button type="button">▥</button>
+              <button type="button">Indicators⌄</button>
+              <button type="button">↶</button>
+              <button type="button">↷</button>
+            </div>
+            <div className="desktopChartCanvasV80">
+              <LineChart data={prices.map((value) => value * Number(binaryMarket?.scale || 800))} />
+              <div className="desktopChartGridV80"></div>
+              <div className="desktopPriceGuideV80"><span>{indexValue.toFixed(2)}</span></div>
+              <div className="desktopChartWatermarkV80">M</div>
+            </div>
+            <div className="desktopChartTimesV80"><span>Now - 45s</span><span>Now - 30s</span><span>Now - 15s</span><span>LIVE</span></div>
+
+            {digitMode && (
+              <div className="desktopDigitStripV80">
+                {digitStats.map((percent, digit) => (
+                  <button
+                    key={digit}
+                    type="button"
+                    onClick={() => setPrediction(digit)}
+                    disabled={Boolean(activeBinaryTrade)}
+                    className={`${digit === lastDigit ? "current" : ""} ${digit === highestDigit ? "highest" : ""} ${digit === lowestDigit ? "lowest" : ""} ${prediction === digit && ["Matches/Differs", "Over/Under"].includes(tradeType) ? "picked" : ""}`}
+                  >
+                    <strong>{digit}</strong><small>{Number(percent).toFixed(1)}%</small>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        </main>
+
+        <aside className="desktopTradePanelV80">
+          <div className="desktopTradePanelTitleV80"><span>Trade Type</span><small>Manual trading</small></div>
+          <div className="desktopContractTabsV80">
+            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall"].map((type) => (
+              <button key={type} type="button" className={tradeType === type ? "active" : ""} onClick={() => setTradeType(type)} disabled={Boolean(activeBinaryTrade)}>{type}</button>
+            ))}
+          </div>
+
+          <button type="button" className="desktopMarketPickerV80" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)}>
+            <span>{binaryMarket?.short || "V50"}</span><strong>{binaryMarket?.label || "Volatility 50 Index"}</strong><b><i></i> LIVE</b><em>⌄</em>
+          </button>
+          {marketMenuOpen && (
+            <div className="desktopMarketMenuV80">
+              {volatilityOptions.map((market) => (
+                <button key={market.id} type="button" className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
+                  <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="desktopControlLabelV80"><span>Ticks</span><small>1–10</small></div>
+          <div className="desktopStepperV80">
+            <button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button>
+            <strong>{duration} tick{Number(duration) === 1 ? "" : "s"}</strong>
+            <button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button>
+          </div>
+          <div className="desktopQuickRowV80">{quickTickValues.map((value) => <button key={value} type="button" className={Number(duration) === value ? "active" : ""} onClick={() => setDuration(value)} disabled={Boolean(activeBinaryTrade)}>{value}t</button>)}</div>
+
+          <div className="desktopControlLabelV80"><span>Stake Amount</span><small>USD</small></div>
+          <div className="desktopStakeStepperV80">
+            <button type="button" onClick={() => changeStake(-1)} disabled={Boolean(activeBinaryTrade)}>−</button>
+            <input type="number" min="0.30" step="0.10" value={stake} onChange={(event) => { const value = event.target.value; setStake(value === "" ? "" : Number(value)); }} disabled={Boolean(activeBinaryTrade)} />
+            <button type="button" onClick={() => changeStake(1)} disabled={Boolean(activeBinaryTrade)}>+</button>
+          </div>
+          <div className="desktopQuickRowV80">{quickStakeValues.map((value) => <button key={value} type="button" className={Number(stake) === value ? "active" : ""} onClick={() => setStake(value)} disabled={Boolean(activeBinaryTrade)}>{value}</button>)}</div>
+
+          <div className="desktopPayoutLineV80"><span>Estimated payout</span><strong>{Math.max(leftRate, rightRate).toFixed(3)}×</strong></div>
+
+          <button className={`desktopActionCardV80 ${tradeType === "Even/Odd" ? "green" : "blue"}`} onClick={() => placeContract(rightAction)} disabled={Boolean(activeBinaryTrade) || rightRate <= 0}>
+            <span><strong>{rightLabel}</strong><small>Payout {rightPayout} USD</small></span><b>⌃</b>
+          </button>
+          <button className={`desktopActionCardV80 ${tradeType === "Even/Odd" ? "red" : "violet"}`} onClick={() => placeContract(leftAction)} disabled={Boolean(activeBinaryTrade) || leftRate <= 0}>
+            <span><strong>{leftLabel}</strong><small>Payout {leftPayout} USD</small></span><b>⌄</b>
+          </button>
+
+          <button type="button" className="desktopAiScannerV80" onClick={() => { if (typeof window !== "undefined") window.location.hash = "#ai"; }}>
+            <span>AI</span><div><strong>AI Scanner</strong><small>Analyze the market before entry</small></div><b>Scan</b>
+          </button>
+        </aside>
+      </div>
       <section className="proTradeTypeRow finalContractTabs">
         <span>Trade Type</span>
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall"].map((type) => (
