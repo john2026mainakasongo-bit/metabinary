@@ -4663,6 +4663,7 @@ function Header({
 
   return (
     <header className="topHeader brokerTopHeader cleanBrokerHeader">
+      <div className="desktopHeaderLeftGroupV94">
       <button
         className="menuBtn brokerMenuBtn"
         onClick={() => {
@@ -4686,7 +4687,9 @@ function Header({
         <button type="button" onClick={openWithdraw}>Withdraw</button>
         <button type="button" onClick={() => setActivePage("history")}>History</button>
       </nav>
+      </div>
 
+      <div className="desktopHeaderRightGroupV94">
       <button
         type="button"
         className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""} ${autoSession?.running ? "aiTradingBalance" : ""} ${aiBalanceClass}`}
@@ -4742,6 +4745,7 @@ function Header({
         {user.initials}
         <i></i>
       </button>
+      </div>
 
       {accountMenuOpen && (
         <div className="accountPickerPanel" role="listbox" aria-label="Choose account">

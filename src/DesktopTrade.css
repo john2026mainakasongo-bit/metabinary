@@ -1327,3 +1327,275 @@
     bottom: 3px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V94 — STRUCTURAL DESKTOP HEADER FIX
+   The header is now two real flex groups in App.jsx:
+   left = menu + logo + shortcuts
+   right = wallet + deposit + notifications + profile
+   Desktop/laptop only. Under 1024px the wrappers use display:contents so the
+   existing phone/tablet header layout and behavior remain unchanged.
+   ========================================================================== */
+
+/* Preserve the old header DOM behavior everywhere except desktop trade. */
+.desktopHeaderLeftGroupV94,
+.desktopHeaderRightGroupV94 {
+  display: contents;
+}
+
+@media screen and (min-width: 1024px) {
+  .app.activePage-trade {
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
+  }
+
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .brokerTopHeader,
+  .app.activePage-trade > .topHeader {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 500 !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .brokerMenuBtn {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .brokerLogo,
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .logo {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    height: 38px !important;
+    margin: 0 0 0 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    padding: 0 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 7px !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .walletBox {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    align-self: center !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: rgba(7,17,31,.84) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .usdWalletSelectorV12,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .demoWalletSelectorV12 {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 17px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .compactDepositButton,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerDepositBtn,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .depositTop {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 50px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    align-self: center !important;
+    grid-template-columns: 1fr !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .compactDepositButton span,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .compactDepositButton b,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerDepositBtn b {
+    border-left: 0 !important;
+    background: transparent !important;
+    font-size: 22px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerBellBtn,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .bellBtn,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerAvatarBtn,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .avatarBtn {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    align-self: center !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerBellBtn i {
+    font-size: 21px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerBellBtn b {
+    top: -3px !important;
+    right: -3px !important;
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 10px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerAvatarBtn {
+    font-size: 14px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerAvatarBtn span {
+    display: none !important;
+  }
+
+  /* Popovers remain anchored to the header, above the trade workspace. */
+  .app.activePage-trade > .cleanBrokerHeader > .accountPickerPanel,
+  .app.activePage-trade > .cleanBrokerHeader > .notificationPanel,
+  .app.activePage-trade > .brokerTopHeader > .accountPickerPanel,
+  .app.activePage-trade > .brokerTopHeader > .notificationPanel,
+  .app.activePage-trade > .topHeader > .accountPickerPanel,
+  .app.activePage-trade > .topHeader > .notificationPanel {
+    z-index: 5000 !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1280px) {
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .brokerTopHeader,
+  .app.activePage-trade > .topHeader {
+    padding-inline: 10px !important;
+    gap: 8px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 {
+    gap: 8px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 21px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    padding: 0 6px !important;
+    font-size: 10px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 {
+    gap: 7px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .walletBox {
+    flex-basis: 166px !important;
+    width: 166px !important;
+    min-width: 166px !important;
+    max-width: 166px !important;
+  }
+
+  .app.activePage-trade .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-trade .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 15px !important;
+  }
+}
