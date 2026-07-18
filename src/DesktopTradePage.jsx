@@ -217,6 +217,7 @@ export default function DesktopTradePage({
               <label className="mbDeskFloatingMarketSelectorV88">
                 <span className="mbDeskFloatingMarketIconV88">▥</span>
                 <div>
+                  <strong className="mbDeskFloatingMarketNameV90">{binaryMarket?.label || "Volatility Market"}</strong>
                   <select
                     className="mbDeskWholeCardMarketSelectV89"
                     value={binaryMarketId}
