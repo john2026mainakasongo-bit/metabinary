@@ -39030,3 +39030,248 @@ body,
     z-index: 12000 !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V69 — DESKTOP/LAPTOP TRADE VISUAL REPAIR
+   - 1024px+ only. Mobile/tablet rules are untouched.
+   - Restores a compact desktop header.
+   - Removes the legacy internal chart rows that were clipping the 0–9 board.
+   - Shows all ten digits as two complete 5-column rows.
+   - Keeps the order controls directly below the digit board.
+   - Keeps the AI orb clear of ODD/EVEN and above the bottom navigation.
+   ========================================================================== */
+@media (min-width: 1024px) {
+  /* Trade page shell only — do not change phone/tablet or other pages. */
+  .app.activePage-trade {
+    grid-template-rows: 58px minmax(0, 1fr) 54px !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .topHeader,
+  .app.activePage-trade > .brokerTopHeader {
+    height: 58px !important;
+    min-height: 58px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .app.activePage-trade .cleanBrokerHeader .brokerLogoMark,
+  .app.activePage-trade .brokerTopHeader .brokerLogoMark {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+  }
+
+  .app.activePage-trade .cleanBrokerHeader .brokerLogo strong,
+  .app.activePage-trade .brokerTopHeader .brokerLogo strong {
+    font-size: 26px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-trade .cleanBrokerHeader .brokerWallet,
+  .app.activePage-trade .brokerTopHeader .brokerWallet {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+
+  .app.activePage-trade .cleanBrokerHeader .compactDepositButton,
+  .app.activePage-trade .cleanBrokerHeader .brokerDepositBtn,
+  .app.activePage-trade .brokerTopHeader .brokerDepositBtn {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+
+  .app.activePage-trade .cleanBrokerHeader .brokerBellBtn,
+  .app.activePage-trade .brokerTopHeader .brokerBellBtn {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  .app.activePage-trade .cleanBrokerHeader .brokerAvatarBtn,
+  .app.activePage-trade .brokerTopHeader .brokerAvatarBtn {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 6px 14px 4px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage {
+    width: min(1500px, 100%) !important;
+    max-width: 1500px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 36px 50px 194px 116px !important;
+    align-content: start !important;
+    gap: 7px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalContractTabs {
+    grid-row: 1 !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .volatilitySwitchBar,
+  .app.activePage-trade .finalBinaryTradePage .volatilitySwitchButton {
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  /* Critical fix: older desktop CSS gave this card five internal chart rows.
+     On digit contracts those invisible rows pushed the digit board downward and
+     clipped row 2. Make the digit card a single positioning surface instead. */
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard {
+    grid-row: 3 !important;
+    position: relative !important;
+    display: block !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    width: 100% !important;
+    height: 194px !important;
+    min-height: 194px !important;
+    max-height: 194px !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    position: absolute !important;
+    inset: 0 !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 10px 30px 14px !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: 54px !important;
+    --mb-v23-row-height: 68px !important;
+    position: relative !important;
+    width: min(860px, 76%) !important;
+    max-width: 860px !important;
+    height: 150px !important;
+    min-height: 150px !important;
+    max-height: 150px !important;
+    margin: 0 auto !important;
+    padding: 2px 0 12px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 68px) !important;
+    align-content: center !important;
+    justify-content: center !important;
+    justify-items: center !important;
+    column-gap: clamp(24px, 3.2vw, 56px) !important;
+    row-gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: 17px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    font-size: 8px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryOrderCard,
+  .app.activePage-trade .finalBinaryTradePage .proBinaryOrderCard.finalBinaryOrderCard {
+    grid-row: 4 !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 116px !important;
+    min-height: 116px !important;
+    max-height: 116px !important;
+    margin: 0 !important;
+    padding: 9px 10px !important;
+    display: grid !important;
+    grid-template-columns: minmax(390px, .78fr) minmax(600px, 1.55fr) !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalOrderInputs,
+  .app.activePage-trade .finalBinaryTradePage .orderInputsTop.finalOrderInputs {
+    height: 100% !important;
+    min-height: 0 !important;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr) !important;
+    gap: 10px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalTradeButtons,
+  .app.activePage-trade .finalBinaryTradePage .proTradeButtons.finalTradeButtons {
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  /* Default desktop resting point. This deliberately affects only the trade
+     page at laptop/desktop widths, keeping it out of the ODD/EVEN buttons. */
+  .app.activePage-trade .floatingAiButton.aiPage-trade {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 66px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+    z-index: 12000 !important;
+  }
+}
