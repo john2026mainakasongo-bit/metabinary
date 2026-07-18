@@ -189,3 +189,130 @@
   .app.activePage-trade .mbDeskDigitsV81 button strong{font-size:15px !important}.app.activePage-trade .mbDeskDigitsV81 button small{font-size:7px !important}
   .app.activePage-trade .mbDeskTradePanelV81{padding:10px !important;gap:8px !important}.app.activePage-trade .mbDeskActionV81{min-height:78px !important;padding:10px 14px !important}.app.activePage-trade .mbDeskActionV81 strong{font-size:19px !important}.app.activePage-trade .mbDeskAiCardV81{min-height:58px !important}.app.activePage-trade .mbDeskQuickStakeV81{gap:4px !important}.app.activePage-trade .mbDeskQuickStakeV81 button{font-size:10px !important}
 }
+
+/* ========================================================================== 
+   METABINARY V83 — TRUE SPLIT DESKTOP COMPONENT
+   The desktop workspace is now a separate React component. These rules apply
+   only to that component, so the existing phone/tablet trade DOM and CSS are
+   not modified by future desktop layout work.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .mbDesktopTradeSplitV83 {
+    isolation: isolate;
+  }
+}
+
+/* ========================================================================== 
+   METABINARY V84 — LAPTOP HEIGHT FIT POLISH
+   Keeps the split desktop layout, but compresses only the desktop right panel
+   on shorter laptop viewports so EVEN, ODD and AI Scanner stay visible.
+   Mobile/tablet are untouched because this starts at 1024px width.
+   ========================================================================== */
+@media screen and (min-width: 1024px) and (max-height: 950px) {
+  .app.activePage-trade > .mainScreen {
+    padding: 8px !important;
+  }
+
+  .app.activePage-trade .mbDesktopTradeV81 {
+    grid-template-rows: minmax(0, 1fr) 38px !important;
+    gap: 8px !important;
+  }
+
+  .app.activePage-trade .mbDeskCenterV81 {
+    grid-template-rows: 74px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .app.activePage-trade .mbDeskTradePanelV81 {
+    padding: 10px !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .mbDeskPanelHeadV81 {
+    min-height: 30px !important;
+  }
+
+  .app.activePage-trade .mbDeskPanelHeadV81 strong {
+    font-size: 17px !important;
+  }
+
+  .app.activePage-trade .mbDeskTradeTabsV81 button {
+    height: 34px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-trade .mbDeskMarketSelectV81 {
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  .app.activePage-trade .mbDeskMarketSelectV81 > span {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .app.activePage-trade .mbDeskStakeControlV81 {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  .app.activePage-trade .mbDeskQuickStakeV81 {
+    gap: 5px !important;
+  }
+
+  .app.activePage-trade .mbDeskQuickStakeV81 button {
+    height: 29px !important;
+    font-size: 10px !important;
+  }
+
+  .app.activePage-trade .mbDeskDurationV81 > div {
+    height: 34px !important;
+  }
+
+  .app.activePage-trade .mbDeskActionV81 {
+    min-height: 76px !important;
+    padding: 10px 14px !important;
+    gap: 3px !important;
+  }
+
+  .app.activePage-trade .mbDeskActionV81 strong {
+    font-size: 19px !important;
+  }
+
+  .app.activePage-trade .mbDeskActionV81 span,
+  .app.activePage-trade .mbDeskActionV81 small {
+    font-size: 10px !important;
+  }
+
+  .app.activePage-trade .mbDeskAiCardV81 {
+    min-height: 54px !important;
+    grid-template-columns: 40px minmax(0, 1fr) auto !important;
+    padding: 7px 9px !important;
+  }
+
+  .app.activePage-trade .mbDeskAiCardV81 > span {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 12px !important;
+  }
+
+  .app.activePage-trade .mbDeskAiCardV81 div small {
+    margin-top: 2px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-trade .mbDeskAiCardV81 > b {
+    padding: 7px 9px !important;
+  }
+
+  .app.activePage-trade .mbDeskDigitsV81 {
+    padding-top: 5px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .app.activePage-trade .mbDeskFooterV81 {
+    min-height: 38px !important;
+    height: 38px !important;
+  }
+}
