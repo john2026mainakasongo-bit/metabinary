@@ -184,30 +184,6 @@ export default function DesktopTradePage({
       </aside>
 
       <main className="mbDeskCenterV81">
-        <section className="mbDeskMarketHeaderV81">
-          <label className="mbDeskMarketIdentityV81 mbDeskCenterMarketSelectorV86">
-            <span>{binaryMarket?.short || "V50"}</span>
-            <div>
-              <small>VOLATILITY MARKET</small>
-              <select
-                value={binaryMarketId}
-                onChange={(event) => setBinaryMarketId(event.target.value)}
-                disabled={Boolean(activeBinaryTrade)}
-                aria-label="Select volatility market"
-              >
-                {volatilityOptions.map((market) => (
-                  <option key={market.id} value={market.id}>{market.label}</option>
-                ))}
-              </select>
-            </div>
-            <i>● LIVE</i>
-          </label>
-          <div className="mbDeskMarketStatV81"><strong>{indexValue.toFixed(2)}</strong><small>Index</small></div>
-          <div className="mbDeskMarketStatV81 negative"><strong>-0.07%</strong><small>24h Change</small></div>
-          <div className="mbDeskMarketStatV81"><strong>{(indexValue + priceStep * 2.2).toFixed(2)}</strong><small>24h High</small></div>
-          <div className="mbDeskMarketStatV81"><strong>{(indexValue - priceStep * 4.1).toFixed(2)}</strong><small>24h Low</small></div>
-        </section>
-
         <section ref={chartPanelRef} className={`mbDeskChartPanelV81 chartMode-${chartMode}`}>
           <div className="mbDeskChartToolbarV81">
             <select value={timeframe} onChange={(event) => setTimeframe(event.target.value)} aria-label="Chart timeframe">
@@ -237,6 +213,30 @@ export default function DesktopTradePage({
           </div>
 
           <div className="mbDeskChartCanvasV81">
+            <div className="mbDeskFloatingMarketCardV88">
+              <span className="mbDeskFloatingTimeBadgeV88">{timeframe}</span>
+              <label className="mbDeskFloatingMarketSelectorV88">
+                <span className="mbDeskFloatingMarketIconV88">▥</span>
+                <div>
+                  <select
+                    value={binaryMarketId}
+                    onChange={(event) => setBinaryMarketId(event.target.value)}
+                    disabled={Boolean(activeBinaryTrade)}
+                    aria-label="Select volatility market"
+                  >
+                    {volatilityOptions.map((market) => (
+                      <option key={market.id} value={market.id}>{market.label}</option>
+                    ))}
+                  </select>
+                  <small>
+                    <strong>{indexValue.toFixed(2)}</strong>
+                    <em>-0.07%</em>
+                    <i>↗</i>
+                  </small>
+                </div>
+                <b>⌄</b>
+              </label>
+            </div>
             {LineChartComponent ? (
               <LineChartComponent data={chartData} anchorValue={chartAnchor} />
             ) : null}

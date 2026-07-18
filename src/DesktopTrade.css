@@ -557,3 +557,163 @@
     min-width: 184px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V88 — MARKET SELECTOR INSIDE THE CHART
+   Desktop/laptop only. The separate market header is removed from the center
+   column and replaced by a compact floating market card inside the chart,
+   matching the requested broker-style reference. Mobile/tablet remain intact.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-trade .mbDeskCenterV81 {
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: 0 !important;
+  }
+
+  .app.activePage-trade .mbDeskChartPanelV81 {
+    height: 100% !important;
+    grid-template-rows: 46px minmax(0, 1fr) 28px 92px !important;
+  }
+
+  .app.activePage-trade .mbDeskChartCanvasV81 {
+    isolation: isolate !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketCardV88 {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 30 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    pointer-events: auto !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingTimeBadgeV88 {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 54px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 10px !important;
+    background: rgba(20, 49, 68, .96) !important;
+    border: 1px solid rgba(73, 153, 190, .28) !important;
+    color: #65d4df !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .22) !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
+    width: min(360px, 42vw) !important;
+    min-width: 300px !important;
+    height: 54px !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) 22px !important;
+    gap: 10px !important;
+    align-items: center !important;
+    padding: 0 11px !important;
+    border-radius: 11px !important;
+    background: rgba(26, 38, 58, .97) !important;
+    border: 1px solid rgba(105, 132, 171, .28) !important;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, .28) !important;
+    backdrop-filter: blur(12px) !important;
+    cursor: pointer !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketIconV88 {
+    width: 36px !important;
+    height: 36px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 9px !important;
+    background: rgba(30, 84, 104, .5) !important;
+    color: #51c8d5 !important;
+    font-size: 18px !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 > div {
+    min-width: 0 !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 select {
+    width: 100% !important;
+    min-width: 0 !important;
+    border: 0 !important;
+    outline: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #f4f8ff !important;
+    font-size: 15px !important;
+    line-height: 1.1 !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 select:disabled {
+    opacity: .7 !important;
+    cursor: not-allowed !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 select option {
+    color: #fff !important;
+    background: #07111f !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-top: 4px !important;
+    color: #c9d3e2 !important;
+    font-size: 10px !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small strong {
+    color: #edf4ff !important;
+    font-size: 11px !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small em {
+    color: #ff4b63 !important;
+    font-style: normal !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small i {
+    color: #ff4b63 !important;
+    font-style: normal !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 > b {
+    color: #a6b4c8 !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    justify-self: center !important;
+  }
+
+  /* Keep chart details from hiding behind the floating selector card. */
+  .app.activePage-trade .mbDeskIndicatorOverlayV85 {
+    top: 78px !important;
+  }
+
+  .app.activePage-trade .mbDeskActiveTradeBadgeV81 {
+    top: 82px !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1365px) {
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
+    width: min(300px, 38vw) !important;
+    min-width: 250px !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingTimeBadgeV88 {
+    width: 40px !important;
+    min-width: 40px !important;
+  }
+}
