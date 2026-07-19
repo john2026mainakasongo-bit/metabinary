@@ -45245,3 +45245,92 @@ body,
     height: 98px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V124 — REMOVE EXTRA DIGIT SPACE + SLIGHTLY SMALLER CIRCLES
+   Mobile only:
+   - remove the empty space under the 10 digits
+   - make digit circles a bit smaller
+   - tighten the 2-row digit layout
+   - keep desktop/laptop unchanged
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    min-height: 214px !important;
+    height: 214px !important;
+    max-height: 214px !important;
+    padding: 6px 4px 6px !important;
+    margin: 2px 0 0 !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(52px, 14.2vw, 61px) !important;
+    min-height: 196px !important;
+    height: 196px !important;
+    max-height: 196px !important;
+    grid-template-rows: repeat(2, 84px) !important;
+    row-gap: 6px !important;
+    column-gap: 1px !important;
+    padding: 0 0 4px !important;
+    align-content: start !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    width: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    max-width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+    max-height: var(--mb-v23-cell-size) !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: clamp(23px, 6.1vw, 31px) !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    margin-top: 3px !important;
+    font-size: clamp(9px, 2.5vw, 12px) !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbCursorV7,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    bottom: -10px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalBinaryOrderCard,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .proBinaryOrderCard.finalBinaryOrderCard {
+    margin-top: 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    min-height: 206px !important;
+    height: 206px !important;
+    max-height: 206px !important;
+    padding: 5px 3px 5px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(50px, 13.8vw, 58px) !important;
+    min-height: 188px !important;
+    height: 188px !important;
+    max-height: 188px !important;
+    grid-template-rows: repeat(2, 81px) !important;
+    row-gap: 5px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: clamp(22px, 5.8vw, 29px) !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    font-size: clamp(9px, 2.4vw, 11px) !important;
+  }
+}
