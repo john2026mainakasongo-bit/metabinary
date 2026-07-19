@@ -397,14 +397,49 @@
 
 
 /* ==========================================================================
-   METABINARY V134 — TRUE MOBILE DIGIT DONUT CUTOUT
-   Final ring repair:
-   - keeps the existing conic-gradient ring colors
-   - creates the black center with ::after on the ring itself
-   - removes dependency on mbDigitCoreV7 background for the donut shape
-   - keeps layout, spacing, chart, controls, and desktop unchanged
+   METABINARY V135 — TRUE MOBILE DIGIT DONUT USING CELL CUTOUT
+   Robust fix:
+   - keep the real dynamic conic-gradient ring untouched
+   - draw the black centre on the BUTTON itself with ::before
+   - keep text above the cutout
+   - no masks and no pseudo-element on mbDigitRingV7
    ========================================================================== */
 @media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled {
+    position: relative !important;
+    isolation: isolate !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+    overflow: visible !important;
+  }
+
+  /* Real black centre that always covers the middle of the full gradient disc. */
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 39px !important;
+    height: 39px !important;
+    border-radius: 50% !important;
+    background: #02070d !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 3 !important;
+    pointer-events: none !important;
+  }
+
+  /* Keep the dynamic ring as the bottom layer. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7 {
@@ -424,40 +459,37 @@
     box-shadow: none !important;
   }
 
+  /* Disable any previous ring pseudo cutouts completely. */
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitRingV7::before,
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 9px !important;
-    top: 9px !important;
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    z-index: 5 !important;
-    pointer-events: none !important;
+    content: none !important;
+    display: none !important;
   }
 
+  /* The core carries text only; the button ::before supplies the black centre. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7 {
     position: relative !important;
-    z-index: 10 !important;
-    width: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
+    z-index: 5 !important;
+    width: 39px !important;
+    min-width: 39px !important;
+    max-width: 39px !important;
+    height: 39px !important;
+    min-height: 39px !important;
+    max-height: 39px !important;
     margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
     place-content: center !important;
     gap: 2px !important;
+    border: 0 !important;
     border-radius: 50% !important;
     background: transparent !important;
-    border: 0 !important;
     box-shadow: none !important;
     transform: none !important;
   }
@@ -467,25 +499,55 @@
     > .mbDigitCoreV7
     > strong {
     position: relative !important;
-    z-index: 11 !important;
+    z-index: 6 !important;
+    color: #ffffff !important;
     font-size: 24px !important;
     line-height: .88 !important;
-    color: #fff !important;
+    text-shadow: none !important;
   }
 
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     .mbDigitPercentV7 {
     position: relative !important;
-    z-index: 11 !important;
+    z-index: 6 !important;
     margin-top: 2px !important;
+    color: #aebbd0 !important;
     font-size: 9.5px !important;
     line-height: 1 !important;
-    color: #aebbd0 !important;
+    text-shadow: none !important;
+  }
+
+  /* Keep picked/current states from repainting the black centre white. */
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130.mbDigitPickedV7
+    > .mbDigitCoreV7,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130.mbDigitCurrentV7
+    > .mbDigitCoreV7 {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130.mbDigitPickedV7
+    > .mbDigitCoreV7
+    > strong,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130.mbDigitPickedV7
+    .mbDigitPercentV7 {
+    color: #ffffff !important;
   }
 }
 
 @media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7 {
@@ -498,11 +560,16 @@
   }
 
   body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130::before,
+  body .app.activePage-trade
     .mobileDigitCellFinalV130
-    > .mbDigitRingV7::after {
-    left: 8px !important;
-    top: 8px !important;
+    > .mbDigitCoreV7 {
     width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
     height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
   }
 }
