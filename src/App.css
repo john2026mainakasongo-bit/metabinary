@@ -44752,3 +44752,112 @@ body,
     bottom: -10px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V121 — MOBILE DIGIT FINAL BALANCE
+   Phone/tablet only. Fixes the remaining row overlap from V120 without
+   bringing back the large empty digit panel.
+   Desktop/laptop remains untouched.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade > .mainScreen {
+    padding-bottom: 118px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 214px !important;
+    height: 214px !important;
+    max-height: 214px !important;
+    margin: 4px 0 0 !important;
+    padding: 6px 5px 8px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(50px, 13.8vw, 58px) !important;
+    width: 100% !important;
+    min-height: 194px !important;
+    height: 194px !important;
+    max-height: 194px !important;
+    padding: 0 0 8px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 84px) !important;
+    align-items: center !important;
+    align-content: start !important;
+    justify-items: center !important;
+    column-gap: 3px !important;
+    row-gap: 16px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    position: relative !important;
+    width: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    max-width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+    max-height: var(--mb-v23-cell-size) !important;
+    transform: none !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: clamp(22px, 5.9vw, 28px) !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    margin-top: 3px !important;
+    font-size: clamp(9px, 2.45vw, 11.5px) !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbCursorV7,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    bottom: -15px !important;
+    margin: 0 !important;
+    z-index: 5 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalBinaryOrderCard,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .proBinaryOrderCard.finalBinaryOrderCard {
+    margin-top: 0 !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalTradeButtons {
+    margin-bottom: 8px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app.activePage-trade > .mainScreen {
+    padding-bottom: 112px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    min-height: 204px !important;
+    height: 204px !important;
+    max-height: 204px !important;
+    padding: 5px 4px 7px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(48px, 13.5vw, 55px) !important;
+    min-height: 184px !important;
+    height: 184px !important;
+    max-height: 184px !important;
+    grid-template-rows: repeat(2, 80px) !important;
+    row-gap: 14px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbCursorV7,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    bottom: -13px !important;
+  }
+}
