@@ -42578,3 +42578,281 @@ body,
     padding: 5px 8px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V108 — FINAL COMPACT DESKTOP BOT HUB
+   Desktop/laptop only (1024px+).
+   Keeps all four bots visible in one laptop viewport, reduces oversized cards,
+   and removes unnecessary scrolling. Mobile/tablet remain untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-bots {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots > .bottomNav {
+    display: none !important;
+  }
+
+  .app.activePage-bots .floatingAiButton.aiPage-bots {
+    display: none !important;
+  }
+
+  .app.activePage-bots > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 8px 12px 10px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsPage,
+  .app.activePage-bots .botsPage.vSeriesBotsPage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 102px 72px minmax(0, 1fr) !important;
+    gap: 7px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact hero */
+  .app.activePage-bots .vSeriesBotsHeader,
+  .app.activePage-bots .finalBotsHeader.vSeriesBotsHeader {
+    min-height: 102px !important;
+    height: 102px !important;
+    padding: 16px 22px !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader small {
+    font-size: 8px !important;
+    letter-spacing: 1.4px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader h1 {
+    margin: 4px 0 4px !important;
+    font-size: 30px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader p {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader .vSeriesBotStatus,
+  .app.activePage-bots .finalBotsHeader .vSeriesBotStatus {
+    padding: 6px 10px !important;
+    font-size: 9px !important;
+  }
+
+  /* Stats compact in one row */
+  .app.activePage-bots .vSeriesBotStats,
+  .app.activePage-bots .botStats.vSeriesBotStats,
+  .app.activePage-bots .finalBotStats.vSeriesBotStats {
+    min-height: 72px !important;
+    height: 72px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats .statCard,
+  .app.activePage-bots .botStats.vSeriesBotStats .statCard,
+  .app.activePage-bots .finalBotStats.vSeriesBotStats .statCard {
+    min-width: 0 !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    grid-template-columns: 42px minmax(0, 1fr) 78px !important;
+    gap: 8px !important;
+    padding: 9px 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats .statCard > b {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 17px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats .statCard strong {
+    font-size: 17px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats .statCard span {
+    margin-top: 2px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats .statCard .miniSpark,
+  .app.activePage-bots .vSeriesBotStats .statCard svg {
+    max-height: 34px !important;
+  }
+
+  /* All four bot cards visible together. */
+  .app.activePage-bots .vSeriesBotGrid,
+  .app.activePage-bots .botGrid.vSeriesBotGrid,
+  .app.activePage-bots .finalBotGrid.vSeriesBotGrid {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCard,
+  .app.activePage-bots .botCard.vSeriesBotCard,
+  .app.activePage-bots .finalBotCard.vSeriesBotCard {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    grid-template-columns: 46px minmax(0, 1fr) auto !important;
+    grid-template-rows: auto auto auto 38px !important;
+    gap: 6px 10px !important;
+    align-content: start !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotIcon,
+  .app.activePage-bots .botIcon.vSeriesBotIcon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCardHead {
+    display: contents !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStatus {
+    align-self: start !important;
+    padding: 5px 8px !important;
+    font-size: 8px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy {
+    grid-column: 1 / -1 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy h2 {
+    margin: 0 !important;
+    font-size: 16px !important;
+    line-height: 1.05 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy p {
+    margin: 3px 0 !important;
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy small {
+    display: block !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    max-height: 28px !important;
+    overflow: hidden !important;
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  .app.activePage-bots .vSeriesMeta {
+    grid-column: 1 / -1 !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    margin: 0 !important;
+    padding: 7px 9px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesMeta small {
+    font-size: 7px !important;
+  }
+
+  .app.activePage-bots .vSeriesMeta strong {
+    margin-top: 2px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotAction,
+  .app.activePage-bots .botAction.vSeriesBotAction {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+    border-radius: 10px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* 1366×768 and other shorter laptops: compress a little more. */
+@media screen and (min-width: 1024px) and (max-height: 800px) {
+  .app.activePage-bots .vSeriesBotsPage,
+  .app.activePage-bots .botsPage.vSeriesBotsPage {
+    grid-template-rows: 88px 64px minmax(0, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader,
+  .app.activePage-bots .finalBotsHeader.vSeriesBotsHeader {
+    min-height: 88px !important;
+    height: 88px !important;
+    padding: 12px 18px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader h1 {
+    font-size: 26px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats,
+  .app.activePage-bots .botStats.vSeriesBotStats,
+  .app.activePage-bots .finalBotStats.vSeriesBotStats,
+  .app.activePage-bots .vSeriesBotStats .statCard {
+    min-height: 64px !important;
+    height: 64px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCard,
+  .app.activePage-bots .botCard.vSeriesBotCard,
+  .app.activePage-bots .finalBotCard.vSeriesBotCard {
+    padding: 9px 11px !important;
+    grid-template-rows: auto auto 44px 34px !important;
+    gap: 5px 8px !important;
+  }
+
+  .app.activePage-bots .vSeriesMeta {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotAction,
+  .app.activePage-bots .botAction.vSeriesBotAction {
+    min-height: 34px !important;
+    height: 34px !important;
+  }
+}
