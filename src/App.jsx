@@ -6401,6 +6401,24 @@ function TradePage({
                 const whiteCenter = 180 * (1 - percentageLevel);
                 const whiteStart = whiteCenter - whiteSweep / 2;
 
+                // Mobile SVG ring values. SVG avoids the conic-gradient/Core
+                // stacking bugs that affected previous mobile CSS versions.
+                const mobileRingSweep = isHighest
+                  ? 72
+                  : isLowest
+                    ? 18
+                    : Math.round(18 + percentageLevel * 58);
+                const mobileRingStart = isHighest
+                  ? 220
+                  : isLowest
+                    ? 145
+                    : Math.round(whiteStart);
+                const mobileRingColor = isHighest
+                  ? "#20d692"
+                  : isLowest
+                    ? "#ff4058"
+                    : "#f6f8fa";
+
                 return (
                   <button
                     key={digit}
@@ -6426,6 +6444,30 @@ function TradePage({
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                   >
+                    <svg
+                      className="mobileDigitRingSvgV139"
+                      viewBox="0 0 60 60"
+                      aria-hidden="true"
+                      style={{ display: "none" }}
+                    >
+                      <circle
+                        className="mobileDigitRingBaseV139"
+                        cx="30"
+                        cy="30"
+                        r="25"
+                        pathLength="100"
+                      />
+                      <circle
+                        className="mobileDigitRingArcV139"
+                        cx="30"
+                        cy="30"
+                        r="25"
+                        pathLength="100"
+                        stroke={mobileRingColor}
+                        strokeDasharray={`${mobileRingSweep} ${100 - mobileRingSweep}`}
+                        transform={`rotate(${mobileRingStart} 30 30)`}
+                      />
+                    </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
                     <span className="mbDigitCoreV7">
                       <strong>{digit}</strong>
