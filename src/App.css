@@ -44293,3 +44293,89 @@ body,
     height: 86px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V117 — MOBILE DIGIT ROW SPACING FIX
+   Phone/tablet only. Desktop/laptop remains untouched.
+   Fixes digit-row overlap while preserving the compact chart and trade controls.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    min-height: 218px !important;
+    margin: 4px 0 0 !important;
+    padding: 6px 4px 10px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(48px, 13.9vw, 62px) !important;
+    --mb-v23-row-height: clamp(94px, 23vw, 106px) !important;
+    width: 100% !important;
+    min-height: 198px !important;
+    height: auto !important;
+    padding: 0 0 10px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, var(--mb-v23-row-height)) !important;
+    align-items: center !important;
+    justify-items: center !important;
+    column-gap: 2px !important;
+    row-gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+    width: var(--mb-v23-cell-size) !important;
+    min-width: var(--mb-v23-cell-size) !important;
+    max-width: var(--mb-v23-cell-size) !important;
+    height: var(--mb-v23-cell-size) !important;
+    min-height: var(--mb-v23-cell-size) !important;
+    max-height: var(--mb-v23-cell-size) !important;
+    transform: none !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+    font-size: clamp(21px, 5.8vw, 28px) !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    margin-top: 3px !important;
+    font-size: clamp(8px, 2.35vw, 11px) !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbCursorV7 {
+    bottom: -14px !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* Keep the rest of the approved layout where it is. */
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalBinaryOrderCard,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .proBinaryOrderCard.finalBinaryOrderCard {
+    margin-top: 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app.activePage-trade .finalBinaryTradePage .finalBinaryChartCard.digitOnlyCard > .digitBoardNumbersOnlyV23,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+    min-height: 208px !important;
+    padding: 5px 3px 9px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+    --mb-v23-cell-size: clamp(46px, 13.5vw, 58px) !important;
+    --mb-v23-row-height: clamp(90px, 22vw, 100px) !important;
+    min-height: 188px !important;
+    column-gap: 1px !important;
+    row-gap: 7px !important;
+  }
+
+  .app.activePage-trade .digitBoardNumbersOnlyV23 .mbCursorV7 {
+    bottom: -13px !important;
+  }
+}
