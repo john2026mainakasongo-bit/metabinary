@@ -6364,11 +6364,11 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 ${activeBinaryTrade ? "isTrading" : ""}`}
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 cleanMobileDigitBoardV128 ${activeBinaryTrade ? "isTrading" : ""}`}
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
           >
             <div
-              className="mbDigitGridV7"
+              className="mbDigitGridV7 cleanMobileDigitGridV128"
               aria-label="Digit percentages"
               style={{
                 "--mb-active-digit": lastDigit,
@@ -6408,6 +6408,7 @@ function TradePage({
                     disabled={Boolean(activeBinaryTrade)}
                     className={[
                       "mbDigitCellV7",
+                      "cleanMobileDigitCellV128",
                       isHighest ? "mbDigitHighestV7" : "",
                       isLowest ? "mbDigitLowestV7" : "",
                       isPicked ? "mbDigitPickedV7" : "",
@@ -6421,6 +6422,8 @@ function TradePage({
                       "--mb-v7-white-start": `${whiteStart}deg`,
                       "--mb-v58-digit-left": `${12 + (digit % 5) * 19}%`,
                       "--mb-v58-digit-top": digit < 5 ? "36%" : "64%",
+                      gridColumn: (digit % 5) + 1,
+                      gridRow: Math.floor(digit / 5) + 1,
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
                   >
@@ -6433,7 +6436,7 @@ function TradePage({
                 );
               })}
               <i
-                className="singleDigitCursorV7"
+                className="singleDigitCursorV7 cleanMobileDigitCursorV128"
                 aria-hidden="true"
                 style={{
                   "--mb-v58-cursor-left": `${12 + (lastDigit % 5) * 19}%`,

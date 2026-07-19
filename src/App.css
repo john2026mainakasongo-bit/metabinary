@@ -44204,3 +44204,171 @@ body,
     max-height: 88px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V128 — FINAL MOBILE DIGIT ROW GAP
+   Uses unique V128 hooks added to App.jsx.
+   Mobile/tablet only. Desktop/laptop is untouched.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade .cleanMobileDigitBoardV128 {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 196px !important;
+    min-height: 196px !important;
+    max-height: 196px !important;
+    margin: 0 !important;
+    padding: 4px 5px 8px !important;
+    display: block !important;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background: rgba(5, 12, 22, .72) !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitGridV128 {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: 72px 72px !important;
+    column-gap: 2px !important;
+    row-gap: 22px !important;
+    align-items: center !important;
+    align-content: start !important;
+    justify-items: center !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitGridV128 > .cleanMobileDigitCellV128,
+  .app.activePage-trade .cleanMobileDigitGridV128 > .cleanMobileDigitCellV128:disabled {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    transform: none !important;
+    animation: none !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitCellV128 > .mbDigitRingV7 {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    max-width: 52px !important;
+    max-height: 52px !important;
+    border-radius: 50% !important;
+    transform: none !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitCellV128 > .mbDigitCoreV7 {
+    position: relative !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-content: center !important;
+    gap: 2px !important;
+    border-radius: 50% !important;
+    transform: none !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitCellV128 > .mbDigitCoreV7 > strong {
+    font-size: 23px !important;
+    line-height: .9 !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitCellV128 .mbDigitPercentV7 {
+    margin-top: 2px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitGridV128 > .cleanMobileDigitCursorV128 {
+    position: absolute !important;
+    left: calc((var(--mb-active-col) + .5) * 20%) !important;
+    top: calc((var(--mb-active-row) * 94px) + 66px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid transparent !important;
+    border-bottom: 10px solid #ff4058 !important;
+    border-top: 0 !important;
+    background: transparent !important;
+    transform: translateX(-50%) !important;
+    filter: drop-shadow(0 3px 6px rgba(255, 64, 88, .42)) !important;
+    z-index: 30 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app.activePage-trade .cleanMobileDigitBoardV128 {
+    height: 188px !important;
+    min-height: 188px !important;
+    max-height: 188px !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitGridV128 {
+    height: 172px !important;
+    min-height: 172px !important;
+    max-height: 172px !important;
+    grid-template-rows: 69px 69px !important;
+    row-gap: 20px !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitGridV128 > .cleanMobileDigitCellV128,
+  .app.activePage-trade .cleanMobileDigitGridV128 > .cleanMobileDigitCellV128:disabled,
+  .app.activePage-trade .cleanMobileDigitCellV128 > .mbDigitRingV7 {
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitCellV128 > .mbDigitCoreV7 {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitGridV128 > .cleanMobileDigitCursorV128 {
+    top: calc((var(--mb-active-row) * 89px) + 63px) !important;
+  }
+}
