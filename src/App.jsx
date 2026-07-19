@@ -5934,7 +5934,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [], anchorValue = null }) {
+function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -5988,11 +5988,6 @@ function LineChart({ data = [], anchorValue = null }) {
   const chartTop = 10;
   const chartBottom = 90;
   const chartLeft = 2;
-
-  // Keep the newest live tick around the middle-right of the chart instead of
-  // pinning it to the far-right edge. The empty space on the right acts as the
-  // forward area, so the price action remains easy to watch as new ticks arrive.
-  const livePointX = 58;
 
   const points = safeValues.map((value, index) => {
     const progress = index / Math.max(1, safeValues.length - 1);
@@ -6100,6 +6095,16 @@ function TradePage({
   const riseMode = tradeType === "Rise/Fall";
   const indexValue = livePrice * Number(binaryMarket?.scale || 800);
   const priceStep = Number(binaryMarket?.priceStep || 2);
+  const scaledDigitPrices = prices.map((value) => value * Number(binaryMarket?.scale || 800));
+  const digitChartStartPrice = Number(scaledDigitPrices[0] || indexValue || 0);
+  const digitChartChange = Number((indexValue - digitChartStartPrice).toFixed(2));
+  const digitChartChangePercent = digitChartStartPrice
+    ? Number(((digitChartChange / digitChartStartPrice) * 100).toFixed(2))
+    : 0;
+  const digitChartTimeLabels = [4, 3, 2, 1, 0].map((minutesAgo) => {
+    const time = new Date(Date.now() - minutesAgo * 60_000);
+    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  });
   const safeStake = Math.max(0, Number(stake) || 0);
   const payoutOptions = { ticks: duration };
   const rateOne = payoutRate(tradeType, actions[0], prediction, payoutOptions);
@@ -6226,23 +6231,25 @@ function TradePage({
         ))}
       </section>
 
-      <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
-        <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
-          <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
-          <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
-          <span className="volatilitySwitchLive"><i></i> LIVE</span>
-          <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
-        </button>
-        {marketMenuOpen && (
-          <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
-            {volatilityOptions.map((market) => (
-              <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
-                <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
-              </button>
-            ))}
-          </div>
-        )}
-      </section>
+      {!digitMode && (
+        <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
+          <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
+            <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
+            <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
+            <span className="volatilitySwitchLive"><i></i> LIVE</span>
+            <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
+          </button>
+          {marketMenuOpen && (
+            <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
+              {volatilityOptions.map((market) => (
+                <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
+                  <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className={`proTradeChartCard binaryChartWithDigits finalBinaryChartCard ${digitMode ? "digitOnlyCard" : "priceOnlyCard"}`}>
         {!digitMode && (
@@ -6283,6 +6290,75 @@ function TradePage({
             <span><small>Current</small><b>{(activeTradeCurrent * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Live position</small><b>{activePriceWinning ? "Winning" : "Losing"} {activePreviewNet >= 0 ? "+" : ""}{money(activePreviewNet)} USD</b></span>
             <span><small>Time</small><b>{activeBinaryTrade.remainingTicks} tick{activeBinaryTrade.remainingTicks === 1 ? "" : "s"}</b></span>
+          </div>
+        )}
+
+        {digitMode && (
+          <div className={`mobileDigitLiveChartV115 ${marketMenuOpen ? "open" : ""}`}>
+            <button
+              type="button"
+              className="mobileDigitMarketHeadV115"
+              onClick={() => setMarketMenuOpen((open) => !open)}
+              disabled={Boolean(activeBinaryTrade)}
+              aria-haspopup="listbox"
+              aria-expanded={marketMenuOpen}
+            >
+              <span className="mobileDigitMarketBadgeV115">{binaryMarket?.short || "V100"}</span>
+              <span className="mobileDigitMarketCopyV115">
+                <strong>{binaryMarket?.label || "Volatility 100 Index"}</strong>
+                <small className={digitChartChange >= 0 ? "positive" : "negative"}>
+                  {indexValue.toFixed(2)}
+                  {"  "}
+                  {digitChartChange >= 0 ? "+" : ""}
+                  {digitChartChange.toFixed(2)}
+                  {" ("}
+                  {digitChartChangePercent >= 0 ? "+" : ""}
+                  {digitChartChangePercent.toFixed(2)}%)
+                </small>
+              </span>
+              <span className="mobileDigitMarketLiveV115"><i></i> LIVE</span>
+              <span className="mobileDigitMarketChevronV115">⌄</span>
+            </button>
+
+            {marketMenuOpen && (
+              <div className="mobileDigitMarketMenuV115" role="listbox" aria-label="Volatility markets">
+                {volatilityOptions.map((market) => (
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={market.id === binaryMarketId}
+                    key={market.id}
+                    className={market.id === binaryMarketId ? "active" : ""}
+                    onClick={() => {
+                      setBinaryMarketId(market.id);
+                      setMarketMenuOpen(false);
+                    }}
+                  >
+                    <span>{market.short}</span>
+                    <div>
+                      <strong>{market.label}</strong>
+                      <small>{market.description}</small>
+                    </div>
+                    <i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mobileDigitChartCanvasV115">
+              <LineChart data={scaledDigitPrices} livePointX={96} />
+              <div className="mobileDigitChartGridV115" aria-hidden="true"></div>
+              <div className="mobileDigitPriceScaleV115" aria-hidden="true">
+                <span>{(indexValue + priceStep * 2).toFixed(2)}</span>
+                <span>{indexValue.toFixed(2)}</span>
+                <span>{(indexValue - priceStep * 2).toFixed(2)}</span>
+              </div>
+              <div className="mobileDigitCurrentPriceV115">{indexValue.toFixed(2)}</div>
+            </div>
+
+            <div className="mobileDigitTimeRowV115" aria-hidden="true">
+              {digitChartTimeLabels.map((label) => <span key={label}>{label}</span>)}
+            </div>
           </div>
         )}
 
