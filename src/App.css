@@ -39287,3 +39287,400 @@ body,
     border-radius: 8px;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V96 — DESKTOP/LAPTOP BOT HUB
+   1024px+ only:
+   - Uses the same compact desktop header structure as the trade page.
+   - Removes the phone bottom navigation on desktop.
+   - Hides the floating AI orb on the bot library so it cannot cover cards.
+   - Makes the bot library a compact desktop dashboard with a 4-card grid.
+   - Phone/tablet rules below 1024px are untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-bots {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Same real two-group desktop header used by the trade page. */
+  .app.activePage-bots > .cleanBrokerHeader,
+  .app.activePage-bots > .brokerTopHeader,
+  .app.activePage-bots > .topHeader {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 500 !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .brokerMenuBtn {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .brokerLogo,
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .logo {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    height: 38px !important;
+    margin: 0 0 0 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    padding: 0 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 7px !important;
+    background: transparent !important;
+    color: #9eacc0 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button:nth-child(2) {
+    color: #fff !important;
+    background: rgba(8,124,255,.13) !important;
+    border: 1px solid rgba(8,124,255,.35) !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .walletBox {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: rgba(7,17,31,.84) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .usdWalletSelectorV12,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .demoWalletSelectorV12 {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 17px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .compactDepositButton,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerDepositBtn,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .depositTop {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 50px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    grid-template-columns: 1fr !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .compactDepositButton span,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .compactDepositButton b,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerDepositBtn b {
+    border-left: 0 !important;
+    background: transparent !important;
+    font-size: 22px !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerBellBtn,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .bellBtn,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerAvatarBtn,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .avatarBtn {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerAvatarBtn span {
+    display: none !important;
+  }
+
+  /* Desktop bot workspace: no mobile bottom nav and no floating AI obstruction. */
+  .app.activePage-bots > .bottomNav {
+    display: none !important;
+  }
+
+  .app.activePage-bots .floatingAiButton.aiPage-bots {
+    display: none !important;
+  }
+
+  .app.activePage-bots > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 10px 14px 14px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+  }
+
+  .app.activePage-bots > .mainScreen > .vSeriesBotsPage,
+  .app.activePage-bots > .mainScreen > .botsPage.vSeriesBotsPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    display: grid !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 12px !important;
+    padding: 0 0 18px !important;
+    overflow: visible !important;
+  }
+
+  /* Compact hero. */
+  .app.activePage-bots .vSeriesBotsHeader,
+  .app.activePage-bots .finalBotsHeader.vSeriesBotsHeader {
+    min-height: 112px !important;
+    padding: 20px 28px !important;
+    border-radius: 16px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader h1 {
+    margin: 5px 0 5px !important;
+    font-size: 34px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader p {
+    margin: 0 !important;
+    max-width: 760px !important;
+    font-size: 13px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader small {
+    font-size: 10px !important;
+    letter-spacing: 1.6px !important;
+  }
+
+  /* Stats stay in one desktop row. */
+  .app.activePage-bots .vSeriesBotStats,
+  .app.activePage-bots .botStats.vSeriesBotStats,
+  .app.activePage-bots .finalBotStats.vSeriesBotStats {
+    width: 100% !important;
+    min-height: 78px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotStats .statCard,
+  .app.activePage-bots .botStats.vSeriesBotStats .statCard,
+  .app.activePage-bots .finalBotStats.vSeriesBotStats .statCard {
+    min-width: 0 !important;
+    min-height: 78px !important;
+    height: 78px !important;
+    padding: 12px 16px !important;
+    grid-template-columns: 50px minmax(0, 1fr) 100px !important;
+  }
+
+  /* Four bots across on wide laptops/desktops. */
+  .app.activePage-bots .vSeriesBotGrid,
+  .app.activePage-bots .botGrid.vSeriesBotGrid,
+  .app.activePage-bots .finalBotGrid.vSeriesBotGrid {
+    width: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCard,
+  .app.activePage-bots .botCard.vSeriesBotCard,
+  .app.activePage-bots .finalBotCard.vSeriesBotCard {
+    min-width: 0 !important;
+    min-height: 330px !important;
+    height: auto !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCardHead {
+    margin: 0 !important;
+  }
+
+  .app.activePage-bots .vSeriesBotIcon,
+  .app.activePage-bots .botIcon.vSeriesBotIcon {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy {
+    min-height: 96px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy h2 {
+    font-size: 21px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy p {
+    font-size: 11px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCopy small {
+    display: -webkit-box !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    overflow: hidden !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+  }
+
+  .app.activePage-bots .vSeriesMeta {
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+
+  .app.activePage-bots .botAction.vSeriesBotAction,
+  .app.activePage-bots .vSeriesBotAction {
+    width: 100% !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    margin-top: auto !important;
+  }
+}
+
+/* Medium laptops use a 2×2 bot grid so cards stay readable. */
+@media screen and (min-width: 1024px) and (max-width: 1399px) {
+  .app.activePage-bots .vSeriesBotGrid,
+  .app.activePage-bots .botGrid.vSeriesBotGrid,
+  .app.activePage-bots .finalBotGrid.vSeriesBotGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .app.activePage-bots .vSeriesBotCard,
+  .app.activePage-bots .botCard.vSeriesBotCard,
+  .app.activePage-bots .finalBotCard.vSeriesBotCard {
+    min-height: 290px !important;
+  }
+
+  .app.activePage-bots .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    padding-inline: 7px !important;
+    font-size: 10px !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .walletBox {
+    flex-basis: 166px !important;
+    width: 166px !important;
+    min-width: 166px !important;
+    max-width: 166px !important;
+  }
+
+  .app.activePage-bots .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-bots .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 15px !important;
+  }
+}
