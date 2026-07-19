@@ -40493,3 +40493,390 @@ body,
     min-height: 42px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V100 — COMPACT DESKTOP PROFILE
+   Desktop/laptop only (1024px+).
+   Keeps the profile page compact, removes mobile navigation, and preserves
+   the existing mobile/tablet layout below 1024px.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-profile {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact desktop header, matching Trade / Bots / Bot Live / Bot Setup. */
+  .app.activePage-profile > .cleanBrokerHeader,
+  .app.activePage-profile > .brokerTopHeader,
+  .app.activePage-profile > .topHeader {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 500 !important;
+  }
+
+  .app.activePage-profile .desktopHeaderLeftGroupV94 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-profile .desktopHeaderLeftGroupV94 .brokerMenuBtn {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .app.activePage-profile .desktopHeaderLeftGroupV94 .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .app.activePage-profile .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-profile .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-profile .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    height: 38px !important;
+    margin-left: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-profile .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    height: 30px !important;
+    padding: 0 9px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .walletBox {
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: rgba(7,17,31,.84) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .usdWalletSelectorV12,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .demoWalletSelectorV12 {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 17px !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .compactDepositButton,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .brokerDepositBtn,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .depositTop {
+    flex: 0 0 50px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .compactDepositButton span,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .compactDepositButton b,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .brokerDepositBtn b {
+    border-left: 0 !important;
+    background: transparent !important;
+    font-size: 22px !important;
+  }
+
+  .app.activePage-profile .desktopHeaderRightGroupV94 .brokerBellBtn,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .bellBtn,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .brokerAvatarBtn,
+  .app.activePage-profile .desktopHeaderRightGroupV94 .avatarBtn {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
+  /* Remove mobile-only chrome on desktop profile. */
+  .app.activePage-profile > .bottomNav {
+    display: none !important;
+  }
+
+  .app.activePage-profile .floatingAiButton.aiPage-profile {
+    display: none !important;
+  }
+
+  .app.activePage-profile > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 8px 12px 12px !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact the full profile workspace. */
+  .app.activePage-profile .proProfilePage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 154px 86px minmax(0, 1fr) !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact hero. */
+  .app.activePage-profile .proProfileHero {
+    min-height: 154px !important;
+    height: 154px !important;
+    grid-template-columns: 118px minmax(0, 1fr) 360px !important;
+    gap: 20px !important;
+    padding: 18px 28px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-profile .profileAvatarLarge,
+  .app.activePage-profile .proProfileAvatar,
+  .app.activePage-profile .profileHeroAvatar {
+    width: 104px !important;
+    height: 104px !important;
+    min-width: 104px !important;
+    min-height: 104px !important;
+  }
+
+  .app.activePage-profile .proProfileHero h1,
+  .app.activePage-profile .profileHeroInfo h1 {
+    font-size: 30px !important;
+    line-height: 1 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .app.activePage-profile .proProfileHero p,
+  .app.activePage-profile .profileHeroInfo p {
+    font-size: 14px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .app.activePage-profile .profileVerifiedBadge,
+  .app.activePage-profile .verifiedBadge {
+    height: 28px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+  }
+
+  .app.activePage-profile .profileMetaRow,
+  .app.activePage-profile .profileAccountMeta {
+    gap: 18px !important;
+    margin-top: 10px !important;
+  }
+
+  .app.activePage-profile .profileMetaRow small,
+  .app.activePage-profile .profileAccountMeta small {
+    font-size: 10px !important;
+  }
+
+  .app.activePage-profile .profileMetaRow strong,
+  .app.activePage-profile .profileAccountMeta strong {
+    font-size: 13px !important;
+  }
+
+  /* Keep the decorative chart on the right but more compact. */
+  .app.activePage-profile .profileHeroChart,
+  .app.activePage-profile .proProfileHeroChart {
+    min-width: 0 !important;
+    height: 112px !important;
+    align-self: center !important;
+  }
+
+  /* Balance / profit / win rate cards in one compact row. */
+  .app.activePage-profile .profileStats,
+  .app.activePage-profile .profileStatsGrid,
+  .app.activePage-profile .proProfileStats {
+    min-height: 86px !important;
+    height: 86px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .app.activePage-profile .profileStats > *,
+  .app.activePage-profile .profileStatsGrid > *,
+  .app.activePage-profile .proProfileStats > * {
+    min-width: 0 !important;
+    height: 86px !important;
+    padding: 12px 16px !important;
+  }
+
+  .app.activePage-profile .profileStats strong,
+  .app.activePage-profile .profileStatsGrid strong,
+  .app.activePage-profile .proProfileStats strong {
+    font-size: 20px !important;
+  }
+
+  .app.activePage-profile .profileStats span,
+  .app.activePage-profile .profileStatsGrid span,
+  .app.activePage-profile .proProfileStats span {
+    font-size: 11px !important;
+  }
+
+  /* Lower action cards become a compact desktop grid. */
+  .app.activePage-profile .profileActionsGrid,
+  .app.activePage-profile .proProfileActions,
+  .app.activePage-profile .profileQuickGrid {
+    min-height: 0 !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-profile .profileActionsGrid > *,
+  .app.activePage-profile .proProfileActions > *,
+  .app.activePage-profile .profileQuickGrid > * {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 18px !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-profile .profileActionsGrid h2,
+  .app.activePage-profile .proProfileActions h2,
+  .app.activePage-profile .profileQuickGrid h2 {
+    font-size: 18px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .app.activePage-profile .profileActionsGrid p,
+  .app.activePage-profile .proProfileActions p,
+  .app.activePage-profile .profileQuickGrid p {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .app.activePage-profile .profileActionsGrid button,
+  .app.activePage-profile .proProfileActions button,
+  .app.activePage-profile .profileQuickGrid button {
+    height: 36px !important;
+    min-height: 36px !important;
+    margin-top: 10px !important;
+    font-size: 11px !important;
+  }
+
+  /* Hide any help pill that overlaps content on desktop profile. */
+  .app.activePage-profile .helpBubble,
+  .app.activePage-profile .profileHelpBubble {
+    display: none !important;
+  }
+}
+
+/* Shorter laptops: compress the profile further without affecting mobile. */
+@media screen and (min-width: 1024px) and (max-height: 820px) {
+  .app.activePage-profile .proProfilePage {
+    grid-template-rows: 136px 76px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .app.activePage-profile .proProfileHero {
+    min-height: 136px !important;
+    height: 136px !important;
+    grid-template-columns: 100px minmax(0, 1fr) 310px !important;
+    padding: 14px 22px !important;
+  }
+
+  .app.activePage-profile .profileAvatarLarge,
+  .app.activePage-profile .proProfileAvatar,
+  .app.activePage-profile .profileHeroAvatar {
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px !important;
+    min-height: 90px !important;
+  }
+
+  .app.activePage-profile .proProfileHero h1,
+  .app.activePage-profile .profileHeroInfo h1 {
+    font-size: 26px !important;
+  }
+
+  .app.activePage-profile .profileStats,
+  .app.activePage-profile .profileStatsGrid,
+  .app.activePage-profile .proProfileStats {
+    min-height: 76px !important;
+    height: 76px !important;
+  }
+
+  .app.activePage-profile .profileStats > *,
+  .app.activePage-profile .profileStatsGrid > *,
+  .app.activePage-profile .proProfileStats > * {
+    height: 76px !important;
+    padding: 10px 14px !important;
+  }
+
+  .app.activePage-profile .profileActionsGrid > *,
+  .app.activePage-profile .proProfileActions > *,
+  .app.activePage-profile .profileQuickGrid > * {
+    padding: 14px !important;
+  }
+}
