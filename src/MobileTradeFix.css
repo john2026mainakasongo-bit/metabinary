@@ -288,9 +288,10 @@
 
 
 /* ==========================================================================
-   METABINARY V131 — MOBILE DIGIT DONUT RING FIX
-   Fixes the pie-slice look by cutting a real transparent centre out of every
-   conic-gradient ring. Keeps the existing V130 layout and row spacing.
+   METABINARY V133 — MOBILE DIGIT RING RESTORE
+   Restores the original full conic ring + black inner core.
+   No mask is used. This avoids the thin-outline bug from V131/V132.
+   Keeps V130 layout, row gap, chart, controls, and desktop unchanged.
    ========================================================================== */
 @media screen and (max-width: 1023px) {
   body .app.activePage-trade
@@ -299,12 +300,12 @@
   body .app.activePage-trade
     .mobileDigitGridFinalV130
     > .mobileDigitCellFinalV130:disabled {
-    width: 54px !important;
-    min-width: 54px !important;
-    max-width: 54px !important;
-    height: 54px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
   }
 
   body .app.activePage-trade
@@ -313,25 +314,20 @@
     position: absolute !important;
     inset: 0 !important;
     z-index: 1 !important;
-    width: 54px !important;
-    min-width: 54px !important;
-    max-width: 54px !important;
-    height: 54px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
     border-radius: 50% !important;
 
-    /* Turn the conic-gradient disc into a true ring. */
-    -webkit-mask: radial-gradient(
-      circle at center,
-      transparent 0 68%,
-      #000 69% 100%
-    ) !important;
-    mask: radial-gradient(
-      circle at center,
-      transparent 0 68%,
-      #000 69% 100%
-    ) !important;
+    /* Disable the V131/V132 masking approach completely. */
+    -webkit-mask: none !important;
+    mask: none !important;
+
+    /* Keep the full conic disc; the black core below creates the donut. */
+    box-shadow: 0 2px 8px rgba(0,0,0,.42) !important;
   }
 
   body .app.activePage-trade
@@ -339,119 +335,16 @@
     > .mbDigitCoreV7 {
     position: relative !important;
     z-index: 4 !important;
-    width: 42px !important;
-    min-width: 42px !important;
-    max-width: 42px !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    box-shadow: none !important;
-    border: 0 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    font-size: 24px !important;
-    line-height: .9 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    margin-top: 3px !important;
-    font-size: 9.5px !important;
-    line-height: 1 !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitRingV7 {
-    width: 52px !important;
-    min-width: 52px !important;
-    max-width: 52px !important;
-    height: 52px !important;
-    min-height: 52px !important;
-    max-height: 52px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V132 — MOBILE DIGIT RING THICKNESS FIX
-   Fixes the overly-thin V131 rings.
-   Keeps V130/V131 layout, spacing, chart, controls, and desktop untouched.
-   ========================================================================== */
-@media screen and (max-width: 1023px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled {
-    width: 56px !important;
-    min-width: 56px !important;
-    max-width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitRingV7 {
-    width: 56px !important;
-    min-width: 56px !important;
-    max-width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-
-    /* Thicker donut ring */
-    -webkit-mask: radial-gradient(
-      circle at center,
-      transparent 0 57%,
-      #000 58% 100%
-    ) !important;
-    mask: radial-gradient(
-      circle at center,
-      transparent 0 57%,
-      #000 58% 100%
-    ) !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
     width: 39px !important;
     min-width: 39px !important;
     max-width: 39px !important;
     height: 39px !important;
     min-height: 39px !important;
     max-height: 39px !important;
+    border-radius: 50% !important;
     background: #02070d !important;
+    border: 0 !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.92) !important;
   }
 
   body .app.activePage-trade
