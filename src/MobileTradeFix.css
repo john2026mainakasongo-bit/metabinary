@@ -444,3 +444,108 @@
     max-height: 38px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V140 — SVG DIGIT TEXT + CURSOR FINAL ALIGNMENT
+   Keeps the stable V139 SVG rings, but fixes:
+   - clipped digit percentages
+   - cramped inner text
+   - cursor sitting inside the active ring
+   - slightly improves ring proportions on phones
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitRingBaseV139,
+  body .app.activePage-trade .mobileDigitRingArcV139 {
+    stroke-width: 6.5 !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    gap: 1px !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7
+    > strong {
+    font-size: 23px !important;
+    line-height: .9 !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    .mbDigitPercentV7 {
+    margin-top: 1px !important;
+    font-size: 8.5px !important;
+    line-height: 1 !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row) * 94px) + 72px) !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row) * 89px) + 69px) !important;
+  }
+}
