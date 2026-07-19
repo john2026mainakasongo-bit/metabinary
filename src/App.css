@@ -41822,73 +41822,392 @@ body,
 
 
 /* ==========================================================================
-   METABINARY V105 — PROFILE REFERRAL SHORTCUT
-   Desktop/laptop only. Profile shows one compact Referral Program card;
-   clicking it opens the existing full referral dashboard page.
-   Mobile/tablet remain untouched.
+   METABINARY V106 — COMPACT DESKTOP REFERRAL DASHBOARD
+   Desktop/laptop only (1024px+).
+   Makes the full referrals page fit cleanly in one laptop viewport, removes
+   mobile bottom navigation and floating AI, and keeps all key referral data
+   visible without unnecessary scrolling. Mobile/tablet remain untouched.
    ========================================================================== */
 @media screen and (min-width: 1024px) {
-  .app.activePage-profile .proProfileMain {
-    grid-template-columns: minmax(0, 1fr) 300px !important;
-    gap: 7px !important;
-  }
-
-  .app.activePage-profile .referralShortcutCardV105 {
-    min-width: 0 !important;
-    min-height: 0 !important;
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 18px !important;
-    display: grid !important;
-    grid-template-columns: 52px minmax(0, 1fr) 28px !important;
-    gap: 14px !important;
-    align-items: center !important;
-    align-content: center !important;
-    text-align: left !important;
-    color: #fff !important;
-    background:
-      linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
-    border: 1px solid rgba(105,72,230,.36) !important;
-    border-radius: 14px !important;
+  .app.activePage-referrals {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
     overflow: hidden !important;
-    cursor: pointer !important;
   }
 
-  .app.activePage-profile .referralShortcutCardV105:hover {
-    border-color: rgba(123,88,255,.75) !important;
-    box-shadow: 0 0 28px rgba(112,78,255,.16) !important;
+  .app.activePage-referrals > .cleanBrokerHeader,
+  .app.activePage-referrals > .brokerTopHeader,
+  .app.activePage-referrals > .topHeader {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 500 !important;
   }
 
-  .app.activePage-profile .referralShortcutCardV105 .profileActionIcon {
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 .brokerMenuBtn {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    height: 38px !important;
+    margin-left: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    height: 30px !important;
+    padding: 0 9px !important;
+    border-radius: 7px !important;
+    background: transparent !important;
+    color: #9eacc0 !important;
+    border: 1px solid transparent !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .walletBox {
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: rgba(7,17,31,.84) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .usdWalletSelectorV12,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .demoWalletSelectorV12 {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 17px !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .compactDepositButton,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .brokerDepositBtn,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .depositTop {
+    flex: 0 0 50px !important;
     width: 50px !important;
-    height: 50px !important;
     min-width: 50px !important;
+    max-width: 50px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .compactDepositButton span,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .compactDepositButton b,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .brokerDepositBtn b {
+    border-left: 0 !important;
+    background: transparent !important;
     font-size: 22px !important;
   }
 
-  .app.activePage-profile .referralShortcutCopyV105 {
-    min-width: 0 !important;
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .brokerBellBtn,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .bellBtn,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .brokerAvatarBtn,
+  .app.activePage-referrals .desktopHeaderRightGroupV94 .avatarBtn {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
   }
 
-  .app.activePage-profile .referralShortcutCopyV105 h2 {
-    margin: 0 0 7px !important;
-    font-size: 20px !important;
-    line-height: 1.05 !important;
-    color: #fff !important;
+  .app.activePage-referrals > .bottomNav {
+    display: none !important;
   }
 
-  .app.activePage-profile .referralShortcutCopyV105 p {
+  .app.activePage-referrals .floatingAiButton.aiPage-referrals {
+    display: none !important;
+  }
+
+  .app.activePage-referrals > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
     margin: 0 !important;
-    font-size: 10px !important;
-    line-height: 1.4 !important;
-    color: #9aacbf !important;
+    padding: 8px 12px 12px !important;
+    overflow: hidden !important;
   }
 
-  .app.activePage-profile .referralShortcutArrowV105 {
-    justify-self: end !important;
-    color: #b9c5d7 !important;
-    font-size: 30px !important;
-    font-weight: 500 !important;
+  .app.activePage-referrals .referralPage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 126px 84px 78px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .app.activePage-referrals .referralHero {
+    min-height: 126px !important;
+    height: 126px !important;
+    padding: 16px 22px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 180px !important;
+    gap: 18px !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .referralBackBtn {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 10px !important;
+    font-size: 10px !important;
+  }
+
+  .app.activePage-referrals .referralHero small {
+    font-size: 9px !important;
+    letter-spacing: 1.4px !important;
+  }
+
+  .app.activePage-referrals .referralHero h1 {
+    margin: 5px 0 5px !important;
+    font-size: 34px !important;
     line-height: 1 !important;
+  }
+
+  .app.activePage-referrals .referralHero p {
+    margin: 0 !important;
+    max-width: 860px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+
+  .app.activePage-referrals .referralCommissionBadge {
+    width: 128px !important;
+    height: 128px !important;
+    min-width: 128px !important;
+    min-height: 128px !important;
+    justify-self: center !important;
+  }
+
+  .app.activePage-referrals .referralCommissionBadge strong {
+    font-size: 34px !important;
+  }
+
+  .app.activePage-referrals .referralCommissionBadge span {
+    font-size: 10px !important;
+  }
+
+  .app.activePage-referrals .referralLinkPanel {
+    min-height: 84px !important;
+    height: 84px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto auto 44px !important;
+    gap: 8px !important;
+    align-items: center !important;
+    padding: 12px 18px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .referralLinkPanel small {
+    font-size: 9px !important;
+  }
+
+  .app.activePage-referrals .referralLinkPanel strong {
+    display: block !important;
+    margin-top: 4px !important;
+    font-size: 16px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .app.activePage-referrals .referralLinkPanel p {
+    margin-top: 3px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-referrals .referralLinkPanel button {
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 16px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .app.activePage-referrals .referralStatsGrid {
+    min-height: 78px !important;
+    height: 78px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .referralStatCard {
+    min-width: 0 !important;
+    min-height: 78px !important;
+    height: 78px !important;
+    padding: 10px 12px !important;
+    display: grid !important;
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+    gap: 9px !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .referralStatCard > span {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+
+  .app.activePage-referrals .referralStatCard small {
+    font-size: 8px !important;
+  }
+
+  .app.activePage-referrals .referralStatCard strong {
+    margin-top: 3px !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-referrals .referralStatCard p {
+    margin-top: 3px !important;
+    font-size: 7.5px !important;
+    line-height: 1.15 !important;
+  }
+
+  .app.activePage-referrals .referralLowerGrid {
+    min-height: 0 !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr) !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .referralLowerGrid > * {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 14px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-referrals .referralLowerGrid h2 {
+    font-size: 16px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .app.activePage-referrals .referralLowerGrid p,
+  .app.activePage-referrals .referralLowerGrid small {
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-height: 820px) {
+  .app.activePage-referrals .referralPage {
+    grid-template-rows: 110px 74px 70px minmax(0, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-referrals .referralHero {
+    min-height: 110px !important;
+    height: 110px !important;
+    grid-template-columns: minmax(0, 1fr) 150px !important;
+    padding: 12px 18px !important;
+  }
+
+  .app.activePage-referrals .referralHero h1 {
+    font-size: 29px !important;
+  }
+
+  .app.activePage-referrals .referralCommissionBadge {
+    width: 108px !important;
+    height: 108px !important;
+    min-width: 108px !important;
+    min-height: 108px !important;
+  }
+
+  .app.activePage-referrals .referralLinkPanel {
+    min-height: 74px !important;
+    height: 74px !important;
+    padding: 9px 14px !important;
+  }
+
+  .app.activePage-referrals .referralStatsGrid,
+  .app.activePage-referrals .referralStatCard {
+    min-height: 70px !important;
+    height: 70px !important;
   }
 }
