@@ -39684,3 +39684,27 @@ body,
     font-size: 15px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V97 — BOT HUB TOP SPACING FIX
+   Desktop/laptop only. Prevents the bot hero/stats from sitting under the
+   fixed compact header. Mobile/tablet below 1024px remain untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-bots > .mainScreen {
+    padding-top: 14px !important;
+  }
+
+  .app.activePage-bots > .mainScreen > .vSeriesBotsPage,
+  .app.activePage-bots > .mainScreen > .botsPage.vSeriesBotsPage {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    scroll-margin-top: 14px !important;
+  }
+
+  .app.activePage-bots .vSeriesBotsHeader,
+  .app.activePage-bots .finalBotsHeader.vSeriesBotsHeader {
+    margin-top: 0 !important;
+  }
+}
