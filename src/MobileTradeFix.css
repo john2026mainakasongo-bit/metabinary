@@ -288,73 +288,90 @@
 
 
 /* ==========================================================================
-   METABINARY V137 — FINAL MOBILE DIGIT DONUT (BUTTON BACKGROUND METHOD)
-   This avoids all ring/core stacking problems:
-   - the button itself becomes the conic-gradient donut outer disc
-   - ::before creates the centered black cutout
-   - mbDigitRingV7 is hidden completely
-   - mbDigitCoreV7 carries text only
+   METABINARY V138 — FINAL MOBILE DIGIT RINGS
+   Uses layered backgrounds on the BUTTON itself:
+   - black inner circle = padding-box
+   - dynamic conic ring = border-box
+   - no masks
+   - no pseudo-elements
+   - no ring/core stacking issues
    ========================================================================== */
 
 @media screen and (max-width: 1023px) {
-  /* Build the visual ring directly on each digit button. */
   body .app.activePage-trade
     .mobileDigitGridFinalV130
     > .mobileDigitCellFinalV130,
   body .app.activePage-trade
     .mobileDigitGridFinalV130
     > .mobileDigitCellFinalV130:disabled {
+    box-sizing: border-box !important;
     position: relative !important;
     isolation: isolate !important;
+
     width: 56px !important;
     min-width: 56px !important;
     max-width: 56px !important;
     height: 56px !important;
     min-height: 56px !important;
     max-height: 56px !important;
+
     margin: 0 !important;
     padding: 0 !important;
+
     display: grid !important;
     place-items: center !important;
-    border: 0 !important;
+
+    border: 7px solid transparent !important;
     border-radius: 50% !important;
     outline: 0 !important;
+
+    background:
+      linear-gradient(#02070d, #02070d) padding-box,
+      conic-gradient(
+        from var(--mb-v7-white-start, -30deg),
+        #f6f8fa 0deg var(--mb-v7-white-sweep, 120deg),
+        #566270 var(--mb-v7-white-sweep, 120deg) 360deg
+      ) border-box !important;
+
+    box-shadow: 0 2px 7px rgba(0,0,0,.42) !important;
     overflow: visible !important;
-    box-shadow: none !important;
     transform: none !important;
     animation: none !important;
-
-    background: conic-gradient(
-      from var(--mb-v7-white-start, -30deg),
-      #f6f8fa 0deg var(--mb-v7-white-sweep, 120deg),
-      #566270 var(--mb-v7-white-sweep, 120deg) 360deg
-    ) !important;
   }
 
-  /* Highest and lowest keep the approved special ring colours. */
+  /* Highest digit: green ring with grey segment. */
   body .app.activePage-trade
     .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130.mbDigitHighestV7 {
-    background: conic-gradient(
-      from 270deg,
-      #20d692 0deg 180deg,
-      #566270 180deg 360deg
-    ) !important;
-    box-shadow: 0 0 8px rgba(32,214,146,.25) !important;
+    > .mobileDigitCellFinalV130.mbDigitHighestV7:not(.mbDigitResultLossV7) {
+    background:
+      linear-gradient(#02070d, #02070d) padding-box,
+      conic-gradient(
+        from 220deg,
+        #596471 0deg 100deg,
+        #00e884 100deg 360deg
+      ) border-box !important;
+
+    box-shadow:
+      0 0 0 1px rgba(0,232,132,.08),
+      0 0 10px rgba(0,232,132,.22) !important;
   }
 
+  /* Lowest digit: grey ring with a clear red section. */
   body .app.activePage-trade
     .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130.mbDigitLowestV7 {
-    background: conic-gradient(
-      from 145deg,
-      #ff4058 0deg 70deg,
-      #566270 70deg 360deg
-    ) !important;
-    box-shadow: 0 0 6px rgba(255,64,88,.20) !important;
+    > .mobileDigitCellFinalV130.mbDigitLowestV7:not(.mbDigitResultWinV7) {
+    background:
+      linear-gradient(#02070d, #02070d) padding-box,
+      conic-gradient(
+        from 145deg,
+        #ff4058 0deg 70deg,
+        #566270 70deg 360deg
+      ) border-box !important;
+
+    box-shadow: 0 0 7px rgba(255,64,88,.18) !important;
   }
 
-  /* Completely disable the old ring layer so it cannot cover the centre. */
+  /* The old ring element is no longer needed. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7 {
@@ -363,48 +380,33 @@
     opacity: 0 !important;
   }
 
-  /* Real centered black cutout. */
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130::before {
-    content: "" !important;
-    display: block !important;
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    width: 39px !important;
-    height: 39px !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    transform: translate(-50%, -50%) !important;
-    z-index: 2 !important;
-    pointer-events: none !important;
-  }
-
-  /* Text layer only. */
+  /* Text sits cleanly inside the black centre. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7 {
     position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    z-index: 4 !important;
-    width: 39px !important;
-    min-width: 39px !important;
-    max-width: 39px !important;
-    height: 39px !important;
-    min-height: 39px !important;
-    max-height: 39px !important;
+    inset: 7px !important;
+    z-index: 5 !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
     margin: 0 !important;
     padding: 0 !important;
+
     display: grid !important;
     place-content: center !important;
     gap: 2px !important;
+
     border: 0 !important;
     border-radius: 50% !important;
     background: transparent !important;
     box-shadow: none !important;
-    transform: translate(-50%, -50%) !important;
+    transform: none !important;
     overflow: visible !important;
   }
 
@@ -412,10 +414,6 @@
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7
     > strong {
-    position: relative !important;
-    z-index: 5 !important;
-    margin: 0 !important;
-    padding: 0 !important;
     color: #ffffff !important;
     font-size: 24px !important;
     font-weight: 950 !important;
@@ -426,10 +424,7 @@
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     .mbDigitPercentV7 {
-    position: relative !important;
-    z-index: 5 !important;
     margin: 2px 0 0 !important;
-    padding: 0 !important;
     color: #aebbd0 !important;
     font-size: 9.5px !important;
     font-weight: 800 !important;
@@ -437,7 +432,7 @@
     text-align: center !important;
   }
 
-  /* Do not let legacy selected/current states repaint the digit centre. */
+  /* Prevent selected/current legacy rules from filling the centre white. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130.mbDigitPickedV7
     > .mbDigitCoreV7,
@@ -458,19 +453,6 @@
     .mbDigitPercentV7 {
     color: #ffffff !important;
   }
-
-  /* Result states still stay circular instead of becoming solid squares/discs. */
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130.mbDigitResultWinV7 {
-    background: #31ec9f !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130.mbDigitResultLossV7 {
-    background: #ff3f59 !important;
-  }
 }
 
 @media screen and (max-width: 480px) {
@@ -486,19 +468,12 @@
     height: 54px !important;
     min-height: 54px !important;
     max-height: 54px !important;
+    border-width: 7px !important;
   }
 
   body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130::before,
-  body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7 {
-    width: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
+    inset: 7px !important;
   }
 }
