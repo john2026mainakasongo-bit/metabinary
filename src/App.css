@@ -43584,3 +43584,73 @@ body,
     gap: 7px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V114 — MOBILE RECOVERY / DESKTOP-ONLY NAV
+   Restores phone/tablet header behavior and hides desktop-only header groups
+   below 1024px. Keeps desktop improvements intact.
+   ========================================================================== */
+
+/* Default/mobile/tablet: let the original header children behave normally. */
+@media screen and (max-width: 1023px) {
+  .desktopHeaderLeftGroupV94,
+  .desktopHeaderRightGroupV94 {
+    display: contents !important;
+  }
+
+  .desktopTradeHeaderActionsV89 {
+    display: none !important;
+  }
+
+  .desktopTradeHeaderActionsV89 button {
+    display: none !important;
+  }
+
+  .app > .cleanBrokerHeader,
+  .app > .brokerTopHeader,
+  .app > .topHeader {
+    overflow: visible !important;
+  }
+
+  /* Undo desktop-only positioning that could leak into mobile. */
+  .brokerWallet,
+  .walletBox,
+  .compactDepositButton,
+  .brokerDepositBtn,
+  .depositTop,
+  .brokerBellBtn,
+  .bellBtn,
+  .brokerAvatarBtn,
+  .avatarBtn {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+
+  /* Keep mobile account selector clean without changing the header layout. */
+  .accountPickerPanel {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  /* Restore original mobile/tablet bottom nav visibility. */
+  .app.activePage-trade > .bottomNav,
+  .app.activePage-bots > .bottomNav,
+  .app.activePage-profile > .bottomNav,
+  .app.activePage-history > .bottomNav,
+  .app.activePage-botSetup > .bottomNav,
+  .app.activePage-botLive > .bottomNav,
+  .app.activePage-referrals > .bottomNav {
+    display: grid !important;
+  }
+}
+
+/* Desktop only: re-enable the desktop shortcut nav. */
+@media screen and (min-width: 1024px) {
+  .desktopTradeHeaderActionsV89 {
+    display: flex !important;
+  }
+}
