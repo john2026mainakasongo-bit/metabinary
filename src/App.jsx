@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import "./DesktopTrade.css";
+import "./MobileTradeFix.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 
 function ensureResponsiveViewportMeta() {
@@ -6364,11 +6365,11 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 ${activeBinaryTrade ? "isTrading" : ""}`}
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${activeBinaryTrade ? "isTrading" : ""}`}
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
           >
             <div
-              className="mbDigitGridV7"
+              className="mbDigitGridV7 mobileDigitGridFinalV130"
               aria-label="Digit percentages"
               style={{
                 "--mb-active-digit": lastDigit,
@@ -6408,6 +6409,7 @@ function TradePage({
                     disabled={Boolean(activeBinaryTrade)}
                     className={[
                       "mbDigitCellV7",
+                      "mobileDigitCellFinalV130",
                       isHighest ? "mbDigitHighestV7" : "",
                       isLowest ? "mbDigitLowestV7" : "",
                       isPicked ? "mbDigitPickedV7" : "",
@@ -6433,7 +6435,7 @@ function TradePage({
                 );
               })}
               <i
-                className="singleDigitCursorV7"
+                className="singleDigitCursorV7 mobileDigitCursorFinalV130"
                 aria-hidden="true"
                 style={{
                   "--mb-v58-cursor-left": `${12 + (lastDigit % 5) * 19}%`,

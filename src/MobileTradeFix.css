@@ -1,0 +1,287 @@
+/* ==========================================================================
+   METABINARY V130 — FINAL MOBILE DIGIT FIX
+   IMPORTANT:
+   This stylesheet is imported AFTER DesktopTrade.css.
+   It only affects widths below 1024px, so laptop/desktop stays unchanged.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Let the mobile trade page flow vertically. */
+  body .app.activePage-trade > .mainScreen {
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding-bottom: 88px !important;
+  }
+
+  body .app.activePage-trade .finalBinaryTradePage.digitContractPage {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-content: initial !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  /* The card must contain BOTH the chart and the 10-digit board. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard {
+    position: relative !important;
+    inset: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Keep the approved mobile chart size. */
+  body .app.activePage-trade .mobileDigitLiveChartV115 {
+    position: relative !important;
+    flex: 0 0 232px !important;
+    width: 100% !important;
+    height: 232px !important;
+    min-height: 232px !important;
+    max-height: 232px !important;
+    margin: 0 !important;
+    z-index: 2 !important;
+  }
+
+  /* FINAL isolated 10-digit board. */
+  body .app.activePage-trade .mobileDigitBoardFinalV130 {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 196px !important;
+    width: 100% !important;
+    height: 196px !important;
+    min-height: 196px !important;
+    max-height: 196px !important;
+    margin: 0 !important;
+    padding: 5px 4px 8px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    border-radius: 18px !important;
+    background: rgba(5, 12, 22, 0.72) !important;
+    z-index: 3 !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: 72px 72px !important;
+    column-gap: 2px !important;
+    row-gap: 22px !important;
+    align-items: center !important;
+    align-content: start !important;
+    justify-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+
+  /* Put every digit back into normal grid flow, overriding old absolute rules. */
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitRingV7 {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    max-width: 52px !important;
+    max-height: 52px !important;
+    border-radius: 50% !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    position: relative !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    display: grid !important;
+    place-content: center !important;
+    gap: 2px !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7
+    > strong {
+    font-size: 23px !important;
+    line-height: 0.9 !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    .mbDigitPercentV7 {
+    margin-top: 2px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+  }
+
+  /* Cursor sits underneath the active digit, never inside the ring. */
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    position: absolute !important;
+    left: calc((var(--mb-active-col) + 0.5) * 20%) !important;
+    top: calc((var(--mb-active-row) * 94px) + 65px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid transparent !important;
+    border-bottom: 10px solid #ff4058 !important;
+    border-top: 0 !important;
+    background: transparent !important;
+    transform: translateX(-50%) !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
+  }
+
+  /* Order area follows the digit board instead of occupying a fixed grid row. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryOrderCard,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proBinaryOrderCard.finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade .mobileDigitLiveChartV115 {
+    flex-basis: 220px !important;
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitBoardFinalV130 {
+    flex-basis: 188px !important;
+    height: 188px !important;
+    min-height: 188px !important;
+    max-height: 188px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    height: 172px !important;
+    min-height: 172px !important;
+    max-height: 172px !important;
+    grid-template-rows: 69px 69px !important;
+    row-gap: 20px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitRingV7 {
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row) * 89px) + 62px) !important;
+  }
+}
