@@ -40123,3 +40123,373 @@ body,
     min-height: 66px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V99 — COMPACT DESKTOP BOT SETUP
+   Desktop/laptop only (1024px+).
+   Makes the bot setup form fit comfortably on a laptop without the mobile
+   bottom navigation or floating AI orb. Mobile/tablet remain untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-botSetup {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Same compact desktop header used by Trade / Bots / Bot Live. */
+  .app.activePage-botSetup > .cleanBrokerHeader,
+  .app.activePage-botSetup > .brokerTopHeader,
+  .app.activePage-botSetup > .topHeader {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 500 !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .brokerMenuBtn {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    height: 38px !important;
+    margin-left: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    height: 30px !important;
+    padding: 0 9px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button:nth-child(2) {
+    color: #fff !important;
+    background: rgba(8,124,255,.13) !important;
+    border: 1px solid rgba(8,124,255,.35) !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .walletBox {
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: rgba(7,17,31,.84) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .usdWalletSelectorV12,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .demoWalletSelectorV12 {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 17px !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .compactDepositButton,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .brokerDepositBtn,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .depositTop {
+    flex: 0 0 50px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .compactDepositButton span,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .compactDepositButton b,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .brokerDepositBtn b {
+    border-left: 0 !important;
+    background: transparent !important;
+    font-size: 22px !important;
+  }
+
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .brokerBellBtn,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .bellBtn,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .brokerAvatarBtn,
+  .app.activePage-botSetup .desktopHeaderRightGroupV94 .avatarBtn {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
+  .app.activePage-botSetup > .bottomNav {
+    display: none !important;
+  }
+
+  .app.activePage-botSetup .floatingAiButton.aiPage-botSetup {
+    display: none !important;
+  }
+
+  .app.activePage-botSetup > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 8px 12px 12px !important;
+    overflow: hidden !important;
+  }
+
+  /* Page shell */
+  .app.activePage-botSetup .botSetupPage,
+  .app.activePage-botSetup .vSeriesBotSetupPage,
+  .app.activePage-botSetup .finalBotSetupPage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 52px minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact top strip with Back + bot name. */
+  .app.activePage-botSetup .botSetupTop,
+  .app.activePage-botSetup .vSeriesBotSetupTop,
+  .app.activePage-botSetup .finalBotSetupTop {
+    min-height: 52px !important;
+    height: 52px !important;
+    padding: 0 12px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+
+  .app.activePage-botSetup .botSetupTop button,
+  .app.activePage-botSetup .vSeriesBotSetupTop button {
+    height: 32px !important;
+    padding: 0 12px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+  }
+
+  .app.activePage-botSetup .botSetupTop strong,
+  .app.activePage-botSetup .vSeriesBotSetupTop strong {
+    font-size: 16px !important;
+  }
+
+  .app.activePage-botSetup .botSetupTop small,
+  .app.activePage-botSetup .vSeriesBotSetupTop small {
+    font-size: 10px !important;
+  }
+
+  /* Compact 2-column form card. */
+  .app.activePage-botSetup .botSetupForm,
+  .app.activePage-botSetup .vSeriesBotSetupForm,
+  .app.activePage-botSetup .finalBotSetupForm {
+    min-height: 0 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: min-content !important;
+    gap: 10px 12px !important;
+    align-content: start !important;
+    padding: 14px !important;
+    border-radius: 14px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+
+  /* Market spans the full width, all other fields stay two columns. */
+  .app.activePage-botSetup .botSetupForm > label:first-child,
+  .app.activePage-botSetup .vSeriesBotSetupForm > label:first-child,
+  .app.activePage-botSetup .finalBotSetupForm > label:first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  .app.activePage-botSetup .botSetupForm label,
+  .app.activePage-botSetup .vSeriesBotSetupForm label,
+  .app.activePage-botSetup .finalBotSetupForm label {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 5px !important;
+    color: #93a4bb !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+  }
+
+  .app.activePage-botSetup .botSetupForm input,
+  .app.activePage-botSetup .botSetupForm select,
+  .app.activePage-botSetup .botSetupForm button,
+  .app.activePage-botSetup .vSeriesBotSetupForm input,
+  .app.activePage-botSetup .vSeriesBotSetupForm select,
+  .app.activePage-botSetup .vSeriesBotSetupForm button,
+  .app.activePage-botSetup .finalBotSetupForm input,
+  .app.activePage-botSetup .finalBotSetupForm select,
+  .app.activePage-botSetup .finalBotSetupForm button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Keep special controls compact. */
+  .app.activePage-botSetup .martingaleToggle,
+  .app.activePage-botSetup .botSetupToggle,
+  .app.activePage-botSetup .vSeriesBotSetupToggle {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  /* Action area stays visible at the bottom. */
+  .app.activePage-botSetup .botSetupActions,
+  .app.activePage-botSetup .vSeriesBotSetupActions,
+  .app.activePage-botSetup .finalBotSetupActions {
+    min-height: 54px !important;
+    height: 54px !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(220px, 360px) !important;
+    justify-content: end !important;
+    gap: 10px !important;
+    padding: 0 !important;
+  }
+
+  .app.activePage-botSetup .botSetupActions button,
+  .app.activePage-botSetup .vSeriesBotSetupActions button,
+  .app.activePage-botSetup .finalBotSetupActions button {
+    height: 46px !important;
+    min-height: 46px !important;
+    border-radius: 11px !important;
+    padding: 0 18px !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+  }
+}
+
+/* Shorter laptop screens: compress fields a little more so Start Bot stays visible. */
+@media screen and (min-width: 1024px) and (max-height: 820px) {
+  .app.activePage-botSetup .botSetupPage,
+  .app.activePage-botSetup .vSeriesBotSetupPage,
+  .app.activePage-botSetup .finalBotSetupPage {
+    grid-template-rows: 46px minmax(0, 1fr) 48px !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-botSetup .botSetupTop,
+  .app.activePage-botSetup .vSeriesBotSetupTop,
+  .app.activePage-botSetup .finalBotSetupTop {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+
+  .app.activePage-botSetup .botSetupForm,
+  .app.activePage-botSetup .vSeriesBotSetupForm,
+  .app.activePage-botSetup .finalBotSetupForm {
+    gap: 7px 10px !important;
+    padding: 10px 12px !important;
+  }
+
+  .app.activePage-botSetup .botSetupForm input,
+  .app.activePage-botSetup .botSetupForm select,
+  .app.activePage-botSetup .botSetupForm button,
+  .app.activePage-botSetup .vSeriesBotSetupForm input,
+  .app.activePage-botSetup .vSeriesBotSetupForm select,
+  .app.activePage-botSetup .vSeriesBotSetupForm button,
+  .app.activePage-botSetup .finalBotSetupForm input,
+  .app.activePage-botSetup .finalBotSetupForm select,
+  .app.activePage-botSetup .finalBotSetupForm button {
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+
+  .app.activePage-botSetup .botSetupActions,
+  .app.activePage-botSetup .vSeriesBotSetupActions,
+  .app.activePage-botSetup .finalBotSetupActions {
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+
+  .app.activePage-botSetup .botSetupActions button,
+  .app.activePage-botSetup .vSeriesBotSetupActions button,
+  .app.activePage-botSetup .finalBotSetupActions button {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+}
