@@ -7000,56 +7000,19 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
           </div>
         </div>
 
-        <aside className="referralPanel">
+        <button
+          type="button"
+          className="referralPanel referralShortcutCardV105"
+          onClick={() => setActivePage("referrals")}
+          aria-label="Open Referral Program"
+        >
           <div className="profileActionIcon purple">👥</div>
-
-          <h2>Referral Program</h2>
-          <p>
-            {referralApproved
-              ? `Your link is active. Earn ${referralRate}% commission whenever a trader who registered through your link completes a real-money deposit.`
-              : "Apply once to receive your personal referral link and start earning commissions."}
-          </p>
-
-          <div className={referralApproved ? "referralStatus approved" : "referralStatus pending"}>
-            <b>{referralApproved ? "Approved Partner" : "Not Applied Yet"}</b>
-            <span>{referralApproved ? `Code: ${referralCode} · ${referralRate}% commission` : "Create your link in one click"}</span>
+          <div className="referralShortcutCopyV105">
+            <h2>Referral Program</h2>
+            <p>View your referral link, referrals and commission.</p>
           </div>
-
-          {referralApproved ? (
-            <>
-              <label>YOUR REFERRAL LINK</label>
-
-              <div className="referralLinkBox">
-                <span>{referralLink}</span>
-
-                <button onClick={() => navigator.clipboard?.writeText(referralLink)}>⧉</button>
-              </div>
-
-              <div className="referralStatsBox">
-                <div>
-                  <small>TOTAL EARNED</small>
-                  <strong>{money(referralEarned)} USD</strong>
-                </div>
-
-                <div>
-                  <small>TOTAL REFERRALS</small>
-                  <strong>{referralCount}</strong>
-                </div>
-
-                <div>
-                  <small>COMMISSION RATE</small>
-                  <strong>{referralRate}%</strong>
-                </div>
-              </div>
-
-              <button className="referralDashboardBtn" onClick={() => setActivePage("referrals")}>Open Referral Dashboard ›</button>
-            </>
-          ) : (
-            <button className="referralApplyBtn" onClick={applyReferralProgram}>
-              Apply & Get Referral Link →
-            </button>
-          )}
-        </aside>
+          <strong className="referralShortcutArrowV105">›</strong>
+        </button>
       </section>
 
       <button className="proLogoutButton" onClick={logout}>

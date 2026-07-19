@@ -41547,3 +41547,348 @@ body,
     font-size: 8px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V104 — FINAL PROFILE REFERRAL FULL FIT
+   Desktop/laptop only (1024px+).
+   Gives the referral panel more room vertically and horizontally, while
+   tightening non-critical profile chrome so every referral item can remain
+   visible in one laptop viewport without an internal scrollbar.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-profile .proProfilePage {
+    grid-template-rows:
+      126px
+      70px
+      minmax(0, 1fr)
+      42px !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-profile .proProfileHero {
+    min-height: 126px !important;
+    height: 126px !important;
+    grid-template-columns: 94px minmax(0, 1fr) 270px !important;
+    gap: 14px !important;
+    padding: 9px 16px !important;
+  }
+
+  .app.activePage-profile .proProfileAvatarWrap,
+  .app.activePage-profile .proProfileAvatar {
+    width: 80px !important;
+    height: 80px !important;
+    min-width: 80px !important;
+    min-height: 80px !important;
+  }
+
+  .app.activePage-profile .proProfileAvatar {
+    font-size: 36px !important;
+  }
+
+  .app.activePage-profile .proProfileIdentity h1 {
+    font-size: 21px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .app.activePage-profile .proProfileIdentity p {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .app.activePage-profile .profileVerifiedRow b {
+    height: 22px !important;
+    min-height: 22px !important;
+    padding: 0 9px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-profile .profileMetaRow {
+    margin-top: 6px !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(135px, max-content) 1px minmax(180px, 1fr) !important;
+  }
+
+  .app.activePage-profile .profileMetaRow > span {
+    font-size: 8.5px !important;
+  }
+
+  .app.activePage-profile .profileMetaRow strong {
+    margin-top: 3px !important;
+    font-size: 10.5px !important;
+  }
+
+  .app.activePage-profile .profileHeroArt {
+    height: 88px !important;
+    min-height: 88px !important;
+  }
+
+  .app.activePage-profile .proProfileStats {
+    min-height: 70px !important;
+    height: 70px !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-profile .profileBalanceCard {
+    min-height: 70px !important;
+    height: 70px !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    padding: 8px 11px !important;
+  }
+
+  .app.activePage-profile .profileBalanceIcon {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 15px !important;
+  }
+
+  .app.activePage-profile .profileBalanceCard span {
+    font-size: 8.5px !important;
+  }
+
+  .app.activePage-profile .profileBalanceCard strong {
+    margin-top: 3px !important;
+    font-size: 15px !important;
+  }
+
+  /* Give the referral panel a larger share of the horizontal workspace. */
+  .app.activePage-profile .proProfileMain {
+    grid-template-columns: minmax(0, 2fr) minmax(390px, 1.15fr) !important;
+    gap: 7px !important;
+  }
+
+  .app.activePage-profile .profileCardsGrid {
+    grid-template-rows: repeat(2, minmax(0, 1fr)) 50px !important;
+    gap: 5px !important;
+  }
+
+  .app.activePage-profile .profileActionCard {
+    padding: 6px 8px !important;
+    gap: 7px !important;
+  }
+
+  .app.activePage-profile .profileActionIcon {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    font-size: 14px !important;
+  }
+
+  .app.activePage-profile .profileActionCard h3 {
+    font-size: 11px !important;
+  }
+
+  .app.activePage-profile .profileActionCard p {
+    font-size: 7.5px !important;
+    line-height: 1.15 !important;
+  }
+
+  .app.activePage-profile .profileActionCta {
+    height: 21px !important;
+    min-height: 21px !important;
+    margin-top: 4px !important;
+    padding: 0 6px !important;
+    font-size: 7.5px !important;
+  }
+
+  .app.activePage-profile .supportWideCard {
+    min-height: 50px !important;
+    height: 50px !important;
+    grid-template-columns: 32px minmax(0, 1fr) 105px 108px !important;
+    gap: 7px !important;
+    padding: 5px 8px !important;
+  }
+
+  .app.activePage-profile .supportWideCard h3 {
+    font-size: 10.5px !important;
+  }
+
+  .app.activePage-profile .supportWideCard p,
+  .app.activePage-profile .responseTime small,
+  .app.activePage-profile .responseTime strong {
+    font-size: 7.5px !important;
+  }
+
+  .app.activePage-profile .supportWideCard > button {
+    height: 28px !important;
+    min-height: 28px !important;
+    font-size: 8px !important;
+  }
+
+  /* Final referral compaction: everything visible, no internal scroll. */
+  .app.activePage-profile .referralPanel {
+    overflow: hidden !important;
+    padding: 7px 9px !important;
+    gap: 2px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+  }
+
+  .app.activePage-profile .referralPanel .profileActionIcon {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .app.activePage-profile .referralPanel h2 {
+    margin: 1px 0 !important;
+    font-size: 13px !important;
+    line-height: 1.05 !important;
+  }
+
+  .app.activePage-profile .referralPanel p {
+    margin: 0 !important;
+    font-size: 7.5px !important;
+    line-height: 1.14 !important;
+  }
+
+  .app.activePage-profile .referralStatus {
+    margin: 3px 0 !important;
+    padding: 5px 7px !important;
+    min-height: 38px !important;
+  }
+
+  .app.activePage-profile .referralStatus b,
+  .app.activePage-profile .referralStatus span {
+    font-size: 7.5px !important;
+    line-height: 1.1 !important;
+  }
+
+  .app.activePage-profile .referralPanel label {
+    margin-top: 1px !important;
+    font-size: 6.5px !important;
+    line-height: 1 !important;
+  }
+
+  .app.activePage-profile .referralLinkBox {
+    min-height: 27px !important;
+    height: 27px !important;
+  }
+
+  .app.activePage-profile .referralLinkBox span {
+    font-size: 6.8px !important;
+  }
+
+  .app.activePage-profile .referralLinkBox button {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 27px !important;
+  }
+
+  .app.activePage-profile .referralStatsBox {
+    margin-top: 2px !important;
+    gap: 3px !important;
+  }
+
+  .app.activePage-profile .referralStatsBox > * {
+    min-height: 30px !important;
+    padding: 4px !important;
+  }
+
+  .app.activePage-profile .referralStatsBox small {
+    font-size: 6px !important;
+  }
+
+  .app.activePage-profile .referralStatsBox strong {
+    margin-top: 2px !important;
+    font-size: 9px !important;
+  }
+
+  .app.activePage-profile .referralDashboardBtn,
+  .app.activePage-profile .referralApplyBtn {
+    min-height: 27px !important;
+    height: 27px !important;
+    margin-top: 2px !important;
+    font-size: 7px !important;
+    padding: 0 7px !important;
+  }
+
+  .app.activePage-profile .proLogoutButton {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 12px !important;
+  }
+
+  .app.activePage-profile .proLogoutButton strong {
+    font-size: 11px !important;
+  }
+
+  .app.activePage-profile .proLogoutButton small {
+    font-size: 7.5px !important;
+  }
+}
+
+
+/* ==========================================================================
+   METABINARY V105 — PROFILE REFERRAL SHORTCUT
+   Desktop/laptop only. Profile shows one compact Referral Program card;
+   clicking it opens the existing full referral dashboard page.
+   Mobile/tablet remain untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-profile .proProfileMain {
+    grid-template-columns: minmax(0, 1fr) 300px !important;
+    gap: 7px !important;
+  }
+
+  .app.activePage-profile .referralShortcutCardV105 {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 18px !important;
+    display: grid !important;
+    grid-template-columns: 52px minmax(0, 1fr) 28px !important;
+    gap: 14px !important;
+    align-items: center !important;
+    align-content: center !important;
+    text-align: left !important;
+    color: #fff !important;
+    background:
+      linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(105,72,230,.36) !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+  }
+
+  .app.activePage-profile .referralShortcutCardV105:hover {
+    border-color: rgba(123,88,255,.75) !important;
+    box-shadow: 0 0 28px rgba(112,78,255,.16) !important;
+  }
+
+  .app.activePage-profile .referralShortcutCardV105 .profileActionIcon {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    font-size: 22px !important;
+  }
+
+  .app.activePage-profile .referralShortcutCopyV105 {
+    min-width: 0 !important;
+  }
+
+  .app.activePage-profile .referralShortcutCopyV105 h2 {
+    margin: 0 0 7px !important;
+    font-size: 20px !important;
+    line-height: 1.05 !important;
+    color: #fff !important;
+  }
+
+  .app.activePage-profile .referralShortcutCopyV105 p {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+    color: #9aacbf !important;
+  }
+
+  .app.activePage-profile .referralShortcutArrowV105 {
+    justify-self: end !important;
+    color: #b9c5d7 !important;
+    font-size: 30px !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+  }
+}
