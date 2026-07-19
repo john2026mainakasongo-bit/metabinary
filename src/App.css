@@ -39708,3 +39708,418 @@ body,
     margin-top: 0 !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V98 — COMPACT DESKTOP BOT LIVE WORKSPACE
+   Desktop/laptop only (1024px+).
+   Makes the live bot workspace larger and more compact so runs are easier
+   to follow in real time. Mobile/tablet remain untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  .app.activePage-botLive {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    grid-template-rows: 58px minmax(0, 1fr) 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Reuse the same compact desktop header structure. */
+  .app.activePage-botLive > .cleanBrokerHeader,
+  .app.activePage-botLive > .brokerTopHeader,
+  .app.activePage-botLive > .topHeader {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 500 !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 {
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .brokerMenuBtn {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .brokerLogoMark {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .brokerLogo strong,
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .logo strong {
+    font-size: 23px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    height: 38px !important;
+    margin-left: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button {
+    height: 30px !important;
+    padding: 0 9px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderLeftGroupV94 .desktopTradeHeaderActionsV89 button:nth-child(2) {
+    color: #fff !important;
+    background: rgba(8,124,255,.13) !important;
+    border: 1px solid rgba(8,124,255,.35) !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .brokerWallet,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .walletBox {
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: rgba(7,17,31,.84) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .usdWalletSelectorV12,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .demoWalletSelectorV12 {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .usdWalletInlineV12,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .demoWalletInlineV12 {
+    font-size: 17px !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .compactDepositButton,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .brokerDepositBtn,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .depositTop {
+    flex: 0 0 50px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .compactDepositButton span,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .brokerDepositBtn span {
+    display: none !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .compactDepositButton b,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .brokerDepositBtn b {
+    border-left: 0 !important;
+    background: transparent !important;
+    font-size: 22px !important;
+  }
+
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .brokerBellBtn,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .bellBtn,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .brokerAvatarBtn,
+  .app.activePage-botLive .desktopHeaderRightGroupV94 .avatarBtn {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
+  .app.activePage-botLive > .bottomNav {
+    display: none !important;
+  }
+
+  .app.activePage-botLive .floatingAiButton.aiPage-botLive {
+    display: none !important;
+  }
+
+  .app.activePage-botLive > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 8px 12px 12px !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact the full bot-live page into a large monitoring workspace. */
+  .app.activePage-botLive .botLivePage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows:
+      48px
+      58px
+      58px
+      34px
+      minmax(0, 1fr)
+      78px !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    color: #fff !important;
+  }
+
+  .app.activePage-botLive .botLiveTop {
+    min-height: 48px !important;
+    height: 48px !important;
+    padding: 0 12px !important;
+    border-radius: 12px !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+
+  .app.activePage-botLive .botLiveTop button {
+    height: 32px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+
+  .app.activePage-botLive .botLiveTop strong {
+    font-size: 16px !important;
+  }
+
+  .app.activePage-botLive .botLiveTop small {
+    font-size: 10px !important;
+  }
+
+  /* Stop button + runner progress become one compact row. */
+  .app.activePage-botLive .runnerBox {
+    min-height: 58px !important;
+    height: 58px !important;
+    display: grid !important;
+    grid-template-columns: 165px minmax(0, 1fr) !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+
+  .app.activePage-botLive .startRunner,
+  .app.activePage-botLive .stopRunner {
+    border-radius: 0 !important;
+    font-size: 17px !important;
+    font-weight: 900 !important;
+  }
+
+  .app.activePage-botLive .runnerBox > div {
+    min-width: 0 !important;
+    border: 0 !important;
+    padding: 8px 14px !important;
+    background: transparent !important;
+  }
+
+  .app.activePage-botLive .runnerBox span {
+    width: 100% !important;
+    height: 5px !important;
+  }
+
+  /* Session metrics in a compact single row. */
+  .app.activePage-botLive .runnerStats {
+    min-height: 58px !important;
+    height: 58px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .app.activePage-botLive .runnerStats > div,
+  .app.activePage-botLive .runnerStats > article,
+  .app.activePage-botLive .runnerStats > section {
+    min-width: 0 !important;
+    height: 58px !important;
+    border-radius: 11px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+
+  /* Thin desktop tabs. */
+  .app.activePage-botLive .runnerTabs {
+    min-height: 34px !important;
+    height: 34px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) auto !important;
+    background: rgba(5,18,32,.98) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(77,139,214,.2) !important;
+  }
+
+  .app.activePage-botLive .runnerTabs button {
+    min-height: 34px !important;
+    height: 34px !important;
+    background: transparent !important;
+    color: #9cabbe !important;
+    font-size: 11px !important;
+  }
+
+  .app.activePage-botLive .runnerTabs .active {
+    color: #fff !important;
+    border-bottom-color: #35b7b4 !important;
+  }
+
+  /* Main runs list gets most of the screen. */
+  .app.activePage-botLive .runnerBody {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive .runnerList,
+  .app.activePage-botLive .runnerResult {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    border-radius: 12px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+
+  .app.activePage-botLive .runnerList p {
+    min-height: 48px !important;
+    height: 48px !important;
+    padding: 0 14px !important;
+    border-bottom: 1px solid rgba(255,255,255,.07) !important;
+    color: #e9f1fb !important;
+  }
+
+  .app.activePage-botLive .runnerList p strong {
+    font-size: 13px !important;
+  }
+
+  .app.activePage-botLive .runnerList p span,
+  .app.activePage-botLive .runnerList p small {
+    font-size: 10px !important;
+  }
+
+  /* Bottom totals stay visible in one compact row. */
+  .app.activePage-botLive .botLivePage > .runnerStats:last-child,
+  .app.activePage-botLive .botLiveBottomStats {
+    min-height: 78px !important;
+    height: 78px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .app.activePage-botLive .botLivePage > .runnerStats:last-child > *,
+  .app.activePage-botLive .botLiveBottomStats > * {
+    min-width: 0 !important;
+    min-height: 78px !important;
+    height: 78px !important;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    background: linear-gradient(180deg, rgba(5,18,32,.98), rgba(3,12,23,.98)) !important;
+    border: 1px solid rgba(77,139,214,.24) !important;
+  }
+}
+
+/* Shorter laptop screens: compress chrome further and give even more room to runs. */
+@media screen and (min-width: 1024px) and (max-height: 820px) {
+  .app.activePage-botLive .botLivePage {
+    grid-template-rows:
+      44px
+      52px
+      52px
+      32px
+      minmax(0, 1fr)
+      66px !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-botLive .botLiveTop {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .app.activePage-botLive .runnerBox {
+    height: 52px !important;
+    min-height: 52px !important;
+  }
+
+  .app.activePage-botLive .runnerStats {
+    height: 52px !important;
+    min-height: 52px !important;
+  }
+
+  .app.activePage-botLive .runnerTabs {
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
+  .app.activePage-botLive .runnerTabs button {
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
+  .app.activePage-botLive .botLivePage > .runnerStats:last-child,
+  .app.activePage-botLive .botLiveBottomStats {
+    height: 66px !important;
+    min-height: 66px !important;
+  }
+}
