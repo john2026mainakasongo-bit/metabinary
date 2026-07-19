@@ -288,122 +288,12 @@
 
 
 /* ==========================================================================
-   METABINARY V133 — MOBILE DIGIT RING RESTORE
-   Restores the original full conic ring + black inner core.
-   No mask is used. This avoids the thin-outline bug from V131/V132.
-   Keeps V130 layout, row gap, chart, controls, and desktop unchanged.
+   METABINARY V136 — CLEAN DIGIT DONUT RING LAYER FIX
+   Keep the dynamic conic-gradient on .mbDigitRingV7.
+   Force the black centre to sit ABOVE the ring as an absolute circle.
+   No masks. No pseudo-elements. No pie-slice bleed-through.
    ========================================================================== */
-@media screen and (max-width: 1023px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled {
-    width: 56px !important;
-    min-width: 56px !important;
-    max-width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-  }
 
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitRingV7 {
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 1 !important;
-    width: 56px !important;
-    min-width: 56px !important;
-    max-width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-    border-radius: 50% !important;
-
-    /* Disable the V131/V132 masking approach completely. */
-    -webkit-mask: none !important;
-    mask: none !important;
-
-    /* Keep the full conic disc; the black core below creates the donut. */
-    box-shadow: 0 2px 8px rgba(0,0,0,.42) !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    position: relative !important;
-    z-index: 4 !important;
-    width: 39px !important;
-    min-width: 39px !important;
-    max-width: 39px !important;
-    height: 39px !important;
-    min-height: 39px !important;
-    max-height: 39px !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    border: 0 !important;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.92) !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    font-size: 24px !important;
-    line-height: .9 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    margin-top: 2px !important;
-    font-size: 9.5px !important;
-    line-height: 1 !important;
-    color: #aebbd0 !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitRingV7 {
-    width: 54px !important;
-    min-width: 54px !important;
-    max-width: 54px !important;
-    height: 54px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V135 — TRUE MOBILE DIGIT DONUT USING CELL CUTOUT
-   Robust fix:
-   - keep the real dynamic conic-gradient ring untouched
-   - draw the black centre on the BUTTON itself with ::before
-   - keep text above the cutout
-   - no masks and no pseudo-element on mbDigitRingV7
-   ========================================================================== */
 @media screen and (max-width: 1023px) {
   body .app.activePage-trade
     .mobileDigitGridFinalV130
@@ -419,27 +309,12 @@
     height: 56px !important;
     min-height: 56px !important;
     max-height: 56px !important;
+    display: grid !important;
+    place-items: center !important;
     overflow: visible !important;
   }
 
-  /* Real black centre that always covers the middle of the full gradient disc. */
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130::before {
-    content: "" !important;
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    width: 39px !important;
-    height: 39px !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    transform: translate(-50%, -50%) !important;
-    z-index: 3 !important;
-    pointer-events: none !important;
-  }
-
-  /* Keep the dynamic ring as the bottom layer. */
+  /* Dynamic conic-gradient ring stays at the bottom. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7 {
@@ -456,10 +331,10 @@
     overflow: hidden !important;
     -webkit-mask: none !important;
     mask: none !important;
-    box-shadow: none !important;
+    pointer-events: none !important;
   }
 
-  /* Disable any previous ring pseudo cutouts completely. */
+  /* Remove any old experimental ring pseudo-elements. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7::before,
@@ -470,12 +345,14 @@
     display: none !important;
   }
 
-  /* The core carries text only; the button ::before supplies the black centre. */
+  /* This is the actual black centre of the donut. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7 {
-    position: relative !important;
-    z-index: 5 !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    z-index: 10 !important;
     width: 39px !important;
     min-width: 39px !important;
     max-width: 39px !important;
@@ -489,9 +366,10 @@
     gap: 2px !important;
     border: 0 !important;
     border-radius: 50% !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    transform: none !important;
+    background: #02070d !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.015) !important;
+    transform: translate(-50%, -50%) !important;
+    overflow: hidden !important;
   }
 
   body .app.activePage-trade
@@ -499,45 +377,31 @@
     > .mbDigitCoreV7
     > strong {
     position: relative !important;
-    z-index: 6 !important;
-    color: #ffffff !important;
+    z-index: 11 !important;
     font-size: 24px !important;
     line-height: .88 !important;
-    text-shadow: none !important;
   }
 
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     .mbDigitPercentV7 {
     position: relative !important;
-    z-index: 6 !important;
+    z-index: 11 !important;
     margin-top: 2px !important;
-    color: #aebbd0 !important;
     font-size: 9.5px !important;
     line-height: 1 !important;
-    text-shadow: none !important;
   }
 
-  /* Keep picked/current states from repainting the black centre white. */
+  /* Do not let old selected/current styles repaint the black centre. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130.mbDigitPickedV7
     > .mbDigitCoreV7,
   body .app.activePage-trade
     .mobileDigitCellFinalV130.mbDigitCurrentV7
     > .mbDigitCoreV7 {
-    background: transparent !important;
+    background: #02070d !important;
     border: 0 !important;
-    box-shadow: none !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130.mbDigitPickedV7
-    > .mbDigitCoreV7
-    > strong,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130.mbDigitPickedV7
-    .mbDigitPercentV7 {
-    color: #ffffff !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.015) !important;
   }
 }
 
@@ -559,9 +423,6 @@
     max-height: 54px !important;
   }
 
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130::before,
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7 {
