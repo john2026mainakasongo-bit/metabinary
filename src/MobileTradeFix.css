@@ -14,7 +14,6 @@
     overflow-y: auto !important;
     padding-bottom: 88px !important;
   }
-
   body .app.activePage-trade .finalBinaryTradePage.digitContractPage {
     width: 100% !important;
     max-width: none !important;
@@ -825,5 +824,91 @@
     height: 8px !important;
     font-size: 8px !important;
     line-height: 8px !important;
+  }
+}
+
+
+/* ==========================================================================
+   METABINARY V143 — FINAL PERCENTAGE + CURSOR ALIGNMENT
+   Keeps the working SVG rings.
+   Fixes the last two visible issues:
+   - percentage text sits fully inside the black centre
+   - red cursor stays below the active digit
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7
+    > strong {
+    top: 4px !important;
+    height: 23px !important;
+    font-size: 22px !important;
+    line-height: 23px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    .mbDigitPercentV7 {
+    bottom: 7px !important;
+    height: 9px !important;
+    font-size: 8px !important;
+    line-height: 9px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row) * 96px) + 82px) !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7
+    > strong {
+    top: 3px !important;
+    height: 22px !important;
+    font-size: 21px !important;
+    line-height: 22px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    .mbDigitPercentV7 {
+    bottom: 6px !important;
+    height: 8px !important;
+    font-size: 7.8px !important;
+    line-height: 8px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row) * 91px) + 79px) !important;
   }
 }
