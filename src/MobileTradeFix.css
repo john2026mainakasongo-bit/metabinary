@@ -1058,3 +1058,135 @@
     flex-basis: 196px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V145 — COMPACT MOBILE TRADE LAYOUT
+   Keeps the working V144 SVG digit rings exactly as they are.
+   Only removes wasted vertical space:
+   - shorter digit panel
+   - controls move directly below digits
+   - removes the 88px empty area before bottom navigation
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Remove the large blank area that V130 reserved below the trade content. */
+  body .app.activePage-trade > .mainScreen {
+    padding-bottom: 4px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage {
+    gap: 6px !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard {
+    gap: 6px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  /* High-specificity rule so old App.css digit-board heights cannot win. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130 {
+    flex: 0 0 158px !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    height: 158px !important;
+    min-height: 158px !important;
+    max-height: 158px !important;
+    margin: 0 !important;
+    padding: 3px 4px 4px !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    width: 100% !important;
+    height: 148px !important;
+    min-height: 148px !important;
+    max-height: 148px !important;
+    grid-template-rows: 68px 68px !important;
+    row-gap: 10px !important;
+    align-content: start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Cursor remains directly underneath the active circle. */
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    top: 61px !important;
+  }
+
+  /* Pull the order controls immediately under the digit section. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryOrderCard,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proBinaryOrderCard.finalBinaryOrderCard {
+    margin: 0 !important;
+    padding-top: 0 !important;
+    transform: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalTradeButtons,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Bottom navigation follows the buttons without a large artificial gap. */
+  body .app.activePage-trade > .bottomNav {
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130 {
+    flex-basis: 152px !important;
+    height: 152px !important;
+    min-height: 152px !important;
+    max-height: 152px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    height: 142px !important;
+    min-height: 142px !important;
+    max-height: 142px !important;
+    grid-template-rows: 66px 66px !important;
+    row-gap: 8px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    top: 59px !important;
+  }
+}
