@@ -358,3 +358,142 @@
     margin-top: 4px !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V148 — DIGIT ROW SEPARATION FIX
+   Fix the two digit rows touching in the middle on phone screens.
+   Top row stays higher, bottom row stays lower, with a clear center gap.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130 {
+    flex-basis: 166px !important;
+    height: 166px !important;
+    min-height: 166px !important;
+    max-height: 166px !important;
+    padding: 4px 4px 6px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    height: 156px !important;
+    min-height: 156px !important;
+    max-height: 156px !important;
+    grid-template-rows: 70px 70px !important;
+    row-gap: 14px !important;
+    align-content: start !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitRingBaseV139,
+  body .app.activePage-trade .mobileDigitRingArcV139 {
+    stroke-width: 6px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitNumberV144 {
+    font-size: 23px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitPercentTextV144 {
+    font-size: 8.2px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:nth-child(-n+5) {
+    transform: translateY(-3px) !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:nth-child(n+6) {
+    transform: translateY(3px) !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    top: 58px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130 {
+    flex-basis: 162px !important;
+    height: 162px !important;
+    min-height: 162px !important;
+    max-height: 162px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    height: 152px !important;
+    min-height: 152px !important;
+    max-height: 152px !important;
+    grid-template-rows: 68px 68px !important;
+    row-gap: 12px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:nth-child(-n+5) {
+    transform: translateY(-2px) !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:nth-child(n+6) {
+    transform: translateY(2px) !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    top: 56px !important;
+  }
+}
