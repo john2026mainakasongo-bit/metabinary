@@ -329,3 +329,32 @@
     top: 59px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V147 — REMOVE FINAL GAP ABOVE BOTTOM NAV
+   App.css reserves one extra bottom-nav-height as padding on the .app shell.
+   On the Trade page the nav is now in normal flow, so that reserved padding
+   becomes the blank area visible below ODD / EVEN.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade {
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade > .mainScreen {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade > .bottomNav {
+    margin-top: 4px !important;
+  }
+}
