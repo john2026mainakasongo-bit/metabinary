@@ -607,3 +607,119 @@
     border-bottom-width: 12px !important;
   }
 }
+
+
+
+/* ==========================================================================
+   METABINARY V151 — SINGLE CURSOR + WAITING DIGIT HIGHLIGHT
+   - removes the extra mobile cursor
+   - keeps only one visible cursor
+   - when a trade is running, the live/current digit is softly covered light green
+   - win/loss settlement flash remains bright green / bright red
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Hide the duplicate mobile cursor sources. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Keep only the original single cursor and make it easy to see. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 90 !important;
+    filter: drop-shadow(0 0 11px rgba(255, 73, 97, 0.92)) drop-shadow(0 2px 7px rgba(255, 73, 97, 0.66)) !important;
+  }
+
+  /* When a trade is active, show the current/live digit as the selected digit waiting. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+    background: conic-gradient(
+      from var(--mb-v7-white-start, -30deg),
+      #bbffe2 0deg var(--mb-v7-white-sweep, 120deg),
+      #27d88f var(--mb-v7-white-sweep, 120deg) 360deg
+    ) !important;
+    box-shadow: 0 0 18px rgba(39, 216, 143, 0.46), 0 0 28px rgba(39, 216, 143, 0.28) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+    background: linear-gradient(180deg, rgba(172, 255, 215, 0.92), rgba(66, 201, 132, 0.92)) !important;
+    border-color: rgba(224, 255, 241, 0.95) !important;
+    box-shadow: 0 0 0 3px rgba(63, 224, 147, 0.22), 0 0 16px rgba(39, 216, 143, 0.34) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+    color: #042917 !important;
+    text-shadow: none !important;
+  }
+
+  /* Strengthen the final settlement flash. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 {
+    animation: mbDigitWinFlashV31 .95s ease-out 1 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitRingV7 {
+    background: #19f78f !important;
+    box-shadow: 0 0 24px rgba(25, 247, 143, 0.95), 0 0 38px rgba(25, 247, 143, 0.55) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 {
+    background: #0fd37b !important;
+    border-color: #e7fff3 !important;
+    box-shadow: 0 0 24px rgba(25, 247, 143, 0.76) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
+    animation: mbDigitLossFlashV31 .95s ease-out 1 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitRingV7 {
+    background: #ff375b !important;
+    box-shadow: 0 0 24px rgba(255, 55, 91, 0.95), 0 0 38px rgba(255, 55, 91, 0.55) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 {
+    background: #db1f46 !important;
+    border-color: #ffe4ea !important;
+    box-shadow: 0 0 24px rgba(255, 55, 91, 0.76) !important;
+  }
+}
