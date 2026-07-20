@@ -1043,6 +1043,18 @@ function mpesaFailureStatus(resultCode) {
   return "FAILED";
 }
 
+function isMpesaStillProcessing(value) {
+  const message = String(value || "").trim().toLowerCase();
+  return (
+    message.includes("still under processing") ||
+    message.includes("still processing") ||
+    message.includes("being processed") ||
+    message.includes("transaction is processing") ||
+    message.includes("request is processing") ||
+    message.includes("processing the transaction")
+  );
+}
+
 async function reconcileMpesaDeposit(db, deposit) {
   if (
     !deposit ||
@@ -1092,6 +1104,14 @@ async function reconcileMpesaDeposit(db, deposit) {
       pickFirst(providerResponse?.ResultDesc, providerResponse?.resultDesc) || ""
     );
 
+    // Daraja can return a non-zero query result while the STK request is still
+    // awaiting the customer's PIN/callback. That is a pending state, not a failure.
+    if (isMpesaStillProcessing(update.resultDesc)) {
+      update.status = "PENDING";
+      await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
+      return { ...deposit, ...update };
+    }
+
     if (resultCode === "0") {
       update.status = "COMPLETED";
       await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
@@ -1099,7 +1119,7 @@ async function reconcileMpesaDeposit(db, deposit) {
     }
 
     update.status = mpesaFailureStatus(resultCode);
-    console.warn("M-PESA STK status returned a non-success result", {
+    console.warn("M-PESA STK status returned a final non-success result", {
       depositId: deposit.id,
       resultCode,
       resultDesc: update.resultDesc,
@@ -1458,15 +1478,19 @@ async function responseForDeposit(db, deposit) {
       "",
     300
   );
+  const effectiveStatus =
+    isMpesaStillProcessing(providerMessage) && FAILED_STATUSES.has(status)
+      ? "PENDING"
+      : status;
 
   let message = "Payment is still pending.";
-  if (status === "COMPLETED") {
+  if (effectiveStatus === "COMPLETED") {
     message = "Deposit completed successfully.";
-  } else if (status === "PAYMENT_REVIEW") {
+  } else if (effectiveStatus === "PAYMENT_REVIEW") {
     message =
       deposit.verificationError ||
       "Payment was received but requires review before the balance can be credited.";
-  } else if (FAILED_STATUSES.has(status)) {
+  } else if (FAILED_STATUSES.has(effectiveStatus)) {
     message = providerMessage || `Deposit ${status.toLowerCase()}.`;
   } else if (providerMessage) {
     message = providerMessage;
@@ -1482,7 +1506,7 @@ async function responseForDeposit(db, deposit) {
     checkoutRequestId: deposit.checkoutRequestId || "",
     merchantRequestId: deposit.merchantRequestId || "",
     provider: deposit.provider || "",
-    status,
+    status: effectiveStatus,
     method: deposit.paymentMethod || deposit.method,
     phone: deposit.phone,
     amountUsd: deposit.amountUsd,

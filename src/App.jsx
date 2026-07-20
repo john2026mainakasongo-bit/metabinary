@@ -3755,6 +3755,24 @@ function TradingApp() {
         if (!res.ok || data.ok === false) continue;
 
         const status = String(data.status || "").toUpperCase();
+        const statusMessage = String(data.message || data.resultDesc || "");
+        const stillProcessing = /still under processing|still processing|being processed|transaction is processing|request is processing|processing the transaction/i.test(
+          statusMessage
+        );
+
+        if (stillProcessing) {
+          window.dispatchEvent(
+            new CustomEvent("metabinary:deposit-status", {
+              detail: {
+                depositId,
+                status: "pending",
+                message: "Waiting for M-PESA confirmation…",
+              },
+            })
+          );
+          continue;
+        }
+
         if (successful.has(status) && data.credited !== false) {
           if (Number.isFinite(Number(data.realBalance))) {
             const nextRealBalance = Number(data.realBalance);
@@ -3791,10 +3809,10 @@ function TradingApp() {
         }
 
         if (failed.has(status)) {
-          notify("loss", "Deposit not completed", data.message || `Payment status: ${status}.`);
+          notify("loss", "Deposit not completed", statusMessage || `Payment status: ${status}.`);
           window.dispatchEvent(
             new CustomEvent("metabinary:deposit-status", {
-              detail: { depositId, status: "failed", message: data.message || `Payment status: ${status}.` },
+              detail: { depositId, status: "failed", message: statusMessage || `Payment status: ${status}.` },
             })
           );
           return;
