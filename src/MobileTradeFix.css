@@ -1,18 +1,16 @@
 /* ==========================================================================
-   METABINARY V130 — FINAL MOBILE DIGIT FIX
-   IMPORTANT:
-   This stylesheet is imported AFTER DesktopTrade.css.
-   It only affects widths below 1024px, so laptop/desktop stays unchanged.
+   METABINARY V146 — CLEAN FINAL MOBILE TRADE CSS
+   Replaces stacked V130–V145 mobile overrides with one consolidated file.
+   Mobile only: <= 1023px. Desktop/laptop untouched.
    ========================================================================== */
 
 @media screen and (max-width: 1023px) {
-  /* Let the mobile trade page flow vertically. */
   body .app.activePage-trade > .mainScreen {
     min-height: 0 !important;
     height: auto !important;
     overflow-x: hidden !important;
-    overflow-y: auto !important;
-    padding-bottom: 88px !important;
+    overflow-y: visible !important;
+    padding-bottom: 0 !important;
   }
 
   body .app.activePage-trade .finalBinaryTradePage.digitContractPage {
@@ -21,14 +19,14 @@
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+    margin: 0 !important;
+    padding-bottom: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    align-content: initial !important;
-    gap: 8px !important;
+    gap: 6px !important;
     overflow: visible !important;
   }
 
-  /* The card must contain BOTH the chart and the 10-digit board. */
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .finalBinaryChartCard.digitOnlyCard {
@@ -41,17 +39,16 @@
     min-height: 0 !important;
     max-height: none !important;
     aspect-ratio: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
     margin: 0 !important;
     padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
     overflow: visible !important;
     border: 0 !important;
     background: transparent !important;
   }
 
-  /* Keep the approved mobile chart size. */
   body .app.activePage-trade .mobileDigitLiveChartV115 {
     position: relative !important;
     flex: 0 0 232px !important;
@@ -63,17 +60,19 @@
     z-index: 2 !important;
   }
 
-  /* FINAL isolated 10-digit board. */
-  body .app.activePage-trade .mobileDigitBoardFinalV130 {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130 {
     position: relative !important;
     inset: auto !important;
-    flex: 0 0 196px !important;
+    flex: 0 0 158px !important;
     width: 100% !important;
-    height: 196px !important;
-    min-height: 196px !important;
-    max-height: 196px !important;
+    height: 158px !important;
+    min-height: 158px !important;
+    max-height: 158px !important;
     margin: 0 !important;
-    padding: 5px 4px 8px !important;
+    padding: 3px 4px 4px !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -84,22 +83,24 @@
   }
 
   body .app.activePage-trade
-    .mobileDigitBoardFinalV130
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard
+    > .mobileDigitBoardFinalV130
     > .mobileDigitGridFinalV130 {
     position: relative !important;
     inset: auto !important;
     width: 100% !important;
     max-width: none !important;
-    height: 180px !important;
-    min-height: 180px !important;
-    max-height: 180px !important;
+    height: 148px !important;
+    min-height: 148px !important;
+    max-height: 148px !important;
     margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    grid-template-rows: 72px 72px !important;
+    grid-template-rows: 68px 68px !important;
     column-gap: 2px !important;
-    row-gap: 22px !important;
+    row-gap: 10px !important;
     align-items: center !important;
     align-content: start !important;
     justify-items: center !important;
@@ -108,7 +109,6 @@
     overflow: visible !important;
   }
 
-  /* Put every digit back into normal grid flow, overriding old absolute rules. */
   body .app.activePage-trade
     .mobileDigitGridFinalV130
     > .mobileDigitCellFinalV130,
@@ -117,185 +117,27 @@
     > .mobileDigitCellFinalV130:disabled {
     position: relative !important;
     inset: auto !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    bottom: auto !important;
-    width: 52px !important;
-    min-width: 52px !important;
-    max-width: 52px !important;
-    height: 52px !important;
-    min-height: 52px !important;
-    max-height: 52px !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
     margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
     place-items: center !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    box-shadow: none !important;
     visibility: visible !important;
     opacity: 1 !important;
+    overflow: visible !important;
     transform: none !important;
     animation: none !important;
-    overflow: visible !important;
   }
 
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitRingV7 {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 52px !important;
-    height: 52px !important;
-    min-width: 52px !important;
-    min-height: 52px !important;
-    max-width: 52px !important;
-    max-height: 52px !important;
-    border-radius: 50% !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    position: relative !important;
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    max-width: 36px !important;
-    max-height: 36px !important;
-    display: grid !important;
-    place-content: center !important;
-    gap: 2px !important;
-    margin: 0 !important;
-    border-radius: 50% !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    font-size: 23px !important;
-    line-height: 0.9 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    margin-top: 2px !important;
-    font-size: 9px !important;
-    line-height: 1 !important;
-  }
-
-  /* Cursor sits underneath the active digit, never inside the ring. */
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    position: absolute !important;
-    left: calc((var(--mb-active-col) + 0.5) * 20%) !important;
-    top: calc((var(--mb-active-row) * 94px) + 65px) !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
-    border-left: 7px solid transparent !important;
-    border-right: 7px solid transparent !important;
-    border-bottom: 10px solid #ff4058 !important;
-    border-top: 0 !important;
-    background: transparent !important;
-    transform: translateX(-50%) !important;
-    z-index: 20 !important;
-    pointer-events: none !important;
-  }
-
-  /* Order area follows the digit board instead of occupying a fixed grid row. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .finalBinaryOrderCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .proBinaryOrderCard.finalBinaryOrderCard {
-    position: relative !important;
-    inset: auto !important;
-    grid-row: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    overflow: visible !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade .mobileDigitLiveChartV115 {
-    flex-basis: 220px !important;
-    height: 220px !important;
-    min-height: 220px !important;
-    max-height: 220px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitBoardFinalV130 {
-    flex-basis: 188px !important;
-    height: 188px !important;
-    min-height: 188px !important;
-    max-height: 188px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitBoardFinalV130
-    > .mobileDigitGridFinalV130 {
-    height: 172px !important;
-    min-height: 172px !important;
-    max-height: 172px !important;
-    grid-template-rows: 69px 69px !important;
-    row-gap: 20px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitRingV7 {
-    width: 50px !important;
-    min-width: 50px !important;
-    max-width: 50px !important;
-    height: 50px !important;
-    min-height: 50px !important;
-    max-height: 50px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    max-width: 34px !important;
-    max-height: 34px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 89px) + 62px) !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V139 — SVG MOBILE DIGIT RINGS
-   The mobile rings are real SVG circles, so they cannot turn into pie slices,
-   disappear behind the core, or be broken by conic-gradient stacking.
-   Desktop/laptop keeps the original ring element.
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  /* Hide the legacy CSS ring only on mobile. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitRingV7 {
@@ -304,40 +146,15 @@
     opacity: 0 !important;
   }
 
-  /* Fixed mobile digit cell dimensions. */
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled {
-    position: relative !important;
-    width: 56px !important;
-    min-width: 56px !important;
-    max-width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 50% !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-    transform: none !important;
-    animation: none !important;
-  }
-
-  /* The SVG owns the complete ring appearance. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mobileDigitRingSvgV139 {
     display: block !important;
     position: absolute !important;
     inset: 0 !important;
-    z-index: 1 !important;
-    width: 56px !important;
-    height: 56px !important;
+    width: 60px !important;
+    height: 60px !important;
+    z-index: 3 !important;
     overflow: visible !important;
     pointer-events: none !important;
   }
@@ -345,598 +162,14 @@
   body .app.activePage-trade .mobileDigitRingBaseV139 {
     fill: none !important;
     stroke: #566270 !important;
-    stroke-width: 7 !important;
+    stroke-width: 6.5 !important;
     stroke-linecap: butt !important;
   }
 
   body .app.activePage-trade .mobileDigitRingArcV139 {
     fill: none !important;
-    stroke-width: 7 !important;
-    stroke-linecap: butt !important;
-  }
-
-  /* True black centre and text layer above the SVG. */
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    z-index: 5 !important;
-    width: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: grid !important;
-    place-content: center !important;
-    gap: 2px !important;
-    border: 0 !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    box-shadow: none !important;
-    transform: translate(-50%, -50%) !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    color: #ffffff !important;
-    font-size: 24px !important;
-    font-weight: 950 !important;
-    line-height: .88 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    margin-top: 2px !important;
-    color: #aebbd0 !important;
-    font-size: 9.5px !important;
-    font-weight: 800 !important;
-    line-height: 1 !important;
-  }
-
-  /* Legacy current/picked styles must not repaint the centre. */
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130.mbDigitPickedV7
-    > .mbDigitCoreV7,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130.mbDigitCurrentV7
-    > .mbDigitCoreV7 {
-    background: #02070d !important;
-    border: 0 !important;
-    box-shadow: none !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    width: 54px !important;
-    min-width: 54px !important;
-    max-width: 54px !important;
-    height: 54px !important;
-    min-height: 54px !important;
-    max-height: 54px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V140 — SVG DIGIT TEXT + CURSOR FINAL ALIGNMENT
-   Keeps the stable V139 SVG rings, but fixes:
-   - clipped digit percentages
-   - cramped inner text
-   - cursor sitting inside the active ring
-   - slightly improves ring proportions on phones
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    width: 58px !important;
-    min-width: 58px !important;
-    max-width: 58px !important;
-    height: 58px !important;
-    min-height: 58px !important;
-    max-height: 58px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitRingBaseV139,
-  body .app.activePage-trade .mobileDigitRingArcV139 {
     stroke-width: 6.5 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-    gap: 1px !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    font-size: 23px !important;
-    line-height: .9 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    margin-top: 1px !important;
-    font-size: 8.5px !important;
-    line-height: 1 !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 94px) + 72px) !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    width: 56px !important;
-    min-width: 56px !important;
-    max-width: 56px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 42px !important;
-    min-width: 42px !important;
-    max-width: 42px !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 89px) + 69px) !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V141 — MOBILE DIGIT NUMBER + PERCENTAGE FIT
-   Keeps the V139/V140 SVG rings and fixes the remaining text clipping.
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    width: 60px !important;
-    min-width: 60px !important;
-    max-width: 60px !important;
-    height: 60px !important;
-    min-height: 60px !important;
-    max-height: 60px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    z-index: 5 !important;
-    width: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    max-height: 46px !important;
-    margin: 0 !important;
-    padding: 4px 0 3px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 2px !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    transform: translate(-50%, -50%) !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    display: block !important;
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    color: #fff !important;
-    font-size: 24px !important;
-    font-weight: 950 !important;
-    line-height: 23px !important;
-    text-align: center !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    display: block !important;
-    flex: 0 0 auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    color: #aebbd0 !important;
-    font-size: 9px !important;
-    font-weight: 800 !important;
-    line-height: 10px !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitBoardFinalV130
-    > .mobileDigitGridFinalV130 {
-    grid-template-rows: 76px 76px !important;
-    row-gap: 20px !important;
-    height: 184px !important;
-    min-height: 184px !important;
-    max-height: 184px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitBoardFinalV130 {
-    height: 200px !important;
-    min-height: 200px !important;
-    max-height: 200px !important;
-    flex-basis: 200px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 96px) + 76px) !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130,
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130:disabled,
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    width: 58px !important;
-    min-width: 58px !important;
-    max-width: 58px !important;
-    height: 58px !important;
-    min-height: 58px !important;
-    max-height: 58px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-    padding: 3px 0 2px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    font-size: 23px !important;
-    line-height: 22px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    font-size: 8.5px !important;
-    line-height: 9px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitBoardFinalV130
-    > .mobileDigitGridFinalV130 {
-    grid-template-rows: 73px 73px !important;
-    row-gap: 18px !important;
-    height: 178px !important;
-    min-height: 178px !important;
-    max-height: 178px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitBoardFinalV130 {
-    height: 194px !important;
-    min-height: 194px !important;
-    max-height: 194px !important;
-    flex-basis: 194px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 91px) + 73px) !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V142 — LOCK DIGIT + PERCENTAGE INSIDE SVG RING
-   The ring is already correct. This final rule positions the number and
-   percentage explicitly inside the black centre so legacy text rules cannot
-   push the percentage below the circle.
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    width: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    max-height: 46px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-    border-radius: 50% !important;
-    background: #02070d !important;
-    transform: translate(-50%, -50%) !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 5px !important;
-    bottom: auto !important;
-    width: 100% !important;
-    height: 24px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-    color: #ffffff !important;
-    font-size: 23px !important;
-    font-weight: 950 !important;
-    line-height: 24px !important;
-    text-align: center !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 5px !important;
-    width: 100% !important;
-    height: 9px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-    color: #aebbd0 !important;
-    font-size: 8.5px !important;
-    font-weight: 800 !important;
-    line-height: 9px !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    top: 4px !important;
-    height: 23px !important;
-    font-size: 22px !important;
-    line-height: 23px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    bottom: 4px !important;
-    height: 8px !important;
-    font-size: 8px !important;
-    line-height: 8px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V143 — FINAL PERCENTAGE + CURSOR ALIGNMENT
-   Keeps the working SVG rings.
-   Fixes the last two visible issues:
-   - percentage text sits fully inside the black centre
-   - red cursor stays below the active digit
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 48px !important;
-    min-width: 48px !important;
-    max-width: 48px !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    max-height: 48px !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    top: 4px !important;
-    height: 23px !important;
-    font-size: 22px !important;
-    line-height: 23px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    bottom: 7px !important;
-    height: 9px !important;
-    font-size: 8px !important;
-    line-height: 9px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 96px) + 82px) !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7 {
-    width: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    max-height: 46px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mbDigitCoreV7
-    > strong {
-    top: 3px !important;
-    height: 22px !important;
-    font-size: 21px !important;
-    line-height: 22px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    .mbDigitPercentV7 {
-    bottom: 6px !important;
-    height: 8px !important;
-    font-size: 7.8px !important;
-    line-height: 8px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row) * 91px) + 79px) !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V144 — TEXT INSIDE SVG RING + CELL-BOUND CURSOR
-   Final robust mobile approach:
-   - number and percentage are rendered INSIDE the SVG itself
-   - old HTML digit core is hidden on mobile
-   - cursor is attached directly to the current digit cell
-   - no percentage clipping and no cursor-position calculations
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  /* SVG owns the entire visible digit: ring, black centre, number, percentage. */
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    display: block !important;
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 3 !important;
-    width: 60px !important;
-    height: 60px !important;
-    overflow: visible !important;
-    pointer-events: none !important;
+    stroke-linecap: butt !important;
   }
 
   body .app.activePage-trade .mobileDigitRingCenterV144 {
@@ -960,7 +193,6 @@
     dominant-baseline: middle !important;
   }
 
-  /* Old HTML text layer is no longer used visually on mobile. */
   body .app.activePage-trade
     .mobileDigitCellFinalV130
     > .mbDigitCoreV7 {
@@ -969,7 +201,6 @@
     opacity: 0 !important;
   }
 
-  /* Remove the old free-floating cursor completely. */
   body .app.activePage-trade
     .mobileDigitGridFinalV130
     > .mobileDigitCursorFinalV130 {
@@ -978,14 +209,13 @@
     opacity: 0 !important;
   }
 
-  /* Cursor is now attached to the active digit itself. */
   body .app.activePage-trade
     .mobileDigitGridFinalV130
     > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
     content: "" !important;
     position: absolute !important;
     left: 50% !important;
-    top: 64px !important;
+    top: 61px !important;
     width: 0 !important;
     height: 0 !important;
     border-left: 7px solid transparent !important;
@@ -993,154 +223,27 @@
     border-bottom: 10px solid #ff4058 !important;
     border-top: 0 !important;
     transform: translateX(-50%) !important;
-    filter: drop-shadow(0 3px 5px rgba(255,64,88,.42)) !important;
+    filter: drop-shadow(0 3px 5px rgba(255, 64, 88, 0.42)) !important;
     z-index: 20 !important;
     pointer-events: none !important;
   }
 
-  /* Keep enough vertical room for the attached cursor. */
-  body .app.activePage-trade
-    .mobileDigitBoardFinalV130
-    > .mobileDigitGridFinalV130 {
-    grid-template-rows: 78px 78px !important;
-    row-gap: 18px !important;
-    height: 184px !important;
-    min-height: 184px !important;
-    max-height: 184px !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade .mobileDigitBoardFinalV130 {
-    height: 202px !important;
-    min-height: 202px !important;
-    max-height: 202px !important;
-    flex-basis: 202px !important;
-    overflow: visible !important;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body .app.activePage-trade
-    .mobileDigitCellFinalV130
-    > .mobileDigitRingSvgV139 {
-    width: 58px !important;
-    height: 58px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitNumberV144 {
-    font-size: 23px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitPercentTextV144 {
-    font-size: 8px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
-    top: 61px !important;
-  }
-
-  body .app.activePage-trade
-    .mobileDigitBoardFinalV130
-    > .mobileDigitGridFinalV130 {
-    grid-template-rows: 75px 75px !important;
-    row-gap: 17px !important;
-    height: 178px !important;
-    min-height: 178px !important;
-    max-height: 178px !important;
-  }
-
-  body .app.activePage-trade .mobileDigitBoardFinalV130 {
-    height: 196px !important;
-    min-height: 196px !important;
-    max-height: 196px !important;
-    flex-basis: 196px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V145 — COMPACT MOBILE TRADE LAYOUT
-   Keeps the working V144 SVG digit rings exactly as they are.
-   Only removes wasted vertical space:
-   - shorter digit panel
-   - controls move directly below digits
-   - removes the 88px empty area before bottom navigation
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  /* Remove the large blank area that V130 reserved below the trade content. */
-  body .app.activePage-trade > .mainScreen {
-    padding-bottom: 4px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage {
-    gap: 6px !important;
-    padding-bottom: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .finalBinaryChartCard.digitOnlyCard {
-    gap: 6px !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-  }
-
-  /* High-specificity rule so old App.css digit-board heights cannot win. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .finalBinaryChartCard.digitOnlyCard
-    > .mobileDigitBoardFinalV130 {
-    flex: 0 0 158px !important;
-    flex-grow: 0 !important;
-    flex-shrink: 0 !important;
-    width: 100% !important;
-    height: 158px !important;
-    min-height: 158px !important;
-    max-height: 158px !important;
-    margin: 0 !important;
-    padding: 3px 4px 4px !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .finalBinaryChartCard.digitOnlyCard
-    > .mobileDigitBoardFinalV130
-    > .mobileDigitGridFinalV130 {
-    width: 100% !important;
-    height: 148px !important;
-    min-height: 148px !important;
-    max-height: 148px !important;
-    grid-template-rows: 68px 68px !important;
-    row-gap: 10px !important;
-    align-content: start !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
-  }
-
-  /* Cursor remains directly underneath the active circle. */
-  body .app.activePage-trade
-    .mobileDigitGridFinalV130
-    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
-    top: 61px !important;
-  }
-
-  /* Pull the order controls immediately under the digit section. */
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .finalBinaryOrderCard,
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .proBinaryOrderCard.finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     margin: 0 !important;
     padding-top: 0 !important;
+    overflow: visible !important;
     transform: none !important;
   }
 
@@ -1154,14 +257,25 @@
     margin-bottom: 0 !important;
   }
 
-  /* Bottom navigation follows the buttons without a large artificial gap. */
   body .app.activePage-trade > .bottomNav {
-    margin-top: 6px !important;
-    margin-bottom: 6px !important;
+    position: relative !important;
+    inset: auto !important;
+    width: calc(100% - 20px) !important;
+    max-width: none !important;
+    margin: 6px 10px max(6px, env(safe-area-inset-bottom)) !important;
+    transform: none !important;
+    z-index: 50 !important;
   }
 }
 
 @media screen and (max-width: 480px) {
+  body .app.activePage-trade .mobileDigitLiveChartV115 {
+    flex-basis: 220px !important;
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+  }
+
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .finalBinaryChartCard.digitOnlyCard
@@ -1182,6 +296,31 @@
     max-height: 142px !important;
     grid-template-rows: 66px 66px !important;
     row-gap: 8px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130,
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130:disabled,
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitNumberV144 {
+    font-size: 23px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitPercentTextV144 {
+    font-size: 8px !important;
   }
 
   body .app.activePage-trade
