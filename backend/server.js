@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-daraja-stk-v22-2026-07-20";
+const BACKEND_BUILD = "metabinary-daraja-stk-v23-detailed-status-2026-07-20";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -1099,6 +1099,11 @@ async function reconcileMpesaDeposit(db, deposit) {
     }
 
     update.status = mpesaFailureStatus(resultCode);
+    console.warn("M-PESA STK status returned a non-success result", {
+      depositId: deposit.id,
+      resultCode,
+      resultDesc: update.resultDesc,
+    });
     await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
     return { ...deposit, ...update };
   } catch (error) {
@@ -1442,6 +1447,31 @@ async function reconcileDeposit(db, deposit) {
 
 async function responseForDeposit(db, deposit) {
   const user = await db.collection("users").findOne({ email: deposit.email });
+  const status = String(deposit.status || "PENDING").toUpperCase();
+  const providerMessage = cleanText(
+    deposit.resultDesc ||
+      deposit.lastStatusError ||
+      deposit.providerStatusResponse?.ResultDesc ||
+      deposit.providerStatusResponse?.errorMessage ||
+      deposit.providerResponse?.CustomerMessage ||
+      deposit.providerResponse?.ResponseDescription ||
+      "",
+    300
+  );
+
+  let message = "Payment is still pending.";
+  if (status === "COMPLETED") {
+    message = "Deposit completed successfully.";
+  } else if (status === "PAYMENT_REVIEW") {
+    message =
+      deposit.verificationError ||
+      "Payment was received but requires review before the balance can be credited.";
+  } else if (FAILED_STATUSES.has(status)) {
+    message = providerMessage || `Deposit ${status.toLowerCase()}.`;
+  } else if (providerMessage) {
+    message = providerMessage;
+  }
+
   return {
     ok: true,
     depositId: deposit.id,
@@ -1452,21 +1482,17 @@ async function responseForDeposit(db, deposit) {
     checkoutRequestId: deposit.checkoutRequestId || "",
     merchantRequestId: deposit.merchantRequestId || "",
     provider: deposit.provider || "",
-    status: deposit.status,
+    status,
     method: deposit.paymentMethod || deposit.method,
     phone: deposit.phone,
     amountUsd: deposit.amountUsd,
     amountKes: deposit.amountKes,
     realBalance: roundMoney(user?.realBalance),
     credited: Boolean(deposit.credited),
-    message:
-      deposit.status === "COMPLETED"
-        ? "Deposit completed successfully."
-        : deposit.status === "PAYMENT_REVIEW"
-          ? "Payment was received but requires review before the balance can be credited."
-          : FAILED_STATUSES.has(deposit.status)
-            ? `Deposit ${String(deposit.status).toLowerCase()}.`
-            : "Payment is still pending.",
+    resultCode: deposit.resultCode || "",
+    resultDesc: deposit.resultDesc || "",
+    lastStatusError: deposit.lastStatusError || "",
+    message,
   };
 }
 
@@ -2394,6 +2420,14 @@ app.post("/api/mpesa/callback", async (req, res) => {
       verificationError =
         "M-PESA callback amount did not match the requested deposit amount.";
     }
+
+    console.info("M-PESA callback received", {
+      depositId: deposit.id,
+      resultCode,
+      resultDesc,
+      hasReceipt: Boolean(receipt),
+      paidAmount: Number.isFinite(paidAmount) ? paidAmount : null,
+    });
 
     const update = {
       merchantRequestId:
