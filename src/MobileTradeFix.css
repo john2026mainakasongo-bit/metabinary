@@ -522,3 +522,88 @@
     top: 57px !important;
   }
 }
+
+
+
+/* ==========================================================================
+   METABINARY V150 — VISIBLE ACTIVE CURSOR
+   Shows the red active cursor clearly under the selected digit.
+   We support BOTH the dedicated cursor element and the pseudo-element fallback.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Show the dedicated cursor element again. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    left: calc((var(--mb-active-col, 0) + 0.5) * 20%) !important;
+    top: calc((var(--mb-active-row, 0) * 78px) + 60px) !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    border-left: 9px solid transparent !important;
+    border-right: 9px solid transparent !important;
+    border-bottom: 13px solid #ff4058 !important;
+    border-top: 0 !important;
+    background: transparent !important;
+    transform: translateX(-50%) !important;
+    filter: drop-shadow(0 0 10px rgba(255, 64, 88, 0.85)) drop-shadow(0 2px 6px rgba(255, 64, 88, 0.6)) !important;
+    z-index: 80 !important;
+    pointer-events: none !important;
+  }
+
+  /* Keep the fallback pseudo cursor strong and visible too. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    content: "" !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 60px !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 9px solid transparent !important;
+    border-right: 9px solid transparent !important;
+    border-bottom: 13px solid #ff4058 !important;
+    border-top: 0 !important;
+    transform: translateX(-50%) !important;
+    filter: drop-shadow(0 0 10px rgba(255, 64, 88, 0.85)) drop-shadow(0 2px 6px rgba(255, 64, 88, 0.6)) !important;
+    z-index: 81 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row, 0) * 76px) + 57px) !important;
+    border-left-width: 8px !important;
+    border-right-width: 8px !important;
+    border-bottom-width: 12px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    top: 57px !important;
+    border-left-width: 8px !important;
+    border-right-width: 8px !important;
+    border-bottom-width: 12px !important;
+  }
+}
