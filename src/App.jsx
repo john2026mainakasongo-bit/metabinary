@@ -6467,6 +6467,28 @@ function TradePage({
                         strokeDasharray={`${mobileRingSweep} ${100 - mobileRingSweep}`}
                         transform={`rotate(${mobileRingStart} 30 30)`}
                       />
+                      <circle
+                        className="mobileDigitRingCenterV144"
+                        cx="30"
+                        cy="30"
+                        r="19"
+                      />
+                      <text
+                        className="mobileDigitNumberV144"
+                        x="30"
+                        y="27"
+                        textAnchor="middle"
+                      >
+                        {digit}
+                      </text>
+                      <text
+                        className="mobileDigitPercentTextV144"
+                        x="30"
+                        y="41"
+                        textAnchor="middle"
+                      >
+                        {Number(percent).toFixed(1)}%
+                      </text>
                     </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
                     <span className="mbDigitCoreV7">

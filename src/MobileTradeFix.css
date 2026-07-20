@@ -14,6 +14,7 @@
     overflow-y: auto !important;
     padding-bottom: 88px !important;
   }
+
   body .app.activePage-trade .finalBinaryTradePage.digitContractPage {
     width: 100% !important;
     max-width: none !important;
@@ -910,5 +911,150 @@
     .mobileDigitGridFinalV130
     > .mobileDigitCursorFinalV130 {
     top: calc((var(--mb-active-row) * 91px) + 79px) !important;
+  }
+}
+
+
+/* ==========================================================================
+   METABINARY V144 — TEXT INSIDE SVG RING + CELL-BOUND CURSOR
+   Final robust mobile approach:
+   - number and percentage are rendered INSIDE the SVG itself
+   - old HTML digit core is hidden on mobile
+   - cursor is attached directly to the current digit cell
+   - no percentage clipping and no cursor-position calculations
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* SVG owns the entire visible digit: ring, black centre, number, percentage. */
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 3 !important;
+    width: 60px !important;
+    height: 60px !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+  }
+
+  body .app.activePage-trade .mobileDigitRingCenterV144 {
+    fill: #02070d !important;
+    stroke: none !important;
+  }
+
+  body .app.activePage-trade .mobileDigitNumberV144 {
+    fill: #ffffff !important;
+    font-family: inherit !important;
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    dominant-baseline: middle !important;
+  }
+
+  body .app.activePage-trade .mobileDigitPercentTextV144 {
+    fill: #aebbd0 !important;
+    font-family: inherit !important;
+    font-size: 8.5px !important;
+    font-weight: 800 !important;
+    dominant-baseline: middle !important;
+  }
+
+  /* Old HTML text layer is no longer used visually on mobile. */
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mbDigitCoreV7 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* Remove the old free-floating cursor completely. */
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCursorFinalV130 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* Cursor is now attached to the active digit itself. */
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 64px !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid transparent !important;
+    border-bottom: 10px solid #ff4058 !important;
+    border-top: 0 !important;
+    transform: translateX(-50%) !important;
+    filter: drop-shadow(0 3px 5px rgba(255,64,88,.42)) !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
+  }
+
+  /* Keep enough vertical room for the attached cursor. */
+  body .app.activePage-trade
+    .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    grid-template-rows: 78px 78px !important;
+    row-gap: 18px !important;
+    height: 184px !important;
+    min-height: 184px !important;
+    max-height: 184px !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade .mobileDigitBoardFinalV130 {
+    height: 202px !important;
+    min-height: 202px !important;
+    max-height: 202px !important;
+    flex-basis: 202px !important;
+    overflow: visible !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .mobileDigitCellFinalV130
+    > .mobileDigitRingSvgV139 {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitNumberV144 {
+    font-size: 23px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitPercentTextV144 {
+    font-size: 8px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitGridFinalV130
+    > .mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    top: 61px !important;
+  }
+
+  body .app.activePage-trade
+    .mobileDigitBoardFinalV130
+    > .mobileDigitGridFinalV130 {
+    grid-template-rows: 75px 75px !important;
+    row-gap: 17px !important;
+    height: 178px !important;
+    min-height: 178px !important;
+    max-height: 178px !important;
+  }
+
+  body .app.activePage-trade .mobileDigitBoardFinalV130 {
+    height: 196px !important;
+    min-height: 196px !important;
+    max-height: 196px !important;
+    flex-basis: 196px !important;
   }
 }
