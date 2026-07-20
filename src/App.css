@@ -44204,3 +44204,259 @@ body,
     max-height: 88px !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY — DIRECT SAFARICOM M-PESA STK PUSH
+   ========================================================================== */
+
+.mpesaDepositLayer {
+  z-index: 99999 !important;
+}
+
+.mpesaDepositModal,
+.mpesaPendingModal,
+.mpesaResultModal {
+  width: min(510px, calc(100vw - 28px)) !important;
+  max-width: 510px !important;
+  border-radius: 24px !important;
+  padding: 34px 38px 30px !important;
+  background:
+    radial-gradient(circle at top right, rgba(0, 190, 90, .11), transparent 32%),
+    linear-gradient(180deg, #111d31 0%, #0b1525 100%) !important;
+  border: 1px solid rgba(89, 137, 199, .34) !important;
+  box-shadow: 0 32px 100px rgba(0, 0, 0, .68) !important;
+}
+
+.mpesaBrandIcon {
+  display: grid !important;
+  place-items: center !important;
+  width: 66px !important;
+  height: 66px !important;
+  min-width: 66px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, #05a74f, #087a3e) !important;
+  color: #fff !important;
+  font-size: 31px !important;
+  font-weight: 1000 !important;
+  box-shadow: 0 0 30px rgba(0, 184, 83, .25) !important;
+}
+
+.mpesaPhoneField {
+  width: 100%;
+  height: 58px;
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  margin: 8px 0 20px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgba(7, 17, 31, .95);
+  border: 1px solid rgba(111, 145, 190, .32);
+}
+
+.mpesaPhoneField:focus-within {
+  border-color: rgba(0, 188, 89, .72);
+  box-shadow: 0 0 0 3px rgba(0, 188, 89, .08);
+}
+
+.mpesaPhoneField > span {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #64d99a;
+  font-size: 13px;
+  font-weight: 1000;
+  border-right: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(0, 188, 89, .07);
+}
+
+.mpesaPhoneField input {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 0 16px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.mpesaPhoneField input::placeholder {
+  color: #66758c;
+}
+
+.mpesaConfirmButton {
+  background: linear-gradient(135deg, #08a94f 0%, #067c3d 100%) !important;
+  box-shadow: 0 14px 34px rgba(0, 174, 78, .22) !important;
+}
+
+.mpesaConfirmButton:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.mpesaSecurity {
+  color: #8796aa !important;
+}
+
+.mpesaPendingModal,
+.mpesaResultModal {
+  text-align: center !important;
+}
+
+.mpesaPendingPulse,
+.mpesaResultIcon {
+  width: 78px;
+  height: 78px;
+  margin: 6px auto 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 1000;
+}
+
+.mpesaPendingPulse {
+  background: linear-gradient(145deg, #08aa50, #06783c);
+  box-shadow:
+    0 0 0 0 rgba(0, 188, 89, .3),
+    0 0 34px rgba(0, 188, 89, .28);
+  animation: mbMpesaPulse 1.7s infinite;
+}
+
+.mpesaResultIcon.success {
+  background: linear-gradient(135deg, #05ad55, #087842);
+  box-shadow: 0 0 34px rgba(0, 232, 132, .24);
+}
+
+.mpesaResultIcon.failed {
+  background: linear-gradient(135deg, #ff4057, #b3142d);
+  box-shadow: 0 0 34px rgba(255, 64, 87, .2);
+}
+
+.mpesaPendingModal > small,
+.mpesaResultModal > small {
+  display: block;
+  color: #59d493;
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: .13em;
+}
+
+.mpesaPendingModal h2,
+.mpesaResultModal h2 {
+  margin: 8px 0 10px !important;
+  color: #fff !important;
+  font-size: 28px !important;
+}
+
+.mpesaPendingModal > p,
+.mpesaResultModal > p {
+  margin: 0 auto 22px !important;
+  max-width: 390px;
+  color: #99a9bf !important;
+  line-height: 1.55 !important;
+  text-align: center !important;
+}
+
+.mpesaPendingModal > p strong {
+  color: #fff;
+}
+
+.mpesaPendingSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 17px;
+  margin: 0 0 16px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .035);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.mpesaPendingSummary span {
+  color: #8f9fb5;
+  font-size: 14px;
+}
+
+.mpesaPendingSummary strong {
+  color: #fff;
+  font-size: 18px;
+}
+
+.mpesaWaitingLine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 42px;
+  color: #8f9fb5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mpesaWaitingLine > span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #06b956;
+  box-shadow: 0 0 15px rgba(0, 220, 100, .65);
+  animation: mbMpesaBlink 1s infinite alternate;
+}
+
+.mpesaBackButton {
+  margin-top: 12px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+  color: #b5c1d2;
+  font-weight: 800;
+}
+
+@keyframes mbMpesaPulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(0, 188, 89, .32),
+      0 0 34px rgba(0, 188, 89, .28);
+  }
+  70% {
+    box-shadow:
+      0 0 0 18px rgba(0, 188, 89, 0),
+      0 0 34px rgba(0, 188, 89, .2);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(0, 188, 89, 0),
+      0 0 34px rgba(0, 188, 89, .28);
+  }
+}
+
+@keyframes mbMpesaBlink {
+  from { opacity: .35; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .mpesaDepositModal,
+  .mpesaPendingModal,
+  .mpesaResultModal {
+    width: min(94vw, 510px) !important;
+    padding: 28px 20px 24px !important;
+    border-radius: 20px !important;
+  }
+
+  .mpesaPhoneField {
+    height: 54px;
+  }
+
+  .mpesaPendingModal h2,
+  .mpesaResultModal h2 {
+    font-size: 24px !important;
+  }
+}
+

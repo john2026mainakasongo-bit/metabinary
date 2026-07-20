@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-pesapal-v21-2026-07-16";
+const BACKEND_BUILD = "metabinary-daraja-stk-v22-2026-07-20";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -29,6 +29,27 @@ const PESAPAL_BASE_URL = PESAPAL_ENV === "live"
 const PESAPAL_CONSUMER_KEY = String(process.env.PESAPAL_CONSUMER_KEY || "").trim();
 const PESAPAL_CONSUMER_SECRET = String(process.env.PESAPAL_CONSUMER_SECRET || "").trim();
 const PESAPAL_IPN_ID = String(process.env.PESAPAL_IPN_ID || "").trim();
+const DARAJA_ENV = ["live", "production"].includes(
+  String(process.env.DARAJA_ENV || "production").trim().toLowerCase()
+)
+  ? "production"
+  : "sandbox";
+const DARAJA_BASE_URL = String(
+  process.env.DARAJA_BASE_URL ||
+    (DARAJA_ENV === "production"
+      ? "https://api.safaricom.co.ke"
+      : "https://sandbox.safaricom.co.ke")
+)
+  .trim()
+  .replace(/\/$/, "");
+const DARAJA_CONSUMER_KEY = String(process.env.DARAJA_CONSUMER_KEY || "").trim();
+const DARAJA_CONSUMER_SECRET = String(process.env.DARAJA_CONSUMER_SECRET || "").trim();
+const DARAJA_PASSKEY = String(process.env.DARAJA_PASSKEY || "").trim();
+const DARAJA_SHORTCODE = String(process.env.DARAJA_SHORTCODE || "").trim();
+const DARAJA_TILL_NUMBER = String(process.env.DARAJA_TILL_NUMBER || "").trim();
+const DARAJA_TRANSACTION_TYPE = String(
+  process.env.DARAJA_TRANSACTION_TYPE || "CustomerBuyGoodsOnline"
+).trim();
 const MONGODB_DB = String(process.env.MONGODB_DB || "metabinary").trim();
 const MONGODB_URI = String(process.env.MONGODB_URI || "").trim();
 const TOKEN_SECRET = String(process.env.JWT_SECRET || process.env.ADMIN_SECRET || "").trim();
@@ -42,6 +63,10 @@ const TWELVE_DATA_API_KEY = String(
   process.env.TWELVE_DATA_API_KEY || process.env.VITE_TWELVE_DATA_API_KEY || ""
 ).trim();
 const PUBLIC_BACKEND_URL = String(process.env.PUBLIC_BACKEND_URL || "").trim().replace(/\/$/, "");
+const DARAJA_CALLBACK_URL = String(
+  process.env.DARAJA_CALLBACK_URL ||
+    (PUBLIC_BACKEND_URL ? `${PUBLIC_BACKEND_URL}/api/mpesa/callback` : "")
+).trim();
 const FRONTEND_PUBLIC_URL = String(process.env.FRONTEND_PUBLIC_URL || FRONTEND_URLS[0] || "http://localhost:5173").trim().replace(/\/$/, "");
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const PASSWORD_RESET_FROM_EMAIL = String(process.env.PASSWORD_RESET_FROM_EMAIL || "MetaBinary <noreply@metabinaryfx.com>").trim();
@@ -274,6 +299,8 @@ async function ensureIndexes() {
     deposits.createIndex({ apiRef: 1 }, { sparse: true }),
     deposits.createIndex({ orderTrackingId: 1 }, { unique: true, sparse: true }),
     deposits.createIndex({ merchantReference: 1 }, { unique: true, sparse: true }),
+    deposits.createIndex({ checkoutRequestId: 1 }, { unique: true, sparse: true }),
+    deposits.createIndex({ merchantRequestId: 1 }, { sparse: true }),
     withdrawals.createIndex({ id: 1 }, { unique: true }),
     db.collection("processedInvoices").createIndex({ invoiceKey: 1 }, { unique: true }),
     db.collection("transactions").createIndex({ email: 1, createdAt: -1 }),
@@ -823,6 +850,273 @@ function publicForexPosition(position) {
   };
 }
 
+let darajaTokenCache = { token: "", expiresAt: 0 };
+
+function ensureDarajaKeys() {
+  const missing = [];
+  if (!DARAJA_CONSUMER_KEY) missing.push("DARAJA_CONSUMER_KEY");
+  if (!DARAJA_CONSUMER_SECRET) missing.push("DARAJA_CONSUMER_SECRET");
+  if (!DARAJA_PASSKEY) missing.push("DARAJA_PASSKEY");
+  if (!DARAJA_SHORTCODE) missing.push("DARAJA_SHORTCODE");
+  if (!DARAJA_TILL_NUMBER) missing.push("DARAJA_TILL_NUMBER");
+  if (!DARAJA_CALLBACK_URL) missing.push("DARAJA_CALLBACK_URL");
+
+  if (missing.length) {
+    throw httpError(
+      503,
+      `Daraja M-PESA is not fully configured. Missing: ${missing.join(", ")}.`
+    );
+  }
+}
+
+function darajaTimestamp(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Africa/Nairobi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(
+    parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value])
+  );
+
+  return `${values.year}${values.month}${values.day}${values.hour}${values.minute}${values.second}`;
+}
+
+function darajaPassword(timestamp) {
+  return Buffer.from(
+    `${DARAJA_SHORTCODE}${DARAJA_PASSKEY}${timestamp}`,
+    "utf8"
+  ).toString("base64");
+}
+
+async function getDarajaToken(forceRefresh = false) {
+  ensureDarajaKeys();
+
+  if (
+    !forceRefresh &&
+    darajaTokenCache.token &&
+    Date.now() < darajaTokenCache.expiresAt
+  ) {
+    return darajaTokenCache.token;
+  }
+
+  const basicAuth = Buffer.from(
+    `${DARAJA_CONSUMER_KEY}:${DARAJA_CONSUMER_SECRET}`,
+    "utf8"
+  ).toString("base64");
+
+  const response = await fetch(
+    `${DARAJA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Basic ${basicAuth}`,
+      },
+      signal: AbortSignal.timeout(20000),
+    }
+  );
+
+  const data = await readProviderJson(response);
+
+  if (!response.ok || !data?.access_token) {
+    throw httpError(
+      response.status || 502,
+      providerErrorMessage(data) || "Daraja authentication failed."
+    );
+  }
+
+  const expiresIn = Math.max(60, Number(data.expires_in || 3599));
+  darajaTokenCache = {
+    token: String(data.access_token),
+    expiresAt: Date.now() + Math.max(30, expiresIn - 60) * 1000,
+  };
+
+  return darajaTokenCache.token;
+}
+
+async function darajaRequest(path, options = {}) {
+  const token = await getDarajaToken(Boolean(options.forceRefresh));
+
+  const response = await fetch(`${DARAJA_BASE_URL}${path}`, {
+    method: String(options.method || "POST").toUpperCase(),
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body:
+      options.body === undefined ? undefined : JSON.stringify(options.body),
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (response.status === 401 && !options._retried) {
+    darajaTokenCache = { token: "", expiresAt: 0 };
+    return darajaRequest(path, {
+      ...options,
+      forceRefresh: true,
+      _retried: true,
+    });
+  }
+
+  const data = await readProviderJson(response);
+
+  if (
+    !response.ok ||
+    data?.errorCode ||
+    data?.error_code ||
+    (data?.ResponseCode !== undefined && String(data.ResponseCode) !== "0")
+  ) {
+    throw httpError(
+      response.status || 502,
+      providerErrorMessage(data) || "Daraja request failed."
+    );
+  }
+
+  return data;
+}
+
+async function startMpesaStkPush({ amountKes, phone, accountReference }) {
+  ensureDarajaKeys();
+
+  const timestamp = darajaTimestamp();
+  const reference = cleanText(accountReference || "MetaBinary", 12) || "MetaBinary";
+
+  return darajaRequest("/mpesa/stkpush/v1/processrequest", {
+    method: "POST",
+    body: {
+      BusinessShortCode: DARAJA_SHORTCODE,
+      Password: darajaPassword(timestamp),
+      Timestamp: timestamp,
+      TransactionType: DARAJA_TRANSACTION_TYPE,
+      Amount: Math.max(1, Math.round(Number(amountKes))),
+      PartyA: phone,
+      PartyB: DARAJA_TILL_NUMBER,
+      PhoneNumber: phone,
+      CallBackURL: DARAJA_CALLBACK_URL,
+      AccountReference: reference,
+      TransactionDesc: "MB Deposit",
+    },
+  });
+}
+
+async function queryMpesaStkPush(checkoutRequestId) {
+  if (!checkoutRequestId) {
+    throw httpError(400, "M-PESA CheckoutRequestID is missing.");
+  }
+
+  const timestamp = darajaTimestamp();
+
+  return darajaRequest("/mpesa/stkpushquery/v1/query", {
+    method: "POST",
+    body: {
+      BusinessShortCode: DARAJA_SHORTCODE,
+      Password: darajaPassword(timestamp),
+      Timestamp: timestamp,
+      CheckoutRequestID: checkoutRequestId,
+    },
+  });
+}
+
+function mpesaCallbackMetadata(stkCallback = {}) {
+  const items = Array.isArray(stkCallback?.CallbackMetadata?.Item)
+    ? stkCallback.CallbackMetadata.Item
+    : [];
+
+  return Object.fromEntries(
+    items
+      .filter((item) => item && item.Name)
+      .map((item) => [String(item.Name), item.Value])
+  );
+}
+
+function mpesaFailureStatus(resultCode) {
+  const code = String(resultCode ?? "");
+  if (code === "1032") return "CANCELLED";
+  if (code === "1037") return "EXPIRED";
+  return "FAILED";
+}
+
+async function reconcileMpesaDeposit(db, deposit) {
+  if (
+    !deposit ||
+    deposit.provider !== "mpesa" ||
+    deposit.credited ||
+    FAILED_STATUSES.has(deposit.status) ||
+    deposit.status === "PAYMENT_REVIEW"
+  ) {
+    return deposit;
+  }
+
+  const checkoutRequestId = String(
+    deposit.checkoutRequestId || deposit.orderTrackingId || ""
+  ).trim();
+
+  if (!checkoutRequestId) return deposit;
+
+  const lastCheckMs = Date.parse(deposit.lastProviderStatusCheckAt || "");
+  if (Number.isFinite(lastCheckMs) && Date.now() - lastCheckMs < 5000) {
+    return deposit;
+  }
+
+  const checkedAt = nowIso();
+
+  try {
+    const providerResponse = await queryMpesaStkPush(checkoutRequestId);
+    const rawResultCode = pickFirst(
+      providerResponse?.ResultCode,
+      providerResponse?.resultCode,
+      providerResponse?.errorCode
+    );
+
+    const update = {
+      providerStatusResponse: providerResponse,
+      lastProviderStatusCheckAt: checkedAt,
+      updatedAt: checkedAt,
+    };
+
+    if (rawResultCode === undefined || rawResultCode === null || rawResultCode === "") {
+      await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
+      return { ...deposit, ...update };
+    }
+
+    const resultCode = String(rawResultCode);
+    update.resultCode = resultCode;
+    update.resultDesc = String(
+      pickFirst(providerResponse?.ResultDesc, providerResponse?.resultDesc) || ""
+    );
+
+    if (resultCode === "0") {
+      update.status = "COMPLETED";
+      await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
+      return creditDepositOnce(db, { ...deposit, ...update }, "COMPLETED");
+    }
+
+    update.status = mpesaFailureStatus(resultCode);
+    await db.collection("deposits").updateOne({ id: deposit.id }, { $set: update });
+    return { ...deposit, ...update };
+  } catch (error) {
+    await db.collection("deposits").updateOne(
+      { id: deposit.id },
+      {
+        $set: {
+          lastProviderStatusCheckAt: checkedAt,
+          lastStatusError: providerErrorMessage(error),
+          updatedAt: checkedAt,
+        },
+      }
+    );
+
+    return db.collection("deposits").findOne({ id: deposit.id });
+  }
+}
+
 let pesapalTokenCache = { token: "", expiresAt: 0 };
 let pesapalIpnIdCache = PESAPAL_IPN_ID;
 
@@ -1078,7 +1372,7 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
     id: makeId("tx"),
     email: deposit.email,
     type: "deposit",
-    method: deposit.paymentMethod || deposit.method || "Pesapal",
+    method: deposit.paymentMethod || deposit.method || (deposit.provider === "mpesa" ? "M-PESA" : "Pesapal"),
     amount: Number(deposit.amountUsd),
     amountKes: Number(deposit.amountKes),
     status: "COMPLETED",
@@ -1089,6 +1383,10 @@ async function creditDepositOnce(db, deposit, verifiedStatus) {
 }
 
 async function reconcileDeposit(db, deposit) {
+  if (deposit?.provider === "mpesa" || deposit?.method === "mpesa") {
+    return reconcileMpesaDeposit(db, deposit);
+  }
+
   const orderTrackingId = deposit?.orderTrackingId || deposit?.invoiceId;
   if (!orderTrackingId || deposit.credited || FAILED_STATUSES.has(deposit.status)) return deposit;
 
@@ -1151,6 +1449,9 @@ async function responseForDeposit(db, deposit) {
     orderTrackingId: deposit.orderTrackingId || deposit.invoiceId || "",
     merchantReference: deposit.merchantReference || deposit.apiRef || deposit.id,
     checkoutUrl: deposit.checkoutUrl || "",
+    checkoutRequestId: deposit.checkoutRequestId || "",
+    merchantRequestId: deposit.merchantRequestId || "",
+    provider: deposit.provider || "",
     status: deposit.status,
     method: deposit.paymentMethod || deposit.method,
     phone: deposit.phone,
@@ -1188,7 +1489,7 @@ app.get("/", async (_req, res, next) => {
     res.json({
       ok: true,
       service: "MetaBinary MongoDB payments and account backend",
-      mode: PESAPAL_ENV,
+      mode: DARAJA_ENV,
       database: MONGODB_DB,
       time: nowIso(),
     });
@@ -1204,7 +1505,7 @@ app.get("/api/health", async (_req, res) => {
     res.json({
       ok: true,
       build: BACKEND_BUILD,
-      mode: PESAPAL_ENV,
+      mode: DARAJA_ENV,
       mongo: "connected",
       database: MONGODB_DB,
       referralCommissionPercent: REFERRAL_COMMISSION_PERCENT,
@@ -1213,12 +1514,24 @@ app.get("/api/health", async (_req, res) => {
       aiTradeTickMs: AI_TRADE_TICK_MS,
       passwordResetEmailConfigured: Boolean(RESEND_API_KEY),
       publicBackendUrlConfigured: Boolean(PUBLIC_BACKEND_URL),
-      paymentProvider: "pesapal",
-      paymentConfigured: Boolean(PESAPAL_CONSUMER_KEY && PESAPAL_CONSUMER_SECRET),
+      paymentProvider: "daraja-mpesa",
+      paymentConfigured: Boolean(
+        DARAJA_CONSUMER_KEY &&
+          DARAJA_CONSUMER_SECRET &&
+          DARAJA_PASSKEY &&
+          DARAJA_SHORTCODE &&
+          DARAJA_TILL_NUMBER &&
+          DARAJA_CALLBACK_URL
+      ),
+      darajaEnvironment: DARAJA_ENV,
+      darajaShortcodeConfigured: Boolean(DARAJA_SHORTCODE),
+      darajaTillConfigured: Boolean(DARAJA_TILL_NUMBER),
+      darajaCallbackConfigured: Boolean(DARAJA_CALLBACK_URL),
+      pesapalConfigured: Boolean(PESAPAL_CONSUMER_KEY && PESAPAL_CONSUMER_SECRET),
       pesapalIpnConfigured: Boolean(PESAPAL_IPN_ID || PUBLIC_BACKEND_URL),
     });
   } catch (error) {
-    res.status(503).json({ ok: false, mode: PESAPAL_ENV, mongo: "disconnected", message: error.message });
+    res.status(503).json({ ok: false, mode: DARAJA_ENV, mongo: "disconnected", message: error.message });
   }
 });
 
@@ -1745,18 +2058,36 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const db = await getDb();
     const user = req.user;
     const email = cleanEmail(user.email);
-    const name = cleanText(user.fullName || user.name || req.body.name || "MetaBinary User", 120);
-    const requestedMethod = String(req.body.method || "mpesa").trim().toLowerCase();
-    const method = ["mpesa", "card", "pesapal"].includes(requestedMethod) ? requestedMethod : "pesapal";
+    const name = cleanText(
+      user.fullName || user.name || req.body.name || "MetaBinary User",
+      120
+    );
+    const requestedMethod = String(req.body.method || "mpesa")
+      .trim()
+      .toLowerCase();
+    const method = ["mpesa", "card", "pesapal"].includes(requestedMethod)
+      ? requestedMethod
+      : "mpesa";
     const amountUsd = Number(req.body.amountUsd);
-    const requestId = cleanText(req.body.requestId || makeId("client"), 120);
+    const requestId = cleanText(
+      req.body.requestId || makeId("client"),
+      120
+    );
 
     if (!Number.isFinite(amountUsd) || amountUsd < MIN_DEPOSIT_USD) {
-      throw httpError(400, `Minimum deposit is ${MIN_DEPOSIT_USD} USD.`);
+      throw httpError(
+        400,
+        `Minimum deposit is ${MIN_DEPOSIT_USD} USD.`
+      );
     }
 
-    const existing = await db.collection("deposits").findOne({ email, requestId });
-    if (existing) return res.json(await responseForDeposit(db, existing));
+    const existing = await db
+      .collection("deposits")
+      .findOne({ email, requestId });
+
+    if (existing) {
+      return res.json(await responseForDeposit(db, existing));
+    }
 
     const amountKes = Math.max(1, Math.round(amountUsd * USD_RATE));
     const depositId = makeId("dep");
@@ -1764,7 +2095,10 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
     const rawPhone = req.body.phone || user.phone || "";
     const phone = rawPhone ? normalizeKenyanPhone(rawPhone) : "";
 
-    if (String(process.env.SIMULATE_PAYMENTS || "false").toLowerCase() === "true") {
+    if (
+      String(process.env.SIMULATE_PAYMENTS || "false").toLowerCase() ===
+      "true"
+    ) {
       const deposit = {
         id: depositId,
         requestId,
@@ -1785,10 +2119,14 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
         updatedAt: nowIso(),
         completedAt: nowIso(),
       };
+
       await db.collection("deposits").insertOne(deposit);
       await db.collection("users").updateOne(
         { email },
-        { $inc: { realBalance: Number(deposit.amountUsd) }, $set: { updatedAt: nowIso() } }
+        {
+          $inc: { realBalance: Number(deposit.amountUsd) },
+          $set: { updatedAt: nowIso() },
+        }
       );
       await db.collection("transactions").insertOne({
         id: makeId("tx"),
@@ -1801,49 +2139,136 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
         status: "COMPLETED",
         createdAt: nowIso(),
       });
-      return res.status(201).json(await responseForDeposit(db, deposit));
+
+      return res
+        .status(201)
+        .json(await responseForDeposit(db, deposit));
     }
 
+    if (method === "mpesa") {
+      if (!phone) {
+        throw httpError(
+          400,
+          "Enter the Safaricom M-PESA phone number that should receive the STK Push."
+        );
+      }
+
+      const accountReference = cleanText(
+        user.accountId || user.brokerId || "MetaBinary",
+        12
+      );
+
+      const providerResponse = await startMpesaStkPush({
+        amountKes,
+        phone,
+        accountReference,
+      });
+
+      const merchantRequestId = String(
+        providerResponse?.MerchantRequestID || ""
+      ).trim();
+      const checkoutRequestId = String(
+        providerResponse?.CheckoutRequestID || ""
+      ).trim();
+
+      if (!merchantRequestId || !checkoutRequestId) {
+        throw httpError(
+          502,
+          providerErrorMessage(providerResponse) ||
+            "Safaricom did not return a valid STK Push request."
+        );
+      }
+
+      const deposit = {
+        id: depositId,
+        requestId,
+        apiRef: merchantReference,
+        merchantReference,
+        invoiceId: checkoutRequestId,
+        orderTrackingId: checkoutRequestId,
+        checkoutRequestId,
+        merchantRequestId,
+        email,
+        method: "mpesa",
+        paymentMethod: "M-PESA",
+        phone,
+        amountUsd: roundMoney(amountUsd),
+        amountKes,
+        currency: "KES",
+        status: "PENDING",
+        credited: false,
+        provider: "mpesa",
+        providerResponse,
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      };
+
+      await db.collection("deposits").insertOne(deposit);
+
+      return res.status(201).json({
+        ...(await responseForDeposit(db, deposit)),
+        message:
+          "STK Push sent. Check your phone and enter your M-PESA PIN to complete the deposit.",
+      });
+    }
+
+    // Keep Pesapal available for card payments if its credentials are configured.
     ensurePaymentKeys();
     const notificationId = await getPesapalIpnId(db);
-    const [firstName = "MetaBinary", ...restNames] = name.split(/\s+/).filter(Boolean);
+    const [firstName = "MetaBinary", ...restNames] = name
+      .split(/\s+/)
+      .filter(Boolean);
     const lastName = restNames.join(" ") || "User";
     const callbackUrl = `${PUBLIC_BACKEND_URL}/api/pesapal/callback?embedded=1`;
     const cancellationUrl = `${FRONTEND_PUBLIC_URL}/?payment=cancelled`;
 
-    const providerResponse = await pesapalRequest("/api/Transactions/SubmitOrderRequest", {
-      method: "POST",
-      body: {
-        id: merchantReference,
-        currency: "KES",
-        amount: amountKes,
-        description: `MetaBinary account deposit ${depositId}`.slice(0, 100),
-        callback_url: callbackUrl,
-        cancellation_url: cancellationUrl,
-        redirect_mode: "PARENT_WINDOW",
-        notification_id: notificationId,
-        branch: "MetaBinary",
-        billing_address: {
-          email_address: email,
-          phone_number: phone,
-          country_code: "KE",
-          first_name: firstName,
-          middle_name: "",
-          last_name: lastName,
-          line_1: "",
-          line_2: "",
-          city: "",
-          state: "",
-          postal_code: "",
-          zip_code: "",
+    const providerResponse = await pesapalRequest(
+      "/api/Transactions/SubmitOrderRequest",
+      {
+        method: "POST",
+        body: {
+          id: merchantReference,
+          currency: "KES",
+          amount: amountKes,
+          description: `MetaBinary account deposit ${depositId}`.slice(
+            0,
+            100
+          ),
+          callback_url: callbackUrl,
+          cancellation_url: cancellationUrl,
+          redirect_mode: "PARENT_WINDOW",
+          notification_id: notificationId,
+          branch: "MetaBinary",
+          billing_address: {
+            email_address: email,
+            phone_number: phone,
+            country_code: "KE",
+            first_name: firstName,
+            middle_name: "",
+            last_name: lastName,
+            line_1: "",
+            line_2: "",
+            city: "",
+            state: "",
+            postal_code: "",
+            zip_code: "",
+          },
         },
-      },
-    });
+      }
+    );
 
-    const orderTrackingId = String(providerResponse?.order_tracking_id || "").trim();
-    const checkoutUrl = String(providerResponse?.redirect_url || "").trim();
+    const orderTrackingId = String(
+      providerResponse?.order_tracking_id || ""
+    ).trim();
+    const checkoutUrl = String(
+      providerResponse?.redirect_url || ""
+    ).trim();
+
     if (!orderTrackingId || !checkoutUrl) {
-      throw httpError(502, "Pesapal did not return a valid checkout session.");
+      throw httpError(
+        502,
+        "Pesapal did not return a valid checkout session."
+      );
     }
 
     const deposit = {
@@ -1867,11 +2292,13 @@ app.post("/api/deposit", requireUser, async (req, res, next) => {
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
+
     await db.collection("deposits").insertOne(deposit);
 
-    res.status(201).json({
+    return res.status(201).json({
       ...(await responseForDeposit(db, deposit)),
-      message: "Continue to the secure Pesapal checkout to pay with M-Pesa or card.",
+      message:
+        "Continue to the secure Pesapal checkout to complete the card payment.",
     });
   } catch (error) {
     if (!error.status) error.status = 502;
@@ -1889,6 +2316,137 @@ app.get("/api/deposit/:depositId/status", requireUser, async (req, res, next) =>
     res.json(await responseForDeposit(db, deposit));
   } catch (error) {
     next(error);
+  }
+});
+
+app.post("/api/mpesa/callback", async (req, res) => {
+  const stkCallback =
+    req.body?.Body?.stkCallback ||
+    req.body?.body?.stkCallback ||
+    req.body?.stkCallback ||
+    {};
+
+  const merchantRequestId = String(
+    stkCallback?.MerchantRequestID || ""
+  ).trim();
+  const checkoutRequestId = String(
+    stkCallback?.CheckoutRequestID || ""
+  ).trim();
+  const resultCode = String(stkCallback?.ResultCode ?? "");
+  const resultDesc = String(stkCallback?.ResultDesc || "");
+  const metadata = mpesaCallbackMetadata(stkCallback);
+
+  try {
+    if (!checkoutRequestId && !merchantRequestId) {
+      console.warn("M-PESA callback received without request IDs.");
+      return res.status(200).json({
+        ResultCode: 0,
+        ResultDesc: "Accepted",
+      });
+    }
+
+    const db = await getDb();
+    const clauses = [];
+
+    if (checkoutRequestId) {
+      clauses.push(
+        { checkoutRequestId },
+        { orderTrackingId: checkoutRequestId },
+        { invoiceId: checkoutRequestId }
+      );
+    }
+
+    if (merchantRequestId) {
+      clauses.push({ merchantRequestId });
+    }
+
+    let deposit = await db
+      .collection("deposits")
+      .findOne({ $or: clauses });
+
+    if (!deposit) {
+      console.warn(
+        `M-PESA callback could not match a deposit: ${checkoutRequestId || merchantRequestId}`
+      );
+      return res.status(200).json({
+        ResultCode: 0,
+        ResultDesc: "Accepted",
+      });
+    }
+
+    const paidAmount = Number(metadata.Amount);
+    const expectedAmount = Number(deposit.amountKes);
+    const receipt = String(metadata.MpesaReceiptNumber || "").trim();
+    const callbackPhone = String(metadata.PhoneNumber || "").trim();
+    const transactionDate = String(metadata.TransactionDate || "").trim();
+
+    let status =
+      resultCode === "0" ? "COMPLETED" : mpesaFailureStatus(resultCode);
+    let verificationError = "";
+
+    if (
+      resultCode === "0" &&
+      Number.isFinite(paidAmount) &&
+      Number.isFinite(expectedAmount) &&
+      Math.abs(paidAmount - expectedAmount) > 0.01
+    ) {
+      status = "PAYMENT_REVIEW";
+      verificationError =
+        "M-PESA callback amount did not match the requested deposit amount.";
+    }
+
+    const update = {
+      merchantRequestId:
+        merchantRequestId || deposit.merchantRequestId || "",
+      checkoutRequestId:
+        checkoutRequestId || deposit.checkoutRequestId || "",
+      orderTrackingId:
+        checkoutRequestId || deposit.orderTrackingId || "",
+      invoiceId: checkoutRequestId || deposit.invoiceId || "",
+      providerCallback: req.body,
+      callbackMetadata: metadata,
+      resultCode,
+      resultDesc,
+      status,
+      paymentMethod: "M-PESA",
+      confirmationCode: receipt || deposit.confirmationCode || "",
+      paymentAccount: callbackPhone || deposit.phone || "",
+      verifiedAmountKes: Number.isFinite(paidAmount)
+        ? paidAmount
+        : null,
+      verifiedCurrency: "KES",
+      transactionDate,
+      verificationError,
+      updatedAt: nowIso(),
+    };
+
+    await db
+      .collection("deposits")
+      .updateOne({ id: deposit.id }, { $set: update });
+
+    deposit = { ...deposit, ...update };
+
+    if (
+      resultCode === "0" &&
+      !verificationError
+    ) {
+      await creditDepositOnce(db, deposit, "COMPLETED");
+    }
+
+    return res.status(200).json({
+      ResultCode: 0,
+      ResultDesc: "Accepted",
+    });
+  } catch (error) {
+    console.error("M-PESA callback processing error:", error);
+
+    // Return 200 so Safaricom does not repeatedly retry a callback because
+    // of a temporary application-side error. The pending deposit can still
+    // be reconciled by STK query from the status endpoint.
+    return res.status(200).json({
+      ResultCode: 0,
+      ResultDesc: "Accepted",
+    });
   }
 });
 
@@ -2984,5 +3542,5 @@ app.use((error, _req, res, _next) => {
 
 await ensureIndexes();
 app.listen(PORT, () => {
-  console.log(`MetaBinary backend running on port ${PORT} (Pesapal: ${PESAPAL_ENV}, MongoDB: ${MONGODB_DB})`);
+  console.log(`MetaBinary backend running on port ${PORT} (Daraja: ${DARAJA_ENV}, MongoDB: ${MONGODB_DB})`);
 });

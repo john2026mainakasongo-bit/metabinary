@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-stable-digits-normal-tick-speed-v69-2026-07-17";
+const FRONTEND_BUILD = "metabinary-daraja-stk-v70-2026-07-20";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -3815,7 +3815,8 @@ function TradingApp() {
 
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
-    const method = "pesapal";
+    const phone = String(data.phone || "").trim();
+    const method = "mpesa";
 
     if (!API_URL) {
       notify(
@@ -3831,6 +3832,15 @@ function TradingApp() {
       return false;
     }
 
+    if (!phone) {
+      notify(
+        "loss",
+        "Phone required",
+        "Enter the Safaricom M-PESA number that should receive the STK Push."
+      );
+      return false;
+    }
+
     try {
       const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
@@ -3839,9 +3849,9 @@ function TradingApp() {
         body: JSON.stringify({
           method,
           amountUsd,
-          phone: "",
+          phone,
           email: user.email,
-          name: user.name || user.email,
+          name: user.name || user.fullName || user.email,
           requestId: uid(),
         }),
       });
@@ -3864,32 +3874,33 @@ function TradingApp() {
 
       addTx({
         type: "Deposit pending",
-        method: "PesaPal",
+        method: "M-PESA",
         account: "real",
         amount: amountUsd,
         status: "Pending",
-        details: "Secure PesaPal checkout",
+        details: result.phone || phone,
       });
 
       void pollDepositStatus(result.depositId);
 
-      if (result.checkoutUrl) {
-        return {
-          ok: true,
-          checkoutUrl: result.checkoutUrl,
-          depositId: result.depositId,
-          amountUsd,
-        };
-      }
-
       notify(
         "open",
-        "Deposit started",
-        result.message || "Your deposit request has been created."
+        "M-PESA request sent",
+        result.message || "Check your phone and enter your M-PESA PIN to complete the deposit."
       );
-      return { ok: true, depositId: result.depositId, amountUsd };
+
+      return {
+        ok: true,
+        depositId: result.depositId,
+        checkoutRequestId: result.checkoutRequestId || "",
+        merchantRequestId: result.merchantRequestId || "",
+        amountUsd,
+        amountKes: Number(result.amountKes || 0),
+        phone: result.phone || phone,
+        status: result.status || "PENDING",
+      };
     } catch (error) {
-      console.error("Deposit request failed:", error);
+      console.error("M-PESA deposit request failed:", error);
 
       const message =
         error instanceof Error ? error.message : "Backend connection failed.";
@@ -4209,7 +4220,7 @@ function TradingApp() {
         />
       )}
 
-      {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
+      {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} defaultPhone={user.phone || ""} />}
 
       {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
 
@@ -7850,55 +7861,52 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   );
 }
 
-function DepositModal({ close, submit }) {
+function DepositModal({ close, submit, defaultPhone = "" }) {
   const [amountUsd, setAmountUsd] = useState(10);
+  const [phone, setPhone] = useState(defaultPhone || "");
   const [submitting, setSubmitting] = useState(false);
-  const [checkout, setCheckout] = useState(null);
-  const [checkoutStatus, setCheckoutStatus] = useState("");
-  const [checkoutMessage, setCheckoutMessage] = useState("");
+  const [payment, setPayment] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [paymentMessage, setPaymentMessage] = useState("");
   const quickAmounts = [5, 10, 20, 50, 100];
   const safeAmount = Math.max(0, Number(amountUsd || 0));
 
   useEffect(() => {
-    const acceptStatus = (detail = {}) => {
-      const currentDepositId = String(checkout?.depositId || "");
+    const handleDepositStatus = (event) => {
+      const detail = event.detail || {};
+      const currentDepositId = String(payment?.depositId || "");
       const incomingDepositId = String(detail.depositId || "");
-      if (!currentDepositId || (incomingDepositId && incomingDepositId !== currentDepositId)) return;
+
+      if (
+        !currentDepositId ||
+        (incomingDepositId && incomingDepositId !== currentDepositId)
+      ) {
+        return;
+      }
 
       const nextStatus = String(detail.status || "").toLowerCase();
       if (!nextStatus) return;
-      setCheckoutStatus(nextStatus);
-      if (detail.message) setCheckoutMessage(String(detail.message));
-    };
 
-    const handleDepositStatus = (event) => acceptStatus(event.detail || {});
-    const handlePesapalMessage = (event) => {
-      const data = event.data;
-      if (!data || data.type !== "metabinary:pesapal:return") return;
-      try {
-        const apiOrigin = new URL(API_URL, window.location.href).origin;
-        if (event.origin && event.origin !== apiOrigin) return;
-      } catch {
-        // The server-side status poll still verifies the real payment state.
-      }
-      acceptStatus(data);
+      setPaymentStatus(nextStatus);
+      if (detail.message) setPaymentMessage(String(detail.message));
     };
 
     window.addEventListener("metabinary:deposit-status", handleDepositStatus);
-    window.addEventListener("message", handlePesapalMessage);
     return () => {
       window.removeEventListener("metabinary:deposit-status", handleDepositStatus);
-      window.removeEventListener("message", handlePesapalMessage);
     };
-  }, [checkout?.depositId]);
+  }, [payment?.depositId]);
 
   async function handleSubmit() {
-    if (submitting || safeAmount < 1) return;
+    if (submitting || safeAmount < 1 || !String(phone || "").trim()) return;
 
     setSubmitting(true);
+    setPaymentMessage("");
+
     const result = await submit({
-      method: "pesapal",
+      method: "mpesa",
       amountUsd: safeAmount,
+      phone: String(phone || "").trim(),
     });
 
     if (!result) {
@@ -7906,125 +7914,160 @@ function DepositModal({ close, submit }) {
       return;
     }
 
-    if (result.checkoutUrl) {
-      setCheckoutStatus("pending");
-      setCheckoutMessage("");
-      setCheckout({
-        url: result.checkoutUrl,
-        depositId: result.depositId || "",
-        amountUsd: result.amountUsd || safeAmount,
-      });
-      setSubmitting(false);
-      return;
-    }
+    setPayment({
+      depositId: result.depositId || "",
+      checkoutRequestId: result.checkoutRequestId || "",
+      amountUsd: result.amountUsd || safeAmount,
+      amountKes: result.amountKes || 0,
+      phone: result.phone || phone,
+    });
+
+    const initialStatus = String(result.status || "pending").toLowerCase();
+    setPaymentStatus(
+      ["complete", "completed", "paid", "success", "successful"].includes(initialStatus)
+        ? "completed"
+        : ["failed", "cancelled", "canceled", "reversed", "expired"].includes(initialStatus)
+          ? "failed"
+          : "pending"
+    );
 
     setSubmitting(false);
   }
 
-  if (checkout?.url && checkoutStatus === "completed") {
+  if (payment && paymentStatus === "completed") {
     return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
-        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit complete">
-          <div className="pesapalCheckoutResultIcon success">✓</div>
-          <small>PAYMENT CONFIRMED</small>
-          <h2>Deposit successful</h2>
-          <p>${money(checkout.amountUsd)} USD has been added to your Real Account.</p>
-          <button type="button" className="simpleDepositConfirm" onClick={close}>Done</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (checkout?.url && checkoutStatus === "failed") {
-    return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
-        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit not completed">
-          <div className="pesapalCheckoutResultIcon failed">!</div>
-          <small>PAYMENT NOT COMPLETED</small>
-          <h2>Try again</h2>
-          <p>{checkoutMessage || "The payment was not completed. You can return and start another deposit."}</p>
-          <button type="button" className="simpleDepositConfirm" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>Back to deposit</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (checkout?.url) {
-    return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+      <div className="modalLayer mpesaDepositLayer">
         <div
-          className="depositModal pesapalCheckoutModal"
+          className="depositModal mpesaResultModal"
           role="dialog"
           aria-modal="true"
-          aria-label="Complete PesaPal deposit"
+          aria-label="Deposit complete"
         >
-          <div className="pesapalCheckoutHeader">
-            <div>
-              <small>SECURE DEPOSIT</small>
-              <h2>Complete your payment</h2>
-              <p>${money(checkout.amountUsd)} USD deposit</p>
-            </div>
-            <button
-              type="button"
-              className="pesapalCheckoutClose"
-              onClick={close}
-              aria-label="Close payment"
-            >
-              ×
-            </button>
+          <div className="mpesaResultIcon success">✓</div>
+          <small>PAYMENT CONFIRMED</small>
+          <h2>Deposit successful</h2>
+          <p>${money(payment.amountUsd)} USD has been added to your Real Account.</p>
+          <button type="button" className="simpleDepositConfirm" onClick={close}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (payment && paymentStatus === "failed") {
+    return (
+      <div className="modalLayer mpesaDepositLayer">
+        <div
+          className="depositModal mpesaResultModal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Deposit not completed"
+        >
+          <div className="mpesaResultIcon failed">!</div>
+          <small>PAYMENT NOT COMPLETED</small>
+          <h2>Try again</h2>
+          <p>
+            {paymentMessage ||
+              "The M-PESA payment was not completed. You can return and send another STK Push."}
+          </p>
+          <button
+            type="button"
+            className="simpleDepositConfirm"
+            onClick={() => {
+              setPayment(null);
+              setPaymentStatus("");
+              setPaymentMessage("");
+            }}
+          >
+            Back to deposit
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (payment && paymentStatus === "pending") {
+    return (
+      <div className="modalLayer mpesaDepositLayer">
+        <div
+          className="depositModal mpesaPendingModal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="M-PESA payment pending"
+        >
+          <button className="closeModal" onClick={close} aria-label="Close dialog">
+            ×
+          </button>
+
+          <div className="mpesaPendingPulse">M</div>
+          <small>STK PUSH SENT</small>
+          <h2>Check your phone</h2>
+          <p>
+            Enter your M-PESA PIN on <strong>{payment.phone}</strong> to complete the
+            deposit.
+          </p>
+
+          <div className="mpesaPendingSummary">
+            <span>Deposit</span>
+            <strong>${money(payment.amountUsd)} USD</strong>
           </div>
 
-          <div className="pesapalCheckoutFrameWrap">
-            <iframe
-              className="pesapalCheckoutFrame"
-              title="PesaPal secure checkout"
-              src={checkout.url}
-              allow="payment *; clipboard-read; clipboard-write"
-              sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
+          <div className="mpesaWaitingLine">
+            <span />
+            Waiting for M-PESA confirmation…
           </div>
 
-          <div className="pesapalCheckoutFooter">
-            <span>Complete the payment above. MetaBinary stays open while you pay.</span>
-            <button type="button" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>
-              Change amount
-            </button>
-          </div>
+          <button
+            type="button"
+            className="mpesaBackButton"
+            onClick={() => {
+              setPayment(null);
+              setPaymentStatus("");
+              setPaymentMessage("");
+            }}
+          >
+            Send another request
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="modalLayer pesapalDepositLayer">
+    <div className="modalLayer mpesaDepositLayer">
       <div
-        className="depositModal pesapalDepositModal simplePesapalDepositModal"
+        className="depositModal mpesaDepositModal"
         role="dialog"
         aria-modal="true"
-        aria-label="Deposit funds"
+        aria-label="Deposit funds with M-PESA"
       >
-        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
+        <button
+          className="closeModal"
+          onClick={close}
+          aria-label="Close dialog"
+          disabled={submitting}
+        >
           ×
         </button>
 
         <div className="simpleDepositHead">
-          <span>＋</span>
+          <span className="mpesaBrandIcon">M</span>
           <div>
             <small>REAL ACCOUNT</small>
             <h2>Deposit Funds</h2>
-            <p>Enter how much you want to deposit.</p>
+            <p>Send a secure M-PESA STK Push to your phone.</p>
           </div>
         </div>
 
-        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">
+        <label className="pesapalSectionLabel" htmlFor="mpesaAmount">
           AMOUNT (USD $)
         </label>
 
         <div className="simpleDepositAmountBox">
           <span>$</span>
           <input
-            id="pesapalAmount"
+            id="mpesaAmount"
             type="number"
             min="1"
             step="1"
@@ -8051,16 +8094,36 @@ function DepositModal({ close, submit }) {
           ))}
         </div>
 
+        <label className="pesapalSectionLabel" htmlFor="mpesaPhone">
+          M-PESA PHONE NUMBER
+        </label>
+
+        <div className="mpesaPhoneField">
+          <span>KE</span>
+          <input
+            id="mpesaPhone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="07XXXXXXXX"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            disabled={submitting}
+          />
+        </div>
+
         <button
-          className="modalPrimary pesapalContinueButton simpleDepositConfirm"
+          className="modalPrimary pesapalContinueButton simpleDepositConfirm mpesaConfirmButton"
           onClick={handleSubmit}
-          disabled={submitting || safeAmount < 1}
+          disabled={submitting || safeAmount < 1 || !String(phone || "").trim()}
         >
-          {submitting ? "Opening secure payment…" : `Confirm $${money(safeAmount)} Deposit`}
+          {submitting
+            ? "Sending M-PESA request…"
+            : `Send STK Push • $${money(safeAmount)}`}
         </button>
 
-        <p className="simpleDepositSecurity">
-          🔒 Secure payment powered by PesaPal
+        <p className="simpleDepositSecurity mpesaSecurity">
+          🔒 Secure payment powered by Safaricom M-PESA
         </p>
       </div>
     </div>
