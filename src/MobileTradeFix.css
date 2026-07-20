@@ -524,63 +524,224 @@
 }
 
 
-
 /* ==========================================================================
-   METABINARY V150 — VISIBLE ACTIVE CURSOR
-   Shows the red active cursor clearly under the selected digit.
-   We support BOTH the dedicated cursor element and the pseudo-element fallback.
+   METABINARY V152 — ONE CURSOR + LIVE WAITING DIGIT + RESULT FLASH
+   Based on the clean V149 two-row layout.
+
+   Behaviour:
+   - exactly ONE red cursor follows the live/current digit
+   - after ODD/EVEN is pressed and a trade is running, the current digit is
+     covered with a soft light-green waiting state
+   - winning result flashes bright green
+   - losing result flashes bright red
    ========================================================================== */
 
 @media screen and (max-width: 1023px) {
-  /* Show the dedicated cursor element again. */
+  /* ------------------------------------------------------------------------
+     SINGLE CURSOR
+     The <i> element has BOTH classes:
+     singleDigitCursorV7 mobileDigitCursorFinalV130
+     Earlier CSS hid mobileDigitCursorFinalV130, so explicitly revive that
+     exact element here and disable the cell pseudo-cursor.
+     ------------------------------------------------------------------------ */
+
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
+    > i.singleDigitCursorV7.mobileDigitCursorFinalV130 {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
     position: absolute !important;
     left: calc((var(--mb-active-col, 0) + 0.5) * 20%) !important;
-    top: calc((var(--mb-active-row, 0) * 78px) + 60px) !important;
+    top: calc((var(--mb-active-row, 0) * 76px) + 58px) !important;
+    right: auto !important;
+    bottom: auto !important;
     width: 0 !important;
     height: 0 !important;
     margin: 0 !important;
-    border-left: 9px solid transparent !important;
-    border-right: 9px solid transparent !important;
-    border-bottom: 13px solid #ff4058 !important;
+    padding: 0 !important;
+    border-left: 8px solid transparent !important;
+    border-right: 8px solid transparent !important;
+    border-bottom: 12px solid #ff4058 !important;
     border-top: 0 !important;
     background: transparent !important;
     transform: translateX(-50%) !important;
-    filter: drop-shadow(0 0 10px rgba(255, 64, 88, 0.85)) drop-shadow(0 2px 6px rgba(255, 64, 88, 0.6)) !important;
-    z-index: 80 !important;
+    filter:
+      drop-shadow(0 0 8px rgba(255, 64, 88, 0.9))
+      drop-shadow(0 2px 5px rgba(255, 64, 88, 0.6)) !important;
+    z-index: 100 !important;
     pointer-events: none !important;
+    transition: left .18s ease, top .18s ease !important;
   }
 
-  /* Keep the fallback pseudo cursor strong and visible too. */
+  /* Kill the old fallback pseudo cursor so there can never be two cursors. */
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mobileDigitGridFinalV130
     > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
-    content: "" !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: absolute !important;
-    left: 50% !important;
-    top: 60px !important;
-    width: 0 !important;
-    height: 0 !important;
-    border-left: 9px solid transparent !important;
-    border-right: 9px solid transparent !important;
-    border-bottom: 13px solid #ff4058 !important;
-    border-top: 0 !important;
-    transform: translateX(-50%) !important;
-    filter: drop-shadow(0 0 10px rgba(255, 64, 88, 0.85)) drop-shadow(0 2px 6px rgba(255, 64, 88, 0.6)) !important;
-    z-index: 81 !important;
-    pointer-events: none !important;
+    content: none !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* ------------------------------------------------------------------------
+     LIGHT-GREEN WAITING STATE
+     V144 renders the visible mobile digits inside SVG, so the state must style
+     the SVG circles/text instead of the hidden mbDigitCoreV7 HTML layer.
+     ------------------------------------------------------------------------ */
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    > .mobileDigitRingSvgV139 {
+    filter: drop-shadow(0 0 10px rgba(72, 233, 159, .50)) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingBaseV139 {
+    stroke: #72e9af !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingArcV139 {
+    stroke: #baffdc !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingCenterV144 {
+    fill: #9bf2c9 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitNumberV144 {
+    fill: #062819 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitPercentTextV144 {
+    fill: #12583b !important;
+  }
+
+  /* ------------------------------------------------------------------------
+     FINAL WIN / LOSS FLASH — SVG VERSION
+     ------------------------------------------------------------------------ */
+
+  @keyframes mbMobileSvgWinFlashV152 {
+    0%   { transform: scale(1); filter: drop-shadow(0 0 0 rgba(24,255,143,0)); }
+    35%  { transform: scale(1.10); filter: drop-shadow(0 0 18px rgba(24,255,143,.98)); }
+    70%  { transform: scale(1.04); filter: drop-shadow(0 0 12px rgba(24,255,143,.82)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(24,255,143,0)); }
+  }
+
+  @keyframes mbMobileSvgLossFlashV152 {
+    0%   { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,50,82,0)); }
+    35%  { transform: scale(1.10); filter: drop-shadow(0 0 18px rgba(255,50,82,.98)); }
+    70%  { transform: scale(1.04); filter: drop-shadow(0 0 12px rgba(255,50,82,.82)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,50,82,0)); }
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
+    > .mobileDigitRingSvgV139 {
+    animation: mbMobileSvgWinFlashV152 .95s ease-out 1 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
+    .mobileDigitRingBaseV139,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
+    .mobileDigitRingArcV139 {
+    stroke: #19f78f !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
+    .mobileDigitRingCenterV144 {
+    fill: #19f78f !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
+    .mobileDigitNumberV144,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
+    .mobileDigitPercentTextV144 {
+    fill: #032819 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
+    > .mobileDigitRingSvgV139 {
+    animation: mbMobileSvgLossFlashV152 .95s ease-out 1 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
+    .mobileDigitRingBaseV139,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
+    .mobileDigitRingArcV139 {
+    stroke: #ff3452 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
+    .mobileDigitRingCenterV144 {
+    fill: #ff3452 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
+    .mobileDigitNumberV144,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
+    .mobileDigitPercentTextV144 {
+    fill: #ffffff !important;
   }
 }
 
@@ -589,137 +750,10 @@
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row, 0) * 76px) + 57px) !important;
-    border-left-width: 8px !important;
-    border-right-width: 8px !important;
-    border-bottom-width: 12px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
-    .mobileDigitGridFinalV130
-    > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
-    top: 57px !important;
-    border-left-width: 8px !important;
-    border-right-width: 8px !important;
-    border-bottom-width: 12px !important;
-  }
-}
-
-
-
-/* ==========================================================================
-   METABINARY V151 — SINGLE CURSOR + WAITING DIGIT HIGHLIGHT
-   - removes the extra mobile cursor
-   - keeps only one visible cursor
-   - when a trade is running, the live/current digit is softly covered light green
-   - win/loss settlement flash remains bright green / bright red
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  /* Hide the duplicate mobile cursor sources. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
-    .mobileDigitGridFinalV130
-    > .mobileDigitCursorFinalV130 {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
-    .mobileDigitGridFinalV130
-    > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  /* Keep only the original single cursor and make it easy to see. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 90 !important;
-    filter: drop-shadow(0 0 11px rgba(255, 73, 97, 0.92)) drop-shadow(0 2px 7px rgba(255, 73, 97, 0.66)) !important;
-  }
-
-  /* When a trade is active, show the current/live digit as the selected digit waiting. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
-    background: conic-gradient(
-      from var(--mb-v7-white-start, -30deg),
-      #bbffe2 0deg var(--mb-v7-white-sweep, 120deg),
-      #27d88f var(--mb-v7-white-sweep, 120deg) 360deg
-    ) !important;
-    box-shadow: 0 0 18px rgba(39, 216, 143, 0.46), 0 0 28px rgba(39, 216, 143, 0.28) !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
-    background: linear-gradient(180deg, rgba(172, 255, 215, 0.92), rgba(66, 201, 132, 0.92)) !important;
-    border-color: rgba(224, 255, 241, 0.95) !important;
-    box-shadow: 0 0 0 3px rgba(63, 224, 147, 0.22), 0 0 16px rgba(39, 216, 143, 0.34) !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23.isTrading .mbDigitCellV7.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
-    color: #042917 !important;
-    text-shadow: none !important;
-  }
-
-  /* Strengthen the final settlement flash. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 {
-    animation: mbDigitWinFlashV31 .95s ease-out 1 !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitRingV7 {
-    background: #19f78f !important;
-    box-shadow: 0 0 24px rgba(25, 247, 143, 0.95), 0 0 38px rgba(25, 247, 143, 0.55) !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 {
-    background: #0fd37b !important;
-    border-color: #e7fff3 !important;
-    box-shadow: 0 0 24px rgba(25, 247, 143, 0.76) !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
-    animation: mbDigitLossFlashV31 .95s ease-out 1 !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitRingV7 {
-    background: #ff375b !important;
-    box-shadow: 0 0 24px rgba(255, 55, 91, 0.95), 0 0 38px rgba(255, 55, 91, 0.55) !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.digitContractPage
-    .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 {
-    background: #db1f46 !important;
-    border-color: #ffe4ea !important;
-    box-shadow: 0 0 24px rgba(255, 55, 91, 0.76) !important;
+    > i.singleDigitCursorV7.mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row, 0) * 76px) + 55px) !important;
+    border-left-width: 7px !important;
+    border-right-width: 7px !important;
+    border-bottom-width: 11px !important;
   }
 }
