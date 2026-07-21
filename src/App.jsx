@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import "./DesktopTrade.css";
-import "./MobileTradeFix.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 
 function ensureResponsiveViewportMeta() {
@@ -53,7 +52,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-daraja-stk-v70-2026-07-20";
+const FRONTEND_BUILD = "metabinary-v153-stable-digit-movement-single-cursor-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -1653,6 +1652,13 @@ function TradingApp() {
     }
   }, [activePage]);
 
+  /*
+   * V153 digit movement engine.
+   * Keep the proven 1-second rhythm from the earlier stable build:
+   * - no open trade: the market produces one new visible digit each second
+   * - open trade: the server tick owns that market so the cursor follows the real trade ticks
+   * - the same lastDigit state drives both the highlighted digit and the single cursor
+   */
   useEffect(() => {
     const timer = window.setInterval(() => {
       const openTrade = activeBinaryTradeRef.current;
@@ -1733,16 +1739,21 @@ function TradingApp() {
 
     const showTick = (digit, remainingTicks, tickResult = {}) => {
       const tradeMarketId = openTrade.marketId || binaryMarketId;
+      const cleanDigit = Number(digit);
+      const validDigit = Number.isInteger(cleanDigit) && cleanDigit >= 0 && cleanDigit <= 9;
       const nextPrice = Number(tickResult.currentPrice || tickResult.trade?.currentPrice || 0);
+
       updateBinaryMarketState(tradeMarketId, (current) => ({
-        ...(Number.isInteger(digit) && digit >= 0 && digit <= 9
-          ? nextDigitState(current, digit)
-          : {}),
+        ...(validDigit ? nextDigitState(current, cleanDigit) : {}),
         ...(Number.isFinite(nextPrice) && nextPrice > 0
           ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
           : {}),
       }));
-      if (tradeMarketId === binaryMarketId && Number.isInteger(digit)) lastDigitRef.current = digit;
+
+      // lastDigit is the single source of truth for the visible digit and cursor.
+      if (tradeMarketId === binaryMarketId && validDigit) {
+        lastDigitRef.current = cleanDigit;
+      }
 
       setActiveBinaryTrade((current) =>
         current?.id === openTrade.id
@@ -3755,24 +3766,6 @@ function TradingApp() {
         if (!res.ok || data.ok === false) continue;
 
         const status = String(data.status || "").toUpperCase();
-        const statusMessage = String(data.message || data.resultDesc || "");
-        const stillProcessing = /still under processing|still processing|being processed|transaction is processing|request is processing|processing the transaction/i.test(
-          statusMessage
-        );
-
-        if (stillProcessing) {
-          window.dispatchEvent(
-            new CustomEvent("metabinary:deposit-status", {
-              detail: {
-                depositId,
-                status: "pending",
-                message: "Waiting for M-PESA confirmation…",
-              },
-            })
-          );
-          continue;
-        }
-
         if (successful.has(status) && data.credited !== false) {
           if (Number.isFinite(Number(data.realBalance))) {
             const nextRealBalance = Number(data.realBalance);
@@ -3809,10 +3802,10 @@ function TradingApp() {
         }
 
         if (failed.has(status)) {
-          notify("loss", "Deposit not completed", statusMessage || `Payment status: ${status}.`);
+          notify("loss", "Deposit not completed", data.message || `Payment status: ${status}.`);
           window.dispatchEvent(
             new CustomEvent("metabinary:deposit-status", {
-              detail: { depositId, status: "failed", message: statusMessage || `Payment status: ${status}.` },
+              detail: { depositId, status: "failed", message: data.message || `Payment status: ${status}.` },
             })
           );
           return;
@@ -3833,8 +3826,7 @@ function TradingApp() {
 
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
-    const phone = String(data.phone || "").trim();
-    const method = "mpesa";
+    const method = "pesapal";
 
     if (!API_URL) {
       notify(
@@ -3850,15 +3842,6 @@ function TradingApp() {
       return false;
     }
 
-    if (!phone) {
-      notify(
-        "loss",
-        "Phone required",
-        "Enter the Safaricom M-PESA number that should receive the STK Push."
-      );
-      return false;
-    }
-
     try {
       const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
@@ -3867,9 +3850,9 @@ function TradingApp() {
         body: JSON.stringify({
           method,
           amountUsd,
-          phone,
+          phone: "",
           email: user.email,
-          name: user.name || user.fullName || user.email,
+          name: user.name || user.email,
           requestId: uid(),
         }),
       });
@@ -3892,33 +3875,32 @@ function TradingApp() {
 
       addTx({
         type: "Deposit pending",
-        method: "M-PESA",
+        method: "PesaPal",
         account: "real",
         amount: amountUsd,
         status: "Pending",
-        details: result.phone || phone,
+        details: "Secure PesaPal checkout",
       });
 
       void pollDepositStatus(result.depositId);
 
+      if (result.checkoutUrl) {
+        return {
+          ok: true,
+          checkoutUrl: result.checkoutUrl,
+          depositId: result.depositId,
+          amountUsd,
+        };
+      }
+
       notify(
         "open",
-        "M-PESA request sent",
-        result.message || "Check your phone and enter your M-PESA PIN to complete the deposit."
+        "Deposit started",
+        result.message || "Your deposit request has been created."
       );
-
-      return {
-        ok: true,
-        depositId: result.depositId,
-        checkoutRequestId: result.checkoutRequestId || "",
-        merchantRequestId: result.merchantRequestId || "",
-        amountUsd,
-        amountKes: Number(result.amountKes || 0),
-        phone: result.phone || phone,
-        status: result.status || "PENDING",
-      };
+      return { ok: true, depositId: result.depositId, amountUsd };
     } catch (error) {
-      console.error("M-PESA deposit request failed:", error);
+      console.error("Deposit request failed:", error);
 
       const message =
         error instanceof Error ? error.message : "Backend connection failed.";
@@ -4238,7 +4220,7 @@ function TradingApp() {
         />
       )}
 
-      {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} defaultPhone={user.phone || ""} />}
+      {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
 
       {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
 
@@ -5964,7 +5946,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
+function LineChart({ data = [], anchorValue = null }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -6018,6 +6000,11 @@ function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
   const chartTop = 10;
   const chartBottom = 90;
   const chartLeft = 2;
+
+  // Keep the newest live tick around the middle-right of the chart instead of
+  // pinning it to the far-right edge. The empty space on the right acts as the
+  // forward area, so the price action remains easy to watch as new ticks arrive.
+  const livePointX = 58;
 
   const points = safeValues.map((value, index) => {
     const progress = index / Math.max(1, safeValues.length - 1);
@@ -6125,16 +6112,6 @@ function TradePage({
   const riseMode = tradeType === "Rise/Fall";
   const indexValue = livePrice * Number(binaryMarket?.scale || 800);
   const priceStep = Number(binaryMarket?.priceStep || 2);
-  const scaledDigitPrices = prices.map((value) => value * Number(binaryMarket?.scale || 800));
-  const digitChartStartPrice = Number(scaledDigitPrices[0] || indexValue || 0);
-  const digitChartChange = Number((indexValue - digitChartStartPrice).toFixed(2));
-  const digitChartChangePercent = digitChartStartPrice
-    ? Number(((digitChartChange / digitChartStartPrice) * 100).toFixed(2))
-    : 0;
-  const digitChartTimeLabels = [4, 3, 2, 1, 0].map((minutesAgo) => {
-    const time = new Date(Date.now() - minutesAgo * 60_000);
-    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-  });
   const safeStake = Math.max(0, Number(stake) || 0);
   const payoutOptions = { ticks: duration };
   const rateOne = payoutRate(tradeType, actions[0], prediction, payoutOptions);
@@ -6261,25 +6238,23 @@ function TradePage({
         ))}
       </section>
 
-      {!digitMode && (
-        <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
-          <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
-            <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
-            <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
-            <span className="volatilitySwitchLive"><i></i> LIVE</span>
-            <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
-          </button>
-          {marketMenuOpen && (
-            <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
-              {volatilityOptions.map((market) => (
-                <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
-                  <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+      <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
+        <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
+          <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
+          <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
+          <span className="volatilitySwitchLive"><i></i> LIVE</span>
+          <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
+        </button>
+        {marketMenuOpen && (
+          <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
+            {volatilityOptions.map((market) => (
+              <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
+                <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className={`proTradeChartCard binaryChartWithDigits finalBinaryChartCard ${digitMode ? "digitOnlyCard" : "priceOnlyCard"}`}>
         {!digitMode && (
@@ -6320,75 +6295,6 @@ function TradePage({
             <span><small>Current</small><b>{(activeTradeCurrent * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Live position</small><b>{activePriceWinning ? "Winning" : "Losing"} {activePreviewNet >= 0 ? "+" : ""}{money(activePreviewNet)} USD</b></span>
             <span><small>Time</small><b>{activeBinaryTrade.remainingTicks} tick{activeBinaryTrade.remainingTicks === 1 ? "" : "s"}</b></span>
-          </div>
-        )}
-
-        {digitMode && (
-          <div className={`mobileDigitLiveChartV115 ${marketMenuOpen ? "open" : ""}`}>
-            <button
-              type="button"
-              className="mobileDigitMarketHeadV115"
-              onClick={() => setMarketMenuOpen((open) => !open)}
-              disabled={Boolean(activeBinaryTrade)}
-              aria-haspopup="listbox"
-              aria-expanded={marketMenuOpen}
-            >
-              <span className="mobileDigitMarketBadgeV115">{binaryMarket?.short || "V100"}</span>
-              <span className="mobileDigitMarketCopyV115">
-                <strong>{binaryMarket?.label || "Volatility 100 Index"}</strong>
-                <small className={digitChartChange >= 0 ? "positive" : "negative"}>
-                  {indexValue.toFixed(2)}
-                  {"  "}
-                  {digitChartChange >= 0 ? "+" : ""}
-                  {digitChartChange.toFixed(2)}
-                  {" ("}
-                  {digitChartChangePercent >= 0 ? "+" : ""}
-                  {digitChartChangePercent.toFixed(2)}%)
-                </small>
-              </span>
-              <span className="mobileDigitMarketLiveV115"><i></i> LIVE</span>
-              <span className="mobileDigitMarketChevronV115">⌄</span>
-            </button>
-
-            {marketMenuOpen && (
-              <div className="mobileDigitMarketMenuV115" role="listbox" aria-label="Volatility markets">
-                {volatilityOptions.map((market) => (
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={market.id === binaryMarketId}
-                    key={market.id}
-                    className={market.id === binaryMarketId ? "active" : ""}
-                    onClick={() => {
-                      setBinaryMarketId(market.id);
-                      setMarketMenuOpen(false);
-                    }}
-                  >
-                    <span>{market.short}</span>
-                    <div>
-                      <strong>{market.label}</strong>
-                      <small>{market.description}</small>
-                    </div>
-                    <i>{market.id === binaryMarketId ? "✓" : "›"}</i>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="mobileDigitChartCanvasV115">
-              <LineChart data={scaledDigitPrices} livePointX={96} />
-              <div className="mobileDigitChartGridV115" aria-hidden="true"></div>
-              <div className="mobileDigitPriceScaleV115" aria-hidden="true">
-                <span>{(indexValue + priceStep * 2).toFixed(2)}</span>
-                <span>{indexValue.toFixed(2)}</span>
-                <span>{(indexValue - priceStep * 2).toFixed(2)}</span>
-              </div>
-              <div className="mobileDigitCurrentPriceV115">{indexValue.toFixed(2)}</div>
-            </div>
-
-            <div className="mobileDigitTimeRowV115" aria-hidden="true">
-              {digitChartTimeLabels.map((label) => <span key={label}>{label}</span>)}
-            </div>
           </div>
         )}
 
@@ -7171,19 +7077,56 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
           </div>
         </div>
 
-        <button
-          type="button"
-          className="referralPanel referralShortcutCardV105"
-          onClick={() => setActivePage("referrals")}
-          aria-label="Open Referral Program"
-        >
+        <aside className="referralPanel">
           <div className="profileActionIcon purple">👥</div>
-          <div className="referralShortcutCopyV105">
-            <h2>Referral Program</h2>
-            <p>View your referral link, referrals and commission.</p>
+
+          <h2>Referral Program</h2>
+          <p>
+            {referralApproved
+              ? `Your link is active. Earn ${referralRate}% commission whenever a trader who registered through your link completes a real-money deposit.`
+              : "Apply once to receive your personal referral link and start earning commissions."}
+          </p>
+
+          <div className={referralApproved ? "referralStatus approved" : "referralStatus pending"}>
+            <b>{referralApproved ? "Approved Partner" : "Not Applied Yet"}</b>
+            <span>{referralApproved ? `Code: ${referralCode} · ${referralRate}% commission` : "Create your link in one click"}</span>
           </div>
-          <strong className="referralShortcutArrowV105">›</strong>
-        </button>
+
+          {referralApproved ? (
+            <>
+              <label>YOUR REFERRAL LINK</label>
+
+              <div className="referralLinkBox">
+                <span>{referralLink}</span>
+
+                <button onClick={() => navigator.clipboard?.writeText(referralLink)}>⧉</button>
+              </div>
+
+              <div className="referralStatsBox">
+                <div>
+                  <small>TOTAL EARNED</small>
+                  <strong>{money(referralEarned)} USD</strong>
+                </div>
+
+                <div>
+                  <small>TOTAL REFERRALS</small>
+                  <strong>{referralCount}</strong>
+                </div>
+
+                <div>
+                  <small>COMMISSION RATE</small>
+                  <strong>{referralRate}%</strong>
+                </div>
+              </div>
+
+              <button className="referralDashboardBtn" onClick={() => setActivePage("referrals")}>Open Referral Dashboard ›</button>
+            </>
+          ) : (
+            <button className="referralApplyBtn" onClick={applyReferralProgram}>
+              Apply & Get Referral Link →
+            </button>
+          )}
+        </aside>
       </section>
 
       <button className="proLogoutButton" onClick={logout}>
@@ -7879,52 +7822,55 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   );
 }
 
-function DepositModal({ close, submit, defaultPhone = "" }) {
+function DepositModal({ close, submit }) {
   const [amountUsd, setAmountUsd] = useState(10);
-  const [phone, setPhone] = useState(defaultPhone || "");
   const [submitting, setSubmitting] = useState(false);
-  const [payment, setPayment] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [paymentMessage, setPaymentMessage] = useState("");
+  const [checkout, setCheckout] = useState(null);
+  const [checkoutStatus, setCheckoutStatus] = useState("");
+  const [checkoutMessage, setCheckoutMessage] = useState("");
   const quickAmounts = [5, 10, 20, 50, 100];
   const safeAmount = Math.max(0, Number(amountUsd || 0));
 
   useEffect(() => {
-    const handleDepositStatus = (event) => {
-      const detail = event.detail || {};
-      const currentDepositId = String(payment?.depositId || "");
+    const acceptStatus = (detail = {}) => {
+      const currentDepositId = String(checkout?.depositId || "");
       const incomingDepositId = String(detail.depositId || "");
-
-      if (
-        !currentDepositId ||
-        (incomingDepositId && incomingDepositId !== currentDepositId)
-      ) {
-        return;
-      }
+      if (!currentDepositId || (incomingDepositId && incomingDepositId !== currentDepositId)) return;
 
       const nextStatus = String(detail.status || "").toLowerCase();
       if (!nextStatus) return;
+      setCheckoutStatus(nextStatus);
+      if (detail.message) setCheckoutMessage(String(detail.message));
+    };
 
-      setPaymentStatus(nextStatus);
-      if (detail.message) setPaymentMessage(String(detail.message));
+    const handleDepositStatus = (event) => acceptStatus(event.detail || {});
+    const handlePesapalMessage = (event) => {
+      const data = event.data;
+      if (!data || data.type !== "metabinary:pesapal:return") return;
+      try {
+        const apiOrigin = new URL(API_URL, window.location.href).origin;
+        if (event.origin && event.origin !== apiOrigin) return;
+      } catch {
+        // The server-side status poll still verifies the real payment state.
+      }
+      acceptStatus(data);
     };
 
     window.addEventListener("metabinary:deposit-status", handleDepositStatus);
+    window.addEventListener("message", handlePesapalMessage);
     return () => {
       window.removeEventListener("metabinary:deposit-status", handleDepositStatus);
+      window.removeEventListener("message", handlePesapalMessage);
     };
-  }, [payment?.depositId]);
+  }, [checkout?.depositId]);
 
   async function handleSubmit() {
-    if (submitting || safeAmount < 1 || !String(phone || "").trim()) return;
+    if (submitting || safeAmount < 1) return;
 
     setSubmitting(true);
-    setPaymentMessage("");
-
     const result = await submit({
-      method: "mpesa",
+      method: "pesapal",
       amountUsd: safeAmount,
-      phone: String(phone || "").trim(),
     });
 
     if (!result) {
@@ -7932,160 +7878,125 @@ function DepositModal({ close, submit, defaultPhone = "" }) {
       return;
     }
 
-    setPayment({
-      depositId: result.depositId || "",
-      checkoutRequestId: result.checkoutRequestId || "",
-      amountUsd: result.amountUsd || safeAmount,
-      amountKes: result.amountKes || 0,
-      phone: result.phone || phone,
-    });
-
-    const initialStatus = String(result.status || "pending").toLowerCase();
-    setPaymentStatus(
-      ["complete", "completed", "paid", "success", "successful"].includes(initialStatus)
-        ? "completed"
-        : ["failed", "cancelled", "canceled", "reversed", "expired"].includes(initialStatus)
-          ? "failed"
-          : "pending"
-    );
+    if (result.checkoutUrl) {
+      setCheckoutStatus("pending");
+      setCheckoutMessage("");
+      setCheckout({
+        url: result.checkoutUrl,
+        depositId: result.depositId || "",
+        amountUsd: result.amountUsd || safeAmount,
+      });
+      setSubmitting(false);
+      return;
+    }
 
     setSubmitting(false);
   }
 
-  if (payment && paymentStatus === "completed") {
+  if (checkout?.url && checkoutStatus === "completed") {
     return (
-      <div className="modalLayer mpesaDepositLayer">
-        <div
-          className="depositModal mpesaResultModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Deposit complete"
-        >
-          <div className="mpesaResultIcon success">✓</div>
+      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit complete">
+          <div className="pesapalCheckoutResultIcon success">✓</div>
           <small>PAYMENT CONFIRMED</small>
           <h2>Deposit successful</h2>
-          <p>${money(payment.amountUsd)} USD has been added to your Real Account.</p>
-          <button type="button" className="simpleDepositConfirm" onClick={close}>
-            Done
-          </button>
+          <p>${money(checkout.amountUsd)} USD has been added to your Real Account.</p>
+          <button type="button" className="simpleDepositConfirm" onClick={close}>Done</button>
         </div>
       </div>
     );
   }
 
-  if (payment && paymentStatus === "failed") {
+  if (checkout?.url && checkoutStatus === "failed") {
     return (
-      <div className="modalLayer mpesaDepositLayer">
-        <div
-          className="depositModal mpesaResultModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Deposit not completed"
-        >
-          <div className="mpesaResultIcon failed">!</div>
+      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit not completed">
+          <div className="pesapalCheckoutResultIcon failed">!</div>
           <small>PAYMENT NOT COMPLETED</small>
           <h2>Try again</h2>
-          <p>
-            {paymentMessage ||
-              "The M-PESA payment was not completed. You can return and send another STK Push."}
-          </p>
-          <button
-            type="button"
-            className="simpleDepositConfirm"
-            onClick={() => {
-              setPayment(null);
-              setPaymentStatus("");
-              setPaymentMessage("");
-            }}
-          >
-            Back to deposit
-          </button>
+          <p>{checkoutMessage || "The payment was not completed. You can return and start another deposit."}</p>
+          <button type="button" className="simpleDepositConfirm" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>Back to deposit</button>
         </div>
       </div>
     );
   }
 
-  if (payment && paymentStatus === "pending") {
+  if (checkout?.url) {
     return (
-      <div className="modalLayer mpesaDepositLayer">
+      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
         <div
-          className="depositModal mpesaPendingModal"
+          className="depositModal pesapalCheckoutModal"
           role="dialog"
           aria-modal="true"
-          aria-label="M-PESA payment pending"
+          aria-label="Complete PesaPal deposit"
         >
-          <button className="closeModal" onClick={close} aria-label="Close dialog">
-            ×
-          </button>
-
-          <div className="mpesaPendingPulse">M</div>
-          <small>STK PUSH SENT</small>
-          <h2>Check your phone</h2>
-          <p>
-            Enter your M-PESA PIN on <strong>{payment.phone}</strong> to complete the
-            deposit.
-          </p>
-
-          <div className="mpesaPendingSummary">
-            <span>Deposit</span>
-            <strong>${money(payment.amountUsd)} USD</strong>
+          <div className="pesapalCheckoutHeader">
+            <div>
+              <small>SECURE DEPOSIT</small>
+              <h2>Complete your payment</h2>
+              <p>${money(checkout.amountUsd)} USD deposit</p>
+            </div>
+            <button
+              type="button"
+              className="pesapalCheckoutClose"
+              onClick={close}
+              aria-label="Close payment"
+            >
+              ×
+            </button>
           </div>
 
-          <div className="mpesaWaitingLine">
-            <span />
-            Waiting for M-PESA confirmation…
+          <div className="pesapalCheckoutFrameWrap">
+            <iframe
+              className="pesapalCheckoutFrame"
+              title="PesaPal secure checkout"
+              src={checkout.url}
+              allow="payment *; clipboard-read; clipboard-write"
+              sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
           </div>
 
-          <button
-            type="button"
-            className="mpesaBackButton"
-            onClick={() => {
-              setPayment(null);
-              setPaymentStatus("");
-              setPaymentMessage("");
-            }}
-          >
-            Send another request
-          </button>
+          <div className="pesapalCheckoutFooter">
+            <span>Complete the payment above. MetaBinary stays open while you pay.</span>
+            <button type="button" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>
+              Change amount
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="modalLayer mpesaDepositLayer">
+    <div className="modalLayer pesapalDepositLayer">
       <div
-        className="depositModal mpesaDepositModal"
+        className="depositModal pesapalDepositModal simplePesapalDepositModal"
         role="dialog"
         aria-modal="true"
-        aria-label="Deposit funds with M-PESA"
+        aria-label="Deposit funds"
       >
-        <button
-          className="closeModal"
-          onClick={close}
-          aria-label="Close dialog"
-          disabled={submitting}
-        >
+        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
           ×
         </button>
 
         <div className="simpleDepositHead">
-          <span className="mpesaBrandIcon">M</span>
+          <span>＋</span>
           <div>
             <small>REAL ACCOUNT</small>
             <h2>Deposit Funds</h2>
-            <p>Send a secure M-PESA STK Push to your phone.</p>
+            <p>Enter how much you want to deposit.</p>
           </div>
         </div>
 
-        <label className="pesapalSectionLabel" htmlFor="mpesaAmount">
+        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">
           AMOUNT (USD $)
         </label>
 
         <div className="simpleDepositAmountBox">
           <span>$</span>
           <input
-            id="mpesaAmount"
+            id="pesapalAmount"
             type="number"
             min="1"
             step="1"
@@ -8112,36 +8023,16 @@ function DepositModal({ close, submit, defaultPhone = "" }) {
           ))}
         </div>
 
-        <label className="pesapalSectionLabel" htmlFor="mpesaPhone">
-          M-PESA PHONE NUMBER
-        </label>
-
-        <div className="mpesaPhoneField">
-          <span>KE</span>
-          <input
-            id="mpesaPhone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="07XXXXXXXX"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            disabled={submitting}
-          />
-        </div>
-
         <button
-          className="modalPrimary pesapalContinueButton simpleDepositConfirm mpesaConfirmButton"
+          className="modalPrimary pesapalContinueButton simpleDepositConfirm"
           onClick={handleSubmit}
-          disabled={submitting || safeAmount < 1 || !String(phone || "").trim()}
+          disabled={submitting || safeAmount < 1}
         >
-          {submitting
-            ? "Sending M-PESA request…"
-            : `Send STK Push • $${money(safeAmount)}`}
+          {submitting ? "Opening secure payment…" : `Confirm $${money(safeAmount)} Deposit`}
         </button>
 
-        <p className="simpleDepositSecurity mpesaSecurity">
-          🔒 Secure payment powered by Safaricom M-PESA
+        <p className="simpleDepositSecurity">
+          🔒 Secure payment powered by PesaPal
         </p>
       </div>
     </div>

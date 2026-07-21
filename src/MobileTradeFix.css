@@ -573,7 +573,9 @@
       drop-shadow(0 2px 5px rgba(255, 64, 88, 0.6)) !important;
     z-index: 100 !important;
     pointer-events: none !important;
-    transition: left .18s ease, top .18s ease !important;
+    transition:
+      left .30s cubic-bezier(.22, 1, .36, 1),
+      top .30s cubic-bezier(.22, 1, .36, 1) !important;
   }
 
   /* Kill the old fallback pseudo cursor so there can never be two cursors. */
@@ -755,5 +757,51 @@
     border-left-width: 7px !important;
     border-right-width: 7px !important;
     border-bottom-width: 11px !important;
+  }
+}
+
+
+/* ==========================================================================
+   METABINARY V153 — STABLE DIGIT/CURSOR MOVEMENT
+   lastDigit updates --mb-active-col/--mb-active-row once per visible tick.
+   The single cursor glides to that exact cell. No second pseudo cursor exists.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > i.singleDigitCursorV7.mobileDigitCursorFinalV130 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    left: calc((var(--mb-active-col, 0) + .5) * 20%) !important;
+    top: calc((var(--mb-active-row, 0) * 76px) + 58px) !important;
+    transform: translateX(-50%) !important;
+    transition:
+      left .30s cubic-bezier(.22, 1, .36, 1),
+      top .30s cubic-bezier(.22, 1, .36, 1) !important;
+    z-index: 120 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7::after {
+    content: none !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mobileDigitGridFinalV130
+    > i.singleDigitCursorV7.mobileDigitCursorFinalV130 {
+    top: calc((var(--mb-active-row, 0) * 76px) + 55px) !important;
   }
 }
