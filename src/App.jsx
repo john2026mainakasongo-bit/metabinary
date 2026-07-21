@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v170-mobile-ai-button-layout-fill-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v160-rise-fall-mobile-layout-fix-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -7726,7 +7726,6 @@ function DrawerButton({ icon, label, badge, onClick }) {
 function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession, forceOpen = false }) {
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
-  const [startingAuto, setStartingAuto] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
@@ -7742,8 +7741,12 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   useEffect(() => saveStore(STORE.aiPosition, position), [position]);
 
   useEffect(() => {
-    if (!forceOpen) return;
+    if (!forceOpen) return undefined;
     setOpen(true);
+    const launchTimer = window.setTimeout(() => {
+      if (!autoSession?.running) scan(true);
+    }, 180);
+    return () => window.clearTimeout(launchTimer);
   }, [forceOpen, activePage]);
 
   useEffect(() => () => {
@@ -7858,7 +7861,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     };
   }
 
-  function scan(autoStart = false) {
+  function scan(autoStart = true) {
     if (scanActiveRef.current || scanning || autoSession?.running) return;
     scanActiveRef.current = true;
     window.clearInterval(scanTimerRef.current);
@@ -7888,68 +7891,24 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
         window.clearInterval(scanTimerRef.current);
         const nextResult = buildResult();
         setProgress(100);
-        setScanMessage("Best setup found · ready for AI Auto-Trade");
+        setScanMessage("Best setup found · launching Auto-Trade");
         setResult(nextResult);
         setScanning(false);
         scanActiveRef.current = false;
 
+        if (autoStart) {
+          autoLaunchTimerRef.current = window.setTimeout(async () => {
+            const started = await onAutoTrade(nextResult);
+            if (started === false) {
+              setResult(null);
+              setScanMessage("Auto-Trade could not start. Tap AI to scan again.");
+              return;
+            }
+            setOpen(false);
+          }, 850);
+        }
       }
     }, 180);
-  }
-
-  async function startAutoFromResult() {
-    if (!result || startingAuto || autoSession?.running) return;
-    setStartingAuto(true);
-    setScanMessage("Starting AI Auto-Trade…");
-    try {
-      const started = await onAutoTrade(result);
-      if (started === false) {
-        setScanMessage("Auto-Trade could not start. Review your balance and try again.");
-        return;
-      }
-      setOpen(false);
-    } finally {
-      setStartingAuto(false);
-    }
-  }
-
-  function loadPremiumBot() {
-    if (scanning || startingAuto || autoSession?.running) return;
-    const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
-    const market = volatilityOptions[Math.floor(Math.random() * volatilityOptions.length)] || volatilityOptions[0];
-    const type = template?.type || "Even/Odd";
-    const botResult = {
-      mode: "bot",
-      confidence: 88,
-      botId: template?.id,
-      marketLabel: market?.label,
-      config: {
-        marketId: market?.id,
-        type,
-        action: defaultBotAction(type),
-        prediction: type === "Over/Under" ? 2 : 0,
-        stake: aiStake,
-        ticks: 5,
-        martingaleEnabled: true,
-        martingaleMultiplier: 2,
-        martingaleSteps: 3,
-        takeProfit: aiTakeProfit,
-        stopLoss: aiStopLoss,
-      },
-    };
-    onApply?.(botResult);
-    setOpen(false);
-  }
-
-  function resetScanner() {
-    scanActiveRef.current = false;
-    window.clearInterval(scanTimerRef.current);
-    window.clearTimeout(autoLaunchTimerRef.current);
-    setScanning(false);
-    setStartingAuto(false);
-    setProgress(0);
-    setResult(null);
-    setScanMessage("Ready to scan");
   }
 
   function closeScanner() {
@@ -7957,10 +7916,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     window.clearInterval(scanTimerRef.current);
     window.clearTimeout(autoLaunchTimerRef.current);
     setScanning(false);
-    setStartingAuto(false);
-    setProgress(0);
-    setResult(null);
-    setScanMessage("Ready to scan");
     setOpen(false);
   }
 
@@ -8001,6 +7956,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       return;
     }
     setOpen(true);
+    window.setTimeout(() => scan(true), 80);
   }
 
   const mode = pageMode();
@@ -8008,6 +7964,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const buttonStyle = {
     "--ai-x": `${Math.round(position.x)}px`,
     "--ai-y": `${Math.round(position.y)}px`,
+  };
+  const panelStyle = mobileViewport ? undefined : {
+    left: Math.min(position.x, Math.max(8, window.innerWidth - 390)),
+    top: Math.min(position.y + 76, Math.max(90, window.innerHeight - 590)),
   };
 
   return (
@@ -8021,118 +7981,58 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerUp={pointerUp}
           aria-label="Scan markets and start AI Auto-Trade"
         >
-          <span className="aiOrbCore">AI</span><i></i>
+          <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : autoSession?.running ? `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}` : "SCAN"}</b>
         </button>
       )}
 
       {open && (
-        <div className="aiScannerBackdrop" role="presentation">
-          <section className="aiScannerPanel aiPremiumPanel" role="dialog" aria-modal="true" aria-label="MetaBinary AI">
-            <header className="aiPremiumHeader">
-              <div className="aiPremiumBrand">
-                <span className="aiPremiumMark">AI</span>
-                <div>
-                  <small>METABINARY INTELLIGENCE</small>
-                  <h2>AI Trading Intelligence</h2>
-                </div>
-              </div>
-              <span className="aiPremiumBadge">PREMIUM</span>
-              <button type="button" className="aiPremiumClose" onClick={closeScanner} aria-label="Close AI">×</button>
-            </header>
+        <section className="aiScannerPanel" style={panelStyle}>
+          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Auto-Trade Scanner</h2></div><button onClick={closeScanner}>×</button></header>
+          <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
 
-            <div className="aiPremiumStatusRow">
-              <span><i></i> LIVE MARKET ENGINE</span>
-              <strong>{mode === "bot" ? "Bot intelligence" : "Volatility intelligence"}</strong>
+          {scanning && (
+            <div className="aiScanningState" aria-live="polite">
+              <div className="aiRadarScanner"><span></span><i></i><b>AI</b></div>
+              <div className="aiScanProgress"><div><span style={{ width: `${progress}%` }}></span></div><strong>{progress}%</strong><small>{scanMessage}</small></div>
+              <ul className="aiDataFindingList">
+                <li className={progress >= 20 ? "done" : "active"}>Live market feed connected</li>
+                <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Best volatility market ranked</li>
+                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Contract types and payouts compared</li>
+                <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Best market and trade type selected</li>
+              </ul>
             </div>
+          )}
 
-            {!scanning && !result && !autoSession?.running && (
-              <div className="aiPremiumHome">
-                <div className="aiPremiumHero">
-                  <div className="aiPremiumBrain"><span>AI</span><i></i><b></b></div>
-                  <div>
-                    <small>SMART MARKET ANALYSIS</small>
-                    <h3>Find the strongest setup before you trade.</h3>
-                    <p>MetaBinary AI compares live volatility, digit behaviour, momentum and payout conditions, then prepares one high-quality setup.</p>
-                  </div>
-                </div>
-
-                <div className="aiPremiumActions">
-                  <button type="button" className="aiPremiumAction primary" onClick={() => scan(false)}>
-                    <span>✦</span>
-                    <div><strong>Scan Market</strong><small>Analyse and find the best setup</small></div>
-                    <b>›</b>
-                  </button>
-                  <button type="button" className="aiPremiumAction secondary" onClick={loadPremiumBot}>
-                    <span>🤖</span>
-                    <div><strong>Load Bot</strong><small>Open a ready AI bot configuration</small></div>
-                    <b>›</b>
-                  </button>
-                </div>
-
-                <div className="aiPremiumFeatures">
-                  <span>✓ Live market scan</span>
-                  <span>✓ Contract ranking</span>
-                  <span>✓ AI risk controls</span>
-                </div>
+          {result && (
+            <div className="aiSignalResult">
+              <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div>
+              <div className="aiSignalCopy">
+                <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
+                {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
+                {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}
+                <em>Signal confidence is an estimate, not a guaranteed win rate.</em>
               </div>
-            )}
+            </div>
+          )}
 
-            {scanning && (
-              <div className="aiScanningState aiPremiumScanning" aria-live="polite">
-                <div className="aiRadarScanner"><span></span><i></i><b>AI</b></div>
-                <div className="aiScanProgress">
-                  <div><span style={{ width: `${progress}%` }}></span></div>
-                  <strong>{progress}%</strong>
-                  <small>{scanMessage}</small>
-                </div>
-                <ul className="aiDataFindingList">
-                  <li className={progress >= 20 ? "done" : "active"}>Live market feed connected</li>
-                  <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Best volatility market ranked</li>
-                  <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Contract types and payouts compared</li>
-                  <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Strongest setup selected</li>
-                </ul>
-              </div>
-            )}
+          {autoSession?.id && (
+            <div className={`aiAutoRunCard ${autoSession.running ? "running" : "finished"}`}>
+              <div className="aiAutoRunHead"><span><i></i><strong>{autoSession.running ? "AI AUTO-TRADE RUNNING" : "AI AUTO-TRADE SESSION"}</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
+              <p>{autoSession.status}</p>
+              <div className="aiAutoMetrics"><span><small>Trades</small><strong>{autoSession.trades || 0}</strong></span><span><small>Wins</small><strong>{autoSession.wins || 0}</strong></span><span><small>Losses</small><strong>{autoSession.losses || 0}</strong></span><span><small>Target</small><strong>+{money(autoSession.targetProfit || 0)}</strong></span><span><small>Stop</small><strong>-{money(autoSession.stopLoss || 0)}</strong></span></div>
+              {autoSession.running && <button type="button" className="aiStopAuto" onClick={() => onStopAutoTrade("Stopped manually by the trader")}>Stop AI Auto-Trade</button>}
+            </div>
+          )}
 
-            {result && !autoSession?.running && (
-              <>
-                <div className="aiPremiumResultLabel"><span>✦</span> AI SCAN COMPLETE</div>
-                <div className="aiSignalResult aiPremiumResult">
-                  <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>AI score</small></div>
-                  <div className="aiSignalCopy">
-                    <small>RECOMMENDED MARKET</small>
-                    <h3>{result.marketLabel || result.symbol}</h3>
-                    {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
-                    {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier}</p>}
-                    <div className="aiPremiumSignalMeta">
-                      <span>Stake <b>${money(result.stake || aiStake)}</b></span>
-                      <span>Target <b>+${money(result.takeProfit || aiTakeProfit)}</b></span>
-                      <span>Stop <b>-${money(result.stopLoss || aiStopLoss)}</b></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="aiPremiumResultActions">
-                  <button type="button" className="aiPremiumAutoButton" onClick={startAutoFromResult} disabled={startingAuto}>
-                    <span>AI</span>
-                    {startingAuto ? "Starting AI Auto-Trade…" : "Auto Trade with AI"}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {autoSession?.running && (
-              <div className="aiAutoRunCard aiPremiumRunCard running">
-                <div className="aiAutoRunHead"><span><i></i><strong>{autoSession.running ? "AI AUTO-TRADE RUNNING" : "AI AUTO-TRADE SESSION"}</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
-                <p>{autoSession.status}</p>
-                <div className="aiAutoMetrics"><span><small>Trades</small><strong>{autoSession.trades || 0}</strong></span><span><small>Wins</small><strong>{autoSession.wins || 0}</strong></span><span><small>Losses</small><strong>{autoSession.losses || 0}</strong></span><span><small>Target</small><strong>+{money(autoSession.targetProfit || 0)}</strong></span><span><small>Stop</small><strong>-{money(autoSession.stopLoss || 0)}</strong></span></div>
-                {autoSession.running && <button type="button" className="aiStopAuto" onClick={() => onStopAutoTrade("Stopped manually by the trader")}>Stop AI Auto-Trade</button>}
-              </div>
-            )}
-
-            <small className="aiSafetyNote aiPremiumSafety">AI analysis is decision support, not a guaranteed outcome. Trade responsibly.</small>
-          </section>
-        </div>
+          {!autoSession?.running && (
+            <footer>
+              <button className="aiScanAgain" onClick={() => scan(true)} disabled={scanning || Boolean(result)}>
+                {scanning ? "AI is searching…" : result ? "Launching Auto-Trade…" : "Scan & Start Auto-Trade"}
+              </button>
+            </footer>
+          )}
+          <small className="aiSafetyNote">AI automatically ranks the current markets and contract types, then starts the strongest available setup. Results are not guaranteed.</small>
+        </section>
       )}
     </>
   );
