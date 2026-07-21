@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v165-live-winning-mask-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v166-fix-tradepage-visual-prop-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -4246,6 +4246,7 @@ function TradingApp() {
             lastDigit={lastDigit}
             digitStats={digitStats}
             activeBinaryTrade={activeBinaryTrade}
+            binaryTradeVisual={binaryTradeVisual}
             binaryResultFlash={binaryResultFlash}
             actionsFor={actionsFor}
             payoutRate={payoutRate}
@@ -6203,6 +6204,7 @@ function TradePage({
   lastDigit,
   digitStats,
   activeBinaryTrade,
+  binaryTradeVisual,
   binaryResultFlash,
   actionsFor,
   payoutRate,
