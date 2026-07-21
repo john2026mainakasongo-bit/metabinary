@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import "./DesktopTrade.css";
 import "./MobileTradeFix.css";
+import "./RiseFallChartV183.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 
 function ensureResponsiveViewportMeta() {
@@ -53,8 +54,9 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v160-rise-fall-mobile-layout-fix-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v183-rise-fall-chart-controls-2026-07-21";
 const DIGIT_TICK_MS = 1000;
+const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
 const TRADE_API_RETRIES = 1;
@@ -582,6 +584,15 @@ function centeredRingArcPath(centerAngle, sweepAngle, radius = 42) {
 
 const RISE_FALL_MAX_SECONDS = 300;
 
+const RISE_FALL_CHART_TIMEFRAMES = Object.freeze([
+  { value: "30s", label: "30s", seconds: 30 },
+  { value: "1m", label: "1m", seconds: 60 },
+  { value: "5m", label: "5m", seconds: 300 },
+  { value: "15m", label: "15m", seconds: 900 },
+]);
+
+const RISE_FALL_CHART_ZOOM_LEVELS = Object.freeze([0.75, 1, 1.5, 2, 3]);
+
 function normalizeRiseFallDuration(value, unit = "seconds") {
   const safeUnit = unit === "minutes" ? "minutes" : "seconds";
   const maxAmount = safeUnit === "minutes" ? 5 : 60;
@@ -843,7 +854,7 @@ function initials(name = "JM") {
 function makePrices(start = 1.08564) {
   let value = start;
 
-  return Array.from({ length: 120 }, (_, i) => {
+  return Array.from({ length: BINARY_PRICE_HISTORY_LIMIT }, (_, i) => {
     value += (Math.random() - 0.48) * 0.00045 + Math.sin(i / 8) * 0.00005;
     return Number(value.toFixed(5));
   });
@@ -1724,7 +1735,7 @@ function TradingApp() {
           nextStates[market.id] = {
             ...current,
             ...digitUpdate,
-            prices: [...oldPrices.slice(-119), nextPrice],
+            prices: [...oldPrices.slice(-(BINARY_PRICE_HISTORY_LIMIT - 1)), nextPrice],
             updatedAt: now,
           };
         });
@@ -1775,7 +1786,7 @@ function TradingApp() {
       updateBinaryMarketState(tradeMarketId, (current) => ({
         ...(validDigit ? nextDigitState(current, cleanDigit) : {}),
         ...(Number.isFinite(nextPrice) && nextPrice > 0
-          ? { prices: [...(current.prices || []).slice(-119), nextPrice] }
+          ? { prices: [...(current.prices || []).slice(-(BINARY_PRICE_HISTORY_LIMIT - 1)), nextPrice] }
           : {}),
       }));
 
@@ -4086,7 +4097,7 @@ function TradingApp() {
   }
 
   return (
-    <div className={`app activePage-${activePage}`}>
+    <div className={`app activePage-${activePage} ${activePage === "trade" && tradeType === "Rise/Fall" ? "riseFallActivePageV183" : ""}`}>
       <div
         className={`pullRefreshIndicator ${pullRefreshing ? "refreshing" : ""} ${pullRefreshDistance > 0 ? "visible" : ""}`}
         style={{ transform: `translate(-50%, ${Math.max(-52, pullRefreshDistance - 52)}px)` }}
@@ -6006,10 +6017,14 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
-  const values = Array.isArray(data)
+function LineChart({ data = [], anchorValue = null, livePointX = 94, zoom = 1 }) {
+  const allValues = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
+
+  const safeZoom = Math.max(0.75, Math.min(3, Number(zoom) || 1));
+  const visibleLimit = Math.max(28, Math.round(180 / safeZoom));
+  const values = allValues.slice(-visibleLimit);
 
   const safeValues =
     values.length >= 2
@@ -6031,8 +6046,6 @@ function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
   let max = rawMax;
 
   if (hasAnchor) {
-    // Keep the Rise/Fall entry level in the visual centre of the chart.
-    // The live price can then travel clearly above or below the entry line.
     const largestDistance = Math.max(
       ...safeValues.map((value) => Math.abs(value - numericAnchor)),
       Math.abs(rawMax - rawMin) / 2,
@@ -6043,9 +6056,6 @@ function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
     min = numericAnchor - halfRange;
     max = numericAnchor + halfRange;
   } else {
-    // Before a Rise/Fall trade starts there is no entry anchor. Auto-fit the
-    // live history itself so the user can still clearly see the green line
-    // moving instead of compressing it against the top of the chart.
     const rawRange = rawMax - rawMin;
     const visibleRange =
       rawRange > 0.000001
@@ -6059,11 +6069,12 @@ function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
   const range = max - min || 1;
   const chartTop = 10;
   const chartBottom = 90;
-  const chartLeft = 2;
+  const chartLeft = 3;
+  const chartRight = Math.max(70, Math.min(97, Number(livePointX) || 94));
 
   const points = safeValues.map((value, index) => {
     const progress = index / Math.max(1, safeValues.length - 1);
-    const x = chartLeft + progress * (livePointX - chartLeft);
+    const x = chartLeft + progress * (chartRight - chartLeft);
     const y = chartBottom - ((value - min) / range) * (chartBottom - chartTop);
     return [x, Math.max(chartTop, Math.min(chartBottom, y))];
   });
@@ -6074,11 +6085,11 @@ function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
     )
     .join(" ");
 
-  const lastPoint = points[points.length - 1] || [livePointX, chartBottom];
+  const lastPoint = points[points.length - 1] || [chartRight, chartBottom];
   const areaPath = `${linePath} L${lastPoint[0].toFixed(2)},100 L${chartLeft},100 Z`;
 
   return (
-    <div className="lineChart" aria-hidden="true">
+    <div className="lineChart riseLineChartV183" aria-hidden="true">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none">
         <path className="areaPath" d={areaPath} />
         <path
@@ -6087,6 +6098,130 @@ function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+      </svg>
+    </div>
+  );
+}
+
+function RiseFallCandleChart({
+  data = [],
+  anchorValue = null,
+  timeframeSeconds = 30,
+  livePointX = 94,
+  zoom = 1,
+}) {
+  const values = Array.isArray(data)
+    ? data.map(Number).filter(Number.isFinite)
+    : [];
+
+  if (values.length < 2) {
+    return <LineChart data={values} anchorValue={anchorValue} livePointX={livePointX} zoom={zoom} />;
+  }
+
+  const secondsPerCandle = Math.max(1, Math.floor(Number(timeframeSeconds) || 30));
+  const candles = [];
+
+  for (let endIndex = values.length; endIndex > 0; endIndex -= secondsPerCandle) {
+    const startIndex = Math.max(0, endIndex - secondsPerCandle);
+    const segment = values.slice(startIndex, endIndex);
+    if (!segment.length) continue;
+
+    const open = Number(segment[0]);
+    const close = Number(segment[segment.length - 1]);
+    candles.unshift({
+      open,
+      close,
+      high: Math.max(...segment),
+      low: Math.min(...segment),
+    });
+  }
+
+  const safeZoom = Math.max(0.75, Math.min(3, Number(zoom) || 1));
+  const visibleCount = Math.max(4, Math.round(48 / safeZoom));
+  const visibleCandles = candles.slice(-visibleCount);
+
+  if (!visibleCandles.length) {
+    return <LineChart data={values} anchorValue={anchorValue} livePointX={livePointX} zoom={zoom} />;
+  }
+
+  const candleLows = visibleCandles.map((candle) => candle.low);
+  const candleHighs = visibleCandles.map((candle) => candle.high);
+  const rawMin = Math.min(...candleLows);
+  const rawMax = Math.max(...candleHighs);
+  const numericAnchor = Number(anchorValue);
+  const hasAnchor =
+    anchorValue !== null &&
+    anchorValue !== undefined &&
+    anchorValue !== "" &&
+    Number.isFinite(numericAnchor);
+
+  let min = rawMin;
+  let max = rawMax;
+
+  if (hasAnchor) {
+    const largestDistance = Math.max(
+      Math.abs(rawMax - numericAnchor),
+      Math.abs(rawMin - numericAnchor),
+      Math.abs(rawMax - rawMin) / 2,
+      Math.abs(numericAnchor || 1) * 0.00015,
+      0.000001
+    );
+    const halfRange = largestDistance * 1.3;
+    min = numericAnchor - halfRange;
+    max = numericAnchor + halfRange;
+  } else {
+    const rawRange = rawMax - rawMin;
+    const padding = Math.max(rawRange * 0.18, Math.abs((rawMin + rawMax) / 2) * 0.00003, 0.000001);
+    min = rawMin - padding;
+    max = rawMax + padding;
+  }
+
+  const range = max - min || 1;
+  const chartTop = 10;
+  const chartBottom = 90;
+  const chartLeft = 4;
+  const chartRight = Math.max(70, Math.min(97, Number(livePointX) || 94));
+  const chartWidth = chartRight - chartLeft;
+  const step = chartWidth / Math.max(1, visibleCandles.length);
+  const bodyWidth = Math.max(0.8, Math.min(4.6, step * 0.62));
+
+  const y = (value) => {
+    const point = chartBottom - ((Number(value) - min) / range) * (chartBottom - chartTop);
+    return Math.max(chartTop, Math.min(chartBottom, point));
+  };
+
+  return (
+    <div className="lineChart riseCandleChartV183" aria-hidden="true">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <g className="riseCandleGridV183">
+          {[20, 40, 60, 80].map((lineY) => (
+            <line key={lineY} x1="0" x2="100" y1={lineY} y2={lineY} />
+          ))}
+        </g>
+
+        {visibleCandles.map((candle, index) => {
+          const x = chartLeft + step * index + step / 2;
+          const up = candle.close >= candle.open;
+          const openY = y(candle.open);
+          const closeY = y(candle.close);
+          const top = Math.min(openY, closeY);
+          const bottom = Math.max(openY, closeY);
+          const bodyHeight = Math.max(0.9, bottom - top);
+
+          return (
+            <g key={`${index}-${candle.open}-${candle.close}`} className={up ? "riseCandleUpV183" : "riseCandleDownV183"}>
+              <line className="riseCandleWickV183" x1={x} x2={x} y1={y(candle.high)} y2={y(candle.low)} />
+              <rect
+                className="riseCandleBodyV183"
+                x={x - bodyWidth / 2}
+                y={top}
+                width={bodyWidth}
+                height={bodyHeight}
+                rx="0.35"
+              />
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
@@ -6124,6 +6259,9 @@ function TradePage({
   );
   const [riseDurationUnit, setRiseDurationUnit] = useState("seconds");
   const [riseDurationValue, setRiseDurationValue] = useState(5);
+  const [riseChartType, setRiseChartType] = useState("line");
+  const [riseCandleTimeframe, setRiseCandleTimeframe] = useState("30s");
+  const [riseChartZoom, setRiseChartZoom] = useState(1);
   const [pendingDigitVisualTrade, setPendingDigitVisualTrade] = useState(null);
   const pendingDigitVisualTimerRef = useRef(null);
 
@@ -6249,6 +6387,22 @@ function TradePage({
   const quickRiseDurationValues = riseDurationUnit === "minutes"
     ? [1, 2, 3, 5]
     : [5, 10, 15, 30, 60];
+  const riseCandleTimeframeConfig =
+    RISE_FALL_CHART_TIMEFRAMES.find((item) => item.value === riseCandleTimeframe) ||
+    RISE_FALL_CHART_TIMEFRAMES[0];
+  const riseVisibleSpanSeconds =
+    riseChartType === "candles"
+      ? riseCandleTimeframeConfig.seconds * Math.max(4, Math.round(48 / riseChartZoom))
+      : Math.max(28, Math.round(180 / riseChartZoom));
+  const riseChartTimeLabels = [1, 0.75, 0.5, 0.25, 0].map((fraction) => {
+    const time = new Date(Date.now() - riseVisibleSpanSeconds * fraction * 1000);
+    return time.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: riseCandleTimeframe === "30s" && riseChartType === "candles" ? "2-digit" : undefined,
+      hour12: false,
+    });
+  });
   const riseDurationMax = riseDurationUnit === "minutes" ? 5 : 60;
   const riseDurationUnitLabel = riseDurationUnit === "minutes" ? "min" : "sec";
   const quickStakeValues = [10, 25, 50, 100, 250];
@@ -6287,6 +6441,17 @@ function TradePage({
     setStake((current) => Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2)));
   };
 
+  const changeRiseChartZoom = (direction) => {
+    setRiseChartZoom((current) => {
+      const nearestIndex = RISE_FALL_CHART_ZOOM_LEVELS.reduce((bestIndex, level, index) =>
+        Math.abs(level - current) < Math.abs(RISE_FALL_CHART_ZOOM_LEVELS[bestIndex] - current)
+          ? index
+          : bestIndex, 0);
+      const nextIndex = Math.max(0, Math.min(RISE_FALL_CHART_ZOOM_LEVELS.length - 1, nearestIndex + direction));
+      return RISE_FALL_CHART_ZOOM_LEVELS[nextIndex];
+    });
+  };
+
   const placeContract = async (action) => {
     if (digitMode) {
       setPendingDigitVisualTrade({
@@ -6319,7 +6484,7 @@ function TradePage({
     );
   };
 
-  if (desktopTradeMode) {
+  if (desktopTradeMode && !riseMode) {
     return (
       <DesktopTradePage
         prices={prices}
@@ -6418,14 +6583,78 @@ function TradePage({
         <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
           <div className="proChartCanvas">
-            <LineChart
-              data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
-              anchorValue={
-                riseMode && activeBinaryTrade
-                  ? activeTradeEntry * Number(binaryMarket?.scale || 800)
-                  : null
-              }
-            />
+            {riseMode && (
+              <div className="riseChartControlsV183" role="toolbar" aria-label="Rise and Fall chart controls">
+                <div className="riseChartTypeToggleV183" role="group" aria-label="Chart type">
+                  <button
+                    type="button"
+                    className={riseChartType === "line" ? "active" : ""}
+                    onClick={() => setRiseChartType("line")}
+                    aria-pressed={riseChartType === "line"}
+                  >
+                    Line
+                  </button>
+                  <button
+                    type="button"
+                    className={riseChartType === "candles" ? "active" : ""}
+                    onClick={() => setRiseChartType("candles")}
+                    aria-pressed={riseChartType === "candles"}
+                  >
+                    Candle
+                  </button>
+                </div>
+
+                <div className={`riseCandleTimeframesV183 ${riseChartType === "candles" ? "visible" : ""}`} role="group" aria-label="Candlestick timeframe">
+                  {RISE_FALL_CHART_TIMEFRAMES.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      className={riseCandleTimeframe === item.value ? "active" : ""}
+                      onClick={() => {
+                        setRiseChartType("candles");
+                        setRiseCandleTimeframe(item.value);
+                      }}
+                      aria-pressed={riseCandleTimeframe === item.value}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="riseChartZoomV183" role="group" aria-label="Chart zoom">
+                  <button type="button" onClick={() => changeRiseChartZoom(-1)} aria-label="Zoom out">−</button>
+                  <button type="button" className="riseChartZoomResetV183" onClick={() => setRiseChartZoom(1)} aria-label="Reset chart zoom">
+                    {Math.round(riseChartZoom * 100)}%
+                  </button>
+                  <button type="button" onClick={() => changeRiseChartZoom(1)} aria-label="Zoom in">+</button>
+                </div>
+              </div>
+            )}
+
+            {riseMode && riseChartType === "candles" ? (
+              <RiseFallCandleChart
+                data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+                anchorValue={
+                  activeBinaryTrade
+                    ? activeTradeEntry * Number(binaryMarket?.scale || 800)
+                    : null
+                }
+                timeframeSeconds={riseCandleTimeframeConfig.seconds}
+                zoom={riseChartZoom}
+                livePointX={94}
+              />
+            ) : (
+              <LineChart
+                data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+                anchorValue={
+                  riseMode && activeBinaryTrade
+                    ? activeTradeEntry * Number(binaryMarket?.scale || 800)
+                    : null
+                }
+                zoom={riseMode ? riseChartZoom : 1}
+                livePointX={riseMode ? 94 : 92}
+              />
+            )}
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
             {riseMode && activeBinaryTrade && <div className="entryPriceLine"><span>Entry {(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
@@ -6433,7 +6662,11 @@ function TradePage({
           </div>
         </div>
 
-        <div className="chartTimeRow finalChartTimeRow"><span>10:45:30</span><span>10:47:00</span><span>10:48:30</span><span>10:50:00</span><span>10:51:30</span></div>
+        <div className="chartTimeRow finalChartTimeRow">
+          {(riseMode ? riseChartTimeLabels : ["10:45:30", "10:47:00", "10:48:30", "10:50:00", "10:51:30"]).map((label, index) => (
+            <span key={`${label}-${index}`}>{label}</span>
+          ))}
+        </div>
           </>
         )}
 
