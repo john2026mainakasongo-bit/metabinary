@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v163-winning-cover-lowest-red-bar-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v164-explicit-winning-digits-straight-lowest-bar-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -994,22 +994,66 @@ function nextDigitState(current, digit, seed = 0) {
   };
 }
 
+function normalizeContractToken(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+}
+
+function getWinningDigitsForTrade(type, action, prediction = 0) {
+  const typeToken = normalizeContractToken(type);
+  const actionToken = normalizeContractToken(action);
+  const predictedDigit = Math.max(0, Math.min(9, Number(prediction ?? 0)));
+
+  return Array.from({ length: 10 }, (_, digit) => digit).filter((digit) => {
+    if (typeToken.includes("evenodd")) {
+      if (actionToken.includes("even")) return digit % 2 === 0;
+      if (actionToken.includes("odd")) return digit % 2 !== 0;
+    }
+
+    if (typeToken.includes("matchesdiffers") || typeToken.includes("matchdiff")) {
+      if (actionToken.includes("match")) return digit === predictedDigit;
+      if (actionToken.includes("differ")) return digit !== predictedDigit;
+    }
+
+    if (typeToken.includes("overunder")) {
+      if (actionToken.includes("over")) return digit > predictedDigit;
+      if (actionToken.includes("under")) return digit < predictedDigit;
+    }
+
+    if (typeToken.includes("touchnotouch")) {
+      if (actionToken === "touch" || (actionToken.includes("touch") && !actionToken.includes("no"))) {
+        return digit === predictedDigit;
+      }
+      if (actionToken.includes("notouch") || actionToken.includes("no")) return digit !== predictedDigit;
+    }
+
+    return false;
+  });
+}
+
 function digitWinsTrade(trade, digit, closingPrice = 0) {
   if (!trade) return false;
 
-  // Normalize values returned by the backend so the live winning-zone cover
-  // still works even if casing or surrounding spaces differ.
-  const type = String(trade.type || "").trim().toLowerCase();
-  const action = String(trade.action || "").trim().toLowerCase();
-  const prediction = Number(trade.prediction ?? 0);
   const resultDigit = Number(digit);
+  const explicitWinningDigits = Array.isArray(trade.winningDigits)
+    ? trade.winningDigits.map(Number)
+    : [];
 
-  if (type === "even/odd") return action === "even" ? resultDigit % 2 === 0 : resultDigit % 2 !== 0;
-  if (type === "matches/differs") return action === "matches" ? resultDigit === prediction : resultDigit !== prediction;
-  if (type === "over/under") return action === "over" ? resultDigit > prediction : resultDigit < prediction;
-  if (type === "touch/no touch") return action === "touch" ? resultDigit === prediction : resultDigit !== prediction;
-  if (type === "rise/fall") return action === "rise" ? Number(closingPrice) > Number(trade.entryPrice) : Number(closingPrice) < Number(trade.entryPrice);
-  return false;
+  if (explicitWinningDigits.length > 0) {
+    return explicitWinningDigits.includes(resultDigit);
+  }
+
+  const typeToken = normalizeContractToken(trade.type);
+  if (typeToken.includes("risefall")) {
+    const actionToken = normalizeContractToken(trade.action);
+    return actionToken.includes("rise")
+      ? Number(closingPrice) > Number(trade.entryPrice)
+      : Number(closingPrice) < Number(trade.entryPrice);
+  }
+
+  return getWinningDigitsForTrade(trade.type, trade.action, trade.prediction).includes(resultDigit);
 }
 
 function formatMarketPrice(value, marketOrSymbol = "EUR/USD") {
@@ -3028,10 +3072,14 @@ function TradingApp() {
       const openTrade = {
         id: opened.id,
         account: opened.account || account,
-        type: opened.type || type,
-        action: opened.action || action,
+        // Keep the exact client-selected contract values for the live UI.
+        // Some provider responses use different labels, which previously broke
+        // the green waiting-digit cover while the trade was open.
+        type,
+        action,
         stake: Number(opened.stake ?? usedStake),
         prediction: Number(opened.prediction ?? prediction),
+        winningDigits: getWinningDigitsForTrade(type, action, opened.prediction ?? prediction),
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
@@ -3244,10 +3292,11 @@ function TradingApp() {
       const openTrade = {
         id: opened.id,
         account: opened.account || currentAccount,
-        type: opened.type || signal.type,
-        action: opened.action || signal.action,
+        type: signal.type,
+        action: signal.action,
         stake: Number(opened.stake ?? usedStake),
         prediction: Number(opened.prediction ?? usedPrediction),
+        winningDigits: getWinningDigitsForTrade(signal.type, signal.action, opened.prediction ?? usedPrediction),
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? entryPrice),
@@ -6490,10 +6539,19 @@ function TradePage({
                 const isPicked = ["Matches/Differs", "Over/Under"].includes(tradeType) && digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
+                const activeWinningDigits = activeBinaryTrade
+                  ? (Array.isArray(activeBinaryTrade.winningDigits) && activeBinaryTrade.winningDigits.length > 0
+                      ? activeBinaryTrade.winningDigits.map(Number)
+                      : getWinningDigitsForTrade(
+                          activeBinaryTrade.type || tradeType,
+                          activeBinaryTrade.action,
+                          activeBinaryTrade.prediction ?? prediction
+                        ))
+                  : [];
                 const isWinningZone = Boolean(
                   activeBinaryTrade &&
                   digitMode &&
-                  digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent)
+                  (activeWinningDigits.includes(digit) || digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent))
                 );
                 const isWaitingCover = Boolean(activeBinaryTrade && isWinningZone && !isResultDigit);
 
@@ -6542,7 +6600,7 @@ function TradePage({
                       "mbDigitCellV7",
                       "mobileDigitCellFinalV130",
                       isHighest ? "mbDigitHighestV7" : "",
-                      isLowest ? "mbDigitLowestV7" : "",
+                      isLowest ? "mbDigitLowestMarkerV164" : "",
                       isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningZone ? "mbDigitWinningZoneV31" : "",
@@ -6606,10 +6664,10 @@ function TradePage({
                     </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
                     {isLowest && !isHighest && !isResultDigit && (
-                      <span className="mbDigitLowestBarV163" aria-hidden="true" />
+                      <span className="mbDigitLowestBarV164" aria-hidden="true" />
                     )}
-                    <span className="mbDigitCoreV7">
-                      {isWaitingCover && <span className="mbDigitWinningCoverV163" aria-hidden="true" />}
+                    <span className={`mbDigitCoreV7 ${isWaitingCover ? "mbDigitCoreActiveWinV164" : ""}`}>
+                      {isWaitingCover && <span className="mbDigitWinningCoverV164" aria-hidden="true" />}
                       <strong>{digit}</strong>
                       <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
                     </span>

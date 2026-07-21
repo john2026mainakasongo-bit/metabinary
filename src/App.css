@@ -45297,3 +45297,180 @@ body,
     height: 4px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V163 — RELIABLE WINNING COVER + REAL LOWEST RED BAR
+   - Active winning digits use a real inner overlay, not only inherited CSS.
+   - Lowest digit uses a real DOM bar so legacy pseudo-element rules cannot
+     turn it green, hide it or distort it.
+   ========================================================================== */
+
+/* Lowest ring remains plain grey. The actual red marker is the dedicated
+   .mbDigitLowestBarV163 element rendered by React. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitHighestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: #596471 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7 .mbDigitRingV7::before,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7 .mbDigitRingV7::after {
+  content: none !important;
+  display: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV163 {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 1px !important;
+  z-index: 8 !important;
+  width: 30% !important;
+  height: 5px !important;
+  min-height: 5px !important;
+  border-radius: 999px !important;
+  background: #ff304f !important;
+  box-shadow: none !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+}
+
+/* The cover is a real child inside the digit core, so it is visible on every
+   browser even if older !important background rules are still present. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 {
+  overflow: hidden !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningCoverV163 {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  display: block !important;
+  border-radius: inherit !important;
+  background: rgba(169, 243, 204, 0.92) !important;
+  border: 1px solid rgba(220, 255, 236, 0.9) !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > .mbDigitPercentV7 {
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #06130d !important;
+  text-shadow: none !important;
+}
+
+/* Result flash always wins above the temporary waiting overlay. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitWinningCoverV163,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitWinningCoverV163 {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV163 {
+    bottom: 1px !important;
+    width: 28% !important;
+    height: 4px !important;
+    min-height: 4px !important;
+  }
+}
+
+/* ========================================================================== 
+   METABINARY V164 — EXPLICIT ACTIVE WIN DIGITS + STRAIGHT LOWEST MARKER
+   ========================================================================== */
+
+/* V164 no longer uses the legacy .mbDigitLowestV7 class. This prevents older
+   conic-gradient rules from turning the lowest marker into a curved red arc. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestMarkerV164:not(.mbDigitHighestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(
+    from var(--mb-v7-white-start, -30deg),
+    #f6f8fa 0deg var(--mb-v7-white-sweep, 120deg),
+    #566270 var(--mb-v7-white-sweep, 120deg) 360deg
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* A real straight bar, placed just below the circle. It is intentionally not
+   clipped by the circular ring, so it can never look like an arc. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -4px !important;
+  z-index: 30 !important;
+  display: block !important;
+  width: 28px !important;
+  height: 4px !important;
+  min-width: 28px !important;
+  min-height: 4px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #ff304f !important;
+  box-shadow: none !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+}
+
+/* Active winning digits are explicitly filled light green while the trade is
+   running. This class is added from the trade's stored winningDigits array, so
+   it does not depend on labels returned by the backend. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7.mbDigitCoreActiveWinV164 {
+  position: relative !important;
+  overflow: hidden !important;
+  background: #a9f3cc !important;
+  border-color: #d9ffeb !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.32) !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningCoverV164 {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  background: #a9f3cc !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7.mbDigitCoreActiveWinV164 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7.mbDigitCoreActiveWinV164 > .mbDigitPercentV7 {
+  position: relative !important;
+  z-index: 5 !important;
+  color: #06130d !important;
+  text-shadow: none !important;
+}
+
+/* Settlement flash must always replace the temporary waiting cover. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitWinningCoverV164,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitWinningCoverV164 {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+    bottom: -3px !important;
+    width: 23px !important;
+    min-width: 23px !important;
+    height: 4px !important;
+    min-height: 4px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 3px !important;
+    min-height: 3px !important;
+  }
+}
