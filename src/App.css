@@ -45818,3 +45818,297 @@ body,
     transform .2s ease !important;
   will-change: left, top, transform;
 }
+
+
+/* ==========================================================================
+   METABINARY V178 — EXACT DIGIT BEHAVIOR
+   Exact rules:
+   1. Smallest number = straight red bar at the bottom.
+   2. Highest number = green top half-ring; remaining ring stays grey.
+   3. Win = landing number flashes bright green once.
+   4. Loss = landing number flashes bright red once.
+   5. Active digit trades = every possible winning digit gets a light-green
+      cover while the trade is open/waiting.
+   6. Cursor = outside and below the circle.
+   7. Normal digit + percentage text = black/dark.
+   ========================================================================== */
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7 {
+  position: relative !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+}
+
+/* Reset competing old rank/trade fills. The explicit V178 layers below own
+   these visuals so old conic-gradient patches cannot change the result. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitCoreV7 {
+  background: #eef2f5 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitPercentV7 {
+  color: #07101b !important;
+  text-shadow: none !important;
+}
+
+/* Base ring: always grey. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitRingV7 {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 50% !important;
+  background: conic-gradient(#697482 0deg 360deg) !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+/* Cut the center out of the base ring visually by keeping the core above it. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 {
+  position: absolute !important;
+  z-index: 8 !important;
+}
+
+/* Explicit active winning cover. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitActiveWinCoverV178 {
+  position: absolute !important;
+  inset: 7px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  opacity: 0 !important;
+  z-index: 5 !important;
+  pointer-events: none !important;
+  transition: opacity .18s ease, background .18s ease !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitActiveWinCoverV178 {
+  background: #a9f1cf !important;
+  opacity: 1 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(22, 139, 93, .16),
+    0 0 14px rgba(70, 226, 159, .18) !important;
+}
+
+/* Keep digit/percentage dark on the active light-green cover. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitCoreV7 {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitPercentV7 {
+  color: #07140f !important;
+}
+
+/* Highest number: green TOP half-ring only; grey base remains visible below. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestHalfV178 {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  opacity: 0 !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitHighestHalfV178 {
+  background: conic-gradient(
+    from -90deg,
+    #24d79a 0deg 180deg,
+    transparent 180deg 360deg
+  ) !important;
+  opacity: 1 !important;
+}
+
+/* Re-cut the middle so the top marker remains a ring, not a filled disc. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitHighestHalfV178::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 7px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+}
+
+/* Smallest number: one clean straight red bar, centered at the circle bottom.
+   No arc, no triangle, and it is separate from the cursor. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV178 {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -2px !important;
+  width: 29px !important;
+  height: 6px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  transform: translateX(-50%) !important;
+  opacity: 0 !important;
+  z-index: 14 !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitLowestBarV178 {
+  background: #ff3d58 !important;
+  opacity: 1 !important;
+  box-shadow: 0 3px 10px rgba(255, 45, 78, .32) !important;
+}
+
+/* Hide old lowest/highest arc treatments so only the exact V178 indicators
+   appear. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitRingV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitRingV7 {
+  background: conic-gradient(#697482 0deg 360deg) !important;
+}
+
+/* Result flash layer. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultFlashV178 {
+  position: absolute !important;
+  inset: 2px !important;
+  border-radius: 50% !important;
+  opacity: 0 !important;
+  z-index: 30 !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultWinV7 .mbDigitResultFlashV178 {
+  background: #16f49a !important;
+  opacity: 1 !important;
+  animation: mbDigitBrightWinV178 .95s ease-out both !important;
+  box-shadow:
+    0 0 20px rgba(22, 244, 154, .95),
+    0 0 42px rgba(22, 244, 154, .58) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultLossV7 .mbDigitResultFlashV178 {
+  background: #ff2346 !important;
+  opacity: 1 !important;
+  animation: mbDigitBrightLossV178 .95s ease-out both !important;
+  box-shadow:
+    0 0 20px rgba(255, 35, 70, .95),
+    0 0 42px rgba(255, 35, 70, .58) !important;
+}
+
+/* During the one-time result flash, text remains readable and dark. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultWinV7 .mbDigitCoreV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultLossV7 .mbDigitCoreV7 {
+  z-index: 35 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultWinV7 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultWinV7 .mbDigitPercentV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultLossV7 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultLossV7 .mbDigitPercentV7 {
+  color: #07100d !important;
+  text-shadow: none !important;
+}
+
+@keyframes mbDigitBrightWinV178 {
+  0%   { transform: scale(.82); opacity: 0; }
+  16%  { transform: scale(1.10); opacity: 1; }
+  48%  { transform: scale(.98); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes mbDigitBrightLossV178 {
+  0%   { transform: scale(.82); opacity: 0; }
+  16%  { transform: scale(1.10); opacity: 1; }
+  48%  { transform: scale(.98); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Selected prediction for Matches/Differs and Over/Under remains visibly
+   different without changing the black digit/percentage text. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  filter: drop-shadow(0 0 6px rgba(65, 154, 255, .42)) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitCoreV7 {
+  outline: 3px solid #3698ff !important;
+  outline-offset: -1px !important;
+  background: #d8ecff !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+.mbDigitCoreV7 {
+  background: transparent !important;
+  outline: 3px solid #3698ff !important;
+}
+
+/* Cursor is always OUTSIDE / BELOW the circle. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCursorFinalV130 {
+  top: auto !important;
+  bottom: -21px !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  border-left: 9px solid transparent !important;
+  border-right: 9px solid transparent !important;
+  border-bottom: 0 !important;
+  border-top: 14px solid #ff3f58 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  transform: translateX(-50%) !important;
+  box-shadow: 0 -2px 12px rgba(255, 50, 80, .55) !important;
+  z-index: 40 !important;
+  transition:
+    left .34s cubic-bezier(.22,.78,.22,1),
+    transform .18s ease !important;
+}
+
+/* Position the cursor horizontally using the existing per-digit CSS variable,
+   while keeping its vertical position fixed below the active circle row. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+  left: var(--mb-v58-cursor-left) !important;
+}
+
+/* Top-row cursor sits in the row gap; bottom-row cursor sits under the board.
+   This still keeps the pointer outside every circle. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7 {
+  position: relative !important;
+}
+
+/* Ensure no old pseudo-element recreates a curved lowest marker. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7::before,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7::after {
+  content: none !important;
+  display: none !important;
+}

@@ -996,11 +996,39 @@ function nextDigitState(current, digit, seed = 0) {
 
 function digitWinsTrade(trade, digit, closingPrice = 0) {
   if (!trade) return false;
-  if (trade.type === "Even/Odd") return trade.action === "Even" ? digit % 2 === 0 : digit % 2 !== 0;
-  if (trade.type === "Matches/Differs") return trade.action === "Matches" ? digit === Number(trade.prediction) : digit !== Number(trade.prediction);
-  if (trade.type === "Over/Under") return trade.action === "Over" ? digit > Number(trade.prediction) : digit < Number(trade.prediction);
-  if (trade.type === "Touch/No Touch") return trade.action === "Touch" ? digit === Number(trade.prediction) : digit !== Number(trade.prediction);
-  if (trade.type === "Rise/Fall") return trade.action === "Rise" ? Number(closingPrice) > Number(trade.entryPrice) : Number(closingPrice) < Number(trade.entryPrice);
+
+  const type = String(trade.type || "").trim().toLowerCase();
+  const action = String(trade.action || "").trim().toLowerCase();
+  const prediction = Number(trade.prediction);
+
+  if (type === "even/odd" || type === "evenodd") {
+    return action === "even" ? digit % 2 === 0 : digit % 2 !== 0;
+  }
+
+  if (type === "matches/differs" || type === "matchesdiffers") {
+    return action === "matches"
+      ? digit === prediction
+      : digit !== prediction;
+  }
+
+  if (type === "over/under" || type === "overunder") {
+    return action === "over"
+      ? digit > prediction
+      : digit < prediction;
+  }
+
+  if (type === "touch/no touch" || type === "touchnotouch") {
+    return action === "touch"
+      ? digit === prediction
+      : digit !== prediction;
+  }
+
+  if (type === "rise/fall" || type === "risefall") {
+    return action === "rise"
+      ? Number(closingPrice) > Number(trade.entryPrice)
+      : Number(closingPrice) < Number(trade.entryPrice);
+  }
+
   return false;
 }
 
@@ -6653,6 +6681,10 @@ function TradePage({
                       </text>
                     </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
+                    <span className="mbDigitActiveWinCoverV178" aria-hidden="true" />
+                    <span className="mbDigitHighestHalfV178" aria-hidden="true" />
+                    <span className="mbDigitLowestBarV178" aria-hidden="true" />
+                    <span className="mbDigitResultFlashV178" aria-hidden="true" />
                     <span className="mbDigitCoreV7">
                       <strong>{digit}</strong>
                       <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
