@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v155-digit-visual-rules-waiting-cursor-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v156-ring-only-waiting-full-buttons-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;

@@ -757,3 +757,102 @@
     border-bottom-width: 11px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V156 — WAITING DIGITS USE RING ONLY + FULL TRADE BUTTONS
+   - waiting digits: green ring/glow only, black inner core stays unchanged
+   - ODD / EVEN buttons stay full-width/full-color during open trade
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    > .mobileDigitRingSvgV139 {
+    filter: drop-shadow(0 0 12px rgba(72, 233, 159, .38)) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingBaseV139 {
+    stroke: rgba(114, 233, 175, .58) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingArcV139 {
+    stroke: #72e9af !important;
+  }
+
+  /* Keep inner core and texts normal so the selected digit is still clearly visible. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingCenterV144 {
+    fill: #050b14 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitNumberV144,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitPercentTextV144 {
+    fill: #f4f7fb !important;
+  }
+
+  /* Use the whole ODD / EVEN card; no blank icon column and no faded disabled look. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons > button {
+    position: relative !important;
+    align-items: stretch !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons > button:disabled {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons > button > span:first-child {
+    display: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons > button > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons > button > div > strong,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons > button > div > .tradePayoutText {
+    width: 100% !important;
+  }
+}
