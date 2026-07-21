@@ -45553,3 +45553,157 @@ body,
     min-height: 3px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V167 — MOBILE POLISH
+   - Removes the oversized empty area below the Trade navigation.
+   - Restores the draggable AI bubble on mobile/tablet Trade pages.
+   - Gives a selected prediction digit a clear blue state.
+   - Rebuilds the lowest-number marker as a clean flat red bar on the ring.
+   ========================================================================== */
+
+/* A selected prediction must be obvious before the contract is opened. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV167:not(.mbDigitActiveWinningV165):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #103a67 !important;
+  border-color: #55aaff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    0 0 15px rgba(35,139,255,.38) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV167:not(.mbDigitActiveWinningV165):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(77,169,255,.52) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV167:not(.mbDigitActiveWinningV165):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #b9dcff !important;
+  text-shadow: none !important;
+}
+
+/* Dedicated selection outline remains visible even when the selected digit is
+   also part of an active green winning zone. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedMarkerV167 {
+  position: absolute !important;
+  inset: -3px !important;
+  z-index: 46 !important;
+  display: block !important;
+  border: 3px solid #2692ff !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow:
+    0 0 0 2px rgba(5,15,27,.86),
+    0 0 16px rgba(38,146,255,.52) !important;
+  pointer-events: none !important;
+}
+
+/* Lowest statistic: no white/conic arc. Keep the normal grey ring and draw
+   one flat red segment flush with its bottom edge. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestMarkerV164:not(.mbDigitHighestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: #596471 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+  left: 50% !important;
+  bottom: 0 !important;
+  width: 26px !important;
+  min-width: 26px !important;
+  height: 4px !important;
+  min-height: 4px !important;
+  border: 0 !important;
+  border-radius: 1px !important;
+  background: #ff304f !important;
+  box-shadow: none !important;
+  transform: translateX(-50%) !important;
+  z-index: 26 !important;
+}
+
+@media screen and (max-width: 1023px) {
+  /* V127 hid the AI on Trade. Restore it and keep the existing pointer-based
+     x/y positioning so the user can drag it anywhere on the usable screen. */
+  .app.activePage-trade .floatingAiButton.aiPage-trade {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    left: var(--ai-x, calc(100vw - 68px)) !important;
+    top: var(--ai-y, 150px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    cursor: grab !important;
+    z-index: 120000 !important;
+  }
+
+  .app.activePage-trade .floatingAiButton.aiPage-trade:active {
+    cursor: grabbing !important;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  /* Do not reserve the browser safe-area value twice. The Trade shell already
+     lives inside 100dvh, so use one exact navigation row and fill it fully. */
+  .app.activePage-trade {
+    grid-template-rows: 50px minmax(0, 1fr) 80px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .app.activePage-trade > .bottomNav {
+    grid-row: 3 !important;
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    position: relative !important;
+    inset: auto !important;
+    width: calc(100% - 16px) !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    margin: 4px 8px !important;
+    padding-bottom: 0 !important;
+    transform: none !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedMarkerV167 {
+    inset: -2px !important;
+    border-width: 2px !important;
+    box-shadow:
+      0 0 0 1px rgba(5,15,27,.9),
+      0 0 12px rgba(38,146,255,.48) !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+    bottom: 0 !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 3px !important;
+    min-height: 3px !important;
+    border-radius: 1px !important;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .app.activePage-trade .floatingAiButton.aiPage-trade {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+    width: 20px !important;
+    min-width: 20px !important;
+  }
+}

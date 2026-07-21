@@ -6638,7 +6638,7 @@ function TradePage({
                       "mobileDigitCellFinalV130",
                       isHighest ? "mbDigitHighestV7" : "",
                       isLowest ? "mbDigitLowestMarkerV164" : "",
-                      isPicked ? "mbDigitPickedV7" : "",
+                      isPicked ? "mbDigitPickedV7 mbDigitSelectedV167" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningZone ? "mbDigitWinningZoneV31" : "",
                       isWaitingCover ? "mbDigitWaitingV155 mbDigitActiveWinningV165" : "",
@@ -6652,6 +6652,7 @@ function TradePage({
                       "--mb-v58-digit-top": digit < 5 ? "36%" : "64%",
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
+                    aria-pressed={isPicked}
                   >
                     <svg
                       className="mobileDigitRingSvgV139"
@@ -6702,6 +6703,9 @@ function TradePage({
                     <span className="mbDigitRingV7" aria-hidden="true" />
                     {isLowest && !isHighest && !isResultDigit && (
                       <span className="mbDigitLowestBarV164" aria-hidden="true" />
+                    )}
+                    {isPicked && !isResultDigit && (
+                      <span className="mbDigitSelectedMarkerV167" aria-hidden="true" />
                     )}
                     {isWaitingCover && <span className="mbDigitActiveWinMaskV165" aria-hidden="true" />}
                     <span className={`mbDigitCoreV7 ${isWaitingCover ? "mbDigitCoreActiveWinV164" : ""}`}>
