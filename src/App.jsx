@@ -8038,7 +8038,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   );
 }
 
+
 function DepositModal({ close, submit }) {
+  const [step, setStep] = useState("methods");
+  const [selectedMethod, setSelectedMethod] = useState("");
   const [amountUsd, setAmountUsd] = useState(10);
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -8052,6 +8055,33 @@ function DepositModal({ close, submit }) {
   const amountKes = Math.max(0, Math.round(safeAmount * usdRate));
   const phoneValid = /^[17]\d{8}$/.test(phone);
   const fullPhone = phoneValid ? `+254${phone}` : "";
+
+  const methodOptions = [
+    {
+      id: "mpesa",
+      title: "M-Pesa",
+      subtitle: "Instant mobile money",
+      iconClass: "mpesa",
+      icon: "📱",
+      active: true,
+    },
+    {
+      id: "card",
+      title: "Credit/Debit Card",
+      subtitle: "Visa, Mastercard",
+      iconClass: "card",
+      icon: "💳",
+      active: false,
+    },
+    {
+      id: "usdt",
+      title: "USDT (TRC20)",
+      subtitle: "Cryptocurrency",
+      iconClass: "usdt",
+      icon: "₮",
+      active: false,
+    },
+  ];
 
   useEffect(() => {
     const handleDepositStatus = (event) => {
@@ -8079,8 +8109,25 @@ function DepositModal({ close, submit }) {
     setPhone(digits.slice(0, 9));
   }
 
+  function resetToForm() {
+    setDepositId("");
+    setDepositStatus("");
+    setDepositMessage("");
+    setStep(selectedMethod === "mpesa" ? "details" : "methods");
+  }
+
+  function chooseMethod(methodId) {
+    setSelectedMethod(methodId);
+    setDepositMessage("");
+    if (methodId === "mpesa") {
+      setStep("details");
+      return;
+    }
+    setStep("comingSoon");
+  }
+
   async function handleSubmit() {
-    if (submitting || safeAmount < 1 || !phoneValid) return;
+    if (submitting || safeAmount < 1 || !phoneValid || selectedMethod !== "mpesa") return;
 
     setSubmitting(true);
     setDepositMessage("");
@@ -8139,15 +8186,7 @@ function DepositModal({ close, submit }) {
           <small>PAYMENT NOT COMPLETED</small>
           <h2>Try again</h2>
           <p>{depositMessage || "The M-PESA payment was not completed."}</p>
-          <button
-            type="button"
-            className="mpesaDepositConfirm"
-            onClick={() => {
-              setDepositId("");
-              setDepositStatus("");
-              setDepositMessage("");
-            }}
-          >
+          <button type="button" className="mpesaDepositConfirm" onClick={resetToForm}>
             Back to deposit
           </button>
         </div>
@@ -8155,10 +8194,12 @@ function DepositModal({ close, submit }) {
     );
   }
 
+  const activeMethod = methodOptions.find((item) => item.id === selectedMethod) || methodOptions[0];
+
   return (
     <div className="modalLayer mpesaDepositLayer">
       <div
-        className="depositModal mpesaDepositModal"
+        className={`depositModal mpesaDepositModal ${step === "methods" ? "mpesaDepositMethodModal" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Deposit funds"
@@ -8173,121 +8214,185 @@ function DepositModal({ close, submit }) {
           ×
         </button>
 
-        <div className="mpesaDepositHead">
-          <span className="mpesaDepositPlus">＋</span>
-          <div>
-            <small>REAL ACCOUNT</small>
-            <h2>Deposit Funds</h2>
-            <p>Enter details to deposit to your real account.</p>
-          </div>
-        </div>
-
-        <label className="mpesaSectionLabel" htmlFor="mpesaDepositAmount">
-          AMOUNT (USD $)
-        </label>
-
-        <div className="mpesaDepositAmountBox">
-          <span>$</span>
-          <input
-            id="mpesaDepositAmount"
-            type="number"
-            min="1"
-            step="0.01"
-            inputMode="decimal"
-            value={amountUsd}
-            onChange={(event) => setAmountUsd(event.target.value)}
-            disabled={submitting || depositStatus === "pending"}
-            autoFocus
-          />
-          <b>USD</b>
-        </div>
-
-        <div className="mpesaQuickAmounts" aria-label="Quick deposit amounts">
-          {quickAmounts.map((value) => (
-            <button
-              key={value}
-              type="button"
-              className={Number(amountUsd) === value ? "active" : ""}
-              onClick={() => setAmountUsd(value)}
-              disabled={submitting || depositStatus === "pending"}
-            >
-              ${value}
-            </button>
-          ))}
-        </div>
-
-        <label className="mpesaSectionLabel" htmlFor="mpesaDepositPhone">
-          PHONE NUMBER
-        </label>
-
-        <div className={`mpesaPhoneBox ${phone && !phoneValid ? "invalid" : ""}`}>
-          <span className="mpesaKenyaFlag" aria-hidden="true">🇰🇪</span>
-          <strong>+254</strong>
-          <i aria-hidden="true"></i>
-          <input
-            id="mpesaDepositPhone"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            placeholder="7XX XXX XXX"
-            value={phone}
-            onChange={handlePhoneChange}
-            disabled={submitting || depositStatus === "pending"}
-            aria-invalid={Boolean(phone && !phoneValid)}
-          />
-        </div>
-
-        <p className="mpesaPhoneSecurity">
-          <span>🔒</span> Your phone number is secure and encrypted
-        </p>
-
-        <label className="mpesaSectionLabel">PAYMENT METHOD</label>
-
-        <div className="mpesaMethodCard">
-          <div className="mpesaMethodLogo">M-PESA</div>
-          <div className="mpesaMethodCopy">
-            <strong>M-PESA (STK Push)</strong>
-            <span>Pay safely via M-PESA</span>
-          </div>
-          <span className="mpesaMethodSelected" aria-label="Selected payment method"></span>
-        </div>
-
-        <div className="mpesaDepositSummary">
-          <div><span>You Deposit</span><strong>${money(safeAmount)}</strong></div>
-          <div><span>You Get (USD)</span><strong className="green">${money(safeAmount)}</strong></div>
-          <div><span>Exchange Rate</span><strong>1 USD = KES {money(usdRate)}</strong></div>
-          <div className="mpesaKesPreview"><span>M-PESA Charge Amount</span><strong>KES {amountKes.toLocaleString()}</strong></div>
-        </div>
-
-        {depositStatus === "pending" && (
-          <div className="mpesaDepositPending" role="status">
-            <span className="mpesaPendingPulse"></span>
-            <div>
-              <strong>STK Push sent</strong>
-              <p>{depositMessage || "Check your phone and enter your M-PESA PIN."}</p>
+        {step === "methods" && (
+          <>
+            <div className="depositMethodIntro">
+              <h2>Deposit Funds</h2>
+              <p>Choose payment method</p>
             </div>
-          </div>
+
+            <div className="depositMethodList" aria-label="Deposit payment methods">
+              {methodOptions.map((method) => (
+                <button
+                  key={method.id}
+                  type="button"
+                  className="depositMethodOption"
+                  onClick={() => chooseMethod(method.id)}
+                >
+                  <span className={`depositMethodIcon ${method.iconClass}`} aria-hidden="true">
+                    {method.icon}
+                  </span>
+                  <span className="depositMethodText">
+                    <strong>{method.title}</strong>
+                    <small>{method.subtitle}</small>
+                  </span>
+                  <span className="depositMethodArrow" aria-hidden="true">›</span>
+                </button>
+              ))}
+            </div>
+          </>
         )}
 
-        <button
-          type="button"
-          className="mpesaDepositConfirm"
-          onClick={handleSubmit}
-          disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}
-        >
-          <span>🔒</span>
-          {submitting
-            ? "Sending STK Push…"
-            : depositStatus === "pending"
-              ? "Waiting for M-PESA confirmation…"
-              : `Confirm $${money(safeAmount)} Deposit`}
-        </button>
+        {step === "comingSoon" && (
+          <>
+            <div className="mpesaDepositHead compactDepositHead">
+              <span className={`mpesaDepositPlus methodIconChip ${activeMethod.iconClass}`}>{activeMethod.icon}</span>
+              <div>
+                <small>DEPOSIT METHOD</small>
+                <h2>{activeMethod.title}</h2>
+                <p>{activeMethod.subtitle}</p>
+              </div>
+            </div>
 
-        {phone && !phoneValid && (
-          <p className="mpesaPhoneError">Enter a valid Kenyan mobile number, for example 712345678.</p>
+            <div className="depositComingSoonCard">
+              <strong>{activeMethod.title} is coming soon</strong>
+              <p>For now, use M-PESA to continue with instant deposits on MetaBinary.</p>
+            </div>
+
+            <div className="depositMethodActions">
+              <button type="button" className="depositBackButton" onClick={() => setStep("methods")}>
+                Back
+              </button>
+              <button type="button" className="mpesaDepositConfirm" onClick={() => chooseMethod("mpesa")}>
+                Continue with M-Pesa
+              </button>
+            </div>
+          </>
         )}
 
-        <p className="mpesaDepositSecurity">🔒 Secure payment powered by M-PESA</p>
+        {step === "details" && (
+          <>
+            <div className="mpesaDepositHead">
+              <span className="mpesaDepositPlus">＋</span>
+              <div>
+                <small>REAL ACCOUNT</small>
+                <h2>Deposit Funds</h2>
+                <p>Enter details to deposit to your real account.</p>
+              </div>
+            </div>
+
+            <button type="button" className="depositBackInline" onClick={() => setStep("methods")}>
+              ← Change payment method
+            </button>
+
+            <label className="mpesaSectionLabel" htmlFor="mpesaDepositAmount">
+              AMOUNT (USD $)
+            </label>
+
+            <div className="mpesaDepositAmountBox">
+              <span>$</span>
+              <input
+                id="mpesaDepositAmount"
+                type="number"
+                min="1"
+                step="0.01"
+                inputMode="decimal"
+                value={amountUsd}
+                onChange={(event) => setAmountUsd(event.target.value)}
+                disabled={submitting || depositStatus === "pending"}
+                autoFocus
+              />
+              <b>USD</b>
+            </div>
+
+            <div className="mpesaQuickAmounts" aria-label="Quick deposit amounts">
+              {quickAmounts.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={Number(amountUsd) === value ? "active" : ""}
+                  onClick={() => setAmountUsd(value)}
+                  disabled={submitting || depositStatus === "pending"}
+                >
+                  ${value}
+                </button>
+              ))}
+            </div>
+
+            <label className="mpesaSectionLabel" htmlFor="mpesaDepositPhone">
+              PHONE NUMBER
+            </label>
+
+            <div className={`mpesaPhoneBox ${phone && !phoneValid ? "invalid" : ""}`}>
+              <span className="mpesaKenyaFlag" aria-hidden="true">🇰🇪</span>
+              <strong>+254</strong>
+              <i aria-hidden="true"></i>
+              <input
+                id="mpesaDepositPhone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                placeholder="7XX XXX XXX"
+                value={phone}
+                onChange={handlePhoneChange}
+                disabled={submitting || depositStatus === "pending"}
+                aria-invalid={Boolean(phone && !phoneValid)}
+              />
+            </div>
+
+            <p className="mpesaPhoneSecurity">
+              <span>🔒</span> Your phone number is secure and encrypted
+            </p>
+
+            <label className="mpesaSectionLabel">PAYMENT METHOD</label>
+
+            <button type="button" className="mpesaMethodCard selectable" onClick={() => setStep("methods")}>
+              <div className="mpesaMethodLogo">M-PESA</div>
+              <div className="mpesaMethodCopy">
+                <strong>M-PESA (STK Push)</strong>
+                <span>Pay safely via M-PESA</span>
+              </div>
+              <span className="mpesaMethodSelected" aria-label="Selected payment method"></span>
+            </button>
+
+            <div className="mpesaDepositSummary">
+              <div><span>You Deposit</span><strong>${money(safeAmount)}</strong></div>
+              <div><span>You Get (USD)</span><strong className="green">${money(safeAmount)}</strong></div>
+              <div><span>Exchange Rate</span><strong>1 USD = KES {money(usdRate)}</strong></div>
+              <div className="mpesaKesPreview"><span>M-PESA Charge Amount</span><strong>KES {amountKes.toLocaleString()}</strong></div>
+            </div>
+
+            {depositStatus === "pending" && (
+              <div className="mpesaDepositPending" role="status">
+                <span className="mpesaPendingPulse"></span>
+                <div>
+                  <strong>STK Push sent</strong>
+                  <p>{depositMessage || "Check your phone and enter your M-PESA PIN."}</p>
+                </div>
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="mpesaDepositConfirm"
+              onClick={handleSubmit}
+              disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}
+            >
+              <span>🔒</span>
+              {submitting
+                ? "Sending STK Push…"
+                : depositStatus === "pending"
+                  ? "Waiting for M-PESA confirmation…"
+                  : `Confirm $${money(safeAmount)} Deposit`}
+            </button>
+
+            {phone && !phoneValid && (
+              <p className="mpesaPhoneError">Enter a valid Kenyan mobile number, for example 712345678.</p>
+            )}
+
+            <p className="mpesaDepositSecurity">🔒 Secure payment powered by M-PESA</p>
+          </>
+        )}
       </div>
     </div>
   );

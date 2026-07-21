@@ -44575,6 +44575,197 @@ body,
   text-align: left !important;
 }
 
+
+.mpesaDepositMethodModal {
+  width: min(660px, calc(100vw - 36px)) !important;
+  max-width: 660px !important;
+  padding: 30px 26px 26px !important;
+}
+
+.depositMethodIntro {
+  padding: 2px 52px 18px 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 16px;
+}
+
+.depositMethodIntro h2 {
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: 32px !important;
+  line-height: 1.08 !important;
+}
+
+.depositMethodIntro p {
+  margin: 8px 0 0 !important;
+  color: #95a2b7 !important;
+  font-size: 15px !important;
+  text-align: left !important;
+}
+
+.depositMethodList {
+  display: grid;
+  gap: 18px;
+}
+
+.depositMethodOption {
+  width: 100%;
+  min-height: 120px;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(83, 112, 163, 0.35);
+  background: rgba(18, 29, 48, 0.88);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.01);
+  transition: 0.18s ease;
+}
+
+.depositMethodOption:hover {
+  border-color: rgba(64, 148, 255, 0.65);
+  background: rgba(18, 31, 54, 0.96);
+  transform: translateY(-1px);
+}
+
+.depositMethodIcon {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.03);
+}
+
+.depositMethodIcon.mpesa {
+  background: linear-gradient(135deg, rgba(40, 154, 169, 0.36), rgba(29, 87, 102, 0.46));
+  color: #52d8df;
+}
+
+.depositMethodIcon.card {
+  background: linear-gradient(135deg, rgba(121, 85, 255, 0.34), rgba(66, 43, 133, 0.5));
+  color: #a46fff;
+}
+
+.depositMethodIcon.usdt {
+  background: linear-gradient(135deg, rgba(169, 124, 33, 0.36), rgba(106, 74, 24, 0.56));
+  color: #f4ab1a;
+}
+
+.depositMethodText {
+  min-width: 0;
+  display: block;
+  text-align: left;
+}
+
+.depositMethodText strong,
+.depositMethodText small {
+  display: block;
+}
+
+.depositMethodText strong {
+  color: #fff;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.depositMethodText small {
+  margin-top: 7px;
+  color: #95a2b7;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.depositMethodArrow {
+  color: #7d8da6;
+  font-size: 52px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.compactDepositHead {
+  margin-bottom: 20px;
+}
+
+.methodIconChip {
+  font-size: 28px;
+}
+
+.methodIconChip.mpesa {
+  background: linear-gradient(135deg, rgba(40, 154, 169, 0.32), rgba(29, 87, 102, 0.4));
+  color: #52d8df;
+}
+
+.methodIconChip.card {
+  background: linear-gradient(135deg, rgba(121, 85, 255, 0.3), rgba(66, 43, 133, 0.46));
+  color: #a46fff;
+}
+
+.methodIconChip.usdt {
+  background: linear-gradient(135deg, rgba(169, 124, 33, 0.34), rgba(106, 74, 24, 0.54));
+  color: #f4ab1a;
+}
+
+.depositComingSoonCard {
+  padding: 18px 18px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(82, 112, 162, 0.32);
+  background: rgba(17, 28, 46, 0.72);
+}
+
+.depositComingSoonCard strong {
+  display: block;
+  color: #fff;
+  font-size: 18px;
+}
+
+.depositComingSoonCard p {
+  margin: 7px 0 0 !important;
+  color: #92a1b7 !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  text-align: left !important;
+}
+
+.depositMethodActions {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.depositBackButton,
+.depositBackInline {
+  border: 1px solid rgba(82, 116, 171, 0.4);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d2dced;
+  font-weight: 800;
+}
+
+.depositBackButton {
+  min-height: 58px;
+  border-radius: 15px;
+}
+
+.depositBackInline {
+  width: 100%;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -6px 0 16px !important;
+  border-radius: 12px;
+}
+
+.mpesaMethodCard.selectable {
+  width: 100%;
+  text-align: left;
+}
+
 .mpesaSectionLabel {
   display: block;
   margin: 0 0 9px !important;
@@ -45005,6 +45196,90 @@ body,
     font-size: 12px !important;
   }
 
+
+  .mpesaDepositMethodModal {
+    width: min(100%, 560px) !important;
+    padding: 20px 14px 16px !important;
+  }
+
+  .depositMethodIntro {
+    padding: 0 34px 14px 0;
+    margin-bottom: 14px;
+  }
+
+  .depositMethodIntro h2 {
+    font-size: 24px !important;
+  }
+
+  .depositMethodIntro p {
+    margin-top: 6px !important;
+    font-size: 12px !important;
+  }
+
+  .depositMethodList {
+    gap: 12px;
+  }
+
+  .depositMethodOption {
+    min-height: 94px;
+    grid-template-columns: 56px minmax(0, 1fr) 20px;
+    gap: 12px;
+    padding: 14px 14px;
+    border-radius: 16px;
+  }
+
+  .depositMethodIcon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 27px;
+  }
+
+  .depositMethodText strong {
+    font-size: 16px;
+  }
+
+  .depositMethodText small {
+    margin-top: 4px;
+    font-size: 11px;
+  }
+
+  .depositMethodArrow {
+    font-size: 40px;
+  }
+
+  .depositComingSoonCard {
+    padding: 14px 14px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+  }
+
+  .depositComingSoonCard strong {
+    font-size: 15px;
+  }
+
+  .depositComingSoonCard p {
+    font-size: 12px !important;
+  }
+
+  .depositMethodActions {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .depositBackButton {
+    min-height: 54px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .depositBackInline {
+    min-height: 40px;
+    margin: -4px 0 12px !important;
+    border-radius: 11px;
+    font-size: 12px;
+  }
+
   .mpesaSectionLabel {
     font-size: 11px;
   }
@@ -45146,6 +45421,37 @@ body,
 
   .mpesaDepositHead p {
     font-size: 11px !important;
+  }
+
+
+  .depositMethodIntro h2 {
+    font-size: 22px !important;
+  }
+
+  .depositMethodOption {
+    min-height: 88px;
+    grid-template-columns: 48px minmax(0, 1fr) 18px;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .depositMethodIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 23px;
+  }
+
+  .depositMethodText strong {
+    font-size: 15px;
+  }
+
+  .depositMethodText small {
+    font-size: 10.5px;
+  }
+
+  .depositMethodActions {
+    grid-template-columns: 98px minmax(0, 1fr);
   }
 
   .mpesaQuickAmounts {
