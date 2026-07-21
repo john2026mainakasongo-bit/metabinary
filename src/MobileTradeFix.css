@@ -980,3 +980,446 @@
     margin-bottom: max(4px, env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* ==========================================================================\n   METABINARY V158 — OUTER WAITING RING + TRUE COMPACT TRADE FLOW\n\n   Visual separation:\n   - Highest statistic: green TOP-HALF arc inside the normal ring.\n   - Lowest statistic: red short BOTTOM arc inside the normal ring.\n   - Selected/waiting-to-win digits: a separate thin MINT OUTER ring.\n     The inner statistic ring stays unchanged, so selected and highest can\n     never look like the same state.\n\n   Layout:\n   - Removes inherited min-height/flex growth that leaves blank vertical space.\n   - Bottom navigation follows immediately after the trade buttons.\n   - Mobile/tablet only; desktop/laptop remains untouched.\n   ========================================================================== */
+
+@keyframes mbOuterWaitingPulseV158 {
+  0%, 100% {
+    opacity: .68;
+    box-shadow: 0 0 0 1px rgba(173, 255, 222, .08), 0 0 5px rgba(124, 255, 199, .20);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 0 1px rgba(173, 255, 222, .14), 0 0 9px rgba(124, 255, 199, .34);
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  /* ------------------------------------------------------------
+     SELECTED / WAITING: OUTER RING ONLY
+     ------------------------------------------------------------ */
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: -4px !important;
+    border: 2px solid #9fffd7 !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    z-index: 12 !important;
+    animation: mbOuterWaitingPulseV158 1.1s ease-in-out infinite !important;
+  }
+
+  /* Undo older waiting rules that recolored the actual statistic ring. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    > .mobileDigitRingSvgV139 {
+    filter: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingBaseV139 {
+    stroke: #566270 !important;
+    stroke-width: 6.5 !important;
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Restore each rank arc while a digit is also selected/waiting. */
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155.mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingArcV139 {
+    stroke: #20d692 !important;
+    stroke-width: 6.5 !important;
+    filter: none !important;
+  }
+
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155.mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingArcV139 {
+    stroke: #ff4058 !important;
+    stroke-width: 6.5 !important;
+    filter: none !important;
+  }
+
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitHighestV7):not(.mbDigitLowestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingArcV139 {
+    stroke: #f6f8fa !important;
+    stroke-width: 6.5 !important;
+    filter: none !important;
+  }
+
+  /* Waiting state never fills the centre. */
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingCenterV144 {
+    fill: #02070d !important;
+  }
+
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitNumberV144 {
+    fill: #ffffff !important;
+  }
+
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitPercentTextV144 {
+    fill: #aebbd0 !important;
+  }
+
+  /* Highest stays a calm top-half rank indicator with no selected-style glow. */
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    > .mobileDigitRingSvgV139 {
+    filter: none !important;
+  }
+
+  /* Result states win the cascade and hide the waiting outer ring while flashing. */
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7::before,
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* ------------------------------------------------------------
+     TRUE COMPACT MOBILE TRADE FLOW — remove remaining empty gap.
+     ------------------------------------------------------------ */
+
+  html,
+  body,
+  #root {
+    min-height: 0 !important;
+  }
+
+  body .app.activePage-trade {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    padding: 0 !important;
+  }
+
+  body .app.activePage-trade > .cleanBrokerHeader,
+  body .app.activePage-trade > .topHeader,
+  body .app.activePage-trade > .brokerTopHeader {
+    flex: 0 0 auto !important;
+  }
+
+  body .app.activePage-trade > .mainScreen {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 6px 8px 0 !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade > .mainScreen > .page.finalBinaryTradePage,
+  body .app.activePage-trade .finalBinaryTradePage.digitContractPage {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryChartCard.digitOnlyCard {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    gap: 6px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryOrderCard,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proBinaryOrderCard.finalBinaryOrderCard {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 6px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalTradeButtons,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body .app.activePage-trade > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 72px !important;
+    width: calc(100% - 16px) !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    margin: 4px 8px max(4px, env(safe-area-inset-bottom)) !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade > .mainScreen {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  body .app.activePage-trade
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)::before {
+    inset: -3px !important;
+    border-width: 1.7px !important;
+  }
+}
+
+
+/* ==========================================================================
+   METABINARY V159 — RISE/FALL SECONDS + MINUTES
+
+   Keeps the approved Rise/Fall page layout and buttons unchanged while adding:
+   - Seconds / Minutes duration selector
+   - 1–60 seconds or 1–5 minutes
+   - Swipe-accessible contract tabs on mobile
+   - Compact duration controls that fit the existing order panel
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .finalContractTabs {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    overscroll-behavior-inline: contain !important;
+    scroll-padding-inline: 10px !important;
+    touch-action: pan-x !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .finalContractTabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationControlV159 {
+    grid-template-rows: 20px minmax(0, 1fr) 28px !important;
+    gap: 4px !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationLabelRowV159 {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 20px !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 5px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationLabelRowV159 > span {
+    min-width: 0 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    color: #aebbd0 !important;
+    white-space: nowrap !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationUnitToggleV159 {
+    height: 20px !important;
+    min-height: 20px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2px !important;
+    padding: 2px !important;
+    border: 1px solid rgba(91, 129, 173, .24) !important;
+    border-radius: 7px !important;
+    background: rgba(4, 13, 24, .72) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationUnitToggleV159 > button {
+    min-width: 0 !important;
+    height: 16px !important;
+    min-height: 16px !important;
+    padding: 0 6px !important;
+    border-radius: 5px !important;
+    background: transparent !important;
+    color: #8f9caf !important;
+    font-size: 8px !important;
+    font-weight: 900 !important;
+    line-height: 16px !important;
+    white-space: nowrap !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationUnitToggleV159 > button.active {
+    color: #ffffff !important;
+    background: rgba(24, 111, 255, .42) !important;
+    box-shadow: inset 0 0 0 1px rgba(87, 158, 255, .62) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationBoxV159 {
+    grid-template-columns: 56px minmax(0, 1fr) 56px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationInputWrapV159 {
+    min-width: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 0 4px !important;
+    background: rgba(6, 15, 27, .58) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationInputWrapV159 input {
+    width: 54px !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    -moz-appearance: textfield !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationInputWrapV159 input::-webkit-outer-spin-button,
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationInputWrapV159 input::-webkit-inner-spin-button {
+    margin: 0 !important;
+    -webkit-appearance: none !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationInputWrapV159 small {
+    color: #aebbd0 !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationQuickRowV159 {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationQuickRowV159[data-unit="minutes"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationQuickRowV159 > button small {
+    margin-left: 1px !important;
+    font-size: .72em !important;
+    opacity: .74 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationQuickRowV159 > button:only-child,
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationQuickRowV159 > button:nth-last-child(4):first-child,
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationQuickRowV159 > button:nth-last-child(4):first-child ~ button {
+    min-width: 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationUnitToggleV159 > button {
+    padding-inline: 4px !important;
+    font-size: 7.5px !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.priceContractPage
+    .riseDurationBoxV159 {
+    grid-template-columns: 52px minmax(0, 1fr) 52px !important;
+  }
+}

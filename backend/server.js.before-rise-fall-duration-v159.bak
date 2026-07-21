@@ -3019,8 +3019,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const type = normalizeTradeType(req.body?.type);
     const action = cleanText(req.body?.action, 30);
     const prediction = Math.max(0, Math.min(9, Number(req.body?.prediction ?? 0)));
-    const requestedTicks = Math.max(1, Math.floor(Number(req.body?.ticks || 5)));
-    const ticks = Math.min(type === "Rise/Fall" ? 300 : 10, requestedTicks);
+    const ticks = Math.min(10, Math.max(1, Math.floor(Number(req.body?.ticks || 5))));
     const stake = roundMoney(req.body?.stake);
     const entryPrice = Number(req.body?.entryPrice || 0);
     const currentPrice = Number(req.body?.currentPrice || entryPrice || 0);
@@ -3158,7 +3157,7 @@ async function handleTradeTick(req, res, next) {
       return res.json({ ok: true, settled: true, digit: final.resultDigit, resultDigit: final.resultDigit, won: final.won, remainingTicks: 0, currentPrice: Number(final.trade.currentPrice || final.trade.entryPrice), touched: Boolean(final.trade.touched), trade: publicTrade(final.trade), user: publicUser(final.user), balance: final.balance, message: final.won ? "Trade won." : "Trade lost." });
     }
 
-    const totalTicks = Math.min(trade.type === "Rise/Fall" ? 300 : 10, Math.max(1, Number(trade.ticks || 1)));
+    const totalTicks = Math.min(10, Math.max(1, Number(trade.ticks || 1)));
 
     if (requestId && trade.lastTickRequestId === requestId) {
       const consumed = Math.max(0, Number(trade.ticksConsumed || 0));

@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v157-distinct-selected-ring-compact-gap-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v158-outer-waiting-ring-no-empty-gap-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -580,6 +580,41 @@ function centeredRingArcPath(centerAngle, sweepAngle, radius = 42) {
   return ringArcPath(Number(centerAngle) - halfSweep, Number(centerAngle) + halfSweep, radius);
 }
 
+const RISE_FALL_MAX_SECONDS = 300;
+
+function normalizeRiseFallDuration(value, unit = "seconds") {
+  const safeUnit = unit === "minutes" ? "minutes" : "seconds";
+  const maxAmount = safeUnit === "minutes" ? 5 : 60;
+  const amount = Math.max(1, Math.min(maxAmount, Math.floor(Number(value) || 1)));
+  const ticks = Math.min(
+    RISE_FALL_MAX_SECONDS,
+    safeUnit === "minutes" ? amount * 60 : amount
+  );
+
+  return { unit: safeUnit, amount, ticks };
+}
+
+function formatRiseFallTime(totalSeconds = 0) {
+  const seconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+
+  if (minutes > 0 && remainder > 0) return `${minutes}m ${remainder}s`;
+  if (minutes > 0) return `${minutes}m`;
+  return `${seconds}s`;
+}
+
+function formatTradeRemaining(trade) {
+  const remaining = Math.max(0, Number(trade?.remainingTicks || 0));
+  if (trade?.type === "Rise/Fall") return `${formatRiseFallTime(remaining)} remaining`;
+  return `${remaining} tick${remaining === 1 ? "" : "s"} remaining`;
+}
+
+function formatTradeDuration(type, ticks) {
+  const safeTicks = Math.max(1, Number(ticks || 1));
+  if (type === "Rise/Fall") return formatRiseFallTime(safeTicks);
+  return `${safeTicks} tick${safeTicks === 1 ? "" : "s"}`;
+}
 
 function isDigitContract(type) {
   return ["Even/Odd", "Matches/Differs", "Over/Under"].includes(type);
@@ -2886,7 +2921,28 @@ function TradingApp() {
 
   async function runBinaryTrade(type, action, options = {}) {
     const usedStake = Number(stake);
-    const usedTicks = Math.min(10, Math.max(1, Number(duration || 5)));
+    const isRiseFallTrade = type === "Rise/Fall";
+    const requestedTicks = Number(options.durationTicks ?? duration ?? 5);
+    const usedTicks = Math.min(
+      isRiseFallTrade ? RISE_FALL_MAX_SECONDS : 10,
+      Math.max(1, Math.floor(requestedTicks || 1))
+    );
+    const selectedDurationUnit = isRiseFallTrade && options.durationUnit === "minutes"
+      ? "minutes"
+      : isRiseFallTrade
+        ? "seconds"
+        : "ticks";
+    const selectedDurationValue = isRiseFallTrade
+      ? Math.max(
+          1,
+          Math.floor(
+            Number(
+              options.durationValue ??
+                (selectedDurationUnit === "minutes" ? Math.ceil(usedTicks / 60) : usedTicks)
+            ) || 1
+          )
+        )
+      : usedTicks;
     const multiplier = payoutRate(type, action, prediction, {
       ticks: usedTicks,
       barrierDistance: Number(options.barrierDistance || 2),
@@ -2896,7 +2952,7 @@ function TradingApp() {
       notify(
         "open",
         "Trade already open",
-        `${activeBinaryTrade.type} · ${activeBinaryTrade.action} · ${activeBinaryTrade.remainingTicks} ticks remaining`
+        `${activeBinaryTrade.type} · ${activeBinaryTrade.action} · ${formatTradeRemaining(activeBinaryTrade)}`
       );
       return;
     }
@@ -2937,6 +2993,8 @@ function TradingApp() {
             stake: usedStake,
             prediction,
             ticks: usedTicks,
+            durationUnit: selectedDurationUnit,
+            durationValue: selectedDurationValue,
             entryPrice: livePrice,
             currentPrice: livePrice,
             barrier: Number(options.barrier || 0),
@@ -2970,6 +3028,8 @@ function TradingApp() {
         marketId: binaryMarketId,
         totalTicks: Number(opened.ticks ?? usedTicks),
         remainingTicks: Number(opened.ticks ?? usedTicks),
+        durationUnit: isRiseFallTrade ? selectedDurationUnit : "ticks",
+        durationValue: isRiseFallTrade ? selectedDurationValue : usedTicks,
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
         status: "RUNNING",
       };
@@ -2990,7 +3050,7 @@ function TradingApp() {
       notify(
         "open",
         "Open trade",
-        `${activeBinaryMarket.label} · ${type} · ${action} · ${usedTicks} ticks`,
+        `${activeBinaryMarket.label} · ${type} · ${action} · ${formatTradeDuration(type, usedTicks)}`,
         1700
       );
     } catch (error) {
@@ -6055,6 +6115,8 @@ function TradePage({
   const [desktopTradeMode, setDesktopTradeMode] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 1024 : false
   );
+  const [riseDurationUnit, setRiseDurationUnit] = useState("seconds");
+  const [riseDurationValue, setRiseDurationValue] = useState(5);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -6111,7 +6173,9 @@ function TradePage({
     return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
   });
   const safeStake = Math.max(0, Number(stake) || 0);
-  const payoutOptions = { ticks: duration };
+  const riseDuration = normalizeRiseFallDuration(riseDurationValue, riseDurationUnit);
+  const effectiveDurationTicks = riseMode ? riseDuration.ticks : duration;
+  const payoutOptions = { ticks: effectiveDurationTicks };
   const rateOne = payoutRate(tradeType, actions[0], prediction, payoutOptions);
   const rateTwo = payoutRate(tradeType, actions[1], prediction, payoutOptions);
   const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
@@ -6134,6 +6198,11 @@ function TradePage({
   const lowestDigit = digitStats.indexOf(lowestPercent);
   const tickOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const quickTickValues = [1, 2, 3, 5, 10];
+  const quickRiseDurationValues = riseDurationUnit === "minutes"
+    ? [1, 2, 3, 5]
+    : [5, 10, 15, 30, 60];
+  const riseDurationMax = riseDurationUnit === "minutes" ? 5 : 60;
+  const riseDurationUnitLabel = riseDurationUnit === "minutes" ? "min" : "sec";
   const quickStakeValues = [10, 25, 50, 100, 250];
 
   const actionMeta = Object.fromEntries(
@@ -6170,7 +6239,18 @@ function TradePage({
     setStake((current) => Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2)));
   };
 
-  const placeContract = (action) => runBinaryTrade(tradeType, action);
+  const placeContract = (action) =>
+    runBinaryTrade(
+      tradeType,
+      action,
+      riseMode
+        ? {
+            durationTicks: riseDuration.ticks,
+            durationUnit: riseDuration.unit,
+            durationValue: riseDuration.amount,
+          }
+        : {}
+    );
 
   if (desktopTradeMode) {
     return (
@@ -6262,7 +6342,9 @@ function TradePage({
         <div className="proChartTitle finalBinaryChartTitle">
           <div className="binarySelectedMarketMini"><span>{binaryMarket?.short || "V100 1s"}</span><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></div>
           <strong className="binaryLivePrice">{indexValue.toFixed(2)} · LIVE</strong>
-          <button className="binaryDurationButton" type="button">{duration} ticks⌄</button>
+          <button className="binaryDurationButton" type="button" aria-label="Selected trade duration">
+            {riseMode ? formatRiseFallTime(riseDuration.ticks) : `${duration} ticks`}⌄
+          </button>
           <button className="binaryFullscreenButton" type="button">⛶</button>
         </div>
 
@@ -6280,7 +6362,7 @@ function TradePage({
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
             {riseMode && activeBinaryTrade && <div className="entryPriceLine"><span>Entry {(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
-            {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{activeBinaryTrade.remainingTicks} of {activeBinaryTrade.totalTicks} ticks remaining</small></div>}
+            {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{formatTradeRemaining(activeBinaryTrade)}</small></div>}
           </div>
         </div>
 
@@ -6294,7 +6376,7 @@ function TradePage({
             <span><small>Entry</small><b>{(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Current</small><b>{(activeTradeCurrent * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Live position</small><b>{activePriceWinning ? "Winning" : "Losing"} {activePreviewNet >= 0 ? "+" : ""}{money(activePreviewNet)} USD</b></span>
-            <span><small>Time</small><b>{activeBinaryTrade.remainingTicks} tick{activeBinaryTrade.remainingTicks === 1 ? "" : "s"}</b></span>
+            <span><small>Time</small><b>{activeBinaryTrade.type === "Rise/Fall" ? formatRiseFallTime(activeBinaryTrade.remainingTicks) : `${activeBinaryTrade.remainingTicks} tick${activeBinaryTrade.remainingTicks === 1 ? "" : "s"}`}</b></span>
           </div>
         )}
 
@@ -6528,29 +6610,117 @@ function TradePage({
 
       <section className="proBinaryOrderCard finalBinaryOrderCard">
         <div className="orderInputsTop finalOrderInputs">
-          <label className="finalTicksControl">
-            <span>Ticks</span>
-            <div className="finalTicksBox">
-              <button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button>
-              <select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>
-                {tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}
-              </select>
-              <button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button>
-            </div>
-            <div className="quickTickRow" aria-label="Quick tick choices">
-              {quickTickValues.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={Number(duration) === value ? "active" : ""}
-                  aria-pressed={Number(duration) === value}
-                  onClick={() => setDuration(value)}
-                  disabled={Boolean(activeBinaryTrade)}
+          <label className={`finalTicksControl ${riseMode ? "riseDurationControlV159" : ""}`}>
+            {riseMode ? (
+              <>
+                <div className="riseDurationLabelRowV159">
+                  <span>Duration</span>
+                  <div className="riseDurationUnitToggleV159" role="group" aria-label="Choose duration unit">
+                    <button
+                      type="button"
+                      className={riseDurationUnit === "seconds" ? "active" : ""}
+                      aria-pressed={riseDurationUnit === "seconds"}
+                      onClick={() => {
+                        setRiseDurationUnit("seconds");
+                        setRiseDurationValue(5);
+                      }}
+                      disabled={Boolean(activeBinaryTrade)}
+                    >
+                      Seconds
+                    </button>
+                    <button
+                      type="button"
+                      className={riseDurationUnit === "minutes" ? "active" : ""}
+                      aria-pressed={riseDurationUnit === "minutes"}
+                      onClick={() => {
+                        setRiseDurationUnit("minutes");
+                        setRiseDurationValue(1);
+                      }}
+                      disabled={Boolean(activeBinaryTrade)}
+                    >
+                      Minutes
+                    </button>
+                  </div>
+                </div>
+                <div className="finalTicksBox riseDurationBoxV159">
+                  <button
+                    type="button"
+                    onClick={() => setRiseDurationValue((current) => Math.max(1, Number(current || 1) - 1))}
+                    disabled={Boolean(activeBinaryTrade) || riseDuration.amount <= 1}
+                  >
+                    −
+                  </button>
+                  <div className="riseDurationInputWrapV159">
+                    <input
+                      type="number"
+                      min="1"
+                      max={riseDurationMax}
+                      step="1"
+                      inputMode="numeric"
+                      value={riseDurationValue}
+                      onChange={(event) => {
+                        const raw = event.target.value;
+                        setRiseDurationValue(raw === "" ? "" : Math.max(1, Math.min(riseDurationMax, Number(raw) || 1)));
+                      }}
+                      onBlur={() => setRiseDurationValue(riseDuration.amount)}
+                      disabled={Boolean(activeBinaryTrade)}
+                      aria-label={`Rise or Fall duration in ${riseDurationUnit}`}
+                    />
+                    <small>{riseDurationUnitLabel}</small>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRiseDurationValue((current) => Math.min(riseDurationMax, Number(current || 1) + 1))}
+                    disabled={Boolean(activeBinaryTrade) || riseDuration.amount >= riseDurationMax}
+                  >
+                    +
+                  </button>
+                </div>
+                <div
+                  className="quickTickRow riseDurationQuickRowV159"
+                  data-unit={riseDurationUnit}
+                  aria-label={`Quick ${riseDurationUnit} choices`}
                 >
-                  {value}<small>t</small>
-                </button>
-              ))}
-            </div>
+                  {quickRiseDurationValues.map((value) => (
+                    <button
+                      key={`${riseDurationUnit}-${value}`}
+                      type="button"
+                      className={riseDuration.amount === value ? "active" : ""}
+                      aria-pressed={riseDuration.amount === value}
+                      onClick={() => setRiseDurationValue(value)}
+                      disabled={Boolean(activeBinaryTrade)}
+                    >
+                      {value}<small>{riseDurationUnit === "minutes" ? "m" : "s"}</small>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <span>Ticks</span>
+                <div className="finalTicksBox">
+                  <button type="button" onClick={() => setDuration((current) => Math.max(1, Number(current || 1) - 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) <= 1}>−</button>
+                  <select value={duration} onChange={(event) => setDuration(Number(event.target.value))} disabled={Boolean(activeBinaryTrade)}>
+                    {tickOptions.map((tick) => <option key={tick} value={tick}>{tick} tick{tick === 1 ? "" : "s"}</option>)}
+                  </select>
+                  <button type="button" onClick={() => setDuration((current) => Math.min(10, Number(current || 1) + 1))} disabled={Boolean(activeBinaryTrade) || Number(duration) >= 10}>+</button>
+                </div>
+                <div className="quickTickRow" aria-label="Quick tick choices">
+                  {quickTickValues.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={Number(duration) === value ? "active" : ""}
+                      aria-pressed={Number(duration) === value}
+                      onClick={() => setDuration(value)}
+                      disabled={Boolean(activeBinaryTrade)}
+                    >
+                      {value}<small>t</small>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </label>
           <label className="finalStakeControl">
             <span>Amount to trade</span>
@@ -6582,7 +6752,7 @@ function TradePage({
               <strong>{leftLabel}</strong>
               <small className="tradePayoutText">
                 {activeBinaryTrade ? (
-                  <span>{activeBinaryTrade.remainingTicks} ticks remaining</span>
+                  <span>{formatTradeRemaining(activeBinaryTrade)}</span>
                 ) : leftRate > 0 ? (
                   <>
                     <span>Estimated payout {leftPayout} USD</span>
@@ -6605,7 +6775,7 @@ function TradePage({
               <strong>{rightLabel}</strong>
               <small className="tradePayoutText">
                 {activeBinaryTrade ? (
-                  <span>{activeBinaryTrade.remainingTicks} ticks remaining</span>
+                  <span>{formatTradeRemaining(activeBinaryTrade)}</span>
                 ) : rightRate > 0 ? (
                   <>
                     <span>Estimated payout {rightPayout} USD</span>
