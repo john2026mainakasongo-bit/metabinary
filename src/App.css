@@ -45386,3 +45386,98 @@ body,
     max-height: 86px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V174 — BOTTOM NAV TO THE TRUE SCREEN END
+   Overrides V173's visualViewport-height lock. Chrome/Android can report a
+   shorter visualViewport and leave a dark strip under the app. This version
+   uses the dynamic viewport and pins the mobile nav to viewport bottom: 0.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  html,
+  body,
+  #root {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
+  .app.activePage-trade {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    grid-template-rows: 50px minmax(0, 1fr) 68px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade > .bottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+
+    width: 100vw !important;
+    max-width: 100vw !important;
+
+    height: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+
+    margin: 0 !important;
+    padding:
+      0
+      8px
+      env(safe-area-inset-bottom, 0px)
+      8px !important;
+
+    border-radius: 18px 18px 0 0 !important;
+    background: #061321 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    z-index: 50000 !important;
+  }
+
+  .app.activePage-trade > .bottomNav button,
+  .app.activePage-trade > .bottomNav button:nth-child(3) {
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
+    align-self: start !important;
+  }
+}
+
+@media screen and (max-width: 760px) and (max-height: 760px) {
+  .app.activePage-trade {
+    grid-template-rows: 48px minmax(0, 1fr) 62px !important;
+  }
+
+  .app.activePage-trade > .bottomNav {
+    height: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .app.activePage-trade > .bottomNav button,
+  .app.activePage-trade > .bottomNav button:nth-child(3) {
+    height: 62px !important;
+    min-height: 62px !important;
+    max-height: 62px !important;
+  }
+}
