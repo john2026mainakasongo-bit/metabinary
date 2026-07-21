@@ -45918,3 +45918,68 @@ body,
     flex-basis: 232px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V171 — REMOVE MOBILE BOTTOM DEAD SPACE
+   Keeps the trade navigation locked to the true bottom edge of the viewport.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  html,
+  body,
+  #root {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100% !important;
+  }
+
+  .app.activePage-trade {
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    grid-template-rows: 50px minmax(0, 1fr) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    grid-row: 2 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    padding-bottom: 78px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-trade > .bottomNav {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: auto !important;
+    height: 76px !important;
+    min-height: 76px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+    transform: none !important;
+    z-index: 42000 !important;
+  }
+
+  .app.activePage-trade > .bottomNav button {
+    height: 76px !important;
+    min-height: 76px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app.activePage-trade > .mainScreen {
+    padding-bottom: 72px !important;
+  }
+
+  .app.activePage-trade > .bottomNav,
+  .app.activePage-trade > .bottomNav button {
+    height: 70px !important;
+    min-height: 70px !important;
+  }
+}
