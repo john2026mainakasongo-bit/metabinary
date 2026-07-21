@@ -45474,3 +45474,82 @@ body,
     min-height: 3px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V165 — GUARANTEED LIVE WINNING-DIGIT MASK
+   - The green winning state is driven by a dedicated visual trade state that
+     starts immediately when the action button is pressed and remains until
+     settlement.
+   - The mask is a real DOM layer above legacy ring styles, so old CSS cannot
+     hide it.
+   - The lowest red marker stays inside the bottom edge of the ring, leaving
+     the moving cursor clearly outside the circle.
+   ========================================================================== */
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7.mbDigitActiveWinningV165:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitActiveWinMaskV165 {
+  position: absolute !important;
+  inset: 3px !important;
+  z-index: 4 !important;
+  display: block !important;
+  border-radius: 50% !important;
+  background: rgba(166, 244, 202, 0.82) !important;
+  border: 2px solid rgba(218, 255, 234, 0.96) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitActiveWinningV165 .mbDigitCoreV7 {
+  position: relative !important;
+  z-index: 6 !important;
+  background: #a9f3cc !important;
+  border-color: #dcffed !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitActiveWinningV165 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitActiveWinningV165 .mbDigitPercentV7 {
+  position: relative !important;
+  z-index: 8 !important;
+  color: #06130d !important;
+  text-shadow: none !important;
+}
+
+/* Keep the lowest statistic marker inside the ring so it never merges with
+   the external live-digit cursor when both happen to point at the same digit. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+  bottom: 2px !important;
+  z-index: 10 !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 4px !important;
+  min-height: 4px !important;
+  border-radius: 999px !important;
+  background: #ff304f !important;
+}
+
+/* Settlement result must always replace the temporary green mask. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitActiveWinMaskV165,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitActiveWinMaskV165 {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitActiveWinMaskV165 {
+    inset: 2px !important;
+    border-width: 2px !important;
+  }
+
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestBarV164 {
+    bottom: 2px !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 3px !important;
+    min-height: 3px !important;
+  }
+}

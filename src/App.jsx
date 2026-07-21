@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v164-explicit-winning-digits-straight-lowest-bar-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v165-live-winning-mask-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -1256,6 +1256,7 @@ function TradingApp() {
     return Number.isFinite(value) ? value : 10;
   });
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
+  const [binaryTradeVisual, setBinaryTradeVisual] = useState(null);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
   const activeBinaryTradeRef = useRef(null);
   const lastDigitRef = useRef(0);
@@ -1963,6 +1964,7 @@ function TradingApp() {
         if (terminal) {
           activeBinaryTradeRef.current = null;
           setActiveBinaryTrade(null);
+          setBinaryTradeVisual(null);
           notify(
             "loss",
             "Trade could not continue",
@@ -2854,6 +2856,7 @@ function TradingApp() {
   }
 
   async function applyBinaryTradeSettlement(openTrade, result) {
+    setBinaryTradeVisual(null);
     const resultDigit = Number(
       result.resultDigit ??
       result.digit ??
@@ -3035,6 +3038,23 @@ function TradingApp() {
       return;
     }
 
+    const visualWinningDigits = isDigitContract(type)
+      ? getWinningDigitsForTrade(type, action, prediction)
+      : [];
+
+    setBinaryTradeVisual(
+      visualWinningDigits.length > 0
+        ? {
+            id: `visual-${uid()}`,
+            type,
+            action,
+            prediction: Number(prediction),
+            winningDigits: visualWinningDigits,
+            status: "OPENING",
+          }
+        : null
+    );
+
     try {
       const requestId = `manual-${uid()}`;
       const { response, result } = await requestJsonWithRetry(
@@ -3096,6 +3116,19 @@ function TradingApp() {
         status: "RUNNING",
       };
 
+      if (isDigitContract(type)) {
+        setBinaryTradeVisual({
+          id: openTrade.id || `visual-${uid()}`,
+          type: openTrade.type,
+          action: openTrade.action,
+          prediction: Number(openTrade.prediction ?? prediction),
+          winningDigits: Array.isArray(openTrade.winningDigits)
+            ? openTrade.winningDigits.map(Number)
+            : getWinningDigitsForTrade(openTrade.type, openTrade.action, openTrade.prediction),
+          status: "RUNNING",
+        });
+      }
+
       if (result.user) {
         const updatedUser = normalizeApiUser(result.user);
         setUser((old) => ({ ...old, ...updatedUser }));
@@ -3116,6 +3149,7 @@ function TradingApp() {
         1700
       );
     } catch (error) {
+      setBinaryTradeVisual(null);
       console.error("Trade open failed:", error);
       notify(
         "loss",
@@ -6521,7 +6555,7 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${activeBinaryTrade ? "isTrading" : ""}`}
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${activeBinaryTrade || binaryTradeVisual ? "isTrading" : ""}`}
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
           >
             <div
@@ -6539,21 +6573,22 @@ function TradePage({
                 const isPicked = ["Matches/Differs", "Over/Under"].includes(tradeType) && digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
-                const activeWinningDigits = activeBinaryTrade
-                  ? (Array.isArray(activeBinaryTrade.winningDigits) && activeBinaryTrade.winningDigits.length > 0
-                      ? activeBinaryTrade.winningDigits.map(Number)
+                const visualTrade = binaryTradeVisual || activeBinaryTrade;
+                const activeWinningDigits = visualTrade
+                  ? (Array.isArray(visualTrade.winningDigits) && visualTrade.winningDigits.length > 0
+                      ? visualTrade.winningDigits.map(Number)
                       : getWinningDigitsForTrade(
-                          activeBinaryTrade.type || tradeType,
-                          activeBinaryTrade.action,
-                          activeBinaryTrade.prediction ?? prediction
+                          visualTrade.type || tradeType,
+                          visualTrade.action,
+                          visualTrade.prediction ?? prediction
                         ))
                   : [];
                 const isWinningZone = Boolean(
-                  activeBinaryTrade &&
+                  visualTrade &&
                   digitMode &&
-                  (activeWinningDigits.includes(digit) || digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent))
+                  activeWinningDigits.includes(digit)
                 );
-                const isWaitingCover = Boolean(activeBinaryTrade && isWinningZone && !isResultDigit);
+                const isWaitingCover = Boolean(visualTrade && isWinningZone && !isResultDigit);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -6604,7 +6639,7 @@ function TradePage({
                       isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningZone ? "mbDigitWinningZoneV31" : "",
-                      isWaitingCover ? "mbDigitWaitingV155" : "",
+                      isWaitingCover ? "mbDigitWaitingV155 mbDigitActiveWinningV165" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
@@ -6666,6 +6701,7 @@ function TradePage({
                     {isLowest && !isHighest && !isResultDigit && (
                       <span className="mbDigitLowestBarV164" aria-hidden="true" />
                     )}
+                    {isWaitingCover && <span className="mbDigitActiveWinMaskV165" aria-hidden="true" />}
                     <span className={`mbDigitCoreV7 ${isWaitingCover ? "mbDigitCoreActiveWinV164" : ""}`}>
                       {isWaitingCover && <span className="mbDigitWinningCoverV164" aria-hidden="true" />}
                       <strong>{digit}</strong>
