@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v166-fix-tradepage-visual-prop-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v160-rise-fall-mobile-layout-fix-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -994,66 +994,14 @@ function nextDigitState(current, digit, seed = 0) {
   };
 }
 
-function normalizeContractToken(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-}
-
-function getWinningDigitsForTrade(type, action, prediction = 0) {
-  const typeToken = normalizeContractToken(type);
-  const actionToken = normalizeContractToken(action);
-  const predictedDigit = Math.max(0, Math.min(9, Number(prediction ?? 0)));
-
-  return Array.from({ length: 10 }, (_, digit) => digit).filter((digit) => {
-    if (typeToken.includes("evenodd")) {
-      if (actionToken.includes("even")) return digit % 2 === 0;
-      if (actionToken.includes("odd")) return digit % 2 !== 0;
-    }
-
-    if (typeToken.includes("matchesdiffers") || typeToken.includes("matchdiff")) {
-      if (actionToken.includes("match")) return digit === predictedDigit;
-      if (actionToken.includes("differ")) return digit !== predictedDigit;
-    }
-
-    if (typeToken.includes("overunder")) {
-      if (actionToken.includes("over")) return digit > predictedDigit;
-      if (actionToken.includes("under")) return digit < predictedDigit;
-    }
-
-    if (typeToken.includes("touchnotouch")) {
-      if (actionToken === "touch" || (actionToken.includes("touch") && !actionToken.includes("no"))) {
-        return digit === predictedDigit;
-      }
-      if (actionToken.includes("notouch") || actionToken.includes("no")) return digit !== predictedDigit;
-    }
-
-    return false;
-  });
-}
-
 function digitWinsTrade(trade, digit, closingPrice = 0) {
   if (!trade) return false;
-
-  const resultDigit = Number(digit);
-  const explicitWinningDigits = Array.isArray(trade.winningDigits)
-    ? trade.winningDigits.map(Number)
-    : [];
-
-  if (explicitWinningDigits.length > 0) {
-    return explicitWinningDigits.includes(resultDigit);
-  }
-
-  const typeToken = normalizeContractToken(trade.type);
-  if (typeToken.includes("risefall")) {
-    const actionToken = normalizeContractToken(trade.action);
-    return actionToken.includes("rise")
-      ? Number(closingPrice) > Number(trade.entryPrice)
-      : Number(closingPrice) < Number(trade.entryPrice);
-  }
-
-  return getWinningDigitsForTrade(trade.type, trade.action, trade.prediction).includes(resultDigit);
+  if (trade.type === "Even/Odd") return trade.action === "Even" ? digit % 2 === 0 : digit % 2 !== 0;
+  if (trade.type === "Matches/Differs") return trade.action === "Matches" ? digit === Number(trade.prediction) : digit !== Number(trade.prediction);
+  if (trade.type === "Over/Under") return trade.action === "Over" ? digit > Number(trade.prediction) : digit < Number(trade.prediction);
+  if (trade.type === "Touch/No Touch") return trade.action === "Touch" ? digit === Number(trade.prediction) : digit !== Number(trade.prediction);
+  if (trade.type === "Rise/Fall") return trade.action === "Rise" ? Number(closingPrice) > Number(trade.entryPrice) : Number(closingPrice) < Number(trade.entryPrice);
+  return false;
 }
 
 function formatMarketPrice(value, marketOrSymbol = "EUR/USD") {
@@ -1256,7 +1204,6 @@ function TradingApp() {
     return Number.isFinite(value) ? value : 10;
   });
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
-  const [binaryTradeVisual, setBinaryTradeVisual] = useState(null);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
   const activeBinaryTradeRef = useRef(null);
   const lastDigitRef = useRef(0);
@@ -1964,7 +1911,6 @@ function TradingApp() {
         if (terminal) {
           activeBinaryTradeRef.current = null;
           setActiveBinaryTrade(null);
-          setBinaryTradeVisual(null);
           notify(
             "loss",
             "Trade could not continue",
@@ -2856,14 +2802,7 @@ function TradingApp() {
   }
 
   async function applyBinaryTradeSettlement(openTrade, result) {
-    setBinaryTradeVisual(null);
-    const resultDigit = Number(
-      result.resultDigit ??
-      result.digit ??
-      result.trade?.resultDigit ??
-      result.trade?.digit ??
-      lastDigitRef.current
-    );
+    const resultDigit = Number(result.resultDigit ?? result.digit);
     const won = Boolean(result.won);
     const settledStake = Number(result.trade?.stake ?? openTrade.stake ?? 0);
     const settledPayout = Number(result.trade?.payout ?? openTrade.payout ?? 0);
@@ -2907,7 +2846,7 @@ function TradingApp() {
     setBinaryResultFlash({ id: uid(), digit: resultDigit, result: won ? "win" : "loss" });
     resultFlashTimerRef.current = window.setTimeout(
       () => setBinaryResultFlash(null),
-      1150
+      950
     );
 
     notify(
@@ -3038,23 +2977,6 @@ function TradingApp() {
       return;
     }
 
-    const visualWinningDigits = isDigitContract(type)
-      ? getWinningDigitsForTrade(type, action, prediction)
-      : [];
-
-    setBinaryTradeVisual(
-      visualWinningDigits.length > 0
-        ? {
-            id: `visual-${uid()}`,
-            type,
-            action,
-            prediction: Number(prediction),
-            winningDigits: visualWinningDigits,
-            status: "OPENING",
-          }
-        : null
-    );
-
     try {
       const requestId = `manual-${uid()}`;
       const { response, result } = await requestJsonWithRetry(
@@ -3092,14 +3014,10 @@ function TradingApp() {
       const openTrade = {
         id: opened.id,
         account: opened.account || account,
-        // Keep the exact client-selected contract values for the live UI.
-        // Some provider responses use different labels, which previously broke
-        // the green waiting-digit cover while the trade was open.
-        type,
-        action,
+        type: opened.type || type,
+        action: opened.action || action,
         stake: Number(opened.stake ?? usedStake),
         prediction: Number(opened.prediction ?? prediction),
-        winningDigits: getWinningDigitsForTrade(type, action, opened.prediction ?? prediction),
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
@@ -3115,19 +3033,6 @@ function TradingApp() {
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
         status: "RUNNING",
       };
-
-      if (isDigitContract(type)) {
-        setBinaryTradeVisual({
-          id: openTrade.id || `visual-${uid()}`,
-          type: openTrade.type,
-          action: openTrade.action,
-          prediction: Number(openTrade.prediction ?? prediction),
-          winningDigits: Array.isArray(openTrade.winningDigits)
-            ? openTrade.winningDigits.map(Number)
-            : getWinningDigitsForTrade(openTrade.type, openTrade.action, openTrade.prediction),
-          status: "RUNNING",
-        });
-      }
 
       if (result.user) {
         const updatedUser = normalizeApiUser(result.user);
@@ -3149,7 +3054,6 @@ function TradingApp() {
         1700
       );
     } catch (error) {
-      setBinaryTradeVisual(null);
       console.error("Trade open failed:", error);
       notify(
         "loss",
@@ -3326,11 +3230,10 @@ function TradingApp() {
       const openTrade = {
         id: opened.id,
         account: opened.account || currentAccount,
-        type: signal.type,
-        action: signal.action,
+        type: opened.type || signal.type,
+        action: opened.action || signal.action,
         stake: Number(opened.stake ?? usedStake),
         prediction: Number(opened.prediction ?? usedPrediction),
-        winningDigits: getWinningDigitsForTrade(signal.type, signal.action, opened.prediction ?? usedPrediction),
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? entryPrice),
@@ -4246,7 +4149,6 @@ function TradingApp() {
             lastDigit={lastDigit}
             digitStats={digitStats}
             activeBinaryTrade={activeBinaryTrade}
-            binaryTradeVisual={binaryTradeVisual}
             binaryResultFlash={binaryResultFlash}
             actionsFor={actionsFor}
             payoutRate={payoutRate}
@@ -6204,7 +6106,6 @@ function TradePage({
   lastDigit,
   digitStats,
   activeBinaryTrade,
-  binaryTradeVisual,
   binaryResultFlash,
   actionsFor,
   payoutRate,
@@ -6557,7 +6458,7 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${activeBinaryTrade || binaryTradeVisual ? "isTrading" : ""}`}
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${activeBinaryTrade ? "isTrading" : ""}`}
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
           >
             <div
@@ -6575,22 +6476,12 @@ function TradePage({
                 const isPicked = ["Matches/Differs", "Over/Under"].includes(tradeType) && digit === prediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
-                const visualTrade = binaryTradeVisual || activeBinaryTrade;
-                const activeWinningDigits = visualTrade
-                  ? (Array.isArray(visualTrade.winningDigits) && visualTrade.winningDigits.length > 0
-                      ? visualTrade.winningDigits.map(Number)
-                      : getWinningDigitsForTrade(
-                          visualTrade.type || tradeType,
-                          visualTrade.action,
-                          visualTrade.prediction ?? prediction
-                        ))
-                  : [];
                 const isWinningZone = Boolean(
-                  visualTrade &&
+                  activeBinaryTrade &&
                   digitMode &&
-                  activeWinningDigits.includes(digit)
+                  digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent)
                 );
-                const isWaitingCover = Boolean(visualTrade && isWinningZone && !isResultDigit);
+                const isWaitingCover = Boolean(activeBinaryTrade && isWinningZone && !isResultDigit);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -6637,11 +6528,11 @@ function TradePage({
                       "mbDigitCellV7",
                       "mobileDigitCellFinalV130",
                       isHighest ? "mbDigitHighestV7" : "",
-                      isLowest ? "mbDigitLowestMarkerV164" : "",
-                      isPicked ? "mbDigitPickedV7 mbDigitSelectedV167" : "",
+                      isLowest ? "mbDigitLowestV7" : "",
+                      isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningZone ? "mbDigitWinningZoneV31" : "",
-                      isWaitingCover ? "mbDigitWaitingV155 mbDigitActiveWinningV165" : "",
+                      isWaitingCover ? "mbDigitWaitingV155" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
@@ -6652,7 +6543,6 @@ function TradePage({
                       "--mb-v58-digit-top": digit < 5 ? "36%" : "64%",
                     }}
                     aria-label={`Digit ${digit}, ${Number(percent).toFixed(1)} percent`}
-                    aria-pressed={isPicked}
                   >
                     <svg
                       className="mobileDigitRingSvgV139"
@@ -6701,15 +6591,7 @@ function TradePage({
                       </text>
                     </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
-                    {isLowest && !isHighest && !isResultDigit && (
-                      <span className="mbDigitLowestBarV164" aria-hidden="true" />
-                    )}
-                    {isPicked && !isResultDigit && (
-                      <span className="mbDigitSelectedMarkerV167" aria-hidden="true" />
-                    )}
-                    {isWaitingCover && <span className="mbDigitActiveWinMaskV165" aria-hidden="true" />}
-                    <span className={`mbDigitCoreV7 ${isWaitingCover ? "mbDigitCoreActiveWinV164" : ""}`}>
-                      {isWaitingCover && <span className="mbDigitWinningCoverV164" aria-hidden="true" />}
+                    <span className="mbDigitCoreV7">
                       <strong>{digit}</strong>
                       <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
                     </span>
@@ -7844,6 +7726,7 @@ function DrawerButton({ icon, label, badge, onClick }) {
 function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatilityOptions, botTemplates, currentStake, onApply, onAutoTrade, onStopAutoTrade, autoSession, forceOpen = false }) {
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [startingAuto, setStartingAuto] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
@@ -7859,12 +7742,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   useEffect(() => saveStore(STORE.aiPosition, position), [position]);
 
   useEffect(() => {
-    if (!forceOpen) return undefined;
+    if (!forceOpen) return;
     setOpen(true);
-    const launchTimer = window.setTimeout(() => {
-      if (!autoSession?.running) scan(true);
-    }, 180);
-    return () => window.clearTimeout(launchTimer);
   }, [forceOpen, activePage]);
 
   useEffect(() => () => {
@@ -7979,7 +7858,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     };
   }
 
-  function scan(autoStart = true) {
+  function scan(autoStart = false) {
     if (scanActiveRef.current || scanning || autoSession?.running) return;
     scanActiveRef.current = true;
     window.clearInterval(scanTimerRef.current);
@@ -8009,24 +7888,68 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
         window.clearInterval(scanTimerRef.current);
         const nextResult = buildResult();
         setProgress(100);
-        setScanMessage("Best setup found · launching Auto-Trade");
+        setScanMessage("Best setup found · ready for AI Auto-Trade");
         setResult(nextResult);
         setScanning(false);
         scanActiveRef.current = false;
 
-        if (autoStart) {
-          autoLaunchTimerRef.current = window.setTimeout(async () => {
-            const started = await onAutoTrade(nextResult);
-            if (started === false) {
-              setResult(null);
-              setScanMessage("Auto-Trade could not start. Tap AI to scan again.");
-              return;
-            }
-            setOpen(false);
-          }, 850);
-        }
       }
     }, 180);
+  }
+
+  async function startAutoFromResult() {
+    if (!result || startingAuto || autoSession?.running) return;
+    setStartingAuto(true);
+    setScanMessage("Starting AI Auto-Trade…");
+    try {
+      const started = await onAutoTrade(result);
+      if (started === false) {
+        setScanMessage("Auto-Trade could not start. Review your balance and try again.");
+        return;
+      }
+      setOpen(false);
+    } finally {
+      setStartingAuto(false);
+    }
+  }
+
+  function loadPremiumBot() {
+    if (scanning || startingAuto || autoSession?.running) return;
+    const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
+    const market = volatilityOptions[Math.floor(Math.random() * volatilityOptions.length)] || volatilityOptions[0];
+    const type = template?.type || "Even/Odd";
+    const botResult = {
+      mode: "bot",
+      confidence: 88,
+      botId: template?.id,
+      marketLabel: market?.label,
+      config: {
+        marketId: market?.id,
+        type,
+        action: defaultBotAction(type),
+        prediction: type === "Over/Under" ? 2 : 0,
+        stake: aiStake,
+        ticks: 5,
+        martingaleEnabled: true,
+        martingaleMultiplier: 2,
+        martingaleSteps: 3,
+        takeProfit: aiTakeProfit,
+        stopLoss: aiStopLoss,
+      },
+    };
+    onApply?.(botResult);
+    setOpen(false);
+  }
+
+  function resetScanner() {
+    scanActiveRef.current = false;
+    window.clearInterval(scanTimerRef.current);
+    window.clearTimeout(autoLaunchTimerRef.current);
+    setScanning(false);
+    setStartingAuto(false);
+    setProgress(0);
+    setResult(null);
+    setScanMessage("Ready to scan");
   }
 
   function closeScanner() {
@@ -8034,6 +7957,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     window.clearInterval(scanTimerRef.current);
     window.clearTimeout(autoLaunchTimerRef.current);
     setScanning(false);
+    setStartingAuto(false);
+    setProgress(0);
+    setResult(null);
+    setScanMessage("Ready to scan");
     setOpen(false);
   }
 
@@ -8074,7 +8001,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       return;
     }
     setOpen(true);
-    window.setTimeout(() => scan(true), 80);
   }
 
   const mode = pageMode();
@@ -8082,10 +8008,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const buttonStyle = {
     "--ai-x": `${Math.round(position.x)}px`,
     "--ai-y": `${Math.round(position.y)}px`,
-  };
-  const panelStyle = mobileViewport ? undefined : {
-    left: Math.min(position.x, Math.max(8, window.innerWidth - 390)),
-    top: Math.min(position.y + 76, Math.max(90, window.innerHeight - 590)),
   };
 
   return (
@@ -8104,53 +8026,113 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       )}
 
       {open && (
-        <section className="aiScannerPanel" style={panelStyle}>
-          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Auto-Trade Scanner</h2></div><button onClick={closeScanner}>×</button></header>
-          <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
-
-          {scanning && (
-            <div className="aiScanningState" aria-live="polite">
-              <div className="aiRadarScanner"><span></span><i></i><b>AI</b></div>
-              <div className="aiScanProgress"><div><span style={{ width: `${progress}%` }}></span></div><strong>{progress}%</strong><small>{scanMessage}</small></div>
-              <ul className="aiDataFindingList">
-                <li className={progress >= 20 ? "done" : "active"}>Live market feed connected</li>
-                <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Best volatility market ranked</li>
-                <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Contract types and payouts compared</li>
-                <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Best market and trade type selected</li>
-              </ul>
-            </div>
-          )}
-
-          {result && (
-            <div className="aiSignalResult">
-              <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div>
-              <div className="aiSignalCopy">
-                <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
-                {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
-                {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}
-                <em>Signal confidence is an estimate, not a guaranteed win rate.</em>
+        <div className="aiScannerBackdrop" role="presentation">
+          <section className="aiScannerPanel aiPremiumPanel" role="dialog" aria-modal="true" aria-label="MetaBinary AI">
+            <header className="aiPremiumHeader">
+              <div className="aiPremiumBrand">
+                <span className="aiPremiumMark">AI</span>
+                <div>
+                  <small>METABINARY INTELLIGENCE</small>
+                  <h2>AI Trading Intelligence</h2>
+                </div>
               </div>
-            </div>
-          )}
+              <span className="aiPremiumBadge">PREMIUM</span>
+              <button type="button" className="aiPremiumClose" onClick={closeScanner} aria-label="Close AI">×</button>
+            </header>
 
-          {autoSession?.id && (
-            <div className={`aiAutoRunCard ${autoSession.running ? "running" : "finished"}`}>
-              <div className="aiAutoRunHead"><span><i></i><strong>{autoSession.running ? "AI AUTO-TRADE RUNNING" : "AI AUTO-TRADE SESSION"}</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
-              <p>{autoSession.status}</p>
-              <div className="aiAutoMetrics"><span><small>Trades</small><strong>{autoSession.trades || 0}</strong></span><span><small>Wins</small><strong>{autoSession.wins || 0}</strong></span><span><small>Losses</small><strong>{autoSession.losses || 0}</strong></span><span><small>Target</small><strong>+{money(autoSession.targetProfit || 0)}</strong></span><span><small>Stop</small><strong>-{money(autoSession.stopLoss || 0)}</strong></span></div>
-              {autoSession.running && <button type="button" className="aiStopAuto" onClick={() => onStopAutoTrade("Stopped manually by the trader")}>Stop AI Auto-Trade</button>}
+            <div className="aiPremiumStatusRow">
+              <span><i></i> LIVE MARKET ENGINE</span>
+              <strong>{mode === "bot" ? "Bot intelligence" : "Volatility intelligence"}</strong>
             </div>
-          )}
 
-          {!autoSession?.running && (
-            <footer>
-              <button className="aiScanAgain" onClick={() => scan(true)} disabled={scanning || Boolean(result)}>
-                {scanning ? "AI is searching…" : result ? "Launching Auto-Trade…" : "Scan & Start Auto-Trade"}
-              </button>
-            </footer>
-          )}
-          <small className="aiSafetyNote">AI automatically ranks the current markets and contract types, then starts the strongest available setup. Results are not guaranteed.</small>
-        </section>
+            {!scanning && !result && !autoSession?.running && (
+              <div className="aiPremiumHome">
+                <div className="aiPremiumHero">
+                  <div className="aiPremiumBrain"><span>AI</span><i></i><b></b></div>
+                  <div>
+                    <small>SMART MARKET ANALYSIS</small>
+                    <h3>Find the strongest setup before you trade.</h3>
+                    <p>MetaBinary AI compares live volatility, digit behaviour, momentum and payout conditions, then prepares one high-quality setup.</p>
+                  </div>
+                </div>
+
+                <div className="aiPremiumActions">
+                  <button type="button" className="aiPremiumAction primary" onClick={() => scan(false)}>
+                    <span>✦</span>
+                    <div><strong>Scan Market</strong><small>Analyse and find the best setup</small></div>
+                    <b>›</b>
+                  </button>
+                  <button type="button" className="aiPremiumAction secondary" onClick={loadPremiumBot}>
+                    <span>🤖</span>
+                    <div><strong>Load Bot</strong><small>Open a ready AI bot configuration</small></div>
+                    <b>›</b>
+                  </button>
+                </div>
+
+                <div className="aiPremiumFeatures">
+                  <span>✓ Live market scan</span>
+                  <span>✓ Contract ranking</span>
+                  <span>✓ AI risk controls</span>
+                </div>
+              </div>
+            )}
+
+            {scanning && (
+              <div className="aiScanningState aiPremiumScanning" aria-live="polite">
+                <div className="aiRadarScanner"><span></span><i></i><b>AI</b></div>
+                <div className="aiScanProgress">
+                  <div><span style={{ width: `${progress}%` }}></span></div>
+                  <strong>{progress}%</strong>
+                  <small>{scanMessage}</small>
+                </div>
+                <ul className="aiDataFindingList">
+                  <li className={progress >= 20 ? "done" : "active"}>Live market feed connected</li>
+                  <li className={progress >= 45 ? "done" : progress >= 20 ? "active" : ""}>Best volatility market ranked</li>
+                  <li className={progress >= 70 ? "done" : progress >= 45 ? "active" : ""}>Contract types and payouts compared</li>
+                  <li className={progress >= 94 ? "done" : progress >= 70 ? "active" : ""}>Strongest setup selected</li>
+                </ul>
+              </div>
+            )}
+
+            {result && !autoSession?.running && (
+              <>
+                <div className="aiPremiumResultLabel"><span>✦</span> AI SCAN COMPLETE</div>
+                <div className="aiSignalResult aiPremiumResult">
+                  <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>AI score</small></div>
+                  <div className="aiSignalCopy">
+                    <small>RECOMMENDED MARKET</small>
+                    <h3>{result.marketLabel || result.symbol}</h3>
+                    {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
+                    {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier}</p>}
+                    <div className="aiPremiumSignalMeta">
+                      <span>Stake <b>${money(result.stake || aiStake)}</b></span>
+                      <span>Target <b>+${money(result.takeProfit || aiTakeProfit)}</b></span>
+                      <span>Stop <b>-${money(result.stopLoss || aiStopLoss)}</b></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="aiPremiumResultActions">
+                  <button type="button" className="aiPremiumAutoButton" onClick={startAutoFromResult} disabled={startingAuto}>
+                    <span>AI</span>
+                    {startingAuto ? "Starting AI Auto-Trade…" : "Auto Trade with AI"}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {autoSession?.running && (
+              <div className="aiAutoRunCard aiPremiumRunCard running">
+                <div className="aiAutoRunHead"><span><i></i><strong>{autoSession.running ? "AI AUTO-TRADE RUNNING" : "AI AUTO-TRADE SESSION"}</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
+                <p>{autoSession.status}</p>
+                <div className="aiAutoMetrics"><span><small>Trades</small><strong>{autoSession.trades || 0}</strong></span><span><small>Wins</small><strong>{autoSession.wins || 0}</strong></span><span><small>Losses</small><strong>{autoSession.losses || 0}</strong></span><span><small>Target</small><strong>+{money(autoSession.targetProfit || 0)}</strong></span><span><small>Stop</small><strong>-{money(autoSession.stopLoss || 0)}</strong></span></div>
+                {autoSession.running && <button type="button" className="aiStopAuto" onClick={() => onStopAutoTrade("Stopped manually by the trader")}>Stop AI Auto-Trade</button>}
+              </div>
+            )}
+
+            <small className="aiSafetyNote aiPremiumSafety">AI analysis is decision support, not a guaranteed outcome. Trade responsibly.</small>
+          </section>
+        </div>
       )}
     </>
   );
