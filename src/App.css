@@ -45481,3 +45481,233 @@ body,
     max-height: 62px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V175 — REFERENCE BOTTOM LAYOUT + CHROME PULL-TO-REFRESH
+   Matches the user's reference:
+   - Bottom nav stays directly after the trade buttons.
+   - The nav background fills the remaining lower part of the phone viewport.
+   - No fixed bottom overlay and no detached dark strip.
+   - The trade screen itself remains fitted to one viewport.
+   - Native Chrome pull-down-to-refresh is allowed at the top.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  html,
+  body,
+  #root {
+    width: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    /* Keep the document eligible for Chrome's native pull-to-refresh. */
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-x: none !important;
+    overscroll-behavior-y: auto !important;
+    touch-action: pan-y pinch-zoom !important;
+  }
+
+  body {
+    background: #061321 !important;
+  }
+
+  .app.activePage-trade {
+    position: relative !important;
+    inset: auto !important;
+
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows:
+      50px
+      minmax(0, 1fr)
+      clamp(104px, 12.5dvh, 126px) !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+
+    /* Do not block the browser's top-edge overscroll gesture. */
+    overscroll-behavior-y: auto !important;
+    touch-action: pan-y pinch-zoom !important;
+  }
+
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .topHeader,
+  .app.activePage-trade > .brokerTopHeader {
+    grid-row: 1 !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    grid-row: 2 !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 6px 8px 5px !important;
+    overflow: hidden !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage,
+  .app.activePage-trade .finalBinaryTradePage.priceContractPage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* V174 pinned this nav to the viewport bottom. The reference instead keeps
+     it in normal app flow, immediately after the trade buttons, while letting
+     its own panel fill the remaining lower viewport space. */
+  .app.activePage-trade > .bottomNav {
+    grid-row: 3 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+
+    align-self: stretch !important;
+    justify-self: stretch !important;
+
+    width: calc(100% - 16px) !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+
+    margin: 0 8px !important;
+    padding:
+      0
+      0
+      max(8px, env(safe-area-inset-bottom, 0px))
+      0 !important;
+
+    border-radius: 18px 18px 0 0 !important;
+    border-bottom: 0 !important;
+    background: #061321 !important;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.14) !important;
+    overflow: hidden !important;
+    transform: none !important;
+    z-index: 42000 !important;
+  }
+
+  .app.activePage-trade > .bottomNav::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .app.activePage-trade > .bottomNav button,
+  .app.activePage-trade > .bottomNav button:nth-child(3) {
+    width: 100% !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    align-self: start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* Short phones: preserve the same layout but use a slightly shorter nav and
+   compact the trading workspace so it still fits without document scrolling. */
+@media screen and (max-width: 760px) and (max-height: 760px) {
+  .app.activePage-trade {
+    grid-template-rows:
+      48px
+      minmax(0, 1fr)
+      clamp(94px, 12dvh, 108px) !important;
+  }
+
+  .app.activePage-trade > .cleanBrokerHeader,
+  .app.activePage-trade > .topHeader,
+  .app.activePage-trade > .brokerTopHeader {
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    padding: 4px 7px !important;
+  }
+
+  .app.activePage-trade > .bottomNav {
+    width: calc(100% - 14px) !important;
+    margin: 0 7px !important;
+  }
+
+  .app.activePage-trade > .bottomNav button,
+  .app.activePage-trade > .bottomNav button:nth-child(3) {
+    height: 70px !important;
+    min-height: 70px !important;
+    max-height: 70px !important;
+  }
+}
+
+/* Very short visible Chrome viewports. Keep the page locked to one viewport
+   by trimming content, not by moving the bottom navigation away from the
+   reference position. */
+@media screen and (max-width: 760px) and (max-height: 680px) {
+  .app.activePage-trade {
+    grid-template-rows: 46px minmax(0, 1fr) 90px !important;
+  }
+
+  .app.activePage-trade .mobileDigitLiveChartV115 {
+    height: 172px !important;
+    min-height: 172px !important;
+    max-height: 172px !important;
+    flex-basis: 172px !important;
+  }
+
+  .app.activePage-trade .cleanMobileDigitBoardV127,
+  .app.activePage-trade .digitBoardNumbersOnlyV23 {
+    height: 140px !important;
+    min-height: 140px !important;
+    max-height: 140px !important;
+    flex-basis: 140px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalOrderInputs,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .orderInputsTop.finalOrderInputs {
+    height: 96px !important;
+    min-height: 96px !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalTradeButtons,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .proTradeButtons.finalTradeButtons,
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .finalTradeButtons > button {
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+  }
+
+  .app.activePage-trade > .bottomNav button,
+  .app.activePage-trade > .bottomNav button:nth-child(3) {
+    height: 66px !important;
+    min-height: 66px !important;
+    max-height: 66px !important;
+  }
+}
