@@ -6539,16 +6539,34 @@ function TradePage({
 
                 const activeVisualType = String(digitVisualTrade?.type || "");
                 const activeVisualAction = String(digitVisualTrade?.action || "").toLowerCase();
+                const activeVisualPrediction = Number(
+                  digitVisualTrade?.prediction ?? prediction
+                );
 
-                // Only Even/Odd uses the waiting-number highlight.
-                // Over/Under and Matches/Differs show the selected prediction
-                // clearly instead of covering multiple digit circles.
-                const isEvenOddCandidate = Boolean(
+                const isWaitingCandidate = Boolean(
                   digitVisualTrade &&
-                  activeVisualType === "Even/Odd" &&
                   (
-                    (activeVisualAction === "even" && digit % 2 === 0) ||
-                    (activeVisualAction === "odd" && digit % 2 === 1)
+                    (
+                      activeVisualType === "Even/Odd" &&
+                      (
+                        (activeVisualAction === "even" && digit % 2 === 0) ||
+                        (activeVisualAction === "odd" && digit % 2 === 1)
+                      )
+                    ) ||
+                    (
+                      activeVisualType === "Over/Under" &&
+                      (
+                        (activeVisualAction === "over" && digit > activeVisualPrediction) ||
+                        (activeVisualAction === "under" && digit < activeVisualPrediction)
+                      )
+                    ) ||
+                    (
+                      activeVisualType === "Matches/Differs" &&
+                      (
+                        (activeVisualAction === "matches" && digit === activeVisualPrediction) ||
+                        (activeVisualAction === "differs" && digit !== activeVisualPrediction)
+                      )
+                    )
                   )
                 );
 
@@ -6603,7 +6621,7 @@ function TradePage({
                       isLowest ? "mbDigitLowestV7" : "",
                       isPredictionSelected ? "mbDigitPredictionV180" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
-                      isEvenOddCandidate && !isResultDigit ? "mbDigitCandidateV180" : "",
+                      isWaitingCandidate && !isResultDigit ? "mbDigitCandidateV182" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
@@ -6662,8 +6680,8 @@ function TradePage({
                       </text>
                     </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
-                    {isEvenOddCandidate && !isResultDigit && (
-                      <span className="mbDigitCandidateRingV180" aria-hidden="true" />
+                    {isWaitingCandidate && !isResultDigit && (
+                      <span className="mbDigitCandidateRingV182" aria-hidden="true" />
                     )}
                     {isPredictionSelected && !isResultDigit && (
                       <span className="mbDigitPredictionRingV180" aria-hidden="true" />
