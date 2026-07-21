@@ -45983,3 +45983,64 @@ body,
     min-height: 70px !important;
   }
 }
+
+/* ========================================================================== 
+   METABINARY V172 — VISUALLY CLOSE AND FILL THE MOBILE BOTTOM SAFE AREA
+   Extends the Trade bottom navigation background through the Android gesture
+   area so the card no longer appears to stop above an empty strip.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  html,
+  body,
+  #root,
+  .app.activePage-trade {
+    background-color: #061321 !important;
+  }
+
+  .app.activePage-trade > .bottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+    background: #061321 !important;
+    overflow: visible !important;
+    box-shadow:
+      0 60px 0 60px #061321,
+      0 -8px 28px rgba(0, 0, 0, 0.22) !important;
+  }
+
+  .app.activePage-trade > .bottomNav::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 100% !important;
+    height: 96px !important;
+    background: #061321 !important;
+    pointer-events: none !important;
+  }
+
+  .app.activePage-trade > .mainScreen {
+    padding-bottom: 70px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app.activePage-trade > .bottomNav {
+    height: 70px !important;
+    min-height: 70px !important;
+  }
+
+  .app.activePage-trade > .bottomNav button {
+    height: 70px !important;
+    min-height: 70px !important;
+  }
+}
