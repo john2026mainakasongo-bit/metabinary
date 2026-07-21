@@ -45486,3 +45486,191 @@ body,
   }
 }
 
+
+/* ========================================================================== 
+   METABINARY V161 — FINAL DIGIT RING / WIN-ZONE / CURSOR BEHAVIOUR
+   - Lowest statistic: short RED bar at the bottom only.
+   - Highest statistic: GREEN upper half-ring, grey lower half-ring.
+   - Open-trade winning digits: LIGHT GREEN cover, no glow.
+   - Settlement digit: one bright green/red flash, then returns to normal.
+   - Cursor: always OUTSIDE the circle.
+   - Normal digit and percentage text stays black.
+   ========================================================================== */
+
+/* Normal cells stay calm and readable. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #f2f4f6 !important;
+  border: 1px solid rgba(8, 17, 29, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34) !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #07111d !important;
+  text-shadow: none !important;
+}
+
+/* Highest number: green TOP half-ring, grey BOTTOM half-ring. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: linear-gradient(
+    to bottom,
+    #20cf86 0%,
+    #20cf86 50%,
+    #65717e 50%,
+    #65717e 100%
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Lowest number: keep the ring grey and add only a short red BOTTOM bar. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: #65717e !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 1px !important;
+  width: 31% !important;
+  min-width: 18px !important;
+  max-width: 28px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: #ff4057 !important;
+  box-shadow: none !important;
+  transform: translateX(-50%) !important;
+  z-index: 8 !important;
+  pointer-events: none !important;
+}
+
+/* The chosen barrier can remain subtly selected before entry, but text stays black. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #e9f4ff !important;
+  border-color: rgba(55, 151, 232, 0.52) !important;
+  box-shadow: inset 0 0 0 1px rgba(55, 151, 232, 0.14) !important;
+}
+
+/* Once the trade is entered, every digit that can WIN is covered light green. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #bff0d3 !important;
+  border-color: #63d69a !important;
+  box-shadow: inset 0 0 0 1px rgba(26, 140, 89, 0.10) !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #07150e !important;
+  text-shadow: none !important;
+}
+
+/* Current live digit has no colour fill or glow: the external cursor is the marker. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #07111d !important;
+}
+
+/* One bright settlement flash. React removes these classes after about 950 ms. */
+@keyframes mbDigitWinFlashV161 {
+  0%   { transform: scale(1); filter: none; }
+  28%  { transform: scale(1.13); filter: drop-shadow(0 0 24px rgba(38, 255, 143, 1)); }
+  68%  { transform: scale(1.07); filter: drop-shadow(0 0 14px rgba(38, 255, 143, .92)); }
+  100% { transform: scale(1); filter: none; }
+}
+
+@keyframes mbDigitLossFlashV161 {
+  0%   { transform: scale(1); filter: none; }
+  28%  { transform: scale(1.13); filter: drop-shadow(0 0 24px rgba(255, 45, 76, 1)); }
+  68%  { transform: scale(1.07); filter: drop-shadow(0 0 14px rgba(255, 45, 76, .92)); }
+  100% { transform: scale(1); filter: none; }
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 {
+  z-index: 60 !important;
+  animation: mbDigitWinFlashV161 .92s ease-out 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitRingV7 {
+  background: #31f09f !important;
+  box-shadow: 0 0 24px rgba(49, 240, 159, .96) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 {
+  background: #effff6 !important;
+  border-color: #6affbb !important;
+  box-shadow: 0 0 18px rgba(49, 240, 159, .70) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitPercentV7 {
+  color: #00b965 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 138, .45) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
+  z-index: 60 !important;
+  animation: mbDigitLossFlashV161 .92s ease-out 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitRingV7 {
+  background: #ff3652 !important;
+  box-shadow: 0 0 24px rgba(255, 54, 82, .96) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 {
+  background: #fff0f3 !important;
+  border-color: #ff7185 !important;
+  box-shadow: 0 0 18px rgba(255, 54, 82, .68) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitPercentV7 {
+  color: #ef1738 !important;
+  text-shadow: 0 0 10px rgba(255, 34, 68, .38) !important;
+}
+
+/* Cursor stays outside the active circle on the two-row digit board. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+  top: calc(
+    4px +
+    (var(--mb-active-row) * (var(--mb-v23-row-height) + 12px)) +
+    ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
+    var(--mb-v23-cell-size) + 10px
+  ) !important;
+  bottom: auto !important;
+  border-left: 7px solid transparent !important;
+  border-right: 7px solid transparent !important;
+  border-bottom: 10px solid #ff4057 !important;
+  border-top: 0 !important;
+  filter: none !important;
+  z-index: 50 !important;
+}
+
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
+    left: var(--mb-v58-cursor-left) !important;
+    top: calc(var(--mb-v58-cursor-top) + (var(--mb-v58-cell-size) / 2) + 14px) !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)::after {
+    bottom: 0 !important;
+    width: 25px !important;
+    height: 4px !important;
+  }
+}
