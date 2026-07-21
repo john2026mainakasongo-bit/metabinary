@@ -46028,3 +46028,115 @@ body,
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCursorFinalV130 {
   z-index: 45 !important;
 }
+
+
+/* ==========================================================================
+   METABINARY V180 — CLEAN DIGIT TRADE MARKS
+   Exact behavior:
+   - EVEN trade: mark 0,2,4,6,8 with a light-green OUTER ring.
+   - ODD trade: mark 1,3,5,7,9 with a light-green OUTER ring.
+   - OVER/UNDER + MATCHES/DIFFERS: only the selected prediction gets a blue
+     selection ring.
+   - No green layer is allowed to cover the digit or percentage.
+   - Old V31/V155/V177 waiting-cover classes are no longer used by React.
+   ========================================================================== */
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* The normal center is always readable during an active trade. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 {
+  z-index: 6 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+  position: relative !important;
+  z-index: 8 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* EVEN / ODD candidate marking: a slim ring outside the black core.
+   It never paints over the number or the percentage. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCandidateRingV180 {
+  position: absolute !important;
+  inset: 8% !important;
+  z-index: 5 !important;
+  display: block !important;
+  border-radius: 50% !important;
+  border: 3px solid rgba(99, 238, 183, .78) !important;
+  background: transparent !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(95, 238, 181, .08),
+    0 0 10px rgba(38, 220, 151, .20) !important;
+  pointer-events: none !important;
+}
+
+/* Selected prediction for Over/Under and Matches/Differs. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPredictionRingV180 {
+  position: absolute !important;
+  inset: 5% !important;
+  z-index: 7 !important;
+  display: block !important;
+  border-radius: 50% !important;
+  border: 3px solid #4ca7ff !important;
+  background: transparent !important;
+  box-shadow:
+    0 0 0 2px rgba(76, 167, 255, .16),
+    0 0 12px rgba(46, 145, 255, .24) !important;
+  pointer-events: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPredictionV180 .mbDigitCoreV7 {
+  background: #06111d !important;
+  border-color: rgba(76, 167, 255, .72) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPredictionV180 .mbDigitCoreV7 > strong {
+  color: #ffffff !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPredictionV180 .mbDigitPercentV7 {
+  color: #a9d3ff !important;
+}
+
+/* Keep result flashes above trade-state markers. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
+  z-index: 35 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCandidateRingV180,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCandidateRingV180,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitPredictionRingV180,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitPredictionRingV180 {
+  display: none !important;
+}
+
+/* Highest/lowest statistics and the outside cursor stay visible. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitRingV7 {
+  z-index: 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .lowestDigitBarV31,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCursorFinalV130 {
+  z-index: 50 !important;
+  pointer-events: none !important;
+}
+
+/* Smooth cursor travel without creating a duplicate/ghost circle. */
+@media (max-width: 760px) {
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7,
+  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCursorFinalV130 {
+    transition:
+      left .28s cubic-bezier(.22,.75,.24,1),
+      top .28s cubic-bezier(.22,.75,.24,1) !important;
+    will-change: left, top !important;
+  }
+}

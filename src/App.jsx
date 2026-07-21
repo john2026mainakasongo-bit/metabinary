@@ -6533,17 +6533,27 @@ function TradePage({
               {digitStats.map((percent, digit) => {
                 const isHighest = digit === highestDigit;
                 const isLowest = digit === lowestDigit;
-                const isPicked =
-                  ["Matches/Differs", "Over/Under"].includes(digitVisualType) &&
-                  digit === digitVisualPrediction;
+                const isPredictionSelected =
+                  ["Matches/Differs", "Over/Under"].includes(tradeType) &&
+                  digit === Number(prediction);
+
+                const activeVisualType = String(digitVisualTrade?.type || "");
+                const activeVisualAction = String(digitVisualTrade?.action || "").toLowerCase();
+
+                // Only Even/Odd uses the waiting-number highlight.
+                // Over/Under and Matches/Differs show the selected prediction
+                // clearly instead of covering multiple digit circles.
+                const isEvenOddCandidate = Boolean(
+                  digitVisualTrade &&
+                  activeVisualType === "Even/Odd" &&
+                  (
+                    (activeVisualAction === "even" && digit % 2 === 0) ||
+                    (activeVisualAction === "odd" && digit % 2 === 1)
+                  )
+                );
+
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
-                const isWinningZone = Boolean(
-                  digitVisualTrade &&
-                  digitMode &&
-                  digitWinsTrade(digitVisualTrade, digit, activeTradeCurrent)
-                );
-                const isWaitingCover = Boolean(digitVisualTrade && isWinningZone && !isResultDigit);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -6591,10 +6601,9 @@ function TradePage({
                       "mobileDigitCellFinalV130",
                       isHighest ? "mbDigitHighestV7" : "",
                       isLowest ? "mbDigitLowestV7" : "",
-                      isPicked ? "mbDigitPickedV7 mbDigitSelectedV177" : "",
+                      isPredictionSelected ? "mbDigitPredictionV180" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
-                      isWinningZone ? "mbDigitWinningZoneV31" : "",
-                      isWaitingCover ? "mbDigitWaitingV155" : "",
+                      isEvenOddCandidate && !isResultDigit ? "mbDigitCandidateV180" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}
@@ -6653,6 +6662,12 @@ function TradePage({
                       </text>
                     </svg>
                     <span className="mbDigitRingV7" aria-hidden="true" />
+                    {isEvenOddCandidate && !isResultDigit && (
+                      <span className="mbDigitCandidateRingV180" aria-hidden="true" />
+                    )}
+                    {isPredictionSelected && !isResultDigit && (
+                      <span className="mbDigitPredictionRingV180" aria-hidden="true" />
+                    )}
                     <span className="mbDigitCoreV7">
                       <strong>{digit}</strong>
                       <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
