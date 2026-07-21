@@ -45904,3 +45904,127 @@ body,
 .finalBinaryTradePage .digitBoardNumbersOnlyV23:not(.isTrading) .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
   filter: none !important;
 }
+
+
+/* ==========================================================================
+   METABINARY V179 — READABLE WINNING DIGITS
+   Fixes the mint circles hiding the digit/percentage.
+   Active candidates are marked around the ring while the black center,
+   digit and percentage remain fully visible.
+   ========================================================================== */
+
+/* Never let disabled digit buttons fade their contents during an open trade. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Reset the center for active winning candidates to the normal readable core.
+   The green state is now shown as an outline/glow instead of covering content. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #02070d !important;
+  border: 2px solid rgba(113, 242, 190, .92) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(70, 220, 157, .14),
+    0 0 12px rgba(43, 222, 153, .20) !important;
+}
+
+/* Keep the actual digit and percentage above every active-state layer. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  position: relative !important;
+  z-index: 8 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 5px rgba(0,0,0,.85) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #ccefe1 !important;
+}
+
+/* Soft green marker around the whole digit without covering the statistic ring. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7),
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 7px rgba(40, 215, 150, .16)) !important;
+}
+
+/* Prediction selection for Matches/Differs and Over/Under:
+   blue outline is kept separate from the green winning-state outline. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #02070d !important;
+  border: 2px solid #4da5ff !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(77, 165, 255, .16),
+    0 0 0 3px rgba(45, 142, 255, .22),
+    0 0 12px rgba(45, 142, 255, .20) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong {
+  position: relative !important;
+  z-index: 9 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  position: relative !important;
+  z-index: 9 !important;
+  color: #b9dcff !important;
+  opacity: 1 !important;
+}
+
+/* Selected + winning: blue core outline, subtle green outer glow. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177.mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitSelectedV177.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: #02070d !important;
+  border: 2px solid #4da5ff !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(77, 165, 255, .16),
+    0 0 0 3px rgba(45, 142, 255, .22),
+    0 0 15px rgba(48, 226, 159, .24) !important;
+}
+
+/* Settlement flashes remain stronger than waiting/selection styling. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultWinV7 .mbDigitCoreV7 {
+  background: #073c2c !important;
+  border-color: #33f2a4 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultLossV7 .mbDigitCoreV7 {
+  background: #4b0b18 !important;
+  border-color: #ff4058 !important;
+}
+
+/* Highest arc, lowest red bar and cursor always sit above active markings. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7 .mbDigitRingV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7 .mbDigitRingV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .lowestDigitBarV31,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCursorFinalV130 {
+  z-index: 45 !important;
+}
