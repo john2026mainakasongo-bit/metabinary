@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import "./DesktopTrade.css";
+import "./MobileTradeFix.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 
 function ensureResponsiveViewportMeta() {
@@ -52,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v153-stable-digit-movement-single-cursor-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v154-restored-mobile-chart-digits-stable-movement-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -1652,13 +1653,6 @@ function TradingApp() {
     }
   }, [activePage]);
 
-  /*
-   * V153 digit movement engine.
-   * Keep the proven 1-second rhythm from the earlier stable build:
-   * - no open trade: the market produces one new visible digit each second
-   * - open trade: the server tick owns that market so the cursor follows the real trade ticks
-   * - the same lastDigit state drives both the highlighted digit and the single cursor
-   */
   useEffect(() => {
     const timer = window.setInterval(() => {
       const openTrade = activeBinaryTradeRef.current;
@@ -1750,7 +1744,6 @@ function TradingApp() {
           : {}),
       }));
 
-      // lastDigit is the single source of truth for the visible digit and cursor.
       if (tradeMarketId === binaryMarketId && validDigit) {
         lastDigitRef.current = cleanDigit;
       }
@@ -5946,7 +5939,7 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [], anchorValue = null }) {
+function LineChart({ data = [], anchorValue = null, livePointX = 58 }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
@@ -6000,11 +5993,6 @@ function LineChart({ data = [], anchorValue = null }) {
   const chartTop = 10;
   const chartBottom = 90;
   const chartLeft = 2;
-
-  // Keep the newest live tick around the middle-right of the chart instead of
-  // pinning it to the far-right edge. The empty space on the right acts as the
-  // forward area, so the price action remains easy to watch as new ticks arrive.
-  const livePointX = 58;
 
   const points = safeValues.map((value, index) => {
     const progress = index / Math.max(1, safeValues.length - 1);
@@ -6112,6 +6100,16 @@ function TradePage({
   const riseMode = tradeType === "Rise/Fall";
   const indexValue = livePrice * Number(binaryMarket?.scale || 800);
   const priceStep = Number(binaryMarket?.priceStep || 2);
+  const scaledDigitPrices = prices.map((value) => value * Number(binaryMarket?.scale || 800));
+  const digitChartStartPrice = Number(scaledDigitPrices[0] || indexValue || 0);
+  const digitChartChange = Number((indexValue - digitChartStartPrice).toFixed(2));
+  const digitChartChangePercent = digitChartStartPrice
+    ? Number(((digitChartChange / digitChartStartPrice) * 100).toFixed(2))
+    : 0;
+  const digitChartTimeLabels = [4, 3, 2, 1, 0].map((minutesAgo) => {
+    const time = new Date(Date.now() - minutesAgo * 60_000);
+    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  });
   const safeStake = Math.max(0, Number(stake) || 0);
   const payoutOptions = { ticks: duration };
   const rateOne = payoutRate(tradeType, actions[0], prediction, payoutOptions);
@@ -6238,23 +6236,25 @@ function TradePage({
         ))}
       </section>
 
-      <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
-        <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
-          <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
-          <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
-          <span className="volatilitySwitchLive"><i></i> LIVE</span>
-          <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
-        </button>
-        {marketMenuOpen && (
-          <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
-            {volatilityOptions.map((market) => (
-              <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
-                <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
-              </button>
-            ))}
-          </div>
-        )}
-      </section>
+      {!digitMode && (
+        <section className={`volatilitySwitchBar ${marketMenuOpen ? "open" : ""}`} aria-label="Select volatility market">
+          <button type="button" className="volatilitySwitchButton" onClick={() => setMarketMenuOpen((open) => !open)} disabled={Boolean(activeBinaryTrade)} aria-haspopup="listbox" aria-expanded={marketMenuOpen}>
+            <span className="volatilitySwitchBadge">{binaryMarket?.short || "V100 1s"}</span>
+            <span className="volatilitySwitchCopy"><small>VOLATILITY MARKET</small><strong>{binaryMarket?.label || "Volatility 100 (1s) Index"}</strong></span>
+            <span className="volatilitySwitchLive"><i></i> LIVE</span>
+            <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
+          </button>
+          {marketMenuOpen && (
+            <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
+              {volatilityOptions.map((market) => (
+                <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
+                  <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className={`proTradeChartCard binaryChartWithDigits finalBinaryChartCard ${digitMode ? "digitOnlyCard" : "priceOnlyCard"}`}>
         {!digitMode && (
@@ -6295,6 +6295,75 @@ function TradePage({
             <span><small>Current</small><b>{(activeTradeCurrent * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Live position</small><b>{activePriceWinning ? "Winning" : "Losing"} {activePreviewNet >= 0 ? "+" : ""}{money(activePreviewNet)} USD</b></span>
             <span><small>Time</small><b>{activeBinaryTrade.remainingTicks} tick{activeBinaryTrade.remainingTicks === 1 ? "" : "s"}</b></span>
+          </div>
+        )}
+
+        {digitMode && (
+          <div className={`mobileDigitLiveChartV115 ${marketMenuOpen ? "open" : ""}`}>
+            <button
+              type="button"
+              className="mobileDigitMarketHeadV115"
+              onClick={() => setMarketMenuOpen((open) => !open)}
+              disabled={Boolean(activeBinaryTrade)}
+              aria-haspopup="listbox"
+              aria-expanded={marketMenuOpen}
+            >
+              <span className="mobileDigitMarketBadgeV115">{binaryMarket?.short || "V100"}</span>
+              <span className="mobileDigitMarketCopyV115">
+                <strong>{binaryMarket?.label || "Volatility 100 Index"}</strong>
+                <small className={digitChartChange >= 0 ? "positive" : "negative"}>
+                  {indexValue.toFixed(2)}
+                  {"  "}
+                  {digitChartChange >= 0 ? "+" : ""}
+                  {digitChartChange.toFixed(2)}
+                  {" ("}
+                  {digitChartChangePercent >= 0 ? "+" : ""}
+                  {digitChartChangePercent.toFixed(2)}%)
+                </small>
+              </span>
+              <span className="mobileDigitMarketLiveV115"><i></i> LIVE</span>
+              <span className="mobileDigitMarketChevronV115">⌄</span>
+            </button>
+
+            {marketMenuOpen && (
+              <div className="mobileDigitMarketMenuV115" role="listbox" aria-label="Volatility markets">
+                {volatilityOptions.map((market) => (
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={market.id === binaryMarketId}
+                    key={market.id}
+                    className={market.id === binaryMarketId ? "active" : ""}
+                    onClick={() => {
+                      setBinaryMarketId(market.id);
+                      setMarketMenuOpen(false);
+                    }}
+                  >
+                    <span>{market.short}</span>
+                    <div>
+                      <strong>{market.label}</strong>
+                      <small>{market.description}</small>
+                    </div>
+                    <i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mobileDigitChartCanvasV115">
+              <LineChart data={scaledDigitPrices} livePointX={96} />
+              <div className="mobileDigitChartGridV115" aria-hidden="true"></div>
+              <div className="mobileDigitPriceScaleV115" aria-hidden="true">
+                <span>{(indexValue + priceStep * 2).toFixed(2)}</span>
+                <span>{indexValue.toFixed(2)}</span>
+                <span>{(indexValue - priceStep * 2).toFixed(2)}</span>
+              </div>
+              <div className="mobileDigitCurrentPriceV115">{indexValue.toFixed(2)}</div>
+            </div>
+
+            <div className="mobileDigitTimeRowV115" aria-hidden="true">
+              {digitChartTimeLabels.map((label) => <span key={label}>{label}</span>)}
+            </div>
           </div>
         )}
 
@@ -7077,56 +7146,19 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
           </div>
         </div>
 
-        <aside className="referralPanel">
+        <button
+          type="button"
+          className="referralPanel referralShortcutCardV105"
+          onClick={() => setActivePage("referrals")}
+          aria-label="Open Referral Program"
+        >
           <div className="profileActionIcon purple">👥</div>
-
-          <h2>Referral Program</h2>
-          <p>
-            {referralApproved
-              ? `Your link is active. Earn ${referralRate}% commission whenever a trader who registered through your link completes a real-money deposit.`
-              : "Apply once to receive your personal referral link and start earning commissions."}
-          </p>
-
-          <div className={referralApproved ? "referralStatus approved" : "referralStatus pending"}>
-            <b>{referralApproved ? "Approved Partner" : "Not Applied Yet"}</b>
-            <span>{referralApproved ? `Code: ${referralCode} · ${referralRate}% commission` : "Create your link in one click"}</span>
+          <div className="referralShortcutCopyV105">
+            <h2>Referral Program</h2>
+            <p>View your referral link, referrals and commission.</p>
           </div>
-
-          {referralApproved ? (
-            <>
-              <label>YOUR REFERRAL LINK</label>
-
-              <div className="referralLinkBox">
-                <span>{referralLink}</span>
-
-                <button onClick={() => navigator.clipboard?.writeText(referralLink)}>⧉</button>
-              </div>
-
-              <div className="referralStatsBox">
-                <div>
-                  <small>TOTAL EARNED</small>
-                  <strong>{money(referralEarned)} USD</strong>
-                </div>
-
-                <div>
-                  <small>TOTAL REFERRALS</small>
-                  <strong>{referralCount}</strong>
-                </div>
-
-                <div>
-                  <small>COMMISSION RATE</small>
-                  <strong>{referralRate}%</strong>
-                </div>
-              </div>
-
-              <button className="referralDashboardBtn" onClick={() => setActivePage("referrals")}>Open Referral Dashboard ›</button>
-            </>
-          ) : (
-            <button className="referralApplyBtn" onClick={applyReferralProgram}>
-              Apply & Get Referral Link →
-            </button>
-          )}
-        </aside>
+          <strong className="referralShortcutArrowV105">›</strong>
+        </button>
       </section>
 
       <button className="proLogoutButton" onClick={logout}>
