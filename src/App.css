@@ -45711,3 +45711,48 @@ body,
     max-height: 66px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V176 — DIGIT PAGE CHART HEIGHT ONLY
+   Other pages (Bots/Profile/Rise-Fall/etc.) remain unchanged.
+   The digit chart is made taller so the digit trade layout uses the available
+   viewport more naturally and the lower navigation sits like the reference.
+   ========================================================================== */
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .mobileDigitLiveChartV115 {
+    height: clamp(248px, 31dvh, 292px) !important;
+    min-height: clamp(248px, 31dvh, 292px) !important;
+    max-height: clamp(248px, 31dvh, 292px) !important;
+    flex: 0 0 clamp(248px, 31dvh, 292px) !important;
+  }
+}
+
+/* Typical Android/Chrome phone heights like the screenshots. */
+@media screen and (max-width: 760px) and (min-height: 761px) {
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .mobileDigitLiveChartV115 {
+    height: clamp(270px, 32dvh, 310px) !important;
+    min-height: clamp(270px, 32dvh, 310px) !important;
+    max-height: clamp(270px, 32dvh, 310px) !important;
+    flex-basis: clamp(270px, 32dvh, 310px) !important;
+  }
+}
+
+/* Shorter phones still fit on one screen; only a small increase over V175. */
+@media screen and (max-width: 760px) and (max-height: 760px) {
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .mobileDigitLiveChartV115 {
+    height: 222px !important;
+    min-height: 222px !important;
+    max-height: 222px !important;
+    flex-basis: 222px !important;
+  }
+}
+
+@media screen and (max-width: 760px) and (max-height: 680px) {
+  .app.activePage-trade .finalBinaryTradePage.digitContractPage .mobileDigitLiveChartV115 {
+    height: 188px !important;
+    min-height: 188px !important;
+    max-height: 188px !important;
+    flex-basis: 188px !important;
+  }
+}
