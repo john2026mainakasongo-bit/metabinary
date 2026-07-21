@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v156-ring-only-waiting-full-buttons-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v157-distinct-selected-ring-compact-gap-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -6420,13 +6420,14 @@ function TradePage({
                   : isLowest
                     ? 68
                     : Math.round(whiteStart);
-                const mobileRingColor = isWaitingCover
-                  ? "#72e9af"
-                  : isHighest
-                    ? "#20d692"
-                    : isLowest
-                      ? "#ff4058"
-                      : "#f6f8fa";
+                // Keep rank colors independent from the waiting/selected state.
+                // The selected/waiting state is drawn by the SVG base ring in CSS,
+                // so it never looks the same as the highest green top-half arc.
+                const mobileRingColor = isHighest
+                  ? "#20d692"
+                  : isLowest
+                    ? "#ff4058"
+                    : "#f6f8fa";
 
                 return (
                   <button

@@ -856,3 +856,127 @@
     width: 100% !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V157 — DISTINCT SELECTED RING + COMPACT TRADE PAGE
+
+   Selected/waiting digits:
+   - thin full mint outline on the SVG base ring only
+   - original percentage arc remains visible
+   - highest digit keeps its darker green TOP-HALF arc
+   - lowest digit keeps its red BOTTOM bar
+
+   Layout:
+   - removes the remaining blank gap between ODD/EVEN and bottom navigation
+   ========================================================================== */
+
+@keyframes mbWaitingRingPulseV157 {
+  0%, 100% {
+    opacity: .72;
+    filter: drop-shadow(0 0 3px rgba(139, 255, 207, .28));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 7px rgba(139, 255, 207, .52));
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  /* ------------------------------------------------------------
+     Selected / waiting ring is intentionally different from highest.
+     We only recolor the full BASE ring. The percentage/rank ARC stays
+     exactly as App.jsx defines it.
+     ------------------------------------------------------------ */
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    > .mobileDigitRingSvgV139 {
+    filter: drop-shadow(0 0 7px rgba(139, 255, 207, .26)) !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingBaseV139 {
+    stroke: #8bffcf !important;
+    stroke-width: 3.7 !important;
+    animation: mbWaitingRingPulseV157 1.05s ease-in-out infinite !important;
+  }
+
+  /* Do NOT override the active arc for waiting digits.
+     Highest stays green top-half, lowest stays red bottom bar,
+     ordinary selected digits keep their white percentage arc. */
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingArcV139 {
+    stroke-width: 6.5 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitRingCenterV144 {
+    fill: #050b14 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitNumberV144 {
+    fill: #ffffff !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mobileDigitPercentTextV144 {
+    fill: #c8d3e3 !important;
+  }
+
+  /* ------------------------------------------------------------
+     Remove the remaining vertical blank space below the trade buttons.
+     ------------------------------------------------------------ */
+
+  body .app.activePage-trade {
+    min-height: 0 !important;
+    height: auto !important;
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade > .mainScreen {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .finalBinaryOrderCard,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proBinaryOrderCard.finalBinaryOrderCard,
+  body .app.activePage-trade
+    .finalBinaryTradePage.digitContractPage
+    .proTradeButtons.finalTradeButtons {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade > .bottomNav {
+    margin-top: 0 !important;
+    margin-bottom: max(4px, env(safe-area-inset-bottom)) !important;
+  }
+}
