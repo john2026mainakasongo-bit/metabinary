@@ -44575,197 +44575,6 @@ body,
   text-align: left !important;
 }
 
-
-.mpesaDepositMethodModal {
-  width: min(660px, calc(100vw - 36px)) !important;
-  max-width: 660px !important;
-  padding: 30px 26px 26px !important;
-}
-
-.depositMethodIntro {
-  padding: 2px 52px 18px 2px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  margin-bottom: 16px;
-}
-
-.depositMethodIntro h2 {
-  margin: 0 !important;
-  color: #ffffff !important;
-  font-size: 32px !important;
-  line-height: 1.08 !important;
-}
-
-.depositMethodIntro p {
-  margin: 8px 0 0 !important;
-  color: #95a2b7 !important;
-  font-size: 15px !important;
-  text-align: left !important;
-}
-
-.depositMethodList {
-  display: grid;
-  gap: 18px;
-}
-
-.depositMethodOption {
-  width: 100%;
-  min-height: 120px;
-  display: grid;
-  grid-template-columns: 76px minmax(0, 1fr) 28px;
-  align-items: center;
-  gap: 18px;
-  padding: 18px 20px;
-  border-radius: 20px;
-  border: 1px solid rgba(83, 112, 163, 0.35);
-  background: rgba(18, 29, 48, 0.88);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.01);
-  transition: 0.18s ease;
-}
-
-.depositMethodOption:hover {
-  border-color: rgba(64, 148, 255, 0.65);
-  background: rgba(18, 31, 54, 0.96);
-  transform: translateY(-1px);
-}
-
-.depositMethodIcon {
-  width: 76px;
-  height: 76px;
-  display: grid;
-  place-items: center;
-  border-radius: 20px;
-  font-size: 36px;
-  font-weight: 900;
-  line-height: 1;
-  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.03);
-}
-
-.depositMethodIcon.mpesa {
-  background: linear-gradient(135deg, rgba(40, 154, 169, 0.36), rgba(29, 87, 102, 0.46));
-  color: #52d8df;
-}
-
-.depositMethodIcon.card {
-  background: linear-gradient(135deg, rgba(121, 85, 255, 0.34), rgba(66, 43, 133, 0.5));
-  color: #a46fff;
-}
-
-.depositMethodIcon.usdt {
-  background: linear-gradient(135deg, rgba(169, 124, 33, 0.36), rgba(106, 74, 24, 0.56));
-  color: #f4ab1a;
-}
-
-.depositMethodText {
-  min-width: 0;
-  display: block;
-  text-align: left;
-}
-
-.depositMethodText strong,
-.depositMethodText small {
-  display: block;
-}
-
-.depositMethodText strong {
-  color: #fff;
-  font-size: 23px;
-  font-weight: 900;
-}
-
-.depositMethodText small {
-  margin-top: 7px;
-  color: #95a2b7;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-.depositMethodArrow {
-  color: #7d8da6;
-  font-size: 52px;
-  font-weight: 300;
-  line-height: 1;
-}
-
-.compactDepositHead {
-  margin-bottom: 20px;
-}
-
-.methodIconChip {
-  font-size: 28px;
-}
-
-.methodIconChip.mpesa {
-  background: linear-gradient(135deg, rgba(40, 154, 169, 0.32), rgba(29, 87, 102, 0.4));
-  color: #52d8df;
-}
-
-.methodIconChip.card {
-  background: linear-gradient(135deg, rgba(121, 85, 255, 0.3), rgba(66, 43, 133, 0.46));
-  color: #a46fff;
-}
-
-.methodIconChip.usdt {
-  background: linear-gradient(135deg, rgba(169, 124, 33, 0.34), rgba(106, 74, 24, 0.54));
-  color: #f4ab1a;
-}
-
-.depositComingSoonCard {
-  padding: 18px 18px;
-  margin-bottom: 18px;
-  border-radius: 16px;
-  border: 1px solid rgba(82, 112, 162, 0.32);
-  background: rgba(17, 28, 46, 0.72);
-}
-
-.depositComingSoonCard strong {
-  display: block;
-  color: #fff;
-  font-size: 18px;
-}
-
-.depositComingSoonCard p {
-  margin: 7px 0 0 !important;
-  color: #92a1b7 !important;
-  font-size: 14px !important;
-  line-height: 1.45 !important;
-  text-align: left !important;
-}
-
-.depositMethodActions {
-  display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
-  gap: 12px;
-}
-
-.depositBackButton,
-.depositBackInline {
-  border: 1px solid rgba(82, 116, 171, 0.4);
-  background: rgba(255, 255, 255, 0.04);
-  color: #d2dced;
-  font-weight: 800;
-}
-
-.depositBackButton {
-  min-height: 58px;
-  border-radius: 15px;
-}
-
-.depositBackInline {
-  width: 100%;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: -6px 0 16px !important;
-  border-radius: 12px;
-}
-
-.mpesaMethodCard.selectable {
-  width: 100%;
-  text-align: left;
-}
-
 .mpesaSectionLabel {
   display: block;
   margin: 0 0 9px !important;
@@ -45196,90 +45005,6 @@ body,
     font-size: 12px !important;
   }
 
-
-  .mpesaDepositMethodModal {
-    width: min(100%, 560px) !important;
-    padding: 20px 14px 16px !important;
-  }
-
-  .depositMethodIntro {
-    padding: 0 34px 14px 0;
-    margin-bottom: 14px;
-  }
-
-  .depositMethodIntro h2 {
-    font-size: 24px !important;
-  }
-
-  .depositMethodIntro p {
-    margin-top: 6px !important;
-    font-size: 12px !important;
-  }
-
-  .depositMethodList {
-    gap: 12px;
-  }
-
-  .depositMethodOption {
-    min-height: 94px;
-    grid-template-columns: 56px minmax(0, 1fr) 20px;
-    gap: 12px;
-    padding: 14px 14px;
-    border-radius: 16px;
-  }
-
-  .depositMethodIcon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    font-size: 27px;
-  }
-
-  .depositMethodText strong {
-    font-size: 16px;
-  }
-
-  .depositMethodText small {
-    margin-top: 4px;
-    font-size: 11px;
-  }
-
-  .depositMethodArrow {
-    font-size: 40px;
-  }
-
-  .depositComingSoonCard {
-    padding: 14px 14px;
-    margin-bottom: 14px;
-    border-radius: 14px;
-  }
-
-  .depositComingSoonCard strong {
-    font-size: 15px;
-  }
-
-  .depositComingSoonCard p {
-    font-size: 12px !important;
-  }
-
-  .depositMethodActions {
-    grid-template-columns: 112px minmax(0, 1fr);
-    gap: 10px;
-  }
-
-  .depositBackButton {
-    min-height: 54px;
-    border-radius: 13px;
-    font-size: 14px;
-  }
-
-  .depositBackInline {
-    min-height: 40px;
-    margin: -4px 0 12px !important;
-    border-radius: 11px;
-    font-size: 12px;
-  }
-
   .mpesaSectionLabel {
     font-size: 11px;
   }
@@ -45423,37 +45148,6 @@ body,
     font-size: 11px !important;
   }
 
-
-  .depositMethodIntro h2 {
-    font-size: 22px !important;
-  }
-
-  .depositMethodOption {
-    min-height: 88px;
-    grid-template-columns: 48px minmax(0, 1fr) 18px;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .depositMethodIcon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    font-size: 23px;
-  }
-
-  .depositMethodText strong {
-    font-size: 15px;
-  }
-
-  .depositMethodText small {
-    font-size: 10.5px;
-  }
-
-  .depositMethodActions {
-    grid-template-columns: 98px minmax(0, 1fr);
-  }
-
   .mpesaQuickAmounts {
     gap: 4px;
   }
@@ -45488,80 +45182,54 @@ body,
 
 
 /* ========================================================================== 
-   METABINARY V161 — FINAL DIGIT RING / WIN-ZONE / CURSOR BEHAVIOUR
-   - Lowest statistic: short RED bar at the bottom only.
-   - Highest statistic: GREEN upper half-ring, grey lower half-ring.
-   - Open-trade winning digits: LIGHT GREEN cover, no glow.
-   - Settlement digit: one bright green/red flash, then returns to normal.
-   - Cursor: always OUTSIDE the circle.
-   - Normal digit and percentage text stays black.
+   METABINARY V162 — FINAL ACTIVE WIN COVER + SETTLEMENT FLASH + RED BAR FIX
    ========================================================================== */
 
-/* Normal cells stay calm and readable. */
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
-  background: #f2f4f6 !important;
-  border: 1px solid rgba(8, 17, 29, 0.14) !important;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34) !important;
-  filter: none !important;
-}
-
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
-  color: #07111d !important;
-  text-shadow: none !important;
-}
-
-/* Highest number: green TOP half-ring, grey BOTTOM half-ring. */
+/* Keep normal ranked rings flat and readable. */
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
   background: linear-gradient(
     to bottom,
-    #20cf86 0%,
-    #20cf86 50%,
-    #65717e 50%,
-    #65717e 100%
+    #20c77f 0%,
+    #20c77f 50%,
+    #596471 50%,
+    #596471 100%
   ) !important;
   box-shadow: none !important;
   filter: none !important;
 }
 
-/* Lowest number: keep the ring grey and add only a short red BOTTOM bar. */
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
-  background: #65717e !important;
+/* Lowest digit: use a clean straight red bar at the bottom instead of a
+   distorted conic arc. The ring itself stays grey. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitHighestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  position: absolute !important;
+  background: #596471 !important;
   box-shadow: none !important;
   filter: none !important;
 }
 
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)::after {
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitHighestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7::after {
   content: "" !important;
   display: block !important;
   position: absolute !important;
   left: 50% !important;
-  bottom: 1px !important;
-  width: 31% !important;
-  min-width: 18px !important;
-  max-width: 28px !important;
+  bottom: 2px !important;
+  width: 34% !important;
   height: 5px !important;
   border-radius: 999px !important;
-  background: #ff4057 !important;
-  box-shadow: none !important;
+  background: #ff4058 !important;
   transform: translateX(-50%) !important;
-  z-index: 8 !important;
+  box-shadow: none !important;
   pointer-events: none !important;
 }
 
-/* The chosen barrier can remain subtly selected before entry, but text stays black. */
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPickedV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
-  background: #e9f4ff !important;
-  border-color: rgba(55, 151, 232, 0.52) !important;
-  box-shadow: inset 0 0 0 1px rgba(55, 151, 232, 0.14) !important;
-}
-
-/* Once the trade is entered, every digit that can WIN is covered light green. */
+/* Once a digit trade is open, every digit that can settle as a win gets a
+   clear LIGHT-GREEN cover. This works for Even/Odd, Over/Under and other
+   digit contracts through the existing digitWinsTrade() logic. */
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7,
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
-  background: #bff0d3 !important;
-  border-color: #63d69a !important;
-  box-shadow: inset 0 0 0 1px rgba(26, 140, 89, 0.10) !important;
+  background: linear-gradient(180deg, #b8f6d5 0%, #8fe6b8 100%) !important;
+  border-color: rgba(205, 255, 227, .96) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .26) !important;
   filter: none !important;
 }
 
@@ -45569,108 +45237,63 @@ body,
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7,
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
-  color: #07150e !important;
+  color: #06130d !important;
   text-shadow: none !important;
 }
 
-/* Current live digit has no colour fill or glow: the external cursor is the marker. */
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
-  box-shadow: none !important;
-  filter: none !important;
-}
-
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
-  color: #07111d !important;
-}
-
-/* One bright settlement flash. React removes these classes after about 950 ms. */
-@keyframes mbDigitWinFlashV161 {
+/* Strong one-shot settlement flashes. */
+@keyframes mbSettlementWinV162 {
   0%   { transform: scale(1); filter: none; }
-  28%  { transform: scale(1.13); filter: drop-shadow(0 0 24px rgba(38, 255, 143, 1)); }
-  68%  { transform: scale(1.07); filter: drop-shadow(0 0 14px rgba(38, 255, 143, .92)); }
+  18%  { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(49, 255, 159, .95)); }
+  45%  { transform: scale(1.14); filter: drop-shadow(0 0 24px rgba(49, 255, 159, 1)); }
   100% { transform: scale(1); filter: none; }
 }
 
-@keyframes mbDigitLossFlashV161 {
+@keyframes mbSettlementLossV162 {
   0%   { transform: scale(1); filter: none; }
-  28%  { transform: scale(1.13); filter: drop-shadow(0 0 24px rgba(255, 45, 76, 1)); }
-  68%  { transform: scale(1.07); filter: drop-shadow(0 0 14px rgba(255, 45, 76, .92)); }
+  18%  { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(255, 55, 83, .95)); }
+  45%  { transform: scale(1.14); filter: drop-shadow(0 0 24px rgba(255, 55, 83, 1)); }
   100% { transform: scale(1); filter: none; }
 }
 
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 {
-  z-index: 60 !important;
-  animation: mbDigitWinFlashV161 .92s ease-out 1 !important;
+  z-index: 80 !important;
+  animation: mbSettlementWinV162 1.08s ease-out 1 !important;
 }
 
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitRingV7 {
-  background: #31f09f !important;
-  box-shadow: 0 0 24px rgba(49, 240, 159, .96) !important;
+  background: #37f2a5 !important;
+  box-shadow: 0 0 26px rgba(55, 242, 165, .98) !important;
+  filter: none !important;
 }
 
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 {
-  background: #effff6 !important;
-  border-color: #6affbb !important;
-  box-shadow: 0 0 18px rgba(49, 240, 159, .70) !important;
-}
-
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitCoreV7 > strong,
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultWinV7 .mbDigitPercentV7 {
-  color: #00b965 !important;
-  text-shadow: 0 0 10px rgba(0, 255, 138, .45) !important;
+  background: #0b8b58 !important;
+  border-color: #d4ffe9 !important;
+  box-shadow: 0 0 24px rgba(55, 242, 165, .94) !important;
 }
 
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 {
-  z-index: 60 !important;
-  animation: mbDigitLossFlashV161 .92s ease-out 1 !important;
+  z-index: 80 !important;
+  animation: mbSettlementLossV162 1.08s ease-out 1 !important;
 }
 
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitRingV7 {
-  background: #ff3652 !important;
-  box-shadow: 0 0 24px rgba(255, 54, 82, .96) !important;
+  background: #ff304f !important;
+  box-shadow: 0 0 28px rgba(255, 48, 79, 1) !important;
+  filter: none !important;
 }
 
 .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 {
-  background: #fff0f3 !important;
-  border-color: #ff7185 !important;
-  box-shadow: 0 0 18px rgba(255, 54, 82, .68) !important;
-}
-
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitCoreV7 > strong,
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitResultLossV7 .mbDigitPercentV7 {
-  color: #ef1738 !important;
-  text-shadow: 0 0 10px rgba(255, 34, 68, .38) !important;
-}
-
-/* Cursor stays outside the active circle on the two-row digit board. */
-.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
-  top: calc(
-    4px +
-    (var(--mb-active-row) * (var(--mb-v23-row-height) + 12px)) +
-    ((var(--mb-v23-row-height) - var(--mb-v23-cell-size)) / 2) +
-    var(--mb-v23-cell-size) + 10px
-  ) !important;
-  bottom: auto !important;
-  border-left: 7px solid transparent !important;
-  border-right: 7px solid transparent !important;
-  border-bottom: 10px solid #ff4057 !important;
-  border-top: 0 !important;
-  filter: none !important;
-  z-index: 50 !important;
+  background: #a80f2b !important;
+  border-color: #ffd1d8 !important;
+  box-shadow: 0 0 24px rgba(255, 48, 79, .96) !important;
 }
 
 @media (max-width: 760px) {
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7 {
-    left: var(--mb-v58-cursor-left) !important;
-    top: calc(var(--mb-v58-cursor-top) + (var(--mb-v58-cell-size) / 2) + 14px) !important;
-    bottom: auto !important;
-    transform: translateX(-50%) !important;
-  }
-
-  .app.activePage-trade .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)::after {
-    bottom: 0 !important;
-    width: 25px !important;
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitHighestV7):not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitRingV7::after {
+    bottom: 1px !important;
+    width: 36% !important;
     height: 4px !important;
   }
 }
