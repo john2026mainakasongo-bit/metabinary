@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v154-restored-mobile-chart-digits-stable-movement-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v155-digit-visual-rules-waiting-cursor-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -6392,6 +6392,7 @@ function TradePage({
                   digitMode &&
                   digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent)
                 );
+                const isWaitingCover = Boolean(activeBinaryTrade && isWinningZone && !isResultDigit);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -6405,23 +6406,27 @@ function TradePage({
                 const whiteCenter = 180 * (1 - percentageLevel);
                 const whiteStart = whiteCenter - whiteSweep / 2;
 
-                // Mobile SVG ring values. SVG avoids the conic-gradient/Core
-                // stacking bugs that affected previous mobile CSS versions.
+                // Mobile SVG ring values.
+                // - highest digit => bright green top-half ring
+                // - lowest digit  => bright red short bottom bar
+                // - waiting zone  => soft light-green cover while trade is open
                 const mobileRingSweep = isHighest
-                  ? 72
+                  ? 50
                   : isLowest
-                    ? 18
+                    ? 12
                     : Math.round(18 + percentageLevel * 58);
                 const mobileRingStart = isHighest
-                  ? 220
+                  ? 180
                   : isLowest
-                    ? 145
+                    ? 68
                     : Math.round(whiteStart);
-                const mobileRingColor = isHighest
-                  ? "#20d692"
-                  : isLowest
-                    ? "#ff4058"
-                    : "#f6f8fa";
+                const mobileRingColor = isWaitingCover
+                  ? "#72e9af"
+                  : isHighest
+                    ? "#20d692"
+                    : isLowest
+                      ? "#ff4058"
+                      : "#f6f8fa";
 
                 return (
                   <button
@@ -6437,6 +6442,7 @@ function TradePage({
                       isPicked ? "mbDigitPickedV7" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningZone ? "mbDigitWinningZoneV31" : "",
+                      isWaitingCover ? "mbDigitWaitingV155" : "",
                       isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
                       isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
                     ].filter(Boolean).join(" ")}

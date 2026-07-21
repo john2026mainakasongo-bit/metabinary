@@ -525,7 +525,7 @@
 
 
 /* ==========================================================================
-   METABINARY V152 — ONE CURSOR + LIVE WAITING DIGIT + RESULT FLASH
+   METABINARY V155 — ONE CURSOR + WAITING ZONE + WIN/LOSS FLASH
    Based on the clean V149 two-row layout.
 
    Behaviour:
@@ -555,7 +555,7 @@
     opacity: 1 !important;
     position: absolute !important;
     left: calc((var(--mb-active-col, 0) + 0.5) * 20%) !important;
-    top: calc((var(--mb-active-row, 0) * 76px) + 58px) !important;
+    top: calc((var(--mb-active-row, 0) * 76px) + 62px) !important;
     right: auto !important;
     bottom: auto !important;
     width: 0 !important;
@@ -597,7 +597,7 @@
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
-    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
     > .mobileDigitRingSvgV139 {
     filter: drop-shadow(0 0 10px rgba(72, 233, 159, .50)) !important;
   }
@@ -605,7 +605,7 @@
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
-    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
     .mobileDigitRingBaseV139 {
     stroke: #72e9af !important;
   }
@@ -613,7 +613,7 @@
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
-    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
     .mobileDigitRingArcV139 {
     stroke: #baffdc !important;
   }
@@ -621,7 +621,7 @@
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
-    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
     .mobileDigitRingCenterV144 {
     fill: #9bf2c9 !important;
   }
@@ -629,7 +629,7 @@
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
-    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
     .mobileDigitNumberV144 {
     fill: #062819 !important;
   }
@@ -637,7 +637,7 @@
   body .app.activePage-trade
     .finalBinaryTradePage.digitContractPage
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130.isTrading
-    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitCurrentV7:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
+    .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7)
     .mobileDigitPercentTextV144 {
     fill: #12583b !important;
   }
@@ -678,7 +678,7 @@
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
     .mobileDigitRingArcV139 {
-    stroke: #19f78f !important;
+    stroke: #00ff7a !important;
   }
 
   body .app.activePage-trade
@@ -686,7 +686,7 @@
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultWinV7
     .mobileDigitRingCenterV144 {
-    fill: #19f78f !important;
+    fill: #00ff7a !important;
   }
 
   body .app.activePage-trade
@@ -720,7 +720,7 @@
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
     .mobileDigitRingArcV139 {
-    stroke: #ff3452 !important;
+    stroke: #ff2345 !important;
   }
 
   body .app.activePage-trade
@@ -728,7 +728,7 @@
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mbDigitCellV7.mobileDigitCellFinalV130.mbDigitResultLossV7
     .mobileDigitRingCenterV144 {
-    fill: #ff3452 !important;
+    fill: #ff2345 !important;
   }
 
   body .app.activePage-trade
@@ -751,7 +751,7 @@
     .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130
     .mobileDigitGridFinalV130
     > i.singleDigitCursorV7.mobileDigitCursorFinalV130 {
-    top: calc((var(--mb-active-row, 0) * 76px) + 55px) !important;
+    top: calc((var(--mb-active-row, 0) * 76px) + 59px) !important;
     border-left-width: 7px !important;
     border-right-width: 7px !important;
     border-bottom-width: 11px !important;
