@@ -53,7 +53,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v160-rise-fall-mobile-layout-fix-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v170-mobile-ai-button-layout-fill-2026-07-21";
 const DIGIT_TICK_MS = 1000;
 const BOT_CYCLE_DELAY_MS = 250;
 const TRADE_API_TIMEOUT_MS = 7000;
@@ -8021,7 +8021,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerUp={pointerUp}
           aria-label="Scan markets and start AI Auto-Trade"
         >
-          <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : autoSession?.running ? `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}` : "SCAN"}</b>
+          <span className="aiOrbCore">AI</span><i></i>
         </button>
       )}
 
