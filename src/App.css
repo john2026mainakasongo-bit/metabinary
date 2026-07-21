@@ -46140,3 +46140,66 @@ body,
     will-change: left, top !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V181 — FULL GREEN WAITING RINGS
+   Waiting digits for EVEN/ODD now get a clearly visible complete green ring.
+   The ring sits outside the black center, so number and percentage stay visible.
+   ========================================================================== */
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCandidateRingV180 {
+  position: absolute !important;
+  inset: 2% !important;
+  z-index: 5 !important;
+  display: block !important;
+  border-radius: 50% !important;
+  border: 7px solid #2fd79a !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+  box-shadow:
+    0 0 0 1px rgba(145, 255, 215, .24),
+    0 0 14px rgba(47, 215, 154, .32),
+    inset 0 0 8px rgba(47, 215, 154, .12) !important;
+  pointer-events: none !important;
+}
+
+/* Keep normal digit contents fully readable inside the waiting ring. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCandidateV180 .mbDigitCoreV7 {
+  background: #02070d !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow: none !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCandidateV180 .mbDigitCoreV7 > strong {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  z-index: 9 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCandidateV180 .mbDigitPercentV7 {
+  color: #d7e1ec !important;
+  opacity: 1 !important;
+  z-index: 9 !important;
+}
+
+/* Preserve selected prediction styling if future contracts overlap with a
+   waiting state. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitCandidateV180.mbDigitPredictionV180 .mbDigitCandidateRingV180 {
+  border-color: #2fd79a !important;
+  box-shadow:
+    0 0 0 2px rgba(76, 167, 255, .32),
+    0 0 15px rgba(47, 215, 154, .34) !important;
+}
+
+/* Result flash still overrides the waiting ring. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultWinV7 .mbDigitCandidateRingV180,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23
+.mbDigitResultLossV7 .mbDigitCandidateRingV180 {
+  display: none !important;
+}
