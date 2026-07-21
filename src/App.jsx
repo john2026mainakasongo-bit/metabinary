@@ -8076,7 +8076,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerUp={pointerUp}
           aria-label="Scan markets and start AI Auto-Trade"
         >
-          <span className="aiOrbCore">AI</span><i></i><b>{scanning ? `${progress}%` : autoSession?.running ? `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}` : "SCAN"}</b>
+          <span className="aiOrbCore">AI</span><i></i>{(scanning || autoSession?.running) && <b>{scanning ? `${progress}%` : `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}`}</b>}
         </button>
       )}
 

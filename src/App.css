@@ -46312,3 +46312,87 @@ body,
       0 0 16px rgba(32, 233, 155, .30) !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V183 — DIGIT RING FIT + DRAGGABLE AI ONLY
+   No layout/chart/order/bottom-nav changes.
+   ========================================================================== */
+
+/* Waiting ring hugs the outside edge of the existing statistics circle.
+   It is only slightly larger than the original 51/54px ring, so there is no
+   visible black gap between the existing circle and the green waiting ring. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCandidateRingV182 {
+  inset: -2px !important;
+  border: 3px solid #18e995 !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  box-shadow:
+    0 0 0 1px rgba(136, 255, 214, .30),
+    0 0 9px rgba(24, 233, 149, .68),
+    0 0 15px rgba(24, 233, 149, .25) !important;
+}
+
+/* Phone circles are smaller, so keep exactly the same close fit. */
+@media (max-width: 760px) {
+  .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCandidateRingV182 {
+    inset: -2px !important;
+    border-width: 3px !important;
+    box-shadow:
+      0 0 0 1px rgba(136, 255, 214, .28),
+      0 0 8px rgba(24, 233, 149, .64),
+      0 0 13px rgba(24, 233, 149, .23) !important;
+  }
+}
+
+/* Restore the AI orb on the Trade screen and keep its actual saved drag
+   coordinates on both mobile and laptop. This overrides old mobile rules that
+   hid or docked the orb. */
+.app.activePage-trade .floatingAiButton.aiPage-trade {
+  display: grid !important;
+  position: fixed !important;
+  left: var(--ai-x, calc(100vw - 82px)) !important;
+  top: var(--ai-y, 150px) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  touch-action: none !important;
+  cursor: grab !important;
+  z-index: 52000 !important;
+}
+
+.app.activePage-trade .floatingAiButton.aiPage-trade:active {
+  cursor: grabbing !important;
+}
+
+/* No permanent SCAN label under the orb. Progress/P&L can still appear when
+   the AI is actively scanning or auto-trading. */
+.app.activePage-trade .floatingAiButton.aiPage-trade > b:empty {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .app.activePage-trade .floatingAiButton.aiPage-trade {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  .app.activePage-trade .floatingAiButton.aiPage-trade .aiOrbCore {
+    font-size: 14px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app.activePage-trade .floatingAiButton.aiPage-trade {
+    width: 66px !important;
+    min-width: 66px !important;
+    max-width: 66px !important;
+    height: 66px !important;
+    min-height: 66px !important;
+    max-height: 66px !important;
+  }
+}
