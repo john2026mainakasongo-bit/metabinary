@@ -6124,6 +6124,8 @@ function TradePage({
   );
   const [riseDurationUnit, setRiseDurationUnit] = useState("seconds");
   const [riseDurationValue, setRiseDurationValue] = useState(5);
+  const [pendingDigitVisualTrade, setPendingDigitVisualTrade] = useState(null);
+  const pendingDigitVisualTimerRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -6136,6 +6138,42 @@ function TradePage({
   useEffect(() => {
     if (activeBinaryTrade) setMarketMenuOpen(false);
   }, [activeBinaryTrade]);
+
+  useEffect(() => {
+    if (pendingDigitVisualTimerRef.current) {
+      window.clearTimeout(pendingDigitVisualTimerRef.current);
+      pendingDigitVisualTimerRef.current = null;
+    }
+
+    if (activeBinaryTrade && isDigitContract(activeBinaryTrade.type)) {
+      setPendingDigitVisualTrade({
+        type: activeBinaryTrade.type,
+        action: activeBinaryTrade.action,
+        prediction: Number(activeBinaryTrade.prediction ?? prediction),
+      });
+      return;
+    }
+
+    if (!activeBinaryTrade && binaryResultFlash) {
+      pendingDigitVisualTimerRef.current = window.setTimeout(() => {
+        setPendingDigitVisualTrade(null);
+      }, 1050);
+      return;
+    }
+
+    if (!activeBinaryTrade && !binaryResultFlash) {
+      pendingDigitVisualTimerRef.current = window.setTimeout(() => {
+        setPendingDigitVisualTrade(null);
+      }, 8500);
+    }
+
+    return () => {
+      if (pendingDigitVisualTimerRef.current) {
+        window.clearTimeout(pendingDigitVisualTimerRef.current);
+        pendingDigitVisualTimerRef.current = null;
+      }
+    };
+  }, [activeBinaryTrade, binaryResultFlash, prediction]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -6199,6 +6237,9 @@ function TradePage({
   const activePreviewNet = activePriceWinning
     ? Number((activePotentialPayout - activeStake).toFixed(2))
     : -activeStake;
+  const digitVisualTrade = activeBinaryTrade || pendingDigitVisualTrade;
+  const digitVisualType = digitVisualTrade?.type || tradeType;
+  const digitVisualPrediction = Number(digitVisualTrade?.prediction ?? prediction);
   const highestPercent = Math.max(...digitStats);
   const lowestPercent = Math.min(...digitStats);
   const highestDigit = digitStats.indexOf(highestPercent);
@@ -6246,8 +6287,26 @@ function TradePage({
     setStake((current) => Number(Math.max(0.3, (Number(current) || 0) + difference).toFixed(2)));
   };
 
-  const placeContract = (action) =>
-    runBinaryTrade(
+  const placeContract = async (action) => {
+    if (digitMode) {
+      setPendingDigitVisualTrade({
+        type: tradeType,
+        action,
+        prediction: Number(prediction),
+      });
+
+      if (pendingDigitVisualTimerRef.current) {
+        window.clearTimeout(pendingDigitVisualTimerRef.current);
+      }
+
+      pendingDigitVisualTimerRef.current = window.setTimeout(() => {
+        setPendingDigitVisualTrade((current) =>
+          activeBinaryTrade ? current : null
+        );
+      }, 8500);
+    }
+
+    await runBinaryTrade(
       tradeType,
       action,
       riseMode
@@ -6258,6 +6317,7 @@ function TradePage({
           }
         : {}
     );
+  };
 
   if (desktopTradeMode) {
     return (
@@ -6458,7 +6518,7 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${activeBinaryTrade ? "isTrading" : ""}`}
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${digitVisualTrade ? "isTrading" : ""}`}
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
           >
             <div
@@ -6473,15 +6533,17 @@ function TradePage({
               {digitStats.map((percent, digit) => {
                 const isHighest = digit === highestDigit;
                 const isLowest = digit === lowestDigit;
-                const isPicked = ["Matches/Differs", "Over/Under"].includes(tradeType) && digit === prediction;
+                const isPicked =
+                  ["Matches/Differs", "Over/Under"].includes(digitVisualType) &&
+                  digit === digitVisualPrediction;
                 const isCurrent = digit === lastDigit;
                 const isResultDigit = binaryResultFlash?.digit === digit;
                 const isWinningZone = Boolean(
-                  activeBinaryTrade &&
+                  digitVisualTrade &&
                   digitMode &&
-                  digitWinsTrade(activeBinaryTrade, digit, activeTradeCurrent)
+                  digitWinsTrade(digitVisualTrade, digit, activeTradeCurrent)
                 );
-                const isWaitingCover = Boolean(activeBinaryTrade && isWinningZone && !isResultDigit);
+                const isWaitingCover = Boolean(digitVisualTrade && isWinningZone && !isResultDigit);
 
                 const percentageRange = Math.max(0.1, highestPercent - lowestPercent);
                 const percentageLevel = Math.max(
@@ -6529,7 +6591,7 @@ function TradePage({
                       "mobileDigitCellFinalV130",
                       isHighest ? "mbDigitHighestV7" : "",
                       isLowest ? "mbDigitLowestV7" : "",
-                      isPicked ? "mbDigitPickedV7" : "",
+                      isPicked ? "mbDigitPickedV7 mbDigitSelectedV177" : "",
                       isCurrent ? "mbDigitCurrentV7" : "",
                       isWinningZone ? "mbDigitWinningZoneV31" : "",
                       isWaitingCover ? "mbDigitWaitingV155" : "",

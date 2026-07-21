@@ -45756,3 +45756,65 @@ body,
     flex-basis: 188px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V177 — DIGIT TRADE VISUALS
+   - Winning digits mark immediately after pressing EVEN/ODD/OVER/UNDER/etc.
+   - Selected prediction stays visibly different for Over/Under and
+     Matches/Differs.
+   - Cursor movement between digits is smoother.
+   ========================================================================== */
+
+/* Strong, unmistakable selected prediction. It stays distinct even when the
+   selected digit is also inside the active green winning zone. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) {
+  z-index: 22 !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: linear-gradient(180deg, #173f86, #102a61) !important;
+  border: 2px solid #56a7ff !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(152, 205, 255, .16),
+    0 0 0 3px rgba(67, 153, 255, .22) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #ffffff !important;
+}
+
+/* If a selected prediction is also a winning digit, keep the green fill but
+   preserve the blue selection outline so the prediction is still obvious. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31.mbDigitSelectedV177:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: linear-gradient(180deg, #168f66, #0a684d) !important;
+  border: 2px solid #56a7ff !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(126, 216, 255, .2),
+    0 0 0 3px rgba(67, 153, 255, .24) !important;
+}
+
+/* Winning candidates are intentionally lighter and easier to see while a
+   trade is waiting to settle. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWinningZoneV31:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 {
+  background: linear-gradient(180deg, #3bcf9a, #15906a) !important;
+  border-color: rgba(151, 255, 216, .86) !important;
+}
+
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitCoreV7 > strong,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitWaitingV155:not(.mbDigitResultWinV7):not(.mbDigitResultLossV7) .mbDigitPercentV7 {
+  color: #06251b !important;
+  font-weight: 900 !important;
+}
+
+/* Smooth movement of the live outside cursor between the ten digit positions. */
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .singleDigitCursorV7,
+.finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCursorFinalV130 {
+  transition:
+    left .32s cubic-bezier(.2,.8,.2,1),
+    top .32s cubic-bezier(.2,.8,.2,1),
+    transform .2s ease !important;
+  will-change: left, top, transform;
+}
