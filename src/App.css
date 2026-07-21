@@ -44460,3 +44460,723 @@ body,
   }
 }
 
+/* ========================================================================== 
+   METABINARY M-PESA DEPOSIT MODAL — MOBILE + DESKTOP
+   User-facing copy intentionally says only M-PESA / STK Push.
+   ========================================================================== */
+.mpesaDepositLayer {
+  z-index: 30000 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 18px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  background: rgba(0, 5, 13, 0.82) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.mpesaDepositModal {
+  position: relative !important;
+  width: min(740px, calc(100vw - 36px)) !important;
+  max-width: 740px !important;
+  max-height: calc(100dvh - 36px) !important;
+  margin: auto !important;
+  padding: 30px 34px 24px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-radius: 28px !important;
+  border: 1px solid rgba(93, 137, 201, 0.34) !important;
+  background:
+    radial-gradient(circle at 24% 0%, rgba(0, 128, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, #101a2c 0%, #0b1423 100%) !important;
+  box-shadow:
+    0 34px 100px rgba(0, 0, 0, 0.72),
+    inset 0 0 60px rgba(0, 96, 255, 0.03) !important;
+}
+
+.mpesaDepositModal::-webkit-scrollbar {
+  width: 5px;
+}
+
+.mpesaDepositModal::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(129, 155, 194, 0.28);
+}
+
+.mpesaDepositClose,
+.mpesaDepositModal .closeModal.mpesaDepositClose {
+  position: absolute !important;
+  top: 16px !important;
+  right: 18px !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #8b99b0 !important;
+  font-size: 42px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  z-index: 3;
+}
+
+.mpesaDepositHead {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding-right: 52px;
+  margin-bottom: 28px;
+}
+
+.mpesaDepositPlus {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  border: 1px solid rgba(38, 143, 255, 0.45);
+  background: linear-gradient(135deg, rgba(0, 146, 255, 0.25), rgba(0, 76, 220, 0.13));
+  color: #2c9cff;
+  font-size: 42px;
+  font-weight: 300;
+  box-shadow: inset 0 0 28px rgba(0, 119, 255, 0.08);
+}
+
+.mpesaDepositHead small {
+  display: block;
+  margin-bottom: 5px;
+  color: #3aa3ff;
+  font-size: 13px;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+}
+
+.mpesaDepositHead h2 {
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 34px !important;
+  line-height: 1.06 !important;
+  letter-spacing: -0.02em;
+}
+
+.mpesaDepositHead p {
+  margin: 7px 0 0 !important;
+  color: #8e9cb2 !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
+
+.mpesaSectionLabel {
+  display: block;
+  margin: 0 0 9px !important;
+  color: #8c9ab0 !important;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+}
+
+.mpesaDepositAmountBox {
+  height: 72px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(77, 113, 166, 0.4);
+  background: rgba(22, 33, 52, 0.96);
+  box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.16);
+}
+
+.mpesaDepositAmountBox:focus-within {
+  border-color: #168dff;
+  box-shadow: 0 0 0 3px rgba(22, 141, 255, 0.12), inset 0 0 26px rgba(0, 0, 0, 0.16);
+}
+
+.mpesaDepositAmountBox > span {
+  color: #278eff;
+  font-size: 37px;
+  font-weight: 900;
+}
+
+.mpesaDepositAmountBox input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 70px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+  appearance: textfield;
+}
+
+.mpesaDepositAmountBox input::-webkit-outer-spin-button,
+.mpesaDepositAmountBox input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.mpesaDepositAmountBox > b {
+  color: #8795ab;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.mpesaQuickAmounts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+  margin: 12px 0 24px;
+}
+
+.mpesaQuickAmounts button {
+  min-width: 0;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  background: rgba(255, 255, 255, 0.035);
+  color: #8f9db2;
+  font-size: 15px;
+  font-weight: 900;
+  transition: 0.18s ease;
+}
+
+.mpesaQuickAmounts button:hover,
+.mpesaQuickAmounts button.active {
+  color: #fff;
+  border-color: rgba(24, 143, 255, 0.82);
+  background: rgba(24, 128, 255, 0.14);
+  box-shadow: inset 0 0 20px rgba(0, 117, 255, 0.07);
+}
+
+.mpesaPhoneBox {
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: 43px auto 1px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  margin-bottom: 8px;
+  border-radius: 15px;
+  border: 1px solid rgba(77, 113, 166, 0.38);
+  background: rgba(22, 33, 52, 0.96);
+}
+
+.mpesaPhoneBox:focus-within {
+  border-color: #168dff;
+  box-shadow: 0 0 0 3px rgba(22, 141, 255, 0.1);
+}
+
+.mpesaPhoneBox.invalid {
+  border-color: rgba(255, 64, 87, 0.62);
+}
+
+.mpesaKenyaFlag {
+  font-size: 29px;
+  line-height: 1;
+}
+
+.mpesaPhoneBox > strong {
+  color: #aab6ca;
+  font-size: 21px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mpesaPhoneBox > i {
+  width: 1px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.mpesaPhoneBox input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 23px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  box-shadow: none !important;
+}
+
+.mpesaPhoneBox input::placeholder {
+  color: #66758d;
+}
+
+.mpesaPhoneSecurity {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 22px !important;
+  color: #75859e !important;
+  font-size: 12px !important;
+  text-align: left !important;
+}
+
+.mpesaMethodCard {
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 31px;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 17px;
+  margin-bottom: 14px;
+  border-radius: 15px;
+  border: 1px solid rgba(77, 113, 166, 0.38);
+  background: rgba(22, 33, 52, 0.82);
+}
+
+.mpesaMethodLogo {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #13b861, #04813f);
+  color: white;
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.12), 0 0 22px rgba(0, 185, 94, 0.12);
+}
+
+.mpesaMethodCopy {
+  min-width: 0;
+}
+
+.mpesaMethodCopy strong,
+.mpesaMethodCopy span {
+  display: block;
+}
+
+.mpesaMethodCopy strong {
+  color: #fff;
+  font-size: 18px;
+}
+
+.mpesaMethodCopy span {
+  margin-top: 4px;
+  color: #8391a7;
+  font-size: 13px;
+}
+
+.mpesaMethodSelected {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid #138cff;
+  box-shadow: inset 0 0 0 5px #0f192a, inset 0 0 0 10px #138cff;
+}
+
+.mpesaDepositSummary {
+  display: grid;
+  gap: 9px;
+  padding: 15px 17px;
+  margin-bottom: 16px;
+  border-radius: 15px;
+  border: 1px solid rgba(77, 113, 166, 0.34);
+  background: rgba(13, 24, 40, 0.7);
+}
+
+.mpesaDepositSummary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mpesaDepositSummary span {
+  color: #8593aa;
+  font-size: 13px;
+}
+
+.mpesaDepositSummary strong {
+  color: #dce5f3;
+  font-size: 14px;
+  text-align: right;
+}
+
+.mpesaKesPreview {
+  padding-top: 9px;
+  margin-top: 1px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mpesaDepositPending {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 11px;
+  padding: 12px 14px;
+  margin: 0 0 14px;
+  border-radius: 13px;
+  border: 1px solid rgba(0, 157, 255, 0.26);
+  background: rgba(0, 119, 255, 0.08);
+}
+
+.mpesaDepositPending strong {
+  display: block;
+  color: #fff;
+  font-size: 13px;
+}
+
+.mpesaDepositPending p {
+  margin: 3px 0 0 !important;
+  color: #8fa1bb !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
+}
+
+.mpesaPendingPulse {
+  width: 12px;
+  height: 12px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #0e8cff;
+  box-shadow: 0 0 0 0 rgba(14, 140, 255, 0.55);
+  animation: mpesaPendingPulse 1.45s infinite;
+}
+
+@keyframes mpesaPendingPulse {
+  0% { box-shadow: 0 0 0 0 rgba(14, 140, 255, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(14, 140, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(14, 140, 255, 0); }
+}
+
+.mpesaDepositConfirm {
+  width: 100% !important;
+  min-height: 62px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 0 18px !important;
+  border-radius: 15px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, #0788ff 0%, #0561f7 58%, #0453e9 100%) !important;
+  color: #fff !important;
+  font-size: 19px !important;
+  font-weight: 1000 !important;
+  box-shadow: 0 16px 34px rgba(0, 101, 255, 0.25) !important;
+}
+
+.mpesaDepositConfirm:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.58 !important;
+}
+
+.mpesaPhoneError {
+  margin: 9px 0 0 !important;
+  color: #ff6d7f !important;
+  font-size: 12px !important;
+  text-align: center !important;
+}
+
+.mpesaDepositSecurity {
+  margin: 14px 0 0 !important;
+  color: #71819a !important;
+  font-size: 12px !important;
+  text-align: center !important;
+}
+
+.mpesaDepositResultModal {
+  width: min(470px, calc(100vw - 28px)) !important;
+  max-width: 470px !important;
+  padding: 38px 30px 30px !important;
+  border-radius: 24px !important;
+  text-align: center !important;
+  background: linear-gradient(180deg, #111d31 0%, #0c1525 100%) !important;
+  border: 1px solid rgba(91, 129, 188, 0.32) !important;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.66) !important;
+}
+
+.mpesaDepositResultIcon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 38px;
+  font-weight: 1000;
+}
+
+.mpesaDepositResultIcon.success {
+  background: linear-gradient(135deg, #04a75f, #087642);
+  box-shadow: 0 0 34px rgba(0, 232, 132, 0.24);
+}
+
+.mpesaDepositResultIcon.failed {
+  background: linear-gradient(135deg, #ff4057, #b3142d);
+  box-shadow: 0 0 34px rgba(255, 64, 87, 0.2);
+}
+
+.mpesaDepositResultModal > small {
+  display: block;
+  color: #39a9ff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.mpesaDepositResultModal h2 {
+  margin: 8px 0 10px !important;
+  color: #fff !important;
+  font-size: 28px !important;
+}
+
+.mpesaDepositResultModal p {
+  margin: 0 0 24px !important;
+  color: #91a0b5 !important;
+  line-height: 1.55 !important;
+  text-align: center !important;
+}
+
+@media (max-width: 760px) {
+  .mpesaDepositLayer {
+    align-items: center !important;
+    padding: 10px !important;
+  }
+
+  .mpesaDepositModal {
+    width: min(100%, 560px) !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 20px) !important;
+    padding: 22px 16px 18px !important;
+    border-radius: 22px !important;
+  }
+
+  .mpesaDepositClose,
+  .mpesaDepositModal .closeModal.mpesaDepositClose {
+    top: 9px !important;
+    right: 10px !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 36px !important;
+  }
+
+  .mpesaDepositHead {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 13px;
+    padding-right: 35px;
+    margin-bottom: 21px;
+  }
+
+  .mpesaDepositPlus {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    font-size: 31px;
+  }
+
+  .mpesaDepositHead small {
+    font-size: 10px;
+  }
+
+  .mpesaDepositHead h2 {
+    font-size: 27px !important;
+  }
+
+  .mpesaDepositHead p {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+  }
+
+  .mpesaSectionLabel {
+    font-size: 11px;
+  }
+
+  .mpesaDepositAmountBox {
+    height: 64px;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    padding: 0 14px;
+  }
+
+  .mpesaDepositAmountBox > span {
+    font-size: 31px;
+  }
+
+  .mpesaDepositAmountBox input {
+    height: 62px !important;
+    font-size: 29px !important;
+  }
+
+  .mpesaDepositAmountBox > b {
+    font-size: 12px;
+  }
+
+  .mpesaQuickAmounts {
+    gap: 6px;
+    margin: 10px 0 19px;
+  }
+
+  .mpesaQuickAmounts button {
+    height: 42px;
+    padding: 0 3px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+
+  .mpesaPhoneBox {
+    min-height: 60px;
+    grid-template-columns: 34px auto 1px minmax(0, 1fr);
+    gap: 9px;
+    padding: 0 12px;
+  }
+
+  .mpesaKenyaFlag {
+    font-size: 24px;
+  }
+
+  .mpesaPhoneBox > strong {
+    font-size: 18px;
+  }
+
+  .mpesaPhoneBox > i {
+    height: 30px;
+  }
+
+  .mpesaPhoneBox input {
+    height: 58px !important;
+    font-size: 19px !important;
+  }
+
+  .mpesaPhoneSecurity {
+    margin-bottom: 17px !important;
+    font-size: 10.5px !important;
+  }
+
+  .mpesaMethodCard {
+    min-height: 70px;
+    grid-template-columns: 48px minmax(0, 1fr) 27px;
+    gap: 11px;
+    padding: 9px 12px;
+  }
+
+  .mpesaMethodLogo {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 9px;
+  }
+
+  .mpesaMethodCopy strong {
+    font-size: 15px;
+  }
+
+  .mpesaMethodCopy span {
+    font-size: 11px;
+  }
+
+  .mpesaMethodSelected {
+    width: 25px;
+    height: 25px;
+  }
+
+  .mpesaDepositSummary {
+    gap: 7px;
+    padding: 12px 13px;
+    margin-bottom: 13px;
+  }
+
+  .mpesaDepositSummary span,
+  .mpesaDepositSummary strong {
+    font-size: 11.5px;
+  }
+
+  .mpesaDepositConfirm {
+    min-height: 56px !important;
+    font-size: 16px !important;
+  }
+
+  .mpesaDepositSecurity {
+    margin-top: 11px !important;
+    font-size: 10.5px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .mpesaDepositLayer {
+    padding: 6px !important;
+  }
+
+  .mpesaDepositModal {
+    max-height: calc(100dvh - 12px) !important;
+    padding: 19px 12px 15px !important;
+    border-radius: 18px !important;
+  }
+
+  .mpesaDepositHead {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 17px;
+  }
+
+  .mpesaDepositPlus {
+    width: 46px;
+    height: 46px;
+  }
+
+  .mpesaDepositHead h2 {
+    font-size: 24px !important;
+  }
+
+  .mpesaDepositHead p {
+    font-size: 11px !important;
+  }
+
+  .mpesaQuickAmounts {
+    gap: 4px;
+  }
+
+  .mpesaQuickAmounts button {
+    height: 39px;
+    font-size: 11px;
+  }
+
+  .mpesaPhoneBox {
+    grid-template-columns: 29px auto 1px minmax(0, 1fr);
+    gap: 7px;
+    padding: 0 9px;
+  }
+
+  .mpesaKenyaFlag {
+    font-size: 21px;
+  }
+
+  .mpesaPhoneBox > strong {
+    font-size: 16px;
+  }
+
+  .mpesaPhoneBox input {
+    font-size: 17px !important;
+  }
+
+  .mpesaDepositSummary > div {
+    gap: 9px;
+  }
+}
+

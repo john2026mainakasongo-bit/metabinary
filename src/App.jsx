@@ -3879,7 +3879,8 @@ function TradingApp() {
 
   async function submitDeposit(data) {
     const amountUsd = Number(data.amountUsd);
-    const method = "pesapal";
+    const phone = String(data.phone || "").trim();
+    const method = "mpesa";
 
     if (!API_URL) {
       notify(
@@ -3895,6 +3896,11 @@ function TradingApp() {
       return false;
     }
 
+    if (!phone) {
+      notify("loss", "Phone required", "Enter the M-PESA phone number that should receive the STK Push.");
+      return false;
+    }
+
     try {
       const response = await fetch(`${API_URL}/api/deposit`, {
         method: "POST",
@@ -3903,7 +3909,7 @@ function TradingApp() {
         body: JSON.stringify({
           method,
           amountUsd,
-          phone: "",
+          phone,
           email: user.email,
           name: user.name || user.email,
           requestId: uid(),
@@ -3928,30 +3934,31 @@ function TradingApp() {
 
       addTx({
         type: "Deposit pending",
-        method: "PesaPal",
+        method: "M-PESA",
         account: "real",
         amount: amountUsd,
         status: "Pending",
-        details: "Secure PesaPal checkout",
+        details: `STK Push sent to ${phone}`,
       });
 
       void pollDepositStatus(result.depositId);
 
-      if (result.checkoutUrl) {
-        return {
-          ok: true,
-          checkoutUrl: result.checkoutUrl,
-          depositId: result.depositId,
-          amountUsd,
-        };
-      }
-
       notify(
         "open",
-        "Deposit started",
-        result.message || "Your deposit request has been created."
+        "STK Push sent",
+        result.message || "Check your phone and enter your M-PESA PIN to complete the deposit."
       );
-      return { ok: true, depositId: result.depositId, amountUsd };
+
+      return {
+        ok: true,
+        depositId: result.depositId,
+        amountUsd,
+        phone,
+        status: result.status || "PENDING",
+        message:
+          result.message ||
+          "STK Push sent. Check your phone and enter your M-PESA PIN to complete the deposit.",
+      };
     } catch (error) {
       console.error("Deposit request failed:", error);
 
@@ -8033,53 +8040,55 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
 function DepositModal({ close, submit }) {
   const [amountUsd, setAmountUsd] = useState(10);
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [checkout, setCheckout] = useState(null);
-  const [checkoutStatus, setCheckoutStatus] = useState("");
-  const [checkoutMessage, setCheckoutMessage] = useState("");
+  const [depositId, setDepositId] = useState("");
+  const [depositStatus, setDepositStatus] = useState("");
+  const [depositMessage, setDepositMessage] = useState("");
+
   const quickAmounts = [5, 10, 20, 50, 100];
   const safeAmount = Math.max(0, Number(amountUsd || 0));
+  const usdRate = Math.max(1, Number(import.meta.env.VITE_USD_RATE || 130));
+  const amountKes = Math.max(0, Math.round(safeAmount * usdRate));
+  const phoneValid = /^[17]\d{8}$/.test(phone);
+  const fullPhone = phoneValid ? `+254${phone}` : "";
 
   useEffect(() => {
-    const acceptStatus = (detail = {}) => {
-      const currentDepositId = String(checkout?.depositId || "");
+    const handleDepositStatus = (event) => {
+      const detail = event.detail || {};
       const incomingDepositId = String(detail.depositId || "");
-      if (!currentDepositId || (incomingDepositId && incomingDepositId !== currentDepositId)) return;
+      if (!depositId || (incomingDepositId && incomingDepositId !== depositId)) return;
 
       const nextStatus = String(detail.status || "").toLowerCase();
       if (!nextStatus) return;
-      setCheckoutStatus(nextStatus);
-      if (detail.message) setCheckoutMessage(String(detail.message));
-    };
 
-    const handleDepositStatus = (event) => acceptStatus(event.detail || {});
-    const handlePesapalMessage = (event) => {
-      const data = event.data;
-      if (!data || data.type !== "metabinary:pesapal:return") return;
-      try {
-        const apiOrigin = new URL(API_URL, window.location.href).origin;
-        if (event.origin && event.origin !== apiOrigin) return;
-      } catch {
-        // The server-side status poll still verifies the real payment state.
-      }
-      acceptStatus(data);
+      setDepositStatus(nextStatus);
+      if (detail.message) setDepositMessage(String(detail.message));
     };
 
     window.addEventListener("metabinary:deposit-status", handleDepositStatus);
-    window.addEventListener("message", handlePesapalMessage);
-    return () => {
-      window.removeEventListener("metabinary:deposit-status", handleDepositStatus);
-      window.removeEventListener("message", handlePesapalMessage);
-    };
-  }, [checkout?.depositId]);
+    return () => window.removeEventListener("metabinary:deposit-status", handleDepositStatus);
+  }, [depositId]);
+
+  function handlePhoneChange(event) {
+    let digits = String(event.target.value || "").replace(/\D/g, "");
+
+    if (digits.startsWith("254")) digits = digits.slice(3);
+    if (digits.startsWith("0")) digits = digits.slice(1);
+
+    setPhone(digits.slice(0, 9));
+  }
 
   async function handleSubmit() {
-    if (submitting || safeAmount < 1) return;
+    if (submitting || safeAmount < 1 || !phoneValid) return;
 
     setSubmitting(true);
+    setDepositMessage("");
+
     const result = await submit({
-      method: "pesapal",
+      method: "mpesa",
       amountUsd: safeAmount,
+      phone: fullPhone,
     });
 
     if (!result) {
@@ -8087,162 +8096,198 @@ function DepositModal({ close, submit }) {
       return;
     }
 
-    if (result.checkoutUrl) {
-      setCheckoutStatus("pending");
-      setCheckoutMessage("");
-      setCheckout({
-        url: result.checkoutUrl,
-        depositId: result.depositId || "",
-        amountUsd: result.amountUsd || safeAmount,
-      });
-      setSubmitting(false);
-      return;
-    }
-
+    setDepositId(result.depositId || "");
+    setDepositStatus("pending");
+    setDepositMessage(
+      result.message ||
+        "STK Push sent. Check your phone and enter your M-PESA PIN to complete the deposit."
+    );
     setSubmitting(false);
   }
 
-  if (checkout?.url && checkoutStatus === "completed") {
+  if (depositStatus === "completed") {
     return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
-        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit complete">
-          <div className="pesapalCheckoutResultIcon success">✓</div>
-          <small>PAYMENT CONFIRMED</small>
-          <h2>Deposit successful</h2>
-          <p>${money(checkout.amountUsd)} USD has been added to your Real Account.</p>
-          <button type="button" className="simpleDepositConfirm" onClick={close}>Done</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (checkout?.url && checkoutStatus === "failed") {
-    return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
-        <div className="depositModal pesapalCheckoutResultModal" role="dialog" aria-modal="true" aria-label="Deposit not completed">
-          <div className="pesapalCheckoutResultIcon failed">!</div>
-          <small>PAYMENT NOT COMPLETED</small>
-          <h2>Try again</h2>
-          <p>{checkoutMessage || "The payment was not completed. You can return and start another deposit."}</p>
-          <button type="button" className="simpleDepositConfirm" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>Back to deposit</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (checkout?.url) {
-    return (
-      <div className="modalLayer pesapalDepositLayer pesapalCheckoutLayer">
+      <div className="modalLayer mpesaDepositLayer">
         <div
-          className="depositModal pesapalCheckoutModal"
+          className="depositModal mpesaDepositResultModal"
           role="dialog"
           aria-modal="true"
-          aria-label="Complete PesaPal deposit"
+          aria-label="Deposit complete"
         >
-          <div className="pesapalCheckoutHeader">
-            <div>
-              <small>SECURE DEPOSIT</small>
-              <h2>Complete your payment</h2>
-              <p>${money(checkout.amountUsd)} USD deposit</p>
-            </div>
-            <button
-              type="button"
-              className="pesapalCheckoutClose"
-              onClick={close}
-              aria-label="Close payment"
-            >
-              ×
-            </button>
-          </div>
+          <div className="mpesaDepositResultIcon success">✓</div>
+          <small>PAYMENT CONFIRMED</small>
+          <h2>Deposit successful</h2>
+          <p>${money(safeAmount)} USD has been added to your Real Account.</p>
+          <button type="button" className="mpesaDepositConfirm" onClick={close}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-          <div className="pesapalCheckoutFrameWrap">
-            <iframe
-              className="pesapalCheckoutFrame"
-              title="PesaPal secure checkout"
-              src={checkout.url}
-              allow="payment *; clipboard-read; clipboard-write"
-              sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          </div>
-
-          <div className="pesapalCheckoutFooter">
-            <span>Complete the payment above. MetaBinary stays open while you pay.</span>
-            <button type="button" onClick={() => { setCheckout(null); setCheckoutStatus(""); setCheckoutMessage(""); }}>
-              Change amount
-            </button>
-          </div>
+  if (depositStatus === "failed") {
+    return (
+      <div className="modalLayer mpesaDepositLayer">
+        <div
+          className="depositModal mpesaDepositResultModal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Deposit not completed"
+        >
+          <div className="mpesaDepositResultIcon failed">!</div>
+          <small>PAYMENT NOT COMPLETED</small>
+          <h2>Try again</h2>
+          <p>{depositMessage || "The M-PESA payment was not completed."}</p>
+          <button
+            type="button"
+            className="mpesaDepositConfirm"
+            onClick={() => {
+              setDepositId("");
+              setDepositStatus("");
+              setDepositMessage("");
+            }}
+          >
+            Back to deposit
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="modalLayer pesapalDepositLayer">
+    <div className="modalLayer mpesaDepositLayer">
       <div
-        className="depositModal pesapalDepositModal simplePesapalDepositModal"
+        className="depositModal mpesaDepositModal"
         role="dialog"
         aria-modal="true"
         aria-label="Deposit funds"
       >
-        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
+        <button
+          type="button"
+          className="closeModal mpesaDepositClose"
+          onClick={close}
+          aria-label="Close dialog"
+          disabled={submitting}
+        >
           ×
         </button>
 
-        <div className="simpleDepositHead">
-          <span>＋</span>
+        <div className="mpesaDepositHead">
+          <span className="mpesaDepositPlus">＋</span>
           <div>
             <small>REAL ACCOUNT</small>
             <h2>Deposit Funds</h2>
-            <p>Enter how much you want to deposit.</p>
+            <p>Enter details to deposit to your real account.</p>
           </div>
         </div>
 
-        <label className="pesapalSectionLabel" htmlFor="pesapalAmount">
+        <label className="mpesaSectionLabel" htmlFor="mpesaDepositAmount">
           AMOUNT (USD $)
         </label>
 
-        <div className="simpleDepositAmountBox">
+        <div className="mpesaDepositAmountBox">
           <span>$</span>
           <input
-            id="pesapalAmount"
+            id="mpesaDepositAmount"
             type="number"
             min="1"
-            step="1"
+            step="0.01"
             inputMode="decimal"
             value={amountUsd}
             onChange={(event) => setAmountUsd(event.target.value)}
-            disabled={submitting}
+            disabled={submitting || depositStatus === "pending"}
             autoFocus
           />
           <b>USD</b>
         </div>
 
-        <div className="simpleDepositQuickAmounts" aria-label="Quick deposit amounts">
+        <div className="mpesaQuickAmounts" aria-label="Quick deposit amounts">
           {quickAmounts.map((value) => (
             <button
               key={value}
               type="button"
               className={Number(amountUsd) === value ? "active" : ""}
               onClick={() => setAmountUsd(value)}
-              disabled={submitting}
+              disabled={submitting || depositStatus === "pending"}
             >
               ${value}
             </button>
           ))}
         </div>
 
+        <label className="mpesaSectionLabel" htmlFor="mpesaDepositPhone">
+          PHONE NUMBER
+        </label>
+
+        <div className={`mpesaPhoneBox ${phone && !phoneValid ? "invalid" : ""}`}>
+          <span className="mpesaKenyaFlag" aria-hidden="true">🇰🇪</span>
+          <strong>+254</strong>
+          <i aria-hidden="true"></i>
+          <input
+            id="mpesaDepositPhone"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
+            placeholder="7XX XXX XXX"
+            value={phone}
+            onChange={handlePhoneChange}
+            disabled={submitting || depositStatus === "pending"}
+            aria-invalid={Boolean(phone && !phoneValid)}
+          />
+        </div>
+
+        <p className="mpesaPhoneSecurity">
+          <span>🔒</span> Your phone number is secure and encrypted
+        </p>
+
+        <label className="mpesaSectionLabel">PAYMENT METHOD</label>
+
+        <div className="mpesaMethodCard">
+          <div className="mpesaMethodLogo">M-PESA</div>
+          <div className="mpesaMethodCopy">
+            <strong>M-PESA (STK Push)</strong>
+            <span>Pay safely via M-PESA</span>
+          </div>
+          <span className="mpesaMethodSelected" aria-label="Selected payment method"></span>
+        </div>
+
+        <div className="mpesaDepositSummary">
+          <div><span>You Deposit</span><strong>${money(safeAmount)}</strong></div>
+          <div><span>You Get (USD)</span><strong className="green">${money(safeAmount)}</strong></div>
+          <div><span>Exchange Rate</span><strong>1 USD = KES {money(usdRate)}</strong></div>
+          <div className="mpesaKesPreview"><span>M-PESA Charge Amount</span><strong>KES {amountKes.toLocaleString()}</strong></div>
+        </div>
+
+        {depositStatus === "pending" && (
+          <div className="mpesaDepositPending" role="status">
+            <span className="mpesaPendingPulse"></span>
+            <div>
+              <strong>STK Push sent</strong>
+              <p>{depositMessage || "Check your phone and enter your M-PESA PIN."}</p>
+            </div>
+          </div>
+        )}
+
         <button
-          className="modalPrimary pesapalContinueButton simpleDepositConfirm"
+          type="button"
+          className="mpesaDepositConfirm"
           onClick={handleSubmit}
-          disabled={submitting || safeAmount < 1}
+          disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}
         >
-          {submitting ? "Opening secure payment…" : `Confirm $${money(safeAmount)} Deposit`}
+          <span>🔒</span>
+          {submitting
+            ? "Sending STK Push…"
+            : depositStatus === "pending"
+              ? "Waiting for M-PESA confirmation…"
+              : `Confirm $${money(safeAmount)} Deposit`}
         </button>
 
-        <p className="simpleDepositSecurity">
-          🔒 Secure payment powered by PesaPal
-        </p>
+        {phone && !phoneValid && (
+          <p className="mpesaPhoneError">Enter a valid Kenyan mobile number, for example 712345678.</p>
+        )}
+
+        <p className="mpesaDepositSecurity">🔒 Secure payment powered by M-PESA</p>
       </div>
     </div>
   );
