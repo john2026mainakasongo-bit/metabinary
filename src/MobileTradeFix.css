@@ -1960,3 +1960,150 @@
     max-height: 85px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V206 — TALL-PHONE DIGIT PAGE FILL
+   Targets only taller mobile viewports where digit-contract pages leave
+   unused blank space below the bottom navigation.
+   Rise/Fall is untouched.
+   Short/normal phones are untouched.
+   ========================================================================== */
+
+@media screen and (max-width: 600px) and (min-height: 800px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-tall-vh: var(--mb-viewport-height, 100dvh);
+
+    height: var(--mb-tall-vh) !important;
+    min-height: var(--mb-tall-vh) !important;
+    max-height: var(--mb-tall-vh) !important;
+
+    display: grid !important;
+    grid-template-rows:
+      auto
+      minmax(0, 1fr)
+      auto !important;
+
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    padding: 6px 8px 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: grid !important;
+    grid-template-rows:
+      auto
+      minmax(0, 1fr)
+      auto
+      auto !important;
+
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryChartCard.digitOnlyCard {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: grid !important;
+    grid-template-rows:
+      minmax(0, 1fr)
+      154px !important;
+
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  /* The chart receives the extra height on tall phones. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
+    height: 154px !important;
+    min-height: 154px !important;
+    max-height: 154px !important;
+    flex: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryOrderCard,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proBinaryOrderCard.finalBinaryOrderCard {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalTradeButtons,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proTradeButtons.finalTradeButtons {
+    height: auto !important;
+    min-height: 96px !important;
+    max-height: 112px !important;
+    margin: 0 !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+
+    width: calc(100% - 16px) !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+
+    margin: 4px 8px max(4px, env(safe-area-inset-bottom, 0px)) !important;
+    padding: 0 !important;
+
+    transform: none !important;
+  }
+}
+
+/* Extra-tall phones get still more chart space automatically. */
+@media screen and (max-width: 600px) and (min-height: 900px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryChartCard.digitOnlyCard {
+    grid-template-rows:
+      minmax(0, 1fr)
+      158px !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
+    height: 158px !important;
+    min-height: 158px !important;
+    max-height: 158px !important;
+  }
+}
