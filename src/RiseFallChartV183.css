@@ -702,121 +702,115 @@
   }
 }
 
-/* ========================================================================== 
-   METABINARY V185 — FINAL RISE/FALL FULL-VIEWPORT MOBILE LAYOUT
-   This final block intentionally comes last so older V183/V184 height patches
-   cannot shorten the page on phones with a different browser viewport.
-   Rise/Fall only; digit contracts and desktop layout remain untouched.
+
+/* ==========================================================================
+   METABINARY V185 — RISE/FALL FULL-SCREEN MOBILE HOTFIX
+   Only applies while Rise/Fall is active.
+   - Uses the visible viewport without creating a giant blank gap.
+   - Lets the chart take the flexible space.
+   - Keeps duration/stake + Rise/Fall buttons above the bottom nav.
    ========================================================================== */
+
 @media screen and (max-width: 1023px) {
   .app.activePage-trade.riseFallActivePageV183 {
-    position: relative !important;
-    width: 100% !important;
-    height: 100dvh !important;
-    min-height: 100dvh !important;
-    max-height: 100dvh !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: 50px minmax(0, 1fr) calc(82px + env(safe-area-inset-bottom, 0px)) !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    grid-template-rows:
+      auto
+      minmax(0, 1fr)
+      auto !important;
     overflow: hidden !important;
   }
 
   .app.activePage-trade.riseFallActivePageV183 > .mainScreen {
-    grid-row: 2 !important;
-    width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 5px 8px 4px !important;
+    max-height: 100% !important;
+    padding-bottom: 0 !important;
     overflow: hidden !important;
   }
 
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage {
-    width: 100% !important;
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage {
     height: 100% !important;
     min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
+    max-height: 100% !important;
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: 38px 52px minmax(220px, 1fr) 174px !important;
-    gap: 4px !important;
+    grid-template-rows:
+      auto
+      auto
+      minmax(230px, 1fr)
+      auto !important;
+    gap: 5px !important;
     overflow: hidden !important;
   }
 
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage
-  .finalBinaryChartCard,
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage
-  .finalBinaryChartCard.priceOnlyCard {
-    width: 100% !important;
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage
+    .finalBinaryChartCard.priceOnlyCard,
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage
+    .finalBinaryChartCard {
+    min-height: 0 !important;
     height: 100% !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage
+    .finalBinaryOrderCard,
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage
+    .proBinaryOrderCard.finalBinaryOrderCard {
+    height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
     margin: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage
-  .finalBinaryOrderCard,
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage
-  .proBinaryOrderCard.finalBinaryOrderCard {
-    min-height: 0 !important;
-    height: 174px !important;
-    max-height: 174px !important;
-    margin: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .app.activePage-trade.riseFallActivePageV183 > .bottomNav {
-    grid-row: 3 !important;
     position: relative !important;
     inset: auto !important;
     width: calc(100% - 16px) !important;
-    height: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
-    max-height: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
-    margin: 0 8px !important;
-    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+    height: auto !important;
+    min-height: 78px !important;
+    max-height: none !important;
+    margin: 6px 8px max(6px, env(safe-area-inset-bottom)) !important;
+    padding-bottom: 0 !important;
     transform: none !important;
-    overflow: hidden !important;
-    z-index: 42000 !important;
   }
 
   .app.activePage-trade.riseFallActivePageV183 > .bottomNav button,
   .app.activePage-trade.riseFallActivePageV183 > .bottomNav button:nth-child(3) {
-    height: 82px !important;
-    min-height: 82px !important;
-    max-height: 82px !important;
-    margin: 0 !important;
-    transform: none !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
   }
 }
 
-/* Very short browser viewports: preserve every control without creating a gap. */
-@media screen and (max-width: 760px) and (max-height: 700px) {
-  .app.activePage-trade.riseFallActivePageV183 {
-    grid-template-rows: 48px minmax(0, 1fr) calc(72px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage {
-    grid-template-rows: 34px 46px minmax(190px, 1fr) 154px !important;
-    gap: 3px !important;
-  }
-
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage
-  .finalBinaryOrderCard,
-  .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage
-  .proBinaryOrderCard.finalBinaryOrderCard {
-    height: 154px !important;
-    max-height: 154px !important;
-  }
-
-  .app.activePage-trade.riseFallActivePageV183 > .bottomNav,
-  .app.activePage-trade.riseFallActivePageV183 > .bottomNav button,
-  .app.activePage-trade.riseFallActivePageV183 > .bottomNav button:nth-child(3) {
-    height: 72px !important;
-    min-height: 72px !important;
-    max-height: 72px !important;
+@media screen and (max-width: 480px) {
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage {
+    grid-template-rows:
+      auto
+      auto
+      minmax(210px, 1fr)
+      auto !important;
   }
 }
 
+@media screen and (max-width: 390px),
+       screen and (max-height: 720px) {
+  .app.activePage-trade.riseFallActivePageV183
+    .finalBinaryTradePage.priceContractPage {
+    grid-template-rows:
+      auto
+      auto
+      minmax(190px, 1fr)
+      auto !important;
+    gap: 4px !important;
+  }
+}

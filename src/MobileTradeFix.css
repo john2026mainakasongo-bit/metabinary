@@ -1989,63 +1989,111 @@
   }
 }
 
-/* ========================================================================== 
-   METABINARY V185 — MOBILE CROSS-DEVICE DRAWER + DRAGGABLE AI SAFETY
-   - Keeps the menu inside narrow Android/iPhone screens.
-   - Prevents horizontal page squeeze when the drawer is open.
-   - Keeps the AI orb on its saved fixed coordinates and makes touch dragging
-     reliable without triggering browser pan/zoom gestures.
+
+/* ==========================================================================
+   METABINARY V185 — MOBILE LAYOUT HOTFIX
+   - Restores digit-contract mobile layout so Even/Odd, Matches/Differs and
+     Over/Under do not inherit the full-height Rise/Fall behavior.
+   - Keeps bottom navigation immediately after the trade content.
+   - Prevents floating AI from covering the contract tabs on initial load.
    ========================================================================== */
+
 @media screen and (max-width: 1023px) {
   html,
   body,
-  #root,
-  .app {
-    max-width: 100% !important;
+  #root {
+    min-height: 100%;
+    height: auto !important;
     overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
 
-  .menuLayer {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    grid-template-rows: auto auto auto !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+    .finalBinaryTradePage.digitContractPage {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    grid-template-rows: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+    > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+    width: calc(100% - 20px) !important;
+    height: auto !important;
+    min-height: 78px !important;
+    max-height: none !important;
+    margin: 8px 10px max(8px, env(safe-area-inset-bottom)) !important;
+    padding-bottom: 0 !important;
+    transform: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+    > .bottomNav button,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+    > .bottomNav button:nth-child(3) {
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
+  }
+
+  /* Keep all four contract tabs inside the viewport on narrow phones. */
+  body .app.activePage-trade .finalBinaryContractTabs,
+  body .app.activePage-trade .proContractTabs,
+  body .app.activePage-trade .binaryContractTabs {
+    min-width: 0 !important;
     overflow: hidden !important;
   }
 
-  .menuLayer .sideDrawer {
-    width: min(86vw, 390px) !important;
+  body .app.activePage-trade .finalBinaryContractTabs button,
+  body .app.activePage-trade .proContractTabs button,
+  body .app.activePage-trade .binaryContractTabs button {
     min-width: 0 !important;
-    max-width: 390px !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    white-space: nowrap !important;
+    font-size: clamp(10px, 2.7vw, 14px) !important;
   }
 
-  .floatingAiButton,
-  .floatingAiButton.aiPage-trade,
-  .floatingAiButton.aiPage-botLive,
-  .floatingAiButton.aiPage-bots {
-    position: fixed !important;
-    left: var(--ai-x, 18px) !important;
-    top: var(--ai-y, 130px) !important;
+  /* Safe default position. Existing drag logic can still move it afterwards. */
+  body .app.activePage-trade .floatingAiButton.aiPage-trade {
+    top: 86px !important;
+    left: 50% !important;
     right: auto !important;
     bottom: auto !important;
-    margin: 0 !important;
-    transform: none !important;
-    touch-action: none !important;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-    -webkit-touch-callout: none !important;
-    cursor: grab !important;
-    z-index: 46000 !important;
+    transform: translateX(-50%) !important;
   }
 
-  .floatingAiButton:active {
-    cursor: grabbing !important;
+  body .app.activePage-trade .floatingAiButton.aiPage-trade.aiDragging,
+  body .app.activePage-trade .floatingAiButton.aiPage-trade[style*="left"] {
+    transform: none !important;
   }
 }
 
+@media screen and (max-width: 480px) {
+  body .app.activePage-trade .finalBinaryContractTabs button,
+  body .app.activePage-trade .proContractTabs button,
+  body .app.activePage-trade .binaryContractTabs button {
+    font-size: clamp(9px, 2.55vw, 12px) !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}
