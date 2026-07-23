@@ -1424,1025 +1424,197 @@
   }
 }
 
-
-/* ========================================================================== 
-   METABINARY V160 — RISE/FALL MOBILE LAYOUT RESTORE
-
-   Fixes only the mobile price-contract page (Rise/Fall):
-   - restores the tall chart area used before the duration selector was added
-   - keeps Seconds / Minutes controls fully usable
-   - keeps all four contract tabs visible instead of clipping Even/Odd
-   - keeps RISE / FALL buttons unchanged
-   - anchors the bottom navigation at the bottom of the usable viewport
-
-   Digit-contract pages are intentionally untouched.
-   ========================================================================== */
-
-@media screen and (max-width: 760px) {
-  /* V158 switched the whole trade route to compact document flow to solve the
-     digit-page blank gap. Restore viewport-fit ONLY while a price page is open. */
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage) {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100dvh !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows:
-      50px
-      minmax(0, 1fr)
-      calc(56px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .cleanBrokerHeader,
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .topHeader,
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .brokerTopHeader {
-    grid-row: 1 !important;
-    flex: none !important;
-  }
-
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .mainScreen {
-    grid-row: 2 !important;
-    position: relative !important;
-    flex: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 6px 8px 0 !important;
-    overflow: hidden !important;
-  }
-
-  /* Rebuild the Rise/Fall page as the approved viewport-fitted four-row layout. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows:
-      38px
-      52px
-      minmax(0, 1fr)
-      clamp(165px, 29dvh, 202px) !important;
-    gap: 6px !important;
-    align-content: stretch !important;
-    overflow: hidden !important;
-  }
-
-  /* All four contract tabs stay visible. No remembered horizontal scroll offset. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalContractTabs {
-    grid-row: 1 !important;
-    width: 100% !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    margin: 0 !important;
-    padding: 3px !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 3px !important;
-    overflow: hidden !important;
-    touch-action: manipulation !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalContractTabs > button {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    height: 32px !important;
-    min-height: 32px !important;
-    padding: 0 3px !important;
-    font-size: clamp(9px, 2.9vw, 11px) !important;
-    letter-spacing: -0.18px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-  }
-
-  /* Market selector keeps its approved compact height. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .volatilitySwitchBar {
-    grid-row: 2 !important;
-    width: 100% !important;
-    height: 52px !important;
-    min-height: 52px !important;
-    margin: 0 !important;
-  }
-
-  /* Restore the large usable Rise/Fall chart. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard.priceOnlyCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard {
-    grid-row: 3 !important;
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) 22px !important;
-    align-content: stretch !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartArea,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .priceOnlyCard .proChartArea {
-    grid-row: 1 !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: grid !important;
-    grid-template-columns: 44px minmax(0, 1fr) !important;
-    gap: 3px !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas .lineChart,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas .lineChart svg {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalChartTimeRow {
-    grid-row: 2 !important;
-    height: 22px !important;
-    min-height: 22px !important;
-  }
-
-  /* Keep the duration/stake panel and the RISE/FALL buttons in the approved row. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryOrderCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proBinaryOrderCard.finalBinaryOrderCard {
-    grid-row: 4 !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    padding: 5px !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) clamp(76px, 12.5dvh, 90px) !important;
-    gap: 5px !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalOrderInputs,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .orderInputsTop.finalOrderInputs {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr) !important;
-    gap: 7px !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .riseDurationControlV159 {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    grid-template-rows: 20px minmax(34px, 1fr) 24px !important;
-    gap: 3px !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .riseDurationLabelRowV159 {
-    height: 20px !important;
-    min-height: 20px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .riseDurationQuickRowV159,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .quickStakeRow.quickStakeRowV44 {
-    height: 24px !important;
-    min-height: 24px !important;
-  }
-
-  /* Bottom nav returns to the viewport bottom for Rise/Fall only. */
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .bottomNav {
-    grid-row: 3 !important;
-    position: relative !important;
-    inset: auto !important;
-    flex: none !important;
-    width: calc(100% - 16px) !important;
-    height: 52px !important;
-    min-height: 52px !important;
-    max-height: 52px !important;
-    margin: 0 8px calc(4px + env(safe-area-inset-bottom, 0px)) !important;
-    padding: 0 !important;
-    transform: none !important;
-    z-index: 21000 !important;
-    border-radius: 12px !important;
-  }
-}
-
-@media screen and (max-width: 390px) {
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalContractTabs > button {
-    font-size: 8.6px !important;
-    letter-spacing: -0.35px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .riseDurationUnitToggleV159 > button {
-    padding-inline: 3px !important;
-    font-size: 7px !important;
-  }
-}
-
-/* ========================================================================== 
-   METABINARY V161 — RISE/FALL FILL-VIEWPORT FINAL MOBILE FIX
-
-   V160 kept the bottom nav at the bottom, but the price-contract page itself
-   was still collapsing to content height on some mobile browsers. That left a
-   large empty band and squeezed the chart. This override gives the Rise/Fall
-   workspace an explicit usable height and lets the chart consume the remaining
-   space while preserving Seconds / Minutes, stake controls and the approved
-   RISE / FALL buttons.
-   ========================================================================== */
-
-@media screen and (max-width: 760px) {
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage) {
-    height: 100dvh !important;
-    min-height: 100dvh !important;
-    max-height: 100dvh !important;
-    overflow: hidden !important;
-    grid-template-rows:
-      50px
-      minmax(0, calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)))
-      calc(58px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .mainScreen {
-    width: 100% !important;
-    height: calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)) !important;
-    max-height: calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)) !important;
-    padding: 6px 8px 0 !important;
-    overflow: hidden !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
-    max-height: 100% !important;
-    grid-template-rows:
-      38px
-      52px
-      minmax(245px, 1fr)
-      168px !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-
-  /* Keep every contract label readable in the four-column mobile tab row. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalContractTabs > button {
-    padding-inline: 2px !important;
-    font-size: clamp(8.5px, 2.55vw, 9.8px) !important;
-    letter-spacing: -0.28px !important;
-    text-overflow: clip !important;
-  }
-
-  /* The chart owns all remaining height instead of collapsing into a short strip. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard.priceOnlyCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard {
-    height: 100% !important;
-    min-height: 245px !important;
-    max-height: none !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartArea,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .priceOnlyCard .proChartArea,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas .lineChart,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas .lineChart svg {
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-  }
-
-  /* Lock the duration/stake + RISE/FALL section to its compact approved height. */
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryOrderCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proBinaryOrderCard.finalBinaryOrderCard {
-    height: 168px !important;
-    min-height: 168px !important;
-    max-height: 168px !important;
-    grid-template-rows: 82px 80px !important;
-    gap: 6px !important;
-    padding: 0 !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalOrderInputs,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .orderInputsTop.finalOrderInputs {
-    height: 82px !important;
-    min-height: 82px !important;
-    max-height: 82px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proTradeButtons.finalTradeButtons,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalTradeButtons {
-    height: 80px !important;
-    min-height: 80px !important;
-    max-height: 80px !important;
-    margin: 0 !important;
-  }
-
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .bottomNav {
-    align-self: end !important;
-    margin-top: 0 !important;
-    margin-bottom: calc(4px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-}
-
-/* Shorter phones: keep controls usable and let the chart shrink slightly, never to a strip. */
-@media screen and (max-width: 760px) and (max-height: 700px) {
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage {
-    grid-template-rows:
-      36px
-      48px
-      minmax(205px, 1fr)
-      158px !important;
-    gap: 5px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard.priceOnlyCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard {
-    min-height: 205px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryOrderCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proBinaryOrderCard.finalBinaryOrderCard {
-    height: 158px !important;
-    min-height: 158px !important;
-    max-height: 158px !important;
-    grid-template-rows: 78px 74px !important;
-  }
-}
-
-/* ========================================================================== 
-   METABINARY V162 — RISE/FALL REMOVE LARGE GAP BELOW BUTTONS
-
-   Keep the approved large chart and Seconds / Minutes controls, but stop
-   forcing the Trade shell to reserve the whole remaining viewport between the
-   RISE/FALL buttons and the bottom navigation. The page now uses natural flow:
-   tabs -> market -> chart -> controls/buttons -> bottom nav.
-   ========================================================================== */
-
-@media screen and (max-width: 760px) {
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage) {
-    height: auto !important;
-    min-height: 100dvh !important;
-    max-height: none !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    grid-template-rows: 50px auto auto !important;
-    align-content: start !important;
-  }
-
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .mainScreen {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    padding: 6px 8px 0 !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    grid-template-rows:
-      38px
-      52px
-      clamp(310px, 44dvh, 430px)
-      168px !important;
-    gap: 6px !important;
-    overflow: visible !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard.priceOnlyCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard {
-    height: 100% !important;
-    min-height: 310px !important;
-    max-height: 430px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryOrderCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .proBinaryOrderCard.finalBinaryOrderCard {
-    height: 168px !important;
-    min-height: 168px !important;
-    max-height: 168px !important;
-    margin-bottom: 0 !important;
-  }
-
-  body .app.activePage-trade:has(.finalBinaryTradePage.priceContractPage)
-    > .bottomNav {
-    grid-row: 3 !important;
-    position: relative !important;
-    inset: auto !important;
-    width: calc(100% - 16px) !important;
-    height: 58px !important;
-    min-height: 58px !important;
-    max-height: 58px !important;
-    margin: 6px 8px calc(4px + env(safe-area-inset-bottom, 0px)) !important;
-    align-self: auto !important;
-    transform: none !important;
-  }
-}
-
-@media screen and (max-width: 760px) and (max-height: 760px) {
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage {
-    grid-template-rows:
-      36px
-      48px
-      clamp(250px, 40dvh, 330px)
-      158px !important;
-    gap: 5px !important;
-  }
-
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard.priceOnlyCard,
-  body .app.activePage-trade
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard {
-    min-height: 250px !important;
-    max-height: 330px !important;
-  }
-}
-
-
 /* ==========================================================================
-   METABINARY V187 — ALL PHONE HEIGHT DISTRIBUTION FIX
-   Mobile digit contracts only.
-   Purpose:
-   - Tall phones: content stretches down instead of floating high.
-   - Short phones: content remains compact and usable.
-   - Bottom nav stays after the trading content, without a giant empty gap.
-   ========================================================================== */
+   METABINARY V200 — CLEAN FINAL MOBILE TRADE LAYOUT
+   This replaces every V160+ mobile layout experiment with one stable system.
+   Mobile/tablet only. Desktop is untouched.
 
-@media screen and (max-width: 1023px) {
-  .app.activePage-trade:not(.riseFallActivePageV183) {
-    min-height: var(--mb-viewport-height, 100dvh) !important;
-    height: auto !important;
-    max-height: none !important;
-    display: grid !important;
-    grid-template-rows: auto minmax(0, 1fr) auto !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
+   DIGIT CONTRACTS:
+   - large chart
+   - digits immediately below
+   - compact ticks/stake panel with no internal blank block
+   - action buttons always visible
+   - bottom nav stays after content
 
-  .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
-    width: 100% !important;
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: visible !important;
-    padding-bottom: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage {
-    width: 100% !important;
-    min-height: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    flex: 1 0 auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 6px !important;
-    overflow: visible !important;
-  }
-
-  /* Let the chart grow on tall phones while preserving the digit board size. */
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex: 1 1 232px !important;
-    height: auto !important;
-    min-height: 220px !important;
-    max-height: 360px !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryChartCard.digitOnlyCard {
-    flex: 1 0 auto !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryOrderCard {
-    margin-top: 0 !important;
-    flex: 0 0 auto !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalTradeButtons {
-    margin-top: 0 !important;
-    flex: 0 0 auto !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
-    position: relative !important;
-    inset: auto !important;
-    width: calc(100% - 20px) !important;
-    margin: 6px 10px max(6px, env(safe-area-inset-bottom)) !important;
-    transform: none !important;
-    flex-shrink: 0 !important;
-  }
-}
-
-/* Tall phones: push content lower by allowing a taller chart. */
-@media screen and (max-width: 600px) and (min-height: 820px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    min-height: 260px !important;
-    max-height: 390px !important;
-  }
-}
-
-/* Very tall phones */
-@media screen and (max-width: 600px) and (min-height: 930px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    min-height: 300px !important;
-    max-height: 430px !important;
-  }
-}
-
-/* Short phones */
-@media screen and (max-width: 600px) and (max-height: 719px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex: 0 0 205px !important;
-    height: 205px !important;
-    min-height: 205px !important;
-    max-height: 205px !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage {
-    gap: 4px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V188 — UNIFIED MOBILE TRADE HEIGHT SYSTEM
-   Final rule set for digit contracts.
-   - Keeps Even/Odd, Matches/Differs and Over/Under visually full.
-   - Avoids giant blank space on tall phones.
-   - Keeps all controls visible on shorter phones.
-   - Bottom nav sits consistently after the trade workspace.
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  .app.activePage-trade:not(.riseFallActivePageV183) {
-    --mb-trade-vh: var(--mb-viewport-height, 100dvh);
-    min-height: var(--mb-trade-vh) !important;
-    height: auto !important;
-    max-height: none !important;
-    display: grid !important;
-    grid-template-rows: auto auto auto !important;
-    align-content: start !important;
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding-bottom: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 6px !important;
-    overflow: visible !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex: 0 0 clamp(220px, 31vh, 310px) !important;
-    width: 100% !important;
-    height: clamp(220px, 31vh, 310px) !important;
-    min-height: clamp(220px, 31vh, 310px) !important;
-    max-height: clamp(220px, 31vh, 310px) !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryChartCard.digitOnlyCard {
-    flex: 0 0 auto !important;
-    height: auto !important;
-    min-height: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryOrderCard,
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .proBinaryOrderCard.finalBinaryOrderCard,
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalTradeButtons,
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .proTradeButtons.finalTradeButtons {
-    flex: 0 0 auto !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
-    position: relative !important;
-    inset: auto !important;
-    width: calc(100% - 20px) !important;
-    height: clamp(76px, 10vh, 88px) !important;
-    min-height: 76px !important;
-    max-height: 88px !important;
-    margin: 6px 10px max(6px, env(safe-area-inset-bottom)) !important;
-    transform: none !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button,
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button:nth-child(3) {
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-  }
-}
-
-/* Shorter phones keep the chart compact so controls never disappear. */
-@media screen and (max-width: 600px) and (max-height: 760px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: 205px !important;
-    height: 205px !important;
-    min-height: 205px !important;
-    max-height: 205px !important;
-  }
-}
-
-/* Taller phones get a little more chart, but never enough to push controls away. */
-@media screen and (max-width: 600px) and (min-height: 900px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: 280px !important;
-    height: 280px !important;
-    min-height: 280px !important;
-    max-height: 280px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V189 — MOBILE DIGIT CHART FILL FIX
-   - Uses the empty vertical space by making the chart taller.
-   - Keeps digits, action buttons and bottom navigation visible.
-   - Responsive across short, regular and tall phones.
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex: 0 0 clamp(250px, 38vh, 390px) !important;
-    height: clamp(250px, 38vh, 390px) !important;
-    min-height: clamp(250px, 38vh, 390px) !important;
-    max-height: clamp(250px, 38vh, 390px) !important;
-  }
-}
-
-/* Normal phones */
-@media screen and (max-width: 600px) and (min-height: 720px) and (max-height: 899px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: clamp(270px, 40vh, 340px) !important;
-    height: clamp(270px, 40vh, 340px) !important;
-    min-height: clamp(270px, 40vh, 340px) !important;
-    max-height: clamp(270px, 40vh, 340px) !important;
-  }
-}
-
-/* Tall phones */
-@media screen and (max-width: 600px) and (min-height: 900px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: clamp(340px, 43vh, 430px) !important;
-    height: clamp(340px, 43vh, 430px) !important;
-    min-height: clamp(340px, 43vh, 430px) !important;
-    max-height: clamp(340px, 43vh, 430px) !important;
-  }
-}
-
-/* Short phones — keep all controls visible */
-@media screen and (max-width: 600px) and (max-height: 719px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: 225px !important;
-    height: 225px !important;
-    min-height: 225px !important;
-    max-height: 225px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V190 — MATCH FINAL MOBILE REFERENCE
-   Digit contracts only.
-   Targets the requested full-screen composition:
-   header -> tabs -> large chart -> digits -> controls -> actions -> nav
-   ========================================================================== */
-
-@media screen and (max-width: 1023px) {
-  .app.activePage-trade:not(.riseFallActivePageV183) {
-    min-height: var(--mb-viewport-height, 100dvh) !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    padding-bottom: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    overflow: visible !important;
-  }
-
-  /* Large chart like the approved reference. */
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex: 0 0 clamp(300px, 42vh, 420px) !important;
-    width: 100% !important;
-    height: clamp(300px, 42vh, 420px) !important;
-    min-height: clamp(300px, 42vh, 420px) !important;
-    max-height: clamp(300px, 42vh, 420px) !important;
-  }
-
-  /* Keep the 10 digits compact and directly below the chart. */
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryChartCard.digitOnlyCard
-  > .mobileDigitBoardFinalV130 {
-    flex: 0 0 166px !important;
-    height: 166px !important;
-    min-height: 166px !important;
-    max-height: 166px !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryChartCard.digitOnlyCard
-  > .mobileDigitBoardFinalV130
-  > .mobileDigitGridFinalV130 {
-    height: 156px !important;
-    min-height: 156px !important;
-    max-height: 156px !important;
-    grid-template-rows: 72px 72px !important;
-    row-gap: 10px !important;
-  }
-
-  /* Ensure the controls are always present under digits. */
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryOrderCard,
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .proBinaryOrderCard.finalBinaryOrderCard {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    margin: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalTradeButtons,
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .proTradeButtons.finalTradeButtons {
-    display: grid !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
-    position: relative !important;
-    inset: auto !important;
-    width: calc(100% - 20px) !important;
-    height: 86px !important;
-    min-height: 86px !important;
-    max-height: 86px !important;
-    margin: 8px 10px max(8px, env(safe-area-inset-bottom)) !important;
-    transform: none !important;
-  }
-
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button,
-  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button:nth-child(3) {
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-  }
-}
-
-/* Short phones: preserve all controls by reducing chart height slightly. */
-@media screen and (max-width: 600px) and (max-height: 760px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: 245px !important;
-    height: 245px !important;
-    min-height: 245px !important;
-    max-height: 245px !important;
-  }
-}
-
-/* Very tall phones: chart takes more of the extra room. */
-@media screen and (max-width: 600px) and (min-height: 900px) {
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    flex-basis: 390px !important;
-    height: 390px !important;
-    min-height: 390px !important;
-    max-height: 390px !important;
-  }
-}
-
-
-/* ==========================================================================
-   METABINARY V191 — RISE/FALL TRUE BOTTOM NAV + FULL VIEWPORT
-   Final override. Rise/Fall only.
-   - Removes the blank space below Trade / Bots / Profile.
-   - Pins the bottom navigation to the bottom of the visible app viewport.
-   - Gives all remaining vertical space to the Rise/Fall chart.
-   - Keeps duration/stake controls and RISE/FALL buttons visible.
-   - Uses the visualViewport height variable already maintained by App.jsx.
+   RISE/FALL:
+   - uses the full visible app height
+   - chart takes all spare vertical space
+   - duration/stake + RISE/FALL stay visible
+   - bottom nav sits at the actual bottom of the app viewport
    ========================================================================== */
 
 @media screen and (max-width: 1023px) {
   html,
   body,
   #root {
-    height: 100% !important;
-    min-height: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
   }
 
+  /* -------------------- COMMON MOBILE TRADE SHELL -------------------- */
+  body .app.activePage-trade {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  body .app.activePage-trade > .mainScreen {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  body .app.activePage-trade .finalContractTabs {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade .finalContractTabs > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    font-size: clamp(9px, 2.7vw, 12px) !important;
+  }
+
+  /* ==================== DIGIT CONTRACTS ==================== */
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    height: auto !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 6px 8px 0 !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex: 0 0 clamp(250px, 35vh, 340px) !important;
+    width: 100% !important;
+    height: clamp(250px, 35vh, 340px) !important;
+    min-height: clamp(250px, 35vh, 340px) !important;
+    max-height: clamp(250px, 35vh, 340px) !important;
+  }
+
+  /* Keep the proven two-row digit board sizing. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
+    flex: 0 0 154px !important;
+    height: 154px !important;
+    min-height: 154px !important;
+    max-height: 154px !important;
+  }
+
+  /* Critical fix: the order panel must size to CONTENT, never stretch. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryOrderCard,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proBinaryOrderCard.finalBinaryOrderCard {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalOrderInputs,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .orderInputsTop.finalOrderInputs {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr) !important;
+    gap: 7px !important;
+    overflow: visible !important;
+  }
+
+  /* Remove any inherited tall min-height from the two input groups. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalOrderInputs > *,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .orderInputsTop.finalOrderInputs > * {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    align-self: start !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalTradeButtons,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proTradeButtons.finalTradeButtons {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 72px !important;
+    width: calc(100% - 16px) !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    margin: 4px 8px max(4px, env(safe-area-inset-bottom)) !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+
+  /* ==================== RISE / FALL ==================== */
   body .app.activePage-trade.riseFallActivePageV183 {
     --mb-rf-vh: var(--mb-viewport-height, 100dvh);
 
-    position: relative !important;
-    inset: auto !important;
     width: 100% !important;
     height: var(--mb-rf-vh) !important;
     min-height: var(--mb-rf-vh) !important;
@@ -2455,48 +1627,25 @@
       minmax(0, 1fr)
       auto !important;
 
-    padding: 0 !important;
-    margin: 0 !important;
     overflow: hidden !important;
   }
 
-  body .app.activePage-trade.riseFallActivePageV183
-    > .cleanBrokerHeader,
-  body .app.activePage-trade.riseFallActivePageV183
-    > .topHeader,
-  body .app.activePage-trade.riseFallActivePageV183
-    > .brokerTopHeader {
-    grid-row: 1 !important;
-    position: relative !important;
-    flex: none !important;
-  }
-
-  body .app.activePage-trade.riseFallActivePageV183
-    > .mainScreen {
+  body .app.activePage-trade.riseFallActivePageV183 > .mainScreen {
     grid-row: 2 !important;
-    position: relative !important;
-
     width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
     max-height: 100% !important;
-
-    margin: 0 !important;
     padding: 6px 8px 0 !important;
-
-    display: block !important;
     overflow: hidden !important;
   }
 
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage {
+  .finalBinaryTradePage.priceContractPage {
     width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
     max-height: 100% !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
 
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
@@ -2507,13 +1656,12 @@
       auto !important;
 
     gap: 5px !important;
-    align-content: stretch !important;
     overflow: hidden !important;
   }
 
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalContractTabs {
+  .finalBinaryTradePage.priceContractPage
+  .finalContractTabs {
     grid-row: 1 !important;
     height: 38px !important;
     min-height: 38px !important;
@@ -2522,8 +1670,8 @@
   }
 
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .volatilitySwitchBar {
+  .finalBinaryTradePage.priceContractPage
+  .volatilitySwitchBar {
     grid-row: 2 !important;
     height: 52px !important;
     min-height: 52px !important;
@@ -2531,38 +1679,34 @@
     margin: 0 !important;
   }
 
-  /* The chart consumes every spare pixel between the market selector and order panel. */
+  /* All spare space goes to the chart. */
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard,
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartCard,
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartCard.priceOnlyCard {
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartCard.priceOnlyCard {
     grid-row: 3 !important;
-
-    position: relative !important;
     width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
     max-height: none !important;
-
     margin: 0 !important;
     padding: 0 !important;
-
     display: grid !important;
     grid-template-rows: minmax(0, 1fr) 22px !important;
     overflow: hidden !important;
   }
 
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryChartArea,
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea,
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .priceOnlyCard .proChartArea,
+  .finalBinaryTradePage.priceContractPage
+  .priceOnlyCard .proChartArea,
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .proChartCanvas {
+  .finalBinaryTradePage.priceContractPage
+  .proChartCanvas {
     width: 100% !important;
     height: 100% !important;
     min-height: 0 !important;
@@ -2570,86 +1714,93 @@
   }
 
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalChartTimeRow {
+  .finalBinaryTradePage.priceContractPage
+  .finalChartTimeRow {
     height: 22px !important;
     min-height: 22px !important;
     max-height: 22px !important;
   }
 
-  /* Order panel uses only the height it actually needs. */
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalBinaryOrderCard,
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryOrderCard,
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .proBinaryOrderCard.finalBinaryOrderCard {
+  .finalBinaryTradePage.priceContractPage
+  .proBinaryOrderCard.finalBinaryOrderCard {
     grid-row: 4 !important;
-
-    position: relative !important;
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
-
     margin: 0 !important;
     padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
     overflow: visible !important;
   }
 
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .finalTradeButtons,
+  .finalBinaryTradePage.priceContractPage
+  .finalOrderInputs,
   body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage
-    .proTradeButtons.finalTradeButtons {
-    margin-bottom: 0 !important;
+  .finalBinaryTradePage.priceContractPage
+  .orderInputsTop.finalOrderInputs {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr) !important;
+    gap: 7px !important;
   }
 
-  /* Trade / Bots / Profile stay at the actual bottom of the app viewport. */
   body .app.activePage-trade.riseFallActivePageV183
-    > .bottomNav {
-    grid-row: 3 !important;
+  .finalBinaryTradePage.priceContractPage
+  .finalTradeButtons,
+  body .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .proTradeButtons.finalTradeButtons {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 
+  body .app.activePage-trade.riseFallActivePageV183 > .bottomNav {
+    grid-row: 3 !important;
     position: relative !important;
     inset: auto !important;
-
     width: calc(100% - 16px) !important;
     height: 72px !important;
     min-height: 72px !important;
     max-height: 72px !important;
-
-    margin:
-      4px 8px
-      max(4px, env(safe-area-inset-bottom, 0px)) !important;
+    margin: 4px 8px max(4px, env(safe-area-inset-bottom)) !important;
     padding: 0 !important;
-
     transform: none !important;
-    flex: none !important;
     z-index: 21000 !important;
   }
 
-  body .app.activePage-trade.riseFallActivePageV183
-    > .bottomNav button,
-  body .app.activePage-trade.riseFallActivePageV183
-    > .bottomNav button:nth-child(3) {
+  body .app.activePage-trade.riseFallActivePageV183 > .bottomNav button,
+  body .app.activePage-trade.riseFallActivePageV183 > .bottomNav button:nth-child(3) {
     height: 100% !important;
     min-height: 0 !important;
     max-height: none !important;
   }
 }
 
-/* Short phones: keep the controls usable by slightly reducing the nav. */
+/* Small phones: preserve all controls by reducing only the chart. */
 @media screen and (max-width: 480px) and (max-height: 760px) {
-  body .app.activePage-trade.riseFallActivePageV183
-    > .bottomNav {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex-basis: 220px !important;
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+  }
+
+  body .app.activePage-trade.riseFallActivePageV183 > .bottomNav,
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
     height: 64px !important;
     min-height: 64px !important;
     max-height: 64px !important;
-  }
-
-  body .app.activePage-trade.riseFallActivePageV183
-    .finalBinaryTradePage.priceContractPage {
-    gap: 4px !important;
   }
 }
