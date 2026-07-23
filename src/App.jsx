@@ -7951,7 +7951,7 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
     <div className="menuLayer">
       <button className="menuShade" onClick={close} aria-label="Close menu"></button>
 
-      <aside className="sideDrawer" role="dialog" aria-modal="true" aria-label="Main menu">
+      <aside className="sideDrawer" style={{ width: "min(86vw, 390px)", maxWidth: "390px" }} role="dialog" aria-modal="true" aria-label="Main menu">
         <div className="drawerTop">
           <Logo />
           <button onClick={close}>×</button>
@@ -8083,24 +8083,47 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     window.clearTimeout(autoLaunchTimerRef.current);
   }, []);
 
-  useEffect(() => {
-    const clampToScreen = () => {
-      const buttonSize = window.innerWidth <= 760 ? 58 : 66;
-      const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
-      const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
-      const reservedBottom = activePage === "trade" ? 104 : activePage === "botLive" ? 92 : 78;
-      const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
-      setPosition((old) => ({
-        x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, Number(old?.x || window.innerWidth - buttonSize - 16))),
-        y: Math.max(minY, Math.min(maxY, Number(old?.y || 130))),
-      }));
+  function getAiDragBounds() {
+    const viewport = window.visualViewport;
+    const viewportWidth = Math.max(280, Number(viewport?.width || window.innerWidth || 360));
+    const viewportHeight = Math.max(320, Number(viewport?.height || window.innerHeight || 720));
+    const offsetLeft = Math.max(0, Number(viewport?.offsetLeft || 0));
+    const offsetTop = Math.max(0, Number(viewport?.offsetTop || 0));
+    const buttonSize = viewportWidth <= 760 ? 58 : 66;
+    const edge = 8;
+    const reservedBottom = activePage === "trade" ? 92 : activePage === "botLive" ? 84 : 72;
+
+    return {
+      buttonSize,
+      minX: offsetLeft + edge,
+      maxX: Math.max(offsetLeft + edge, offsetLeft + viewportWidth - buttonSize - edge),
+      minY: offsetTop + edge,
+      maxY: Math.max(offsetTop + edge, offsetTop + viewportHeight - buttonSize - reservedBottom),
     };
+  }
+
+  function clampAiPosition(nextPosition) {
+    const bounds = getAiDragBounds();
+    return {
+      x: Math.max(bounds.minX, Math.min(bounds.maxX, Number(nextPosition?.x ?? bounds.maxX))),
+      y: Math.max(bounds.minY, Math.min(bounds.maxY, Number(nextPosition?.y ?? 130))),
+    };
+  }
+
+  useEffect(() => {
+    const clampToScreen = () => setPosition((old) => clampAiPosition(old));
     clampToScreen();
+
     window.addEventListener("resize", clampToScreen, { passive: true });
+    window.addEventListener("orientationchange", clampToScreen, { passive: true });
     window.visualViewport?.addEventListener("resize", clampToScreen, { passive: true });
+    window.visualViewport?.addEventListener("scroll", clampToScreen, { passive: true });
+
     return () => {
       window.removeEventListener("resize", clampToScreen);
+      window.removeEventListener("orientationchange", clampToScreen);
       window.visualViewport?.removeEventListener("resize", clampToScreen);
+      window.visualViewport?.removeEventListener("scroll", clampToScreen);
     };
   }, [activePage]);
 
@@ -8248,43 +8271,83 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   }
 
   function pointerDown(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    event.preventDefault();
+
     dragRef.current = {
       dragging: true,
       moved: false,
+      pointerId: event.pointerId,
       offsetX: event.clientX - position.x,
       offsetY: event.clientY - position.y,
       startX: event.clientX,
       startY: event.clientY,
     };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+
+    try {
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+    } catch {
+      // Some mobile browsers can reject pointer capture during viewport changes.
+    }
   }
 
   function pointerMove(event) {
     if (!dragRef.current.dragging) return;
-    const distance = Math.hypot(event.clientX - dragRef.current.startX, event.clientY - dragRef.current.startY);
-    if (distance < 5 && !dragRef.current.moved) return;
+    if (dragRef.current.pointerId != null && event.pointerId !== dragRef.current.pointerId) return;
+
+    const distance = Math.hypot(
+      event.clientX - dragRef.current.startX,
+      event.clientY - dragRef.current.startY
+    );
+
+    if (distance < 6 && !dragRef.current.moved) return;
+    event.preventDefault();
     dragRef.current.moved = true;
-    const buttonSize = window.innerWidth <= 760 ? 58 : 66;
-    const minY = Math.max(8, Number(window.visualViewport?.offsetTop || 0) + 8);
-    const viewportHeight = Number(window.visualViewport?.height || window.innerHeight);
-    const reservedBottom = activePage === "trade" ? 104 : activePage === "botLive" ? 92 : 78;
-    const maxY = Math.max(minY, viewportHeight - buttonSize - reservedBottom);
-    setPosition({
-      x: Math.max(8, Math.min(window.innerWidth - buttonSize - 8, event.clientX - dragRef.current.offsetX)),
-      y: Math.max(minY, Math.min(maxY, event.clientY - dragRef.current.offsetY)),
-    });
+
+    setPosition(
+      clampAiPosition({
+        x: event.clientX - dragRef.current.offsetX,
+        y: event.clientY - dragRef.current.offsetY,
+      })
+    );
   }
 
-  function pointerUp() {
+  function finishPointer(event, cancelled = false) {
+    if (!dragRef.current.dragging) return;
+    if (
+      dragRef.current.pointerId != null &&
+      event?.pointerId != null &&
+      event.pointerId !== dragRef.current.pointerId
+    ) return;
+
     const moved = dragRef.current.moved;
     dragRef.current.dragging = false;
-    if (moved) return;
+
+    try {
+      if (event?.currentTarget?.hasPointerCapture?.(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // Safe fallback for browsers that release capture automatically.
+    }
+
+    if (cancelled || moved) return;
+
     if (autoSession?.running) {
       setOpen(true);
       return;
     }
+
     setOpen(true);
     window.setTimeout(() => scan(true), 80);
+  }
+
+  function pointerUp(event) {
+    finishPointer(event, false);
+  }
+
+  function pointerCancel(event) {
+    finishPointer(event, true);
   }
 
   const mode = pageMode();
@@ -8307,6 +8370,9 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
           onPointerUp={pointerUp}
+          onPointerCancel={pointerCancel}
+          onLostPointerCapture={pointerCancel}
+          draggable={false}
           aria-label="Scan markets and start AI Auto-Trade"
         >
           <span className="aiOrbCore">AI</span><i></i>{(scanning || autoSession?.running) && <b>{scanning ? `${progress}%` : `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}`}</b>}
