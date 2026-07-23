@@ -2276,3 +2276,145 @@
     max-height: 225px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V190 — MATCH FINAL MOBILE REFERENCE
+   Digit contracts only.
+   Targets the requested full-screen composition:
+   header -> tabs -> large chart -> digits -> controls -> actions -> nav
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade:not(.riseFallActivePageV183) {
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+
+  /* Large chart like the approved reference. */
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex: 0 0 clamp(300px, 42vh, 420px) !important;
+    width: 100% !important;
+    height: clamp(300px, 42vh, 420px) !important;
+    min-height: clamp(300px, 42vh, 420px) !important;
+    max-height: clamp(300px, 42vh, 420px) !important;
+  }
+
+  /* Keep the 10 digits compact and directly below the chart. */
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryChartCard.digitOnlyCard
+  > .mobileDigitBoardFinalV130 {
+    flex: 0 0 166px !important;
+    height: 166px !important;
+    min-height: 166px !important;
+    max-height: 166px !important;
+  }
+
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryChartCard.digitOnlyCard
+  > .mobileDigitBoardFinalV130
+  > .mobileDigitGridFinalV130 {
+    height: 156px !important;
+    min-height: 156px !important;
+    max-height: 156px !important;
+    grid-template-rows: 72px 72px !important;
+    row-gap: 10px !important;
+  }
+
+  /* Ensure the controls are always present under digits. */
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryOrderCard,
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proBinaryOrderCard.finalBinaryOrderCard {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalTradeButtons,
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proTradeButtons.finalTradeButtons {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+    width: calc(100% - 20px) !important;
+    height: 86px !important;
+    min-height: 86px !important;
+    max-height: 86px !important;
+    margin: 8px 10px max(8px, env(safe-area-inset-bottom)) !important;
+    transform: none !important;
+  }
+
+  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button,
+  .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button:nth-child(3) {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
+
+/* Short phones: preserve all controls by reducing chart height slightly. */
+@media screen and (max-width: 600px) and (max-height: 760px) {
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex-basis: 245px !important;
+    height: 245px !important;
+    min-height: 245px !important;
+    max-height: 245px !important;
+  }
+}
+
+/* Very tall phones: chart takes more of the extra room. */
+@media screen and (max-width: 600px) and (min-height: 900px) {
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex-basis: 390px !important;
+    height: 390px !important;
+    min-height: 390px !important;
+    max-height: 390px !important;
+  }
+}
