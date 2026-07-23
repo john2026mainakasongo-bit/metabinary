@@ -6308,6 +6308,109 @@ function TradePage({
     if (activeBinaryTrade) setMarketMenuOpen(false);
   }, [activeBinaryTrade]);
 
+
+  useEffect(() => {
+    if (typeof window === "undefined" || desktopTradeMode) return undefined;
+
+    let frame = 0;
+    let observer = null;
+
+    const syncMobileDigitChartHeightV218 = () => {
+      window.cancelAnimationFrame(frame);
+
+      frame = window.requestAnimationFrame(() => {
+        const root = document.documentElement;
+        const app = document.querySelector(".app.activePage-trade");
+        const page = document.querySelector(".finalBinaryTradePage.digitContractPage");
+
+        if (!app || !page) {
+          root.style.removeProperty("--mb-digit-chart-height-v218");
+          return;
+        }
+
+        const liveChart = page.querySelector(".mobileDigitLiveChartV115");
+        const digitBoard = page.querySelector(
+          ".digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130"
+        );
+        const orderCard = page.querySelector(".finalBinaryOrderCard");
+        const bottomNav = app.querySelector(":scope > .bottomNav");
+
+        if (!liveChart || !digitBoard || !orderCard || !bottomNav) {
+          root.style.removeProperty("--mb-digit-chart-height-v218");
+          return;
+        }
+
+        const chartTop = liveChart.getBoundingClientRect().top;
+        const boardHeight = digitBoard.getBoundingClientRect().height;
+        const orderHeight = orderCard.getBoundingClientRect().height;
+        const navTop = bottomNav.getBoundingClientRect().top;
+
+        // 18px reserves the three small vertical gaps around chart/board/order.
+        const measured = Math.floor(
+          navTop - chartTop - boardHeight - orderHeight - 18
+        );
+
+        // Keep compact phones usable while allowing tall phones to consume
+        // every genuinely available pixel instead of leaving an empty band.
+        const nextHeight = Math.max(220, Math.min(680, measured));
+
+        if (Number.isFinite(nextHeight) && nextHeight > 0) {
+          root.style.setProperty(
+            "--mb-digit-chart-height-v218",
+            `${nextHeight}px`
+          );
+        }
+      });
+    };
+
+    syncMobileDigitChartHeightV218();
+
+    window.addEventListener("resize", syncMobileDigitChartHeightV218, {
+      passive: true,
+    });
+    window.addEventListener(
+      "orientationchange",
+      syncMobileDigitChartHeightV218,
+      { passive: true }
+    );
+    window.visualViewport?.addEventListener(
+      "resize",
+      syncMobileDigitChartHeightV218,
+      { passive: true }
+    );
+
+    observer = new ResizeObserver(syncMobileDigitChartHeightV218);
+    const observed = [
+      document.querySelector(".app.activePage-trade > .bottomNav"),
+      document.querySelector(
+        ".finalBinaryTradePage.digitContractPage .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130"
+      ),
+      document.querySelector(
+        ".finalBinaryTradePage.digitContractPage > .finalBinaryOrderCard"
+      ),
+    ].filter(Boolean);
+
+    observed.forEach((node) => observer.observe(node));
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", syncMobileDigitChartHeightV218);
+      window.removeEventListener(
+        "orientationchange",
+        syncMobileDigitChartHeightV218
+      );
+      window.visualViewport?.removeEventListener(
+        "resize",
+        syncMobileDigitChartHeightV218
+      );
+      observer?.disconnect();
+      document.documentElement.style.removeProperty(
+        "--mb-digit-chart-height-v218"
+      );
+    };
+  }, [desktopTradeMode, tradeType]);
+
+
   useEffect(() => {
     if (pendingDigitVisualTimerRef.current) {
       window.clearTimeout(pendingDigitVisualTimerRef.current);

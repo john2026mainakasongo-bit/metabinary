@@ -1688,3 +1688,132 @@ METABINARY V158 — OUTER WAITING RING + TRUE COMPACT TRADE FLOW\n\n   Visual se
     max-height: 86px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V218 — MEASURED MOBILE DIGIT HEIGHT
+   The real available chart height is measured in App.jsx from the current
+   phone viewport and actual rendered controls. No phone-model breakpoints.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 38px auto auto !important;
+    align-content: start !important;
+
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows:
+      var(--mb-digit-chart-height-v218, 300px)
+      154px !important;
+
+    gap: 6px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    grid-row: 1 !important;
+
+    width: 100% !important;
+    height: var(--mb-digit-chart-height-v218, 300px) !important;
+    min-height: var(--mb-digit-chart-height-v218, 300px) !important;
+    max-height: var(--mb-digit-chart-height-v218, 300px) !important;
+
+    display: grid !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+
+    flex: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketHeadV115 {
+    grid-row: 1 !important;
+    min-height: 0 !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitChartCanvasV115 {
+    grid-row: 2 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitTimeRowV115 {
+    grid-row: 3 !important;
+    min-height: 0 !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
+    grid-row: 2 !important;
+
+    width: 100% !important;
+    height: 154px !important;
+    min-height: 154px !important;
+    max-height: 154px !important;
+
+    margin: 0 !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryOrderCard {
+    grid-row: 3 !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+@media screen and (max-width: 600px) and (max-height: 760px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard {
+    grid-template-rows:
+      var(--mb-digit-chart-height-v218, 220px)
+      146px !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    height: var(--mb-digit-chart-height-v218, 220px) !important;
+    min-height: var(--mb-digit-chart-height-v218, 220px) !important;
+    max-height: var(--mb-digit-chart-height-v218, 220px) !important;
+  }
+}
+
