@@ -1998,3 +1998,34 @@
     flex-basis: clamp(330px, 39vh, 395px) !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V219 — FIRST ULTRA-TALL PHONE ONLY
+   Built directly on V207 stable.
+
+   Important:
+   - Normal phone layout is untouched.
+   - Rise/Fall is untouched.
+   - Digits, controls, buttons and bottom nav are untouched.
+   - Only ultra-tall / narrow phones get a taller existing digit chart,
+     so the current blank space below the nav is consumed naturally.
+   ========================================================================== */
+
+@media screen
+  and (max-width: 600px)
+  and (max-aspect-ratio: 9 / 20) {
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: clamp(390px, 46dvh, 500px) !important;
+    min-height: clamp(390px, 46dvh, 500px) !important;
+    max-height: clamp(390px, 46dvh, 500px) !important;
+
+    flex: 0 0 clamp(390px, 46dvh, 500px) !important;
+  }
+}
+
