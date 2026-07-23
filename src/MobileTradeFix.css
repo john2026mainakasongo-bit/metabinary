@@ -1963,38 +1963,157 @@
 
 
 /* ==========================================================================
-   METABINARY V207 — SAFE TALL-PHONE DIGIT FILL
-   Starts from the stable V203 layout.
-   IMPORTANT:
-   - Does NOT change digit page/grid structure.
-   - Does NOT change chart width.
-   - Does NOT touch Rise/Fall.
-   - Only gives the existing digit chart more height on taller phones.
+   METABINARY V208 — TALL PHONE FLEX FILL (DIGIT CONTRACTS ONLY)
+   Built from the stable V203 layout.
+
+   Fix:
+   - fills the unused vertical space on taller phones
+   - keeps full width exactly as V203
+   - does not change the digit-page DOM/grid structure
+   - extra height goes ONLY into the existing chart
+   - bottom navigation remains in normal flow at the bottom
+   - Rise/Fall is untouched
    ========================================================================== */
 
 @media screen and (max-width: 600px) and (min-height: 800px) {
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .cleanBrokerHeader,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .topHeader,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .brokerTopHeader {
+    flex: 0 0 auto !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .mainScreen {
+    width: 100% !important;
+
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    padding-bottom: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    width: 100% !important;
+
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  /* Keep tabs, digits, controls and trade buttons at their proven V203 sizes. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalContractTabs,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryOrderCard,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proBinaryOrderCard.finalBinaryOrderCard,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalTradeButtons,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .proTradeButtons.finalTradeButtons {
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* The chart card receives the remaining height without changing width. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .finalBinaryChartCard.digitOnlyCard {
+    width: 100% !important;
+
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+  }
+
   body .app.activePage-trade:not(.riseFallActivePageV183)
   .mobileDigitLiveChartV115 {
     width: 100% !important;
     max-width: 100% !important;
 
-    height: clamp(285px, 37vh, 355px) !important;
-    min-height: clamp(285px, 37vh, 355px) !important;
-    max-height: clamp(285px, 37vh, 355px) !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 220px !important;
+    max-height: none !important;
+  }
 
-    flex: 0 0 clamp(285px, 37vh, 355px) !important;
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
+    width: 100% !important;
+    height: 154px !important;
+    min-height: 154px !important;
+    max-height: 154px !important;
+
+    flex-basis: 154px !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+
+    width: calc(100% - 16px) !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+
+    flex: 0 0 72px !important;
+
+    margin: 4px 8px max(4px, env(safe-area-inset-bottom, 0px)) !important;
+    padding: 0 !important;
+
+    transform: none !important;
   }
 }
 
-/* Extra-tall phones: use a little more of the spare vertical space.
-   Width and page structure remain exactly the same. */
-@media screen and (max-width: 600px) and (min-height: 920px) {
+/* Very tall phones: same flex system; no extra structural overrides needed. */
+@media screen and (max-width: 600px) and (min-height: 950px) {
   body .app.activePage-trade:not(.riseFallActivePageV183)
   .mobileDigitLiveChartV115 {
-    height: clamp(330px, 39vh, 395px) !important;
-    min-height: clamp(330px, 39vh, 395px) !important;
-    max-height: clamp(330px, 39vh, 395px) !important;
-
-    flex-basis: clamp(330px, 39vh, 395px) !important;
+    min-height: 250px !important;
   }
 }
