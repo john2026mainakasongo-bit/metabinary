@@ -1963,56 +1963,64 @@
 
 
 /* ==========================================================================
-   METABINARY V209 — TALL PHONE CHART-ONLY FIX
-   Built from stable V203.
+   METABINARY V210 — TALL-PHONE VIEWPORT SHELL FIX
+   Stable V203 layout + shell-only correction.
 
    IMPORTANT:
-   - Does NOT use flex on the whole digit page.
-   - Does NOT stretch the chart CARD.
-   - Does NOT change digit board, controls, action buttons or bottom nav.
-   - Only increases the ACTUAL live chart height on tall phones.
-   - Rise/Fall is untouched.
+   - Does NOT resize chart.
+   - Does NOT resize digits.
+   - Does NOT change order controls.
+   - Does NOT change trade buttons.
+   - Does NOT touch Rise/Fall internals.
+   - Only makes the outer trade page use the real visible phone viewport and
+     pushes the bottom navigation to the bottom on taller phones.
    ========================================================================== */
 
-@media screen and (max-width: 600px) and (min-height: 820px) {
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  .finalBinaryChartCard.digitOnlyCard {
+@media screen and (max-width: 600px) and (min-height: 800px) {
+  html,
+  body,
+  #root {
+    min-height: 100% !important;
+  }
+
+  body .app.activePage-trade {
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+
+  body .app.activePage-trade > .mainScreen {
+    flex: 0 0 auto !important;
+    width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
-    flex: 0 0 auto !important;
-    display: block !important;
+
     overflow: visible !important;
   }
 
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    width: 100% !important;
-    max-width: 100% !important;
-
-    height: clamp(330px, 44vh, 430px) !important;
-    min-height: clamp(330px, 44vh, 430px) !important;
-    max-height: clamp(330px, 44vh, 430px) !important;
-
-    flex: 0 0 clamp(330px, 44vh, 430px) !important;
-    margin-bottom: 6px !important;
+  /* Keep all trade content exactly at its existing V203 sizes. */
+  body .app.activePage-trade
+  .finalBinaryTradePage {
+    flex: 0 0 auto !important;
   }
 
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
-    margin-top: 0 !important;
-  }
-}
+  /* The only layout movement: bottom nav takes the remaining free space gap
+     above it and sits at the true bottom edge of the app viewport. */
+  body .app.activePage-trade > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
 
-/* Extra-tall phones get a slightly taller live chart, but structure stays unchanged. */
-@media screen and (max-width: 600px) and (min-height: 950px) {
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    height: clamp(380px, 46vh, 470px) !important;
-    min-height: clamp(380px, 46vh, 470px) !important;
-    max-height: clamp(380px, 46vh, 470px) !important;
+    flex: 0 0 auto !important;
+    margin-top: auto !important;
+    margin-bottom: max(4px, env(safe-area-inset-bottom, 0px)) !important;
 
-    flex-basis: clamp(380px, 46vh, 470px) !important;
+    transform: none !important;
   }
 }
