@@ -1,23 +1,4 @@
-<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="40" y1="32" x2="216" y2="224" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#8B5CF6"/>
-      <stop offset="0.5" stop-color="#EC4899"/>
-      <stop offset="1" stop-color="#2563EB"/>
-    </linearGradient>
-
-    <linearGradient id="mFill" x1="76" y1="70" x2="176" y2="176" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#DDE7FF"/>
-    </linearGradient>
-  </defs>
-
-  <rect x="20" y="20" width="216" height="216" rx="56" fill="url(#bg)"/>
-
-  <path
-    d="M72 176V82H92L128 124L164 82H184V176H160V122L128 160L96 122V176H72Z"
-    fill="url(#mFill)"
-  />
-
-  <circle cx="186" cy="186" r="10" fill="#00E676"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="16" fill="#111827"/>
+  <text x="32" y="41" text-anchor="middle" font-family="Arial, sans-serif" font-size="29" font-weight="700" fill="white">MB</text>
 </svg>
