@@ -8057,30 +8057,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [progress, setProgress] = useState(0);
   const [scanMessage, setScanMessage] = useState("Ready to scan");
   const [result, setResult] = useState(null);
-  const [position, setPosition] = useState(() => {
-    const saved = readStore(STORE.aiPosition, null);
-
-    if (
-      saved &&
-      Number.isFinite(Number(saved.xRatio)) &&
-      Number.isFinite(Number(saved.yRatio))
-    ) {
-      return {
-        xRatio: Math.max(0, Math.min(1, Number(saved.xRatio))),
-        yRatio: Math.max(0, Math.min(1, Number(saved.yRatio))),
-      };
-    }
-
-    const viewportWidth = Number(window.visualViewport?.width || window.innerWidth || 360);
-    const viewportHeight = Number(window.visualViewport?.height || window.innerHeight || 720);
-    const legacyX = Number(saved?.x ?? 18);
-    const legacyY = Number(saved?.y ?? 130);
-
-    return {
-      xRatio: Math.max(0, Math.min(1, legacyX / Math.max(1, viewportWidth))),
-      yRatio: Math.max(0, Math.min(1, legacyY / Math.max(1, viewportHeight))),
-    };
-  });
+  const [position, setPosition] = useState(() => readStore(STORE.aiPosition, { x: 18, y: 130 }));
   const scanTimerRef = useRef(0);
   const autoLaunchTimerRef = useRef(0);
   const scanActiveRef = useRef(false);
@@ -8089,12 +8066,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const aiTakeProfit = 20;
   const aiStopLoss = 10;
 
-  useEffect(() => {
-    saveStore(STORE.aiPosition, {
-      xRatio: Math.max(0, Math.min(1, Number(position?.xRatio ?? 0.5))),
-      yRatio: Math.max(0, Math.min(1, Number(position?.yRatio ?? 0.25))),
-    });
-  }, [position]);
+  useEffect(() => saveStore(STORE.aiPosition, position), [position]);
 
   useEffect(() => {
     if (!forceOpen) return undefined;
@@ -8321,42 +8293,23 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   function pointerMove(event) {
     if (!dragRef.current.dragging) return;
+    if (dragRef.current.pointerId != null && event.pointerId !== dragRef.current.pointerId) return;
 
-    const viewport = window.visualViewport;
-    const viewportWidth = Number(viewport?.width || window.innerWidth || 360);
-    const viewportHeight = Number(viewport?.height || window.innerHeight || 720);
-    const offsetLeft = Number(viewport?.offsetLeft || 0);
-    const offsetTop = Number(viewport?.offsetTop || 0);
-    const buttonSize = viewportWidth <= 760 ? 58 : 66;
-    const safeGap = 10;
-    const reservedBottom =
-      activePage === "trade" ? 92 : activePage === "botLive" ? 84 : 72;
-
-    const minX = offsetLeft + safeGap;
-    const maxX = Math.max(minX, offsetLeft + viewportWidth - buttonSize - safeGap);
-    const minY = offsetTop + safeGap;
-    const maxY = Math.max(minY, offsetTop + viewportHeight - buttonSize - reservedBottom);
-
-    const nextX = Math.max(
-      minX,
-      Math.min(maxX, event.clientX - dragRef.current.offsetX)
-    );
-    const nextY = Math.max(
-      minY,
-      Math.min(maxY, event.clientY - dragRef.current.offsetY)
+    const distance = Math.hypot(
+      event.clientX - dragRef.current.startX,
+      event.clientY - dragRef.current.startY
     );
 
-    setPosition({
-      xRatio: (nextX - offsetLeft) / Math.max(1, viewportWidth),
-      yRatio: (nextY - offsetTop) / Math.max(1, viewportHeight),
-    });
+    if (distance < 6 && !dragRef.current.moved) return;
+    event.preventDefault();
+    dragRef.current.moved = true;
 
-    if (
-      Math.abs(event.clientX - dragRef.current.startX) > 4 ||
-      Math.abs(event.clientY - dragRef.current.startY) > 4
-    ) {
-      dragRef.current.moved = true;
-    }
+    setPosition(
+      clampAiPosition({
+        x: event.clientX - dragRef.current.offsetX,
+        y: event.clientY - dragRef.current.offsetY,
+      })
+    );
   }
 
   function finishPointer(event, cancelled = false) {
