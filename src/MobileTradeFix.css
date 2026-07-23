@@ -1963,57 +1963,70 @@
 
 
 /* ==========================================================================
-   METABINARY V210 — TALL-PHONE VIEWPORT SHELL FIX
-   Stable V203 layout + shell-only correction.
+   METABINARY V211 — UNIVERSAL MOBILE SHELL FIX
+   Root fix for phones with different CSS viewport heights.
 
-   IMPORTANT:
-   - Does NOT resize chart.
-   - Does NOT resize digits.
-   - Does NOT change order controls.
-   - Does NOT change trade buttons.
-   - Does NOT touch Rise/Fall internals.
-   - Only makes the outer trade page use the real visible phone viewport and
-     pushes the bottom navigation to the bottom on taller phones.
+   Why previous tall-phone fixes failed:
+   Some physically tall phones report a CSS viewport below 800px because of
+   browser/device scaling, so @media (min-height: 800px) never matched.
+
+   This fix applies to ALL mobile digit-contract pages:
+   - keeps the existing V203 content sizes exactly as they are
+   - does not resize chart, digits, controls or trade buttons
+   - uses min-height only, so phones that already fit remain unchanged
+   - any genuine spare space is placed ABOVE the bottom nav
+   - Trade / Bots / Profile therefore sits at the bottom of the visible page
+   - Rise/Fall is untouched
    ========================================================================== */
 
-@media screen and (max-width: 600px) and (min-height: 800px) {
-  html,
-  body,
-  #root {
-    min-height: 100% !important;
-  }
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    width: 100% !important;
 
-  body .app.activePage-trade {
-    height: var(--mb-viewport-height, 100dvh) !important;
     min-height: var(--mb-viewport-height, 100dvh) !important;
-    max-height: var(--mb-viewport-height, 100dvh) !important;
+    height: auto !important;
+    max-height: none !important;
 
     display: flex !important;
     flex-direction: column !important;
 
+    padding-bottom: 0 !important;
     overflow-x: hidden !important;
-    overflow-y: hidden !important;
   }
 
-  body .app.activePage-trade > .mainScreen {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .cleanBrokerHeader,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .topHeader,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .brokerTopHeader {
     flex: 0 0 auto !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .mainScreen {
     width: 100% !important;
+
+    flex: 0 0 auto !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
 
-    overflow: visible !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
   }
 
-  /* Keep all trade content exactly at its existing V203 sizes. */
-  body .app.activePage-trade
-  .finalBinaryTradePage {
+  /* Do not alter any internal trade-page dimensions. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
     flex: 0 0 auto !important;
   }
 
-  /* The only layout movement: bottom nav takes the remaining free space gap
-     above it and sits at the true bottom edge of the app viewport. */
-  body .app.activePage-trade > .bottomNav {
+  /* This is the only positional change.
+     If there is no spare space, auto margin resolves to zero.
+     If a phone has extra viewport height, the nav is pushed to the bottom. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .bottomNav {
     position: relative !important;
     inset: auto !important;
 
