@@ -75,13 +75,32 @@
       content="https://metabinaryfx.com/favicon.svg?v=8"
     />
 
-    <!-- Structured Data -->
+    <!-- Organization + Website Structured Data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "MetaBinary",
-        "url": "https://metabinaryfx.com/"
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://metabinaryfx.com/#organization",
+            "name": "MetaBinary",
+            "url": "https://metabinaryfx.com/",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://metabinaryfx.com/favicon.svg?v=8"
+            },
+            "description": "MetaBinary is an online trading platform offering access to global and synthetic markets, advanced trading tools, automated strategies, trading bots, deposits, withdrawals, and account management."
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://metabinaryfx.com/#website",
+            "url": "https://metabinaryfx.com/",
+            "name": "MetaBinary",
+            "publisher": {
+              "@id": "https://metabinaryfx.com/#organization"
+            }
+          }
+        ]
       }
     </script>
   </head>
