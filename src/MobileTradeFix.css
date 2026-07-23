@@ -1963,77 +1963,74 @@
 
 
 /* ==========================================================================
-   METABINARY V211 — UNIVERSAL MOBILE SHELL FIX
-   Root fix for phones with different CSS viewport heights.
+   METABINARY V212 — ADAPTIVE DIGIT CHART / NO BLANK GAP
+   Built from stable V203.
 
-   Why previous tall-phone fixes failed:
-   Some physically tall phones report a CSS viewport below 800px because of
-   browser/device scaling, so @media (min-height: 800px) never matched.
+   This removes the V211 "margin-top:auto" behavior entirely by starting from
+   the stable layout, then makes ONLY the live digit chart height adapt to the
+   actual visible viewport.
 
-   This fix applies to ALL mobile digit-contract pages:
-   - keeps the existing V203 content sizes exactly as they are
-   - does not resize chart, digits, controls or trade buttons
-   - uses min-height only, so phones that already fit remain unchanged
-   - any genuine spare space is placed ABOVE the bottom nav
-   - Trade / Bots / Profile therefore sits at the bottom of the visible page
+   Result:
+   - bottom nav stays directly after the trade buttons
+   - no artificial blank band before the nav
+   - extra phone height is consumed by the chart itself
+   - narrow/tall phones and normal phones scale automatically
    - Rise/Fall is untouched
    ========================================================================== */
 
 @media screen and (max-width: 1023px) {
-  body .app.activePage-trade:not(.riseFallActivePageV183) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
     width: 100% !important;
+    max-width: 100% !important;
 
-    min-height: var(--mb-viewport-height, 100dvh) !important;
-    height: auto !important;
-    max-height: none !important;
+    /*
+      Available-height model:
+      viewport minus header/tabs/digits/order/buttons/nav.
+      Clamp protects shorter phones and prevents overgrowth.
+    */
+    height: clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 565px),
+      430px
+    ) !important;
 
-    display: flex !important;
-    flex-direction: column !important;
+    min-height: clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 565px),
+      430px
+    ) !important;
 
-    padding-bottom: 0 !important;
-    overflow-x: hidden !important;
+    max-height: clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 565px),
+      430px
+    ) !important;
+
+    flex: 0 0 clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 565px),
+      430px
+    ) !important;
   }
 
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  > .cleanBrokerHeader,
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  > .topHeader,
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  > .brokerTopHeader {
-    flex: 0 0 auto !important;
-  }
-
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  > .mainScreen {
-    width: 100% !important;
-
-    flex: 0 0 auto !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-  }
-
-  /* Do not alter any internal trade-page dimensions. */
-  body .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage {
-    flex: 0 0 auto !important;
-  }
-
-  /* This is the only positional change.
-     If there is no spare space, auto margin resolves to zero.
-     If a phone has extra viewport height, the nav is pushed to the bottom. */
+  /* Keep the content stack in normal flow. */
   body .app.activePage-trade:not(.riseFallActivePageV183)
   > .bottomNav {
     position: relative !important;
     inset: auto !important;
-
-    flex: 0 0 auto !important;
-    margin-top: auto !important;
-    margin-bottom: max(4px, env(safe-area-inset-bottom, 0px)) !important;
-
+    margin-top: 6px !important;
     transform: none !important;
+  }
+}
+
+/* Very short phones: preserve the known compact layout. */
+@media screen and (max-width: 600px) and (max-height: 700px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+    flex-basis: 220px !important;
   }
 }
