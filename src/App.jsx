@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "./App.css";
 import "./DesktopTrade.css";
 import "./MobileTradeFix.css";
@@ -6606,17 +6607,47 @@ function TradePage({
             <span className="volatilitySwitchLive"><i></i> LIVE</span>
             <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
           </button>
-          {marketMenuOpen && (
-            <>
-            <button type="button" className="marketMenuBackdropV221" onClick={() => setMarketMenuOpen(false)} aria-label="Close market selector" />
-            <div className="volatilitySwitchMenu volatilitySwitchMenuV221" role="listbox" aria-label="Volatility markets">
-              {volatilityOptions.map((market) => (
-                <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
-                  <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
-                </button>
-              ))}
-            </div>
-            </>
+          {marketMenuOpen && typeof document !== "undefined" && createPortal(
+            <div className="marketOverlayRootV222" role="presentation">
+              <button
+                type="button"
+                className="marketMenuBackdropV222"
+                onClick={() => setMarketMenuOpen(false)}
+                aria-label="Close market selector"
+              />
+              <div className="marketSelectorPanelV222" role="listbox" aria-label="Volatility markets">
+                <div className="marketSelectorHeaderV222">
+                  <div>
+                    <strong>Select volatility market</strong>
+                    <small>Choose the market you want to trade</small>
+                  </div>
+                  <button type="button" onClick={() => setMarketMenuOpen(false)} aria-label="Close">×</button>
+                </div>
+                <div className="marketSelectorListV222">
+                  {volatilityOptions.map((market) => (
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={market.id === binaryMarketId}
+                      key={market.id}
+                      className={market.id === binaryMarketId ? "active" : ""}
+                      onClick={() => {
+                        setBinaryMarketId(market.id);
+                        setMarketMenuOpen(false);
+                      }}
+                    >
+                      <span className="marketSelectorBadgeV222">{market.short}</span>
+                      <span className="marketSelectorCopyV222">
+                        <strong>{market.label}</strong>
+                        <small>{market.description}</small>
+                      </span>
+                      <i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>,
+            document.body
           )}
         </section>
       )}
@@ -6760,32 +6791,47 @@ function TradePage({
               <span className="mobileDigitMarketChevronV115">⌄</span>
             </button>
 
-            {marketMenuOpen && (
-              <>
-              <button type="button" className="marketMenuBackdropV221" onClick={() => setMarketMenuOpen(false)} aria-label="Close market selector" />
-              <div className="mobileDigitMarketMenuV115 mobileDigitMarketMenuV221" role="listbox" aria-label="Volatility markets">
-                {volatilityOptions.map((market) => (
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={market.id === binaryMarketId}
-                    key={market.id}
-                    className={market.id === binaryMarketId ? "active" : ""}
-                    onClick={() => {
-                      setBinaryMarketId(market.id);
-                      setMarketMenuOpen(false);
-                    }}
-                  >
-                    <span>{market.short}</span>
+            {marketMenuOpen && typeof document !== "undefined" && createPortal(
+              <div className="marketOverlayRootV222" role="presentation">
+                <button
+                  type="button"
+                  className="marketMenuBackdropV222"
+                  onClick={() => setMarketMenuOpen(false)}
+                  aria-label="Close market selector"
+                />
+                <div className="marketSelectorPanelV222" role="listbox" aria-label="Volatility markets">
+                  <div className="marketSelectorHeaderV222">
                     <div>
-                      <strong>{market.label}</strong>
-                      <small>{market.description}</small>
+                      <strong>Select volatility market</strong>
+                      <small>Choose the market you want to trade</small>
                     </div>
-                    <i>{market.id === binaryMarketId ? "✓" : "›"}</i>
-                  </button>
-                ))}
-              </div>
-              </>
+                    <button type="button" onClick={() => setMarketMenuOpen(false)} aria-label="Close">×</button>
+                  </div>
+                  <div className="marketSelectorListV222">
+                    {volatilityOptions.map((market) => (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={market.id === binaryMarketId}
+                        key={market.id}
+                        className={market.id === binaryMarketId ? "active" : ""}
+                        onClick={() => {
+                          setBinaryMarketId(market.id);
+                          setMarketMenuOpen(false);
+                        }}
+                      >
+                        <span className="marketSelectorBadgeV222">{market.short}</span>
+                        <span className="marketSelectorCopyV222">
+                          <strong>{market.label}</strong>
+                          <small>{market.description}</small>
+                        </span>
+                        <i>{market.id === binaryMarketId ? "✓" : "›"}</i>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>,
+              document.body
             )}
 
             <div className="mobileDigitChartCanvasV115">

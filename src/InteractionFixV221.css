@@ -268,3 +268,223 @@
     font-size: 10px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V222 — VOLATILITY SELECTOR PORTAL OVERLAY
+   This overlay is rendered directly under document.body, so no chart wrapper,
+   transform, overflow rule, or mobile layout can crop or squeeze it.
+   ========================================================================== */
+
+.marketOverlayRootV222 {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 30000 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding:
+    max(14px, env(safe-area-inset-top, 0px))
+    12px
+    max(14px, env(safe-area-inset-bottom, 0px))
+    !important;
+  pointer-events: none !important;
+}
+
+.marketMenuBackdropV222 {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: rgba(1, 8, 18, 0.72) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: auto !important;
+}
+
+.marketSelectorPanelV222 {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(620px, calc(100vw - 24px)) !important;
+  max-width: 620px !important;
+  max-height: min(620px, calc(100dvh - 36px)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(52, 136, 232, 0.38) !important;
+  background: #061524 !important;
+  box-shadow: 0 26px 90px rgba(0, 0, 0, 0.62) !important;
+  color: #f4f8ff !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+
+.marketSelectorHeaderV222 {
+  flex: 0 0 auto !important;
+  min-height: 72px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+  border-bottom: 1px solid rgba(103, 151, 204, 0.18) !important;
+}
+
+.marketSelectorHeaderV222 > div {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.marketSelectorHeaderV222 strong {
+  color: #ffffff !important;
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+}
+
+.marketSelectorHeaderV222 small {
+  color: #8494aa !important;
+  font-size: 12px !important;
+}
+
+.marketSelectorHeaderV222 > button {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  border: 1px solid rgba(126, 163, 207, 0.2) !important;
+  border-radius: 50% !important;
+  background: #0d2135 !important;
+  color: #ffffff !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.marketSelectorListV222 {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px !important;
+}
+
+.marketSelectorListV222 > button {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 68px !important;
+  display: grid !important;
+  grid-template-columns: 76px minmax(0, 1fr) 30px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 0 6px !important;
+  padding: 10px 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 13px !important;
+  background: transparent !important;
+  color: #eef5ff !important;
+  text-align: left !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+.marketSelectorListV222 > button:last-child {
+  margin-bottom: 0 !important;
+}
+
+.marketSelectorListV222 > button.active {
+  background: #0a2b49 !important;
+  border-color: rgba(48, 145, 255, 0.48) !important;
+}
+
+.marketSelectorBadgeV222 {
+  display: block !important;
+  color: #22d99c !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.marketSelectorCopyV222 {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.marketSelectorCopyV222 strong {
+  display: block !important;
+  color: #f5f8ff !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+.marketSelectorCopyV222 small {
+  display: block !important;
+  color: #8190a4 !important;
+  font-size: 11px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+.marketSelectorListV222 > button > i {
+  display: grid !important;
+  place-items: center !important;
+  color: #eef6ff !important;
+  font-size: 22px !important;
+  font-style: normal !important;
+}
+
+@media screen and (max-width: 600px) {
+  .marketOverlayRootV222 {
+    align-items: center !important;
+    padding:
+      max(12px, env(safe-area-inset-top, 0px))
+      10px
+      max(12px, env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+
+  .marketSelectorPanelV222 {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: min(560px, calc(100dvh - 28px)) !important;
+    border-radius: 18px !important;
+  }
+
+  .marketSelectorHeaderV222 {
+    min-height: 64px !important;
+    padding: 12px 13px !important;
+  }
+
+  .marketSelectorHeaderV222 strong {
+    font-size: 16px !important;
+  }
+
+  .marketSelectorListV222 > button {
+    min-height: 62px !important;
+    grid-template-columns: 70px minmax(0, 1fr) 24px !important;
+    padding: 9px 10px !important;
+  }
+
+  .marketSelectorBadgeV222 {
+    font-size: 18px !important;
+  }
+
+  .marketSelectorCopyV222 strong {
+    font-size: 14px !important;
+  }
+
+  .marketSelectorCopyV222 small {
+    font-size: 10px !important;
+  }
+}
+
