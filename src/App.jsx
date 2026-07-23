@@ -4,6 +4,7 @@ import "./App.css";
 import "./DesktopTrade.css";
 import "./MobileTradeFix.css";
 import "./RiseFallChartV183.css";
+import "./InteractionFixV221.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 
 function ensureResponsiveViewportMeta() {
@@ -4727,200 +4728,243 @@ function Header({
 }) {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const overlayRef = useRef(null);
   const isReal = account === "real";
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
   const unreadCount = safeNotifications.filter((item) => !item.read).length;
   const aiLastNet = Number(autoSession?.lastNet || 0);
   const aiBalanceClass = aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
 
+  function closeHeaderOverlays() {
+    setAccountMenuOpen(false);
+    setNotificationOpen(false);
+  }
+
   function chooseAccount(nextAccount) {
     setAccount(nextAccount);
-    setAccountMenuOpen(false);
+    closeHeaderOverlays();
   }
 
   function openNotification(item) {
     markNotificationRead(item.id);
-    setNotificationOpen(false);
+    closeHeaderOverlays();
     if (item.page) setActivePage(item.page);
   }
+
+  useEffect(() => {
+    if (!accountMenuOpen && !notificationOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") closeHeaderOverlays();
+    };
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [accountMenuOpen, notificationOpen]);
 
   return (
     <header className="topHeader brokerTopHeader cleanBrokerHeader">
       <div className="desktopHeaderLeftGroupV94">
-      <button
-        className="menuBtn brokerMenuBtn"
-        onClick={() => {
-          if (typeof window !== "undefined") {
-            window.dispatchEvent(new Event("metabinary:close-trade-overlays"));
-          }
-          openMenu();
-        }}
-        aria-label="Open menu"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+        <button
+          className="menuBtn brokerMenuBtn"
+          onClick={() => {
+            closeHeaderOverlays();
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("metabinary:close-trade-overlays"));
+            }
+            openMenu();
+          }}
+          aria-label="Open menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
 
-      <Logo />
+        <Logo />
 
-      <nav className="desktopTradeHeaderActionsV89" aria-label="Trading shortcuts">
-        <button type="button" onClick={() => setActivePage("trade")}>Trade</button>
-        <button type="button" onClick={() => setActivePage("bots")}>Bots</button>
-        <button type="button" onClick={openDeposit}>Deposit</button>
-        <button type="button" onClick={openWithdraw}>Withdraw</button>
-        <button type="button" onClick={() => setActivePage("history")}>History</button>
-      </nav>
+        <nav className="desktopTradeHeaderActionsV89" aria-label="Trading shortcuts">
+          <button type="button" onClick={() => setActivePage("trade")}>Trade</button>
+          <button type="button" onClick={() => setActivePage("bots")}>Bots</button>
+          <button type="button" onClick={openDeposit}>Deposit</button>
+          <button type="button" onClick={openWithdraw}>Withdraw</button>
+          <button type="button" onClick={() => setActivePage("history")}>History</button>
+        </nav>
       </div>
 
       <div className="desktopHeaderRightGroupV94">
-      <button
-        type="button"
-        className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""} ${autoSession?.running ? "aiTradingBalance" : ""} ${aiBalanceClass}`}
-        onClick={() => {
-          setAccountMenuOpen((open) => !open);
-          setNotificationOpen(false);
-        }}
-        aria-haspopup="listbox"
-        aria-expanded={accountMenuOpen}
-        aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
-      >
-        {isReal ? (
-          <div className="usdWalletSelectorV12">
-            <span className="usdFlagCircleV12" aria-hidden="true">
-              <span className="usdFlagStarsV12"></span>
-            </span>
-            <span className="usdWalletInlineV12">{money(balance)} USD</span>
-          </div>
-        ) : (
-          <div className="demoWalletSelectorV12">
-            <span className="demoWalletBadgeV12">DEMO</span>
-            <span className="demoWalletInlineV12">{money(balance)} USD</span>
+        <button
+          type="button"
+          className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""} ${autoSession?.running ? "aiTradingBalance" : ""} ${aiBalanceClass}`}
+          onClick={() => {
+            setAccountMenuOpen((open) => !open);
+            setNotificationOpen(false);
+          }}
+          aria-haspopup="listbox"
+          aria-expanded={accountMenuOpen}
+          aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
+        >
+          {isReal ? (
+            <div className="usdWalletSelectorV12">
+              <span className="usdFlagCircleV12" aria-hidden="true">
+                <span className="usdFlagStarsV12"></span>
+              </span>
+              <span className="usdWalletInlineV12">{money(balance)} USD</span>
+            </div>
+          ) : (
+            <div className="demoWalletSelectorV12">
+              <span className="demoWalletBadgeV12">DEMO</span>
+              <span className="demoWalletInlineV12">{money(balance)} USD</span>
+            </div>
+          )}
+        </button>
+
+        <button
+          type="button"
+          className="depositTop brokerDepositBtn compactDepositButton"
+          onClick={openDeposit}
+          aria-label="Deposit funds"
+        >
+          <span>Deposit</span>
+          <b>＋</b>
+        </button>
+
+        <button
+          type="button"
+          className={`bellBtn brokerBellBtn workingBellButton ${notificationOpen ? "active" : ""}`}
+          aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
+          aria-expanded={notificationOpen}
+          onClick={() => {
+            setNotificationOpen((open) => !open);
+            setAccountMenuOpen(false);
+          }}
+        >
+          <i aria-hidden="true">🔔</i>
+          {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
+        </button>
+
+        <button
+          className="avatarBtn brokerAvatarBtn"
+          onClick={() => {
+            closeHeaderOverlays();
+            setActivePage("profile");
+          }}
+          aria-label="Open profile"
+        >
+          {user.initials}
+          <i></i>
+        </button>
+      </div>
+
+      {(accountMenuOpen || notificationOpen) && (
+        <button
+          type="button"
+          className="headerOverlayBackdropV221"
+          aria-label="Close popup"
+          onClick={closeHeaderOverlays}
+        />
+      )}
+
+      <div ref={overlayRef}>
+        {accountMenuOpen && (
+          <div className="accountPickerPanel accountPickerCompactV221" role="listbox" aria-label="Choose account">
+            <div className="accountPickerHeading">
+              <div>
+                <strong>Select account</strong>
+                <small>Choose balance</small>
+              </div>
+              <button type="button" className="headerPopupCloseV221" onClick={closeHeaderOverlays} aria-label="Close account selector">×</button>
+            </div>
+
+            <button
+              type="button"
+              role="option"
+              aria-selected={account === "demo"}
+              className={account === "demo" ? "selected" : ""}
+              onClick={() => chooseAccount("demo")}
+            >
+              <span className="accountPickerIconV221 demo">D</span>
+              <span className="accountPickerCopyV221">
+                <strong>Demo Account</strong>
+                <small>{money(balances.demo)} USD</small>
+              </span>
+              <i>{account === "demo" ? "✓" : ""}</i>
+            </button>
+
+            <button
+              type="button"
+              role="option"
+              aria-selected={account === "real"}
+              className={account === "real" ? "selected" : ""}
+              onClick={() => chooseAccount("real")}
+            >
+              <span className="accountPickerIconV221 real" aria-hidden="true">🇺🇸</span>
+              <span className="accountPickerCopyV221">
+                <strong>Real Account</strong>
+                <small>{money(balances.real)} USD</small>
+              </span>
+              <i>{account === "real" ? "✓" : ""}</i>
+            </button>
           </div>
         )}
 
-      </button>
-
-      <button
-        type="button"
-        className="depositTop brokerDepositBtn compactDepositButton"
-        onClick={openDeposit}
-        aria-label="Deposit funds"
-      >
-        <span>Deposit</span>
-        <b>＋</b>
-      </button>
-
-      <button
-        type="button"
-        className={`bellBtn brokerBellBtn workingBellButton ${notificationOpen ? "active" : ""}`}
-        aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
-        aria-expanded={notificationOpen}
-        onClick={() => {
-          setNotificationOpen((open) => !open);
-          setAccountMenuOpen(false);
-        }}
-      >
-        <i aria-hidden="true">🔔</i>
-        {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
-      </button>
-
-      <button className="avatarBtn brokerAvatarBtn" onClick={() => setActivePage("profile")} aria-label="Open profile">
-        {user.initials}
-        <i></i>
-      </button>
-      </div>
-
-      {accountMenuOpen && (
-        <div className="accountPickerPanel" role="listbox" aria-label="Choose account">
-          <div className="accountPickerHeading">
-            <strong>Select account</strong>
-            <small>Choose the balance you want to use</small>
-          </div>
-
-          <button
-            type="button"
-            role="option"
-            aria-selected={account === "demo"}
-            className={account === "demo" ? "selected" : ""}
-            onClick={() => chooseAccount("demo")}
-          >
-            <span>
-              <strong>Demo Account</strong>
-              <small>{money(balances.demo)} USD</small>
-            </span>
-            <i>{account === "demo" ? "✓" : ""}</i>
-          </button>
-
-          <button
-            type="button"
-            role="option"
-            aria-selected={account === "real"}
-            className={account === "real" ? "selected" : ""}
-            onClick={() => chooseAccount("real")}
-          >
-            <span>
-              <strong>Real Account</strong>
-              <small>{money(balances.real)} USD · ID {user.brokerId}</small>
-            </span>
-            <i>{account === "real" ? "✓" : ""}</i>
-          </button>
-        </div>
-      )}
-
-      {notificationOpen && (
-        <section className="notificationPanel" aria-label="Notifications">
-          <header>
-            <div>
-              <strong>Notifications</strong>
-              <small>{unreadCount} unread</small>
-            </div>
-            {unreadCount > 0 && (
-              <button type="button" onClick={markAllNotificationsRead}>Mark all read</button>
-            )}
-          </header>
-
-          <div className="notificationList">
-            {safeNotifications.length === 0 ? (
-              <div className="notificationEmpty">
-                <span>🔔</span>
-                <strong>You are all caught up</strong>
-                <small>New account and trading updates will appear here.</small>
+        {notificationOpen && (
+          <section className="notificationPanel notificationPanelCompactV221" aria-label="Notifications">
+            <header>
+              <div>
+                <strong>Notifications</strong>
+                <small>{unreadCount} unread</small>
               </div>
-            ) : (
-              safeNotifications.slice(0, 8).map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  className={`notificationItem ${item.read ? "read" : "unread"} ${item.type || "info"}`}
-                  onClick={() => openNotification(item)}
-                >
-                  <span className="notificationTypeIcon">
-                    {item.type === "win" ? "✓" : item.type === "loss" ? "!" : item.type === "wallet" ? "$" : item.type === "security" ? "◆" : "↗"}
-                  </span>
-                  <span className="notificationCopy">
-                    <strong>{item.title}</strong>
-                    <small>{item.message}</small>
-                    <em>{item.time}</em>
-                  </span>
-                  {!item.read && <i aria-label="Unread"></i>}
-                </button>
-              ))
-            )}
-          </div>
+              <div className="notificationHeaderActionsV221">
+                {unreadCount > 0 && (
+                  <button type="button" onClick={markAllNotificationsRead}>Read all</button>
+                )}
+                <button type="button" className="headerPopupCloseV221" onClick={closeHeaderOverlays} aria-label="Close notifications">×</button>
+              </div>
+            </header>
 
-          <footer>
-            <button type="button" onClick={() => { setNotificationOpen(false); setActivePage("history"); }}>
-              View activity
-            </button>
-            {safeNotifications.length > 0 && (
-              <button type="button" className="clearNotifications" onClick={clearNotifications}>
-                Clear
+            <div className="notificationList">
+              {safeNotifications.length === 0 ? (
+                <div className="notificationEmpty notificationEmptyCompactV221">
+                  <span>🔔</span>
+                  <strong>You’re all caught up</strong>
+                  <small>New account and trading updates will appear here.</small>
+                </div>
+              ) : (
+                safeNotifications.slice(0, 6).map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    className={`notificationItem ${item.read ? "read" : "unread"} ${item.type || "info"}`}
+                    onClick={() => openNotification(item)}
+                  >
+                    <span className="notificationTypeIcon">
+                      {item.type === "win" ? "✓" : item.type === "loss" ? "!" : item.type === "wallet" ? "$" : item.type === "security" ? "◆" : "↗"}
+                    </span>
+                    <span className="notificationCopy">
+                      <strong>{item.title}</strong>
+                      <small>{item.message}</small>
+                      <em>{item.time}</em>
+                    </span>
+                    {!item.read && <i aria-label="Unread"></i>}
+                  </button>
+                ))
+              )}
+            </div>
+
+            <footer>
+              <button type="button" onClick={() => { closeHeaderOverlays(); setActivePage("history"); }}>
+                View activity
               </button>
-            )}
-          </footer>
-        </section>
-      )}
+              {safeNotifications.length > 0 && (
+                <button type="button" className="clearNotifications" onClick={clearNotifications}>
+                  Clear
+                </button>
+              )}
+            </footer>
+          </section>
+        )}
+      </div>
     </header>
   );
 }
@@ -6253,6 +6297,12 @@ function TradePage({
   account = "demo",
 }) {
   const [marketMenuOpen, setMarketMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const closeTradeOverlays = () => setMarketMenuOpen(false);
+    window.addEventListener("metabinary:close-trade-overlays", closeTradeOverlays);
+    return () => window.removeEventListener("metabinary:close-trade-overlays", closeTradeOverlays);
+  }, []);
   const contractTabRefs = useRef({});
   const [desktopTradeMode, setDesktopTradeMode] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 1024 : false
@@ -6557,13 +6607,16 @@ function TradePage({
             <span className="volatilitySwitchChevron" aria-hidden="true">⌄</span>
           </button>
           {marketMenuOpen && (
-            <div className="volatilitySwitchMenu" role="listbox" aria-label="Volatility markets">
+            <>
+            <button type="button" className="marketMenuBackdropV221" onClick={() => setMarketMenuOpen(false)} aria-label="Close market selector" />
+            <div className="volatilitySwitchMenu volatilitySwitchMenuV221" role="listbox" aria-label="Volatility markets">
               {volatilityOptions.map((market) => (
                 <button type="button" role="option" aria-selected={market.id === binaryMarketId} key={market.id} className={market.id === binaryMarketId ? "active" : ""} onClick={() => { setBinaryMarketId(market.id); setMarketMenuOpen(false); }}>
                   <span>{market.short}</span><div><strong>{market.label}</strong><small>{market.description}</small></div><i>{market.id === binaryMarketId ? "✓" : "›"}</i>
                 </button>
               ))}
             </div>
+            </>
           )}
         </section>
       )}
@@ -6708,7 +6761,9 @@ function TradePage({
             </button>
 
             {marketMenuOpen && (
-              <div className="mobileDigitMarketMenuV115" role="listbox" aria-label="Volatility markets">
+              <>
+              <button type="button" className="marketMenuBackdropV221" onClick={() => setMarketMenuOpen(false)} aria-label="Close market selector" />
+              <div className="mobileDigitMarketMenuV115 mobileDigitMarketMenuV221" role="listbox" aria-label="Volatility markets">
                 {volatilityOptions.map((market) => (
                   <button
                     type="button"
@@ -6730,6 +6785,7 @@ function TradePage({
                   </button>
                 ))}
               </div>
+              </>
             )}
 
             <div className="mobileDigitChartCanvasV115">
@@ -7356,6 +7412,7 @@ function BotLivePage({
   const totalStake = trades.reduce((sum, trade) => sum + Number(trade.stake || 0), 0);
   const totalPayout = trades.reduce((sum, trade) => sum + Number(trade.payout || 0), 0);
   const winRate = trades.length ? (wins / trades.length) * 100 : 0;
+  const [botLiveMenuOpen, setBotLiveMenuOpen] = useState(false);
 
   if (!bot) {
     return (
@@ -7368,10 +7425,36 @@ function BotLivePage({
 
   return (
     <div className="page botLivePage finalBotLivePage">
-      <header className="botLiveTop">
-        <button type="button" onClick={back}>‹ Bots</button>
-        <div><small>Running strategy</small><strong>{bot.name}</strong></div>
-        <button type="button" className="editBotButton" onClick={edit}>Edit</button>
+      <header className="botLiveTop botLiveTopV221">
+        <div className="botLiveIdentityV221">
+          <strong>{bot.name}</strong>
+          <small>{bot.market} · {bot.type} · {bot.action} · {bot.ticks} ticks</small>
+        </div>
+        <div className="botLiveMenuWrapV221">
+          <button
+            type="button"
+            className="botLiveMenuButtonV221"
+            onClick={() => setBotLiveMenuOpen((open) => !open)}
+            aria-haspopup="menu"
+            aria-expanded={botLiveMenuOpen}
+            aria-label="Bot navigation"
+          >
+            ⋮
+          </button>
+          {botLiveMenuOpen && (
+            <>
+              <button type="button" className="botLiveMenuBackdropV221" onClick={() => setBotLiveMenuOpen(false)} aria-label="Close bot menu" />
+              <div className="botLiveMenuV221" role="menu">
+                <button type="button" role="menuitem" onClick={() => { setBotLiveMenuOpen(false); back(); }}>
+                  <span>🤖</span><div><strong>Back to Bots</strong><small>Choose another bot</small></div>
+                </button>
+                <button type="button" role="menuitem" onClick={() => { setBotLiveMenuOpen(false); edit(); }}>
+                  <span>⚙</span><div><strong>Bot Settings</strong><small>Edit this bot setup</small></div>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </header>
 
       <section className="runnerBox finalRunnerBox">
@@ -8059,6 +8142,14 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const [result, setResult] = useState(null);
   const [position, setPosition] = useState(() => {
     const saved = readStore(STORE.aiPosition, null);
+    const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+    const viewportWidth = Math.max(280, Number(viewport?.width || window.innerWidth || 360));
+    const viewportHeight = Math.max(320, Number(viewport?.height || window.innerHeight || 720));
+    const buttonSize = viewportWidth <= 760 ? 58 : 66;
+
+    if (saved && Number.isFinite(Number(saved.x)) && Number.isFinite(Number(saved.y))) {
+      return { x: Number(saved.x), y: Number(saved.y) };
+    }
 
     if (
       saved &&
@@ -8066,19 +8157,14 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       Number.isFinite(Number(saved.yRatio))
     ) {
       return {
-        xRatio: Math.max(0, Math.min(1, Number(saved.xRatio))),
-        yRatio: Math.max(0, Math.min(1, Number(saved.yRatio))),
+        x: Math.max(8, Math.min(viewportWidth - buttonSize - 8, Number(saved.xRatio) * viewportWidth)),
+        y: Math.max(8, Math.min(viewportHeight - buttonSize - 92, Number(saved.yRatio) * viewportHeight)),
       };
     }
 
-    const viewportWidth = Number(window.visualViewport?.width || window.innerWidth || 360);
-    const viewportHeight = Number(window.visualViewport?.height || window.innerHeight || 720);
-    const legacyX = Number(saved?.x ?? 18);
-    const legacyY = Number(saved?.y ?? 130);
-
     return {
-      xRatio: Math.max(0, Math.min(1, legacyX / Math.max(1, viewportWidth))),
-      yRatio: Math.max(0, Math.min(1, legacyY / Math.max(1, viewportHeight))),
+      x: Math.max(8, viewportWidth - buttonSize - 16),
+      y: Math.max(90, Math.round(viewportHeight * 0.24)),
     };
   });
   const scanTimerRef = useRef(0);
@@ -8091,18 +8177,15 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
   useEffect(() => {
     saveStore(STORE.aiPosition, {
-      xRatio: Math.max(0, Math.min(1, Number(position?.xRatio ?? 0.5))),
-      yRatio: Math.max(0, Math.min(1, Number(position?.yRatio ?? 0.25))),
+      x: Math.round(Number(position?.x || 8)),
+      y: Math.round(Number(position?.y || 90)),
     });
   }, [position]);
 
   useEffect(() => {
     if (!forceOpen) return undefined;
     setOpen(true);
-    const launchTimer = window.setTimeout(() => {
-      if (!autoSession?.running) scan(true);
-    }, 180);
-    return () => window.clearTimeout(launchTimer);
+    return undefined;
   }, [forceOpen, activePage]);
 
   useEffect(() => () => {
@@ -8347,8 +8430,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     );
 
     setPosition({
-      xRatio: (nextX - offsetLeft) / Math.max(1, viewportWidth),
-      yRatio: (nextY - offsetTop) / Math.max(1, viewportHeight),
+      x: nextX,
+      y: nextY,
     });
 
     if (
@@ -8380,13 +8463,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
     if (cancelled || moved) return;
 
-    if (autoSession?.running) {
-      setOpen(true);
-      return;
-    }
-
     setOpen(true);
-    window.setTimeout(() => scan(true), 80);
   }
 
   function pointerUp(event) {
@@ -8420,7 +8497,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerCancel={pointerCancel}
           onLostPointerCapture={pointerCancel}
           draggable={false}
-          aria-label="Scan markets and start AI Auto-Trade"
+          aria-label="Open MetaBinary AI assistant"
         >
           <span className="aiOrbCore">AI</span><i></i>{(scanning || autoSession?.running) && <b>{scanning ? `${progress}%` : `${Number(autoSession.pnl || 0) >= 0 ? "+" : ""}${money(autoSession.pnl || 0)}`}</b>}
         </button>
@@ -8468,7 +8545,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           {!autoSession?.running && (
             <footer>
               <button className="aiScanAgain" onClick={() => scan(true)} disabled={scanning || Boolean(result)}>
-                {scanning ? "AI is searching…" : result ? "Launching Auto-Trade…" : "Scan & Start Auto-Trade"}
+                {scanning ? "AI is searching…" : result ? "Launching Auto-Trade…" : "Analyze Market & Start AI Trade"}
               </button>
             </footer>
           )}

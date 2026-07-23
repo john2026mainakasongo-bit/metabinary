@@ -1,0 +1,270 @@
+/* MetaBinary V221 — interaction-only fixes.
+   Does NOT change V220 mobile trade sizing/layout. */
+
+.headerOverlayBackdropV221,
+.marketMenuBackdropV221,
+.botLiveMenuBackdropV221 {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.headerOverlayBackdropV221 { z-index: 8990; }
+.marketMenuBackdropV221 { z-index: 19980; background: rgba(0, 0, 0, 0.26); }
+.botLiveMenuBackdropV221 { z-index: 24980; background: transparent; }
+
+.accountPickerCompactV221,
+.notificationPanelCompactV221 {
+  z-index: 9000 !important;
+}
+
+.accountPickerCompactV221 {
+  width: min(360px, calc(100vw - 24px)) !important;
+  max-height: min(420px, calc(100dvh - 110px)) !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  overflow: auto !important;
+}
+
+.accountPickerCompactV221 .accountPickerHeading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.accountPickerCompactV221 .accountPickerHeading > div {
+  display: grid !important;
+  gap: 2px !important;
+}
+
+.accountPickerCompactV221 > button[role="option"] {
+  min-height: 72px !important;
+  display: grid !important;
+  grid-template-columns: 46px minmax(0, 1fr) 28px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.accountPickerIconV221 {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  overflow: hidden;
+}
+
+.accountPickerIconV221.demo {
+  color: #d8e5ff;
+  background: linear-gradient(145deg, #25334b, #101b2d);
+  border: 1px solid rgba(120, 160, 220, .28);
+}
+
+.accountPickerIconV221.real {
+  font-size: 25px;
+  background: #fff;
+  border: 2px solid rgba(255,255,255,.18);
+}
+
+.accountPickerCopyV221 {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 3px !important;
+  text-align: left !important;
+}
+
+.accountPickerCopyV221 small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerPopupCloseV221 {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.notificationPanelCompactV221 {
+  width: min(420px, calc(100vw - 24px)) !important;
+  max-height: min(520px, calc(100dvh - 110px)) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+
+.notificationPanelCompactV221 > header {
+  min-height: 66px !important;
+  padding: 12px 14px !important;
+}
+
+.notificationHeaderActionsV221 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.notificationPanelCompactV221 .notificationList {
+  max-height: min(330px, calc(100dvh - 245px)) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notificationEmptyCompactV221 {
+  min-height: 180px !important;
+  padding: 24px 16px !important;
+}
+
+.notificationEmptyCompactV221 > span {
+  font-size: 34px !important;
+}
+
+.notificationPanelCompactV221 > footer {
+  position: sticky !important;
+  bottom: 0 !important;
+  padding: 10px 12px !important;
+}
+
+.volatilitySwitchMenuV221,
+.mobileDigitMarketMenuV221 {
+  position: fixed !important;
+  z-index: 20000 !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(620px, calc(100vw - 28px)) !important;
+  max-width: min(620px, calc(100vw - 28px)) !important;
+  max-height: min(560px, calc(100dvh - 120px)) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 20px !important;
+  box-shadow: 0 24px 80px rgba(0,0,0,.55) !important;
+}
+
+.floatingAiButton {
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  z-index: 6000 !important;
+}
+
+.aiScannerPanel {
+  z-index: 22000 !important;
+}
+
+.botLiveTopV221 {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.botLiveIdentityV221 {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 2px !important;
+}
+
+.botLiveIdentityV221 strong {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.botLiveIdentityV221 small {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.botLiveMenuWrapV221 {
+  position: relative !important;
+  flex: 0 0 auto !important;
+}
+
+.botLiveMenuButtonV221 {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.botLiveMenuV221 {
+  position: absolute !important;
+  z-index: 25000 !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  width: min(290px, calc(100vw - 32px)) !important;
+  padding: 8px !important;
+  border-radius: 16px !important;
+  background: #071829 !important;
+  border: 1px solid rgba(74, 137, 214, .32) !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.48) !important;
+}
+
+.botLiveMenuV221 > button {
+  width: 100% !important;
+  min-height: 58px !important;
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 9px 10px !important;
+  text-align: left !important;
+  border-radius: 11px !important;
+}
+
+.botLiveMenuV221 > button > span {
+  font-size: 20px !important;
+}
+
+.botLiveMenuV221 > button > div {
+  display: grid !important;
+  gap: 2px !important;
+}
+
+@media (max-width: 760px) {
+  .accountPickerCompactV221,
+  .notificationPanelCompactV221 {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    top: max(84px, calc(env(safe-area-inset-top, 0px) + 72px)) !important;
+    width: auto !important;
+    transform: none !important;
+  }
+
+  .notificationPanelCompactV221 {
+    max-height: calc(100dvh - 108px) !important;
+  }
+
+  .volatilitySwitchMenuV221,
+  .mobileDigitMarketMenuV221 {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 130px) !important;
+  }
+
+  .botLiveIdentityV221 small {
+    font-size: 10px !important;
+  }
+}
