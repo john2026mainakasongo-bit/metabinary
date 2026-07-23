@@ -2225,3 +2225,54 @@
     max-height: 280px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V189 — MOBILE DIGIT CHART FILL FIX
+   - Uses the empty vertical space by making the chart taller.
+   - Keeps digits, action buttons and bottom navigation visible.
+   - Responsive across short, regular and tall phones.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex: 0 0 clamp(250px, 38vh, 390px) !important;
+    height: clamp(250px, 38vh, 390px) !important;
+    min-height: clamp(250px, 38vh, 390px) !important;
+    max-height: clamp(250px, 38vh, 390px) !important;
+  }
+}
+
+/* Normal phones */
+@media screen and (max-width: 600px) and (min-height: 720px) and (max-height: 899px) {
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex-basis: clamp(270px, 40vh, 340px) !important;
+    height: clamp(270px, 40vh, 340px) !important;
+    min-height: clamp(270px, 40vh, 340px) !important;
+    max-height: clamp(270px, 40vh, 340px) !important;
+  }
+}
+
+/* Tall phones */
+@media screen and (max-width: 600px) and (min-height: 900px) {
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex-basis: clamp(340px, 43vh, 430px) !important;
+    height: clamp(340px, 43vh, 430px) !important;
+    min-height: clamp(340px, 43vh, 430px) !important;
+    max-height: clamp(340px, 43vh, 430px) !important;
+  }
+}
+
+/* Short phones — keep all controls visible */
+@media screen and (max-width: 600px) and (max-height: 719px) {
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex-basis: 225px !important;
+    height: 225px !important;
+    min-height: 225px !important;
+    max-height: 225px !important;
+  }
+}
