@@ -1107,7 +1107,8 @@ METABINARY V158 — OUTER WAITING RING + TRUE COMPACT TRADE FLOW\n\n   Visual se
     display: none !important;
   }
 
-METABINARY V159 — RISE/FALL SECONDS + MINUTES
+/* ========================================================================== 
+   METABINARY V159 — RISE/FALL SECONDS + MINUTES
 
    Keeps the approved Rise/Fall page layout and buttons unchanged while adding:
    - Seconds / Minutes duration selector
