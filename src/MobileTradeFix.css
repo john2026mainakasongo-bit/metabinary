@@ -2034,3 +2034,68 @@
     flex-basis: 220px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V213 — FINAL MOBILE DIGIT FILL
+   Final override built on V212.
+
+   Goal:
+   - keep the current correct component order and widths
+   - keep bottom nav directly after the buttons
+   - use the remaining visible phone height inside the LIVE CHART itself
+   - remove the large empty area below the bottom nav
+   - do not touch Rise/Fall
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 365px),
+      520px
+    ) !important;
+
+    min-height: clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 365px),
+      520px
+    ) !important;
+
+    max-height: clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 365px),
+      520px
+    ) !important;
+
+    flex: 0 0 clamp(
+      250px,
+      calc(var(--mb-viewport-height, 100dvh) - 365px),
+      520px
+    ) !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .bottomNav {
+    position: relative !important;
+    inset: auto !important;
+    margin-top: 6px !important;
+    margin-bottom: max(4px, env(safe-area-inset-bottom, 0px)) !important;
+    transform: none !important;
+  }
+}
+
+/* Protect genuinely short mobile viewports from overflow. */
+@media screen and (max-width: 600px) and (max-height: 700px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+    flex-basis: 220px !important;
+  }
+}
