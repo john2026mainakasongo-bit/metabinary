@@ -4295,7 +4295,14 @@ function TradingApp() {
 
       {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
 
-      {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
+      {withdrawOpen && (
+        <WithdrawModal
+          close={() => setWithdrawOpen(false)}
+          submit={submitWithdraw}
+          availableBalance={balances.real}
+          defaultPhone={user?.phone || ""}
+        />
+      )}
 
       {toast && <Toast toast={toast} />}
     </div>
@@ -9622,38 +9629,190 @@ function AdminStat({ title, value }) {
   );
 }
 
-function WithdrawModal({ close, submit }) {
+function WithdrawModal({ close, submit, availableBalance = 0, defaultPhone = "" }) {
+  const [step, setStep] = useState("method");
+  const [method, setMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(5);
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(defaultPhone);
   const [submitting, setSubmitting] = useState(false);
 
+  const amount = Number(amountUsd || 0);
+  const maxAllowed = Math.min(150000, Math.max(0, Number(availableBalance || 0)));
+  const amountValid = Number.isFinite(amount) && amount >= 5 && amount <= maxAllowed;
+  const phoneValid = /^(?:254|0)?(?:7|1)\d{8}$/.test(String(phone).replace(/[\s+-]/g, ""));
+
+  function continueToDetails() {
+    if (method !== "mpesa") return;
+    setStep("details");
+  }
+
+  function continueToReview() {
+    if (!amountValid || !phoneValid) return;
+    setStep("review");
+  }
+
   async function handleSubmit() {
-    if (submitting) return;
+    if (submitting || !amountValid || !phoneValid) return;
     setSubmitting(true);
-    const completed = await submit({ amountUsd, phone });
+    const completed = await submit({ amountUsd: amount, phone });
     if (!completed) setSubmitting(false);
   }
 
   return (
-    <div className="modalLayer">
-      <div className="depositModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
-        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
-          ×
-        </button>
+    <div className="modalLayer withdrawalFlowLayer" onMouseDown={(event) => {
+      if (event.target === event.currentTarget && !submitting) close();
+    }}>
+      <section className="withdrawFlowModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
+        <header className="withdrawFlowHeader">
+          <button
+            className="withdrawBackBtn"
+            onClick={() => setStep(step === "review" ? "details" : "method")}
+            aria-label="Go back"
+            disabled={step === "method" || submitting}
+          >
+            ←
+          </button>
+          <div>
+            <span>Cashier</span>
+            <h2>Withdraw Funds</h2>
+          </div>
+          <button className="withdrawCloseBtn" onClick={close} aria-label="Close dialog" disabled={submitting}>×</button>
+        </header>
 
-        <h2>Withdraw Funds</h2>
-        <p>Minimum withdrawal is 5 USD.</p>
+        <div className="withdrawStepTrack" aria-label="Withdrawal progress">
+          <i className="active">1</i><span className={step !== "method" ? "active" : ""} />
+          <i className={step !== "method" ? "active" : ""}>2</i><span className={step === "review" ? "active" : ""} />
+          <i className={step === "review" ? "active" : ""}>3</i>
+        </div>
 
-        <label>Amount USD</label>
-        <input type="number" min="5" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} disabled={submitting} />
+        {step === "method" && (
+          <div className="withdrawFlowBody">
+            <div className="withdrawBalanceCard">
+              <span>Available real balance</span>
+              <strong>${money(availableBalance)}</strong>
+              <small>Only your Real Account balance can be withdrawn.</small>
+            </div>
 
-        <label>M-Pesa Phone</label>
-        <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={submitting} />
+            <div className="withdrawSectionTitle">
+              <strong>Select withdrawal method</strong>
+              <small>Choose where you want to receive your funds.</small>
+            </div>
 
-        <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Submitting…" : "Request Withdrawal"}
-        </button>
-      </div>
+            <div className="withdrawMethodList">
+              <button className={method === "mpesa" ? "selected" : ""} onClick={() => setMethod("mpesa")}>
+                <b className="withdrawMethodIcon mpesa">M</b>
+                <span><strong>M-PESA</strong><small>Receive directly to your mobile wallet</small></span>
+                <em>{method === "mpesa" ? "✓" : "›"}</em>
+              </button>
+              <button className="disabledMethod" type="button">
+                <b className="withdrawMethodIcon">▣</b>
+                <span><strong>Bank Transfer</strong><small>Coming soon</small></span>
+                <em>🔒</em>
+              </button>
+              <button className="disabledMethod" type="button">
+                <b className="withdrawMethodIcon">₿</b>
+                <span><strong>Crypto Wallet</strong><small>Coming soon</small></span>
+                <em>🔒</em>
+              </button>
+            </div>
+
+            <button className="withdrawPrimaryBtn" onClick={continueToDetails}>Continue</button>
+          </div>
+        )}
+
+        {step === "details" && (
+          <div className="withdrawFlowBody">
+            <div className="withdrawSelectedMethod">
+              <b className="withdrawMethodIcon mpesa">M</b>
+              <div><span>Withdrawal method</span><strong>M-PESA</strong></div>
+              <button onClick={() => setStep("method")}>Change</button>
+            </div>
+
+            <label className="withdrawField">
+              <span>Amount</span>
+              <div className="withdrawAmountInput">
+                <b>$</b>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="5"
+                  max={maxAllowed || 5}
+                  step="0.01"
+                  value={amountUsd}
+                  onChange={(event) => setAmountUsd(event.target.value)}
+                  disabled={submitting}
+                  autoFocus
+                />
+                <em>USD</em>
+              </div>
+              <small className={!amountValid && amount > 0 ? "fieldError" : ""}>
+                Minimum $5 · Maximum ${money(maxAllowed)}
+              </small>
+            </label>
+
+            <div className="withdrawQuickAmounts">
+              {[5, 10, 25, 50].map((value) => (
+                <button key={value} onClick={() => setAmountUsd(Math.min(value, maxAllowed || value))}>${value}</button>
+              ))}
+              <button onClick={() => setAmountUsd(maxAllowed)}>Max</button>
+            </div>
+
+            <label className="withdrawField">
+              <span>M-PESA phone number</span>
+              <div className="withdrawPhoneInput">
+                <b>🇰🇪</b>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="07XXXXXXXX or 2547XXXXXXXX"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+              <small className={phone && !phoneValid ? "fieldError" : ""}>
+                Enter the number registered for M-PESA.
+              </small>
+            </label>
+
+            <div className="withdrawInfoRow">
+              <span><b>Fee</b><strong>Free</strong></span>
+              <span><b>Processing</b><strong>Usually within 24 hours</strong></span>
+            </div>
+
+            <button className="withdrawPrimaryBtn" onClick={continueToReview} disabled={!amountValid || !phoneValid}>
+              Review Withdrawal
+            </button>
+          </div>
+        )}
+
+        {step === "review" && (
+          <div className="withdrawFlowBody">
+            <div className="withdrawReviewHero">
+              <span>You are withdrawing</span>
+              <strong>${money(amount)}</strong>
+              <small>from your Real Account</small>
+            </div>
+
+            <div className="withdrawReviewCard">
+              <p><span>Method</span><strong>M-PESA</strong></p>
+              <p><span>Phone number</span><strong>{phone}</strong></p>
+              <p><span>Withdrawal fee</span><strong className="green">FREE</strong></p>
+              <p className="withdrawReceiveRow"><span>You’ll receive</span><strong>${money(amount)}</strong></p>
+            </div>
+
+            <div className="withdrawNotice">
+              <b>✓</b>
+              <span>Confirm that the M-PESA number is correct. Your request will be submitted for processing.</span>
+            </div>
+
+            <button className="withdrawPrimaryBtn" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? "Submitting withdrawal…" : `Confirm $${money(amount)} Withdrawal`}
+            </button>
+            <button className="withdrawEditBtn" onClick={() => setStep("details")} disabled={submitting}>Edit details</button>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
