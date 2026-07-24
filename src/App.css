@@ -46425,3 +46425,478 @@ body,
 .mbDepositUnavailableV223{text-align:center;padding:10px 4px 2px}.mbDepositUnavailableV223 .mbDepositBackV223{display:block;margin-bottom:22px}.mbDepositUnavailableIconV223{width:68px;height:68px;margin:0 auto 12px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(145deg,#266fd4,#1b3f84);font-size:26px;font-weight:1000}.mbDepositUnavailableV223>small{margin-bottom:6px}.mbDepositUnavailableV223 h2{font-size:22px;margin-bottom:8px}.mbDepositUnavailableV223 p{max-width:360px;margin:0 auto 20px;color:#8da1b8;font-size:12px;line-height:1.55}
 .mbDepositResultV223{text-align:center;padding:34px 26px}.mbDepositResultIconV223{width:68px;height:68px;margin:0 auto 15px;border-radius:50%;display:grid;place-items:center;font-size:34px;font-weight:1000}.mbDepositResultIconV223.success{background:rgba(0,220,145,.13);border:1px solid rgba(0,220,145,.3);color:#20d99b}.mbDepositResultIconV223.failed{background:rgba(255,64,87,.13);border:1px solid rgba(255,64,87,.3);color:#ff5268}.mbDepositResultV223 h2{font-size:23px;margin:6px 0 8px}.mbDepositResultV223 p{color:#8ea2b9;font-size:12px;margin-bottom:20px}
 @media(max-width:600px){.mbDepositLayerV223{padding:8px!important;align-items:flex-end!important}.mbDepositModalV223,.mbDepositResultV223{width:100%;max-height:calc(var(--mb-viewport-height,100dvh) - 10px);border-radius:24px 24px 14px 14px;padding:19px 16px 16px}.mbDepositHeaderV223{grid-template-columns:45px minmax(0,1fr);gap:11px;margin-bottom:15px}.mbDepositHeaderIconV223{width:43px;height:43px;border-radius:14px;font-size:24px}.mbDepositHeaderV223 h2{font-size:21px}.mbDepositMethodV223{min-height:70px;grid-template-columns:43px minmax(0,1fr) auto;padding:9px 10px}.mbDepositMethodIconV223{width:40px;height:40px;border-radius:12px}.mbDepositMethodCopyV223 strong{font-size:13px}.mbDepositMethodCopyV223 small{font-size:9px}.mbDepositQuickV223{gap:4px}.mbDepositQuickV223 button{height:32px}.mbDepositStepV223 i{display:none}}
+
+/* ========================================================================== 
+   MetaBinary Withdrawal Flow V224
+   ========================================================================== */
+.withdrawalFlowLayer {
+  padding: 22px;
+  background: rgba(0, 5, 12, 0.76);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.withdrawFlowModal {
+  width: min(520px, 100%);
+  max-height: min(790px, calc(100dvh - 32px));
+  overflow-y: auto;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(0, 125, 255, 0.16), transparent 30%),
+    linear-gradient(180deg, #0a1626 0%, #06101c 100%);
+  border: 1px solid rgba(124, 174, 255, 0.18);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.62);
+  scrollbar-width: none;
+}
+.withdrawFlowModal::-webkit-scrollbar { display: none; }
+
+.withdrawFlowHeader {
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: rgba(8, 20, 35, .94);
+  backdrop-filter: blur(18px);
+}
+.withdrawFlowHeader > div { text-align: center; }
+.withdrawFlowHeader span { display:block; color:#7f91aa; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; }
+.withdrawFlowHeader h2 { margin:3px 0 0; font-size:20px; color:#fff; }
+.withdrawBackBtn,.withdrawCloseBtn { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.05); color:#dce8fa; font-size:22px; border:1px solid rgba(255,255,255,.08); }
+.withdrawBackBtn:disabled { opacity:0; pointer-events:none; }
+
+.withdrawStepTrack { display:flex; align-items:center; justify-content:center; padding:17px 24px 4px; }
+.withdrawStepTrack i { width:25px; height:25px; border-radius:50%; display:grid; place-items:center; font-style:normal; font-size:11px; font-weight:900; color:#6f8199; background:#101d2e; border:1px solid rgba(255,255,255,.09); }
+.withdrawStepTrack i.active { color:#fff; background:#087cff; border-color:#3b9aff; box-shadow:0 0 18px rgba(8,124,255,.38); }
+.withdrawStepTrack span { width:58px; height:2px; background:rgba(255,255,255,.09); }
+.withdrawStepTrack span.active { background:#087cff; }
+
+.withdrawFlowBody { padding:18px 22px 24px; }
+.withdrawBalanceCard { border-radius:18px; padding:20px; background:linear-gradient(135deg,rgba(8,124,255,.17),rgba(8,124,255,.04)); border:1px solid rgba(55,148,255,.3); }
+.withdrawBalanceCard span,.withdrawBalanceCard small { display:block; color:#92a5bf; }
+.withdrawBalanceCard span { font-size:13px; font-weight:700; }
+.withdrawBalanceCard strong { display:block; color:#fff; font-size:32px; margin:5px 0; letter-spacing:-.03em; }
+.withdrawBalanceCard small { font-size:11px; }
+.withdrawSectionTitle { margin:22px 2px 12px; }
+.withdrawSectionTitle strong,.withdrawSectionTitle small { display:block; }
+.withdrawSectionTitle strong { color:#fff; font-size:15px; }
+.withdrawSectionTitle small { color:#7f91aa; font-size:12px; margin-top:4px; }
+
+.withdrawMethodList { display:grid; gap:10px; }
+.withdrawMethodList > button { min-height:72px; width:100%; display:grid; grid-template-columns:46px 1fr 28px; align-items:center; gap:12px; padding:12px 14px; border-radius:15px; text-align:left; background:rgba(255,255,255,.035); color:#fff; border:1px solid rgba(255,255,255,.08); }
+.withdrawMethodList > button.selected { background:rgba(8,124,255,.11); border-color:rgba(50,145,255,.55); box-shadow:inset 0 0 20px rgba(8,124,255,.06); }
+.withdrawMethodList > button.disabledMethod { opacity:.48; cursor:not-allowed; }
+.withdrawMethodList span strong,.withdrawMethodList span small { display:block; }
+.withdrawMethodList span strong { font-size:14px; }
+.withdrawMethodList span small { color:#8799b2; font-size:11px; margin-top:4px; }
+.withdrawMethodList em { font-style:normal; text-align:center; color:#62aaff; font-size:18px; }
+.withdrawMethodIcon { width:44px; height:44px; border-radius:13px; display:grid; place-items:center; background:rgba(255,255,255,.07); color:#dce8fa; font-size:18px; }
+.withdrawMethodIcon.mpesa { background:linear-gradient(135deg,#13b95b,#07843d); color:#fff; }
+
+.withdrawSelectedMethod { display:grid; grid-template-columns:46px 1fr auto; align-items:center; gap:12px; padding:13px; border-radius:15px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.08); margin-bottom:20px; }
+.withdrawSelectedMethod span,.withdrawSelectedMethod strong { display:block; }
+.withdrawSelectedMethod span { color:#7f91aa; font-size:11px; }
+.withdrawSelectedMethod strong { margin-top:3px; }
+.withdrawSelectedMethod button { background:transparent; color:#4b9eff; font-weight:800; }
+
+.withdrawField { display:block; margin:0 0 17px; }
+.withdrawField > span { display:block; color:#dce7f8; font-size:13px; font-weight:800; margin-bottom:8px; }
+.withdrawAmountInput,.withdrawPhoneInput { height:56px; display:grid; align-items:center; border-radius:14px; background:#030b15; border:1px solid rgba(255,255,255,.12); overflow:hidden; }
+.withdrawAmountInput { grid-template-columns:42px 1fr 52px; }
+.withdrawPhoneInput { grid-template-columns:48px 1fr; }
+.withdrawAmountInput:focus-within,.withdrawPhoneInput:focus-within { border-color:#1689ff; box-shadow:0 0 0 3px rgba(8,124,255,.13); }
+.withdrawAmountInput b,.withdrawPhoneInput b { display:grid; place-items:center; height:100%; color:#9badc6; font-size:18px; }
+.withdrawAmountInput input,.withdrawPhoneInput input { min-width:0; height:100%; border:0!important; background:transparent!important; color:#fff!important; padding:0 8px!important; font-size:18px; box-shadow:none!important; }
+.withdrawPhoneInput input { font-size:15px; }
+.withdrawAmountInput em { font-style:normal; color:#7f91aa; font-size:11px; font-weight:900; }
+.withdrawField small { display:block; color:#7f91aa; margin-top:7px; font-size:11px; }
+.withdrawField small.fieldError { color:#ff6374; }
+.withdrawQuickAmounts { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; margin:-4px 0 18px; }
+.withdrawQuickAmounts button { height:34px; border-radius:9px; background:rgba(255,255,255,.05); color:#aebed3; border:1px solid rgba(255,255,255,.08); font-size:12px; font-weight:800; }
+.withdrawInfoRow { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:18px; }
+.withdrawInfoRow span { min-height:62px; padding:11px; border-radius:12px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.07); }
+.withdrawInfoRow b,.withdrawInfoRow strong { display:block; }
+.withdrawInfoRow b { color:#7f91aa; font-size:10px; text-transform:uppercase; }
+.withdrawInfoRow strong { color:#dce8fa; font-size:11px; margin-top:6px; }
+
+.withdrawPrimaryBtn { width:100%; min-height:54px; border-radius:14px; background:linear-gradient(135deg,#087cff,#0455e8); color:#fff; font-size:15px; font-weight:900; box-shadow:0 10px 28px rgba(4,94,230,.3); }
+.withdrawPrimaryBtn:disabled { opacity:.42; cursor:not-allowed; box-shadow:none; }
+.withdrawEditBtn { width:100%; height:42px; margin-top:8px; background:transparent; color:#91a5bf; font-weight:800; }
+.withdrawReviewHero { text-align:center; padding:15px 0 20px; }
+.withdrawReviewHero span,.withdrawReviewHero small { display:block; color:#8295af; }
+.withdrawReviewHero strong { display:block; font-size:40px; margin:7px 0; color:#fff; letter-spacing:-.04em; }
+.withdrawReviewCard { border-radius:17px; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.025); }
+.withdrawReviewCard p { min-height:52px; display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 15px; border-bottom:1px solid rgba(255,255,255,.065); }
+.withdrawReviewCard p:last-child { border-bottom:0; }
+.withdrawReviewCard span { color:#8295af; font-size:12px; }
+.withdrawReviewCard strong { color:#fff; font-size:13px; text-align:right; }
+.withdrawReviewCard .withdrawReceiveRow { min-height:64px; background:rgba(8,124,255,.09); }
+.withdrawReviewCard .withdrawReceiveRow strong { font-size:20px; }
+.withdrawNotice { display:grid; grid-template-columns:30px 1fr; gap:10px; padding:13px; margin:15px 0; border-radius:13px; background:rgba(0,210,125,.07); border:1px solid rgba(0,210,125,.16); color:#9eb4aa; font-size:11px; line-height:1.45; }
+.withdrawNotice b { width:25px; height:25px; border-radius:50%; display:grid; place-items:center; background:#00ad69; color:#fff; }
+
+@media (max-width:760px) {
+  .withdrawalFlowLayer { padding:0!important; align-items:flex-end!important; }
+  .withdrawFlowModal { width:100%; max-width:100%; max-height:94dvh; border-radius:24px 24px 0 0; border-bottom:0; animation:withdrawSlideUp .32s cubic-bezier(.16,1,.3,1); padding-bottom:env(safe-area-inset-bottom); }
+  .withdrawFlowHeader { min-height:68px; padding:10px 14px; }
+  .withdrawFlowBody { padding:14px 16px 18px; }
+  .withdrawStepTrack { padding-top:13px; }
+  .withdrawBalanceCard { padding:17px; }
+  .withdrawBalanceCard strong { font-size:28px; }
+  .withdrawReviewHero strong { font-size:36px; }
+  .withdrawMethodList > button { min-height:66px; }
+}
+
+@media (max-width:380px) {
+  .withdrawFlowBody { padding-left:12px; padding-right:12px; }
+  .withdrawQuickAmounts { gap:5px; }
+  .withdrawQuickAmounts button { font-size:11px; }
+  .withdrawInfoRow { grid-template-columns:1fr; }
+}
+
+@keyframes withdrawSlideUp { from { transform:translateY(100%); opacity:.7; } to { transform:translateY(0); opacity:1; } }
+
+/* ========================================================================== 
+   METABINARY V225 — WITHDRAW MOBILE LAYOUT HARD FIX
+   Keeps the V224 withdrawal logic and forces the cashier sheet to render
+   correctly even when older modal/button rules have higher specificity.
+   ========================================================================== */
+.withdrawalFlowLayer.modalLayer {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 40000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  overflow: hidden !important;
+  background: rgba(0, 5, 12, 0.78) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.withdrawalFlowLayer .withdrawFlowModal {
+  position: relative !important;
+  display: block !important;
+  width: min(520px, calc(100vw - 32px)) !important;
+  max-width: 520px !important;
+  height: auto !important;
+  max-height: calc(100dvh - 32px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  border-radius: 24px !important;
+  color: #f7fbff !important;
+  background: radial-gradient(circle at 50% 0%, rgba(0,125,255,.17), transparent 31%), linear-gradient(180deg,#091827 0%,#04101c 100%) !important;
+  border: 1px solid rgba(117,171,255,.22) !important;
+  box-shadow: 0 30px 95px rgba(0,0,0,.72) !important;
+}
+
+.withdrawalFlowLayer .withdrawFlowModal,
+.withdrawalFlowLayer .withdrawFlowModal * {
+  box-sizing: border-box !important;
+}
+
+.withdrawalFlowLayer button,
+.withdrawalFlowLayer input {
+  font: inherit !important;
+}
+
+.withdrawalFlowLayer button {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  cursor: pointer !important;
+}
+
+.withdrawalFlowLayer .withdrawFlowHeader {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  min-height: 72px !important;
+  display: grid !important;
+  grid-template-columns: 42px minmax(0,1fr) 42px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px 16px !important;
+  background: rgba(7,19,33,.96) !important;
+  border-bottom: 1px solid rgba(255,255,255,.07) !important;
+}
+
+.withdrawalFlowLayer .withdrawFlowHeader > div {
+  min-width: 0 !important;
+  text-align: center !important;
+}
+.withdrawalFlowLayer .withdrawFlowHeader span {
+  display: block !important;
+  color: #7f91aa !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: .13em !important;
+  text-transform: uppercase !important;
+}
+.withdrawalFlowLayer .withdrawFlowHeader h2 {
+  margin: 3px 0 0 !important;
+  color: #fff !important;
+  font-size: 20px !important;
+  line-height: 1.15 !important;
+}
+.withdrawalFlowLayer .withdrawBackBtn,
+.withdrawalFlowLayer .withdrawCloseBtn {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #e8f1ff !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+}
+.withdrawalFlowLayer .withdrawBackBtn:disabled {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.withdrawalFlowLayer .withdrawStepTrack {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 15px 20px 2px !important;
+}
+.withdrawalFlowLayer .withdrawStepTrack i {
+  width: 25px !important;
+  min-width: 25px !important;
+  height: 25px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: #101d2e !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  color: #6f8199 !important;
+  font-size: 11px !important;
+  font-style: normal !important;
+  font-weight: 900 !important;
+}
+.withdrawalFlowLayer .withdrawStepTrack i.active {
+  color: #fff !important;
+  background: #087cff !important;
+  border-color: #3b9aff !important;
+  box-shadow: 0 0 18px rgba(8,124,255,.38) !important;
+}
+.withdrawalFlowLayer .withdrawStepTrack span {
+  width: 58px !important;
+  height: 2px !important;
+  background: rgba(255,255,255,.09) !important;
+}
+.withdrawalFlowLayer .withdrawStepTrack span.active { background: #087cff !important; }
+
+.withdrawalFlowLayer .withdrawFlowBody {
+  width: 100% !important;
+  display: block !important;
+  padding: 16px 20px 22px !important;
+}
+.withdrawalFlowLayer .withdrawSelectedMethod {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 46px minmax(0,1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 0 0 18px !important;
+  padding: 12px !important;
+  border-radius: 15px !important;
+  background: rgba(255,255,255,.035) !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+}
+.withdrawalFlowLayer .withdrawSelectedMethod div { min-width: 0 !important; }
+.withdrawalFlowLayer .withdrawSelectedMethod span,
+.withdrawalFlowLayer .withdrawSelectedMethod strong { display: block !important; }
+.withdrawalFlowLayer .withdrawSelectedMethod span { color:#7f91aa !important; font-size:11px !important; }
+.withdrawalFlowLayer .withdrawSelectedMethod strong { margin-top:3px !important; color:#fff !important; font-size:14px !important; }
+.withdrawalFlowLayer .withdrawSelectedMethod button {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #4b9eff !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+.withdrawalFlowLayer .withdrawMethodIcon {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 13px !important;
+  background: rgba(255,255,255,.07) !important;
+  color: #dce8fa !important;
+  font-size: 18px !important;
+}
+.withdrawalFlowLayer .withdrawMethodIcon.mpesa {
+  color: #fff !important;
+  background: linear-gradient(135deg,#13b95b,#07843d) !important;
+}
+
+.withdrawalFlowLayer .withdrawField {
+  width: 100% !important;
+  display: block !important;
+  margin: 0 0 16px !important;
+}
+.withdrawalFlowLayer .withdrawField > span {
+  display: block !important;
+  margin: 0 0 8px !important;
+  color: #dce7f8 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+.withdrawalFlowLayer .withdrawAmountInput,
+.withdrawalFlowLayer .withdrawPhoneInput {
+  width: 100% !important;
+  height: 56px !important;
+  display: grid !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  border-radius: 14px !important;
+  background: #030b15 !important;
+  border: 1px solid rgba(255,255,255,.13) !important;
+}
+.withdrawalFlowLayer .withdrawAmountInput { grid-template-columns: 42px minmax(0,1fr) 52px !important; }
+.withdrawalFlowLayer .withdrawPhoneInput { grid-template-columns: 48px minmax(0,1fr) !important; }
+.withdrawalFlowLayer .withdrawAmountInput b,
+.withdrawalFlowLayer .withdrawPhoneInput b {
+  width: 100% !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #9badc6 !important;
+  font-size: 18px !important;
+}
+.withdrawalFlowLayer .withdrawAmountInput input,
+.withdrawalFlowLayer .withdrawPhoneInput input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+.withdrawalFlowLayer .withdrawAmountInput input { font-size: 20px !important; font-weight: 900 !important; }
+.withdrawalFlowLayer .withdrawPhoneInput input { font-size: 15px !important; }
+.withdrawalFlowLayer .withdrawAmountInput em {
+  display: block !important;
+  padding-right: 12px !important;
+  color: #7f91aa !important;
+  font-size: 11px !important;
+  font-style: normal !important;
+  font-weight: 900 !important;
+  text-align: right !important;
+}
+.withdrawalFlowLayer .withdrawField small {
+  display: block !important;
+  margin-top: 7px !important;
+  color: #7f91aa !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+.withdrawalFlowLayer .withdrawField small.fieldError { color: #ff6374 !important; }
+
+.withdrawalFlowLayer .withdrawQuickAmounts {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(5,minmax(0,1fr)) !important;
+  gap: 7px !important;
+  margin: -3px 0 17px !important;
+}
+.withdrawalFlowLayer .withdrawQuickAmounts button {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 35px !important;
+  margin: 0 !important;
+  padding: 0 3px !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  background: rgba(255,255,255,.05) !important;
+  color: #aebed3 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+}
+.withdrawalFlowLayer .withdrawInfoRow {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  gap: 9px !important;
+  margin: 0 0 18px !important;
+}
+.withdrawalFlowLayer .withdrawInfoRow span {
+  min-width: 0 !important;
+  min-height: 62px !important;
+  display: block !important;
+  padding: 11px !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.035) !important;
+  border: 1px solid rgba(255,255,255,.07) !important;
+}
+.withdrawalFlowLayer .withdrawInfoRow b,
+.withdrawalFlowLayer .withdrawInfoRow strong { display:block !important; }
+.withdrawalFlowLayer .withdrawInfoRow b { color:#7f91aa !important; font-size:10px !important; text-transform:uppercase !important; }
+.withdrawalFlowLayer .withdrawInfoRow strong { margin-top:6px !important; color:#dce8fa !important; font-size:11px !important; line-height:1.3 !important; }
+.withdrawalFlowLayer .withdrawPrimaryBtn {
+  width: 100% !important;
+  min-height: 54px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg,#087cff,#0455e8) !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 10px 28px rgba(4,94,230,.3) !important;
+}
+.withdrawalFlowLayer .withdrawPrimaryBtn:disabled { opacity:.42 !important; cursor:not-allowed !important; box-shadow:none !important; }
+
+@media (max-width: 760px) {
+  .withdrawalFlowLayer.modalLayer {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+  .withdrawalFlowLayer .withdrawFlowModal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 92dvh !important;
+    border-radius: 24px 24px 0 0 !important;
+    border-bottom: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  .withdrawalFlowLayer .withdrawFlowBody { padding: 14px 16px 20px !important; }
+}
+
+@media (max-width: 380px) {
+  .withdrawalFlowLayer .withdrawFlowBody { padding-left: 12px !important; padding-right: 12px !important; }
+  .withdrawalFlowLayer .withdrawQuickAmounts { gap: 5px !important; }
+  .withdrawalFlowLayer .withdrawQuickAmounts button { font-size: 10px !important; }
+}

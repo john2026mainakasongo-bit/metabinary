@@ -56,7 +56,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v183-rise-fall-chart-controls-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v225-withdraw-mobile-fix-2026-07-24";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
