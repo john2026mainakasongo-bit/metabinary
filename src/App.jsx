@@ -7534,7 +7534,7 @@ function BotLivePage({
         </div>
       </section>
 
-      <section className="runnerTabs runnerTabsWithReset">
+      <section className="botLiveTabsV231">
         {["transactions", "summary", "journal"].map((tab) => (
           <button
             type="button"
@@ -7547,7 +7547,7 @@ function BotLivePage({
         ))}
         <button
           type="button"
-          className="resetBotSessionBtn"
+          className="botLiveResetV231"
           onClick={resetSession}
           title="Clear bot transactions, summary and journal"
         >
@@ -7555,11 +7555,11 @@ function BotLivePage({
         </button>
       </section>
 
-      <section className="runnerBody">
+      <section className="botLiveContentV231">
         {botTab === "transactions" && (
-          <div className="runnerList finalRunnerList">
+          <div className="botLiveTransactionsV231">
             {trades.length === 0 && (
-              <div className="runnerEmpty">
+              <div className="botLiveEmptyV231">
                 {running ? "The bot is buying its first contract…" : "The first transaction will appear here."}
               </div>
             )}
@@ -7583,8 +7583,8 @@ function BotLivePage({
         )}
 
         {botTab === "summary" && (
-          <div className="runnerSummaryPanel">
-            <div className={last?.won ? "runnerResult won" : last ? "runnerResult lost" : "runnerResult"}>
+          <div className="botLiveSummaryV231">
+            <div className={last?.won ? "botLiveResultV231 won" : last ? "botLiveResultV231 lost" : "botLiveResultV231"}>
               <strong>{last ? last.status : running ? "RUNNING" : "READY"}</strong>
               <h2>{last ? `${last.net >= 0 ? "+" : ""}${money(last.net)} USD` : "Start the bot"}</h2>
               <small>
@@ -7594,7 +7594,7 @@ function BotLivePage({
               </small>
             </div>
 
-            <div className="runnerSummaryGrid">
+            <div className="botLiveSummaryGridV231">
               <p><span>Total runs</span><strong>{trades.length}</strong></p>
               <p><span>Win rate</span><strong>{winRate.toFixed(1)}%</strong></p>
               <p><span>Total stake</span><strong>{money(totalStake)}</strong></p>
@@ -7604,9 +7604,9 @@ function BotLivePage({
         )}
 
         {botTab === "journal" && (
-          <div className="runnerList finalRunnerList botJournalList">
+          <div className="botLiveTransactionsV231 botLiveJournalV231">
             {trades.length === 0 && (
-              <div className="runnerEmpty">
+              <div className="botLiveEmptyV231">
                 Bot decisions and contract results will be recorded here.
               </div>
             )}
@@ -7630,7 +7630,7 @@ function BotLivePage({
         )}
       </section>
 
-      <section className="runnerStats">
+      <section className="botLiveBottomStatsV231">
         <Stat value={trades.length} label="Runs" />
         <Stat value={wins} label="Won" />
         <Stat value={losses} label="Lost" />

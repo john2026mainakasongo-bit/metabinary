@@ -48147,3 +48147,435 @@ body,
     font-size: 16px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V231 — exact supplied Bot Live mobile reference
+   Unique classes prevent older runner CSS from interfering.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .mainScreen:has(.finalBotLivePage) {
+    padding: 8px 10px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage {
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 88px 78px 44px minmax(0, 1fr) 78px !important;
+    gap: 8px !important;
+    padding: 0 0 6px !important;
+    overflow: hidden !important;
+  }
+
+  /* Exact top pair */
+  .finalBotLivePage .botLiveExactTopV228 {
+    width: 100% !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    display: grid !important;
+    grid-template-columns: 32% minmax(0, 68%) !important;
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCardV228 {
+    width: 100% !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    padding: 10px 10px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+  }
+
+  .finalBotLivePage .botLiveRunIconV228 {
+    flex: 0 0 auto !important;
+    font-size: 28px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 {
+    min-width: 0 !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 strong {
+    display: block !important;
+    font-size: 14px !important;
+    line-height: 1.08 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 small {
+    display: block !important;
+    margin-top: 4px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLivePausePanelV228 {
+    width: 100% !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    padding: 10px 9px 8px !important;
+    border-radius: 12px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 {
+    height: 55px !important;
+    display: grid !important;
+    grid-template-columns: 20px minmax(0, 1fr) 98px !important;
+    gap: 6px !important;
+    align-items: center !important;
+  }
+
+  .finalBotLivePage .botLivePauseIconV228 {
+    font-size: 21px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 > div {
+    min-width: 0 !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 strong {
+    display: block !important;
+    font-size: 13px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 small {
+    display: block !important;
+    max-width: 100% !important;
+    margin-top: 4px !important;
+    overflow: hidden !important;
+    color: #a9b5c9 !important;
+    font-size: 8px !important;
+    line-height: 1.05 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 {
+    width: 98px !important;
+    min-width: 98px !important;
+    height: 38px !important;
+    padding: 0 6px !important;
+    border-radius: 9px !important;
+    gap: 4px !important;
+    font-size: 9px !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 span {
+    font-size: 14px !important;
+  }
+
+  .finalBotLivePage .botLiveProgressTrackV228 {
+    height: 7px !important;
+    margin-top: 7px !important;
+  }
+
+  /* Exact three cards */
+  .finalBotLivePage .botLiveMetricCardsV228 {
+    width: 100% !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 > div {
+    height: 78px !important;
+    min-height: 78px !important;
+    padding: 7px 3px !important;
+    border-radius: 11px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 span {
+    margin-bottom: 7px !important;
+    font-size: 9px !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 strong {
+    font-size: 14px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Exact tab row */
+  .finalBotLivePage .botLiveTabsV231 {
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 72px !important;
+    border-radius: 11px !important;
+    overflow: hidden !important;
+    background: #061423 !important;
+    border: 1px solid rgba(70, 145, 255, 0.14) !important;
+  }
+
+  .finalBotLivePage .botLiveTabsV231 button {
+    height: 44px !important;
+    min-width: 0 !important;
+    padding: 0 4px !important;
+    background: transparent !important;
+    color: #98a6ba !important;
+    border-bottom: 2px solid transparent !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: capitalize !important;
+  }
+
+  .finalBotLivePage .botLiveTabsV231 button.active {
+    color: #28ddb1 !important;
+    border-bottom-color: #28ddb1 !important;
+  }
+
+  .finalBotLivePage .botLiveResetV231 {
+    border-left: 1px solid rgba(255,255,255,.08) !important;
+    font-size: 9px !important;
+  }
+
+  /* Content starts immediately below tabs — no blank gap */
+  .finalBotLivePage .botLiveContentV231 {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 11px !important;
+    background: #061423 !important;
+    border: 1px solid rgba(70, 145, 255, 0.16) !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 > p {
+    width: 100% !important;
+    min-height: 54px !important;
+    margin: 0 !important;
+    padding: 8px 11px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    border-bottom: 1px solid rgba(255,255,255,.07) !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 > p > span:first-child {
+    min-width: 0 !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 p b {
+    display: block !important;
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 p small {
+    display: block !important;
+    margin-top: 4px !important;
+    color: #8393aa !important;
+    font-size: 8px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 .transactionStake {
+    flex: 0 0 70px !important;
+    width: 70px !important;
+    text-align: right !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 .transactionStake b {
+    margin-top: 4px !important;
+    font-size: 13px !important;
+  }
+
+  .finalBotLivePage .botLiveEmptyV231 {
+    width: 100% !important;
+    height: 100% !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 18px !important;
+    color: #8393aa !important;
+    text-align: center !important;
+  }
+
+  /* Summary and journal */
+  .finalBotLivePage .botLiveSummaryV231 {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .finalBotLivePage .botLiveResultV231,
+  .finalBotLivePage .botLiveSummaryGridV231 p {
+    border-radius: 11px !important;
+    background: #061423 !important;
+    border: 1px solid rgba(70,145,255,.16) !important;
+  }
+
+  .finalBotLivePage .botLiveSummaryGridV231 {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  /* Four bottom counters */
+  .finalBotLivePage .botLiveBottomStatsV231 {
+    width: 100% !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    border-radius: 11px !important;
+    background: #061423 !important;
+    border: 1px solid rgba(70,145,255,.16) !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 .statCard {
+    min-width: 0 !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    padding: 6px 2px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    border-radius: 9px !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 .statCard strong {
+    font-size: 16px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 .statCard span {
+    margin-top: 6px !important;
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .finalBotLivePage {
+    grid-template-rows: 82px 72px 40px minmax(0, 1fr) 72px !important;
+    gap: 6px !important;
+  }
+
+  .finalBotLivePage .botLiveExactTopV228,
+  .finalBotLivePage .botLiveRunCardV228,
+  .finalBotLivePage .botLivePausePanelV228 {
+    height: 82px !important;
+    min-height: 82px !important;
+  }
+
+  .finalBotLivePage .botLiveExactTopV228 {
+    grid-template-columns: 31% minmax(0, 69%) !important;
+    gap: 6px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCardV228 {
+    padding: 8px 6px !important;
+    gap: 5px !important;
+  }
+
+  .finalBotLivePage .botLiveRunIconV228 {
+    font-size: 23px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 strong {
+    font-size: 12px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 small {
+    font-size: 7px !important;
+  }
+
+  .finalBotLivePage .botLivePausePanelV228 {
+    padding: 8px 6px 7px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 {
+    grid-template-columns: 17px minmax(0, 1fr) 86px !important;
+    gap: 4px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 strong {
+    font-size: 11px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 small {
+    font-size: 7px !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 {
+    width: 86px !important;
+    min-width: 86px !important;
+    height: 34px !important;
+    padding: 0 4px !important;
+    font-size: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228,
+  .finalBotLivePage .botLiveMetricCardsV228 > div {
+    height: 72px !important;
+    min-height: 72px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 span {
+    font-size: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 strong {
+    font-size: 12px !important;
+  }
+
+  .finalBotLivePage .botLiveTabsV231,
+  .finalBotLivePage .botLiveTabsV231 button {
+    height: 40px !important;
+  }
+
+  .finalBotLivePage .botLiveTabsV231 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 62px !important;
+  }
+
+  .finalBotLivePage .botLiveTabsV231 button {
+    font-size: 8.5px !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 > p {
+    min-height: 49px !important;
+    padding: 7px 9px !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 {
+    height: 72px !important;
+    min-height: 72px !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 .statCard {
+    height: 60px !important;
+    min-height: 60px !important;
+  }
+}
