@@ -7484,38 +7484,6 @@ function BotLivePage({
 
   return (
     <div className="page botLivePage finalBotLivePage">
-      <header className="botLiveTop botLiveTopV221">
-        <div className="botLiveIdentityV221">
-          <strong>{bot.name}</strong>
-          <small>{bot.market} · {bot.type} · {bot.action} · {bot.ticks} ticks</small>
-        </div>
-        <div className="botLiveMenuWrapV221">
-          <button
-            type="button"
-            className="botLiveMenuButtonV221"
-            onClick={() => setBotLiveMenuOpen((open) => !open)}
-            aria-haspopup="menu"
-            aria-expanded={botLiveMenuOpen}
-            aria-label="Bot navigation"
-          >
-            ⋮
-          </button>
-          {botLiveMenuOpen && (
-            <>
-              <button type="button" className="botLiveMenuBackdropV221" onClick={() => setBotLiveMenuOpen(false)} aria-label="Close bot menu" />
-              <div className="botLiveMenuV221" role="menu">
-                <button type="button" role="menuitem" onClick={() => { setBotLiveMenuOpen(false); back(); }}>
-                  <span>🤖</span><div><strong>Back to Bots</strong><small>Choose another bot</small></div>
-                </button>
-                <button type="button" role="menuitem" onClick={() => { setBotLiveMenuOpen(false); edit(); }}>
-                  <span>⚙</span><div><strong>Bot Settings</strong><small>Edit this bot setup</small></div>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </header>
-
       <section className="botLiveExactTopV228">
         <button
           type="button"

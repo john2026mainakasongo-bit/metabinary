@@ -47655,3 +47655,83 @@ body,
     white-space: nowrap;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V229 — match supplied Bot Live reference
+   ========================================================= */
+
+.finalBotLivePage {
+  padding-top: 2px !important;
+}
+
+.finalBotLivePage .botLiveTopV221,
+.finalBotLivePage .botLiveTop {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .finalBotLivePage .botLiveExactTopV228 {
+    grid-template-columns: minmax(150px, 0.88fr) minmax(0, 1.92fr) !important;
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCardV228 {
+    min-height: 96px !important;
+    padding: 14px 15px !important;
+    border-radius: 13px !important;
+  }
+
+  .finalBotLivePage .botLivePausePanelV228 {
+    min-height: 96px !important;
+    padding: 12px 12px 10px !important;
+    border-radius: 13px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 {
+    grid-template-columns: 24px minmax(0, 1fr) 118px !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 {
+    min-width: 118px !important;
+    height: 42px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 > div {
+    min-height: 88px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .finalBotLivePage .botLiveExactTopV228 {
+    grid-template-columns: minmax(145px, 0.86fr) minmax(0, 1.94fr) !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 strong {
+    font-size: 16px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 small {
+    display: block !important;
+    font-size: 10px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 strong {
+    font-size: 14px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 small {
+    font-size: 9px !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 {
+    min-width: 108px !important;
+    padding: 0 7px !important;
+    font-size: 10px !important;
+  }
+}
