@@ -7,7 +7,6 @@ import "./RiseFallChartV183.css";
 import "./InteractionFixV221.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 import MobileHeader from "./MobileHeader.jsx";
-import "./MobileHeaderOnly.css";
 
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
@@ -57,7 +56,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v268-exact-mobile-header-2026-07-25";
+const FRONTEND_BUILD = "metabinary-v269-shadow-mobile-header-2026-07-25";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4747,6 +4746,11 @@ function Header({
   clearNotifications,
   autoSession,
 }) {
+  const [isMobileHeader, setIsMobileHeader] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 760px)").matches
+      : false
+  );
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const overlayRef = useRef(null);
@@ -4756,6 +4760,14 @@ function Header({
   const aiLastNet = Number(autoSession?.lastNet || 0);
   const aiBalanceClass =
     aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const update = () => setIsMobileHeader(media.matches);
+    update();
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
 
   function closeHeaderOverlays() {
     setAccountMenuOpen(false);
@@ -4784,8 +4796,8 @@ function Header({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [accountMenuOpen, notificationOpen]);
 
-  return (
-    <header className="topHeader brokerTopHeader cleanBrokerHeader isolatedHeaderHostV265">
+  if (isMobileHeader) {
+    return (
       <MobileHeader
         user={user}
         account={account}
@@ -4799,7 +4811,11 @@ function Header({
         markAllNotificationsRead={markAllNotificationsRead}
         clearNotifications={clearNotifications}
       />
+    );
+  }
 
+  return (
+    <header className="topHeader brokerTopHeader cleanBrokerHeader">
       <div className="desktopHeaderLeftGroupV94 mbHeaderLeftV261">
         <button
           className="menuBtn brokerMenuBtn"
