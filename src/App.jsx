@@ -4815,18 +4815,20 @@ function Header({
       <div className="desktopHeaderRightGroupV94">
         <button
           type="button"
-          className={`mbAccountButtonV249 ${accountMenuOpen ? "open" : ""}`}
+          className={`mbAccountButtonV250 ${accountMenuOpen ? "open" : ""}`}
           onClick={() => {
             setAccountMenuOpen((open) => !open);
             setNotificationOpen(false);
           }}
           aria-haspopup="listbox"
           aria-expanded={accountMenuOpen}
-          aria-label={`Selected ${isReal ? "real" : "demo"} account. Tap to switch account.`}
+          aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
         >
-          <span className={`mbAccountIconV249 ${isReal ? "real" : "demo"}`} aria-hidden="true">
-            {isReal ? <span className="mbUsFlagV249"></span> : "D"}
+          <span className={`mbAccountIconV250 ${isReal ? "real" : "demo"}`} aria-hidden="true">
+            {isReal ? <span className="mbUsFlagV250"></span> : "D"}
           </span>
+          <strong>{isReal ? "Real" : "Demo"} · {money(balance)} USD</strong>
+          <span className="mbAccountArrowV250" aria-hidden="true">⌄</span>
         </button>
 
         <button
@@ -4877,17 +4879,17 @@ function Header({
 
       <div ref={overlayRef}>
         {accountMenuOpen && (
-          <section className="mbAccountMenuV248" role="listbox" aria-label="Choose trading account">
+          <section className="mbAccountMenuV250" role="listbox" aria-label="Choose trading account">
             <button
               type="button"
               role="option"
               aria-selected={account === "demo"}
-              className={`mbAccountRowV248 ${account === "demo" ? "selected" : ""}`}
+              className={`mbAccountRowV250 ${account === "demo" ? "selected" : ""}`}
               onClick={() => chooseAccount("demo")}
             >
-              <span className="mbAccountRowIconV248 demo">D</span>
-              <span className="mbAccountRowNameV248">Demo Account</span>
-              <span className="mbAccountRowCheckV248">{account === "demo" ? "✓" : ""}</span>
+              <span className="mbAccountRowIconV250 demo">D</span>
+              <span className="mbAccountRowNameV250">Demo Account</span>
+              <span className="mbAccountRowCheckV250">{account === "demo" ? "✓" : ""}</span>
               <strong>{money(balances.demo)} USD</strong>
             </button>
 
@@ -4895,12 +4897,12 @@ function Header({
               type="button"
               role="option"
               aria-selected={account === "real"}
-              className={`mbAccountRowV248 ${account === "real" ? "selected" : ""}`}
+              className={`mbAccountRowV250 ${account === "real" ? "selected" : ""}`}
               onClick={() => chooseAccount("real")}
             >
-              <span className="mbAccountRowIconV248 real"><span className="mbUsFlagV249"></span></span>
-              <span className="mbAccountRowNameV248">Real Account</span>
-              <span className="mbAccountRowCheckV248">{account === "real" ? "✓" : ""}</span>
+              <span className="mbAccountRowIconV250 real"><span className="mbUsFlagV250"></span></span>
+              <span className="mbAccountRowNameV250">Real Account</span>
+              <span className="mbAccountRowCheckV250">{account === "real" ? "✓" : ""}</span>
               <strong>{money(balances.real)} USD</strong>
             </button>
           </section>
