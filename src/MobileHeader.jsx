@@ -26,27 +26,26 @@ const SHADOW_CSS = `
   }
 
   .header {
-    position: relative;
     width: 100%;
     height: 68px;
-    overflow: visible;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: #fff;
     background:
-      radial-gradient(circle at 53% 0%, rgba(20, 76, 145, .09), transparent 44%),
+      radial-gradient(circle at 52% 0%, rgba(20, 76, 145, .08), transparent 42%),
       #03111f;
     border-bottom: 1px solid rgba(64, 119, 173, .20);
   }
 
   .brand {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    width: 106px;
+    min-width: 108px;
     height: 48px;
     display: flex;
     align-items: center;
     gap: 5px;
-    transform: translateY(-50%);
+    flex: 0 0 108px;
   }
 
   .menu {
@@ -84,47 +83,47 @@ const SHADOW_CSS = `
   }
 
   .brand strong {
-    width: 43px;
-    min-width: 43px;
     color: #fff;
     font-size: 15px;
     font-weight: 1000;
     line-height: 1;
-    letter-spacing: -.55px;
+    letter-spacing: -.45px;
     white-space: nowrap;
   }
 
+  .accountWrap {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .account {
-    position: absolute;
-    left: 116px;
-    right: 86px;
-    top: 50%;
-    width: auto;
-    max-width: 166px;
+    width: min(100%, 168px);
+    min-width: 0;
     height: 44px;
-    margin: 0 auto;
     padding: 5px 7px;
     display: grid;
     grid-template-columns: 27px minmax(0, 1fr) 11px;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     overflow: hidden;
-    transform: translateY(-50%);
     color: #fff;
     text-align: left;
     border: 1px solid rgba(25, 111, 225, .46);
     border-radius: 14px;
     background:
-      radial-gradient(circle at 18% 0%, rgba(29, 104, 222, .11), transparent 42%),
+      radial-gradient(circle at 18% 0%, rgba(29, 104, 222, .10), transparent 42%),
       linear-gradient(135deg, #071a2e, #04111f);
-    box-shadow: inset 0 0 18px rgba(25, 101, 219, .04);
+    box-shadow: inset 0 0 16px rgba(25, 101, 219, .04);
     cursor: pointer;
   }
 
   .account.open {
     border-color: #147fff;
     box-shadow:
-      inset 0 0 20px rgba(25, 101, 219, .08),
+      inset 0 0 18px rgba(25, 101, 219, .08),
       0 0 0 3px rgba(20, 116, 255, .07);
   }
 
@@ -144,7 +143,7 @@ const SHADOW_CSS = `
 
   .accountIcon.demo {
     background: linear-gradient(145deg, #6250b5, #32266d);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 1000;
   }
 
@@ -184,7 +183,7 @@ const SHADOW_CSS = `
     font-size: 10px;
     font-weight: 900;
     line-height: 1;
-    letter-spacing: -.08px;
+    letter-spacing: -.05px;
     text-overflow: clip;
     white-space: nowrap;
   }
@@ -192,21 +191,18 @@ const SHADOW_CSS = `
   .chevron {
     justify-self: center;
     color: #d5dfeb;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1;
   }
 
   .actions {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    width: 76px;
+    min-width: 76px;
     height: 48px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
-    transform: translateY(-50%);
+    gap: 3px;
+    flex: 0 0 76px;
   }
 
   .bell {
@@ -232,9 +228,9 @@ const SHADOW_CSS = `
   .badge {
     position: absolute;
     right: -2px;
-    top: 1px;
-    min-width: 20px;
-    height: 20px;
+    top: 0;
+    min-width: 19px;
+    height: 19px;
     padding: 0 4px;
     display: grid;
     place-items: center;
@@ -453,10 +449,24 @@ const SHADOW_CSS = `
   }
 
   @media (max-width: 390px) {
+    .header {
+      gap: 5px;
+      padding: 0 5px;
+    }
+
     .brand {
-      left: 5px;
-      width: 101px;
+      min-width: 101px;
+      flex-basis: 101px;
       gap: 4px;
+    }
+
+    .menu {
+      width: 30px;
+      min-width: 30px;
+    }
+
+    .menu span {
+      width: 25px;
     }
 
     .brand strong {
@@ -464,33 +474,31 @@ const SHADOW_CSS = `
     }
 
     .account {
-      left: 108px;
-      right: 82px;
+      max-width: 154px;
       height: 42px;
-      max-width: 158px;
-      grid-template-columns: 25px minmax(0, 1fr) 10px;
+      grid-template-columns: 24px minmax(0, 1fr) 10px;
       gap: 4px;
       padding: 5px 6px;
     }
 
     .accountIcon {
-      width: 24px;
-      height: 24px;
+      width: 23px;
+      height: 23px;
     }
 
     .account b {
-      font-size: 9.3px;
+      font-size: 9.2px;
     }
 
     .actions {
-      right: 3px;
-      width: 73px;
-      gap: 3px;
+      min-width: 72px;
+      flex-basis: 72px;
+      gap: 2px;
     }
 
     .bell {
-      width: 32px;
-      min-width: 32px;
+      width: 31px;
+      min-width: 31px;
     }
 
     .avatar {
@@ -501,45 +509,61 @@ const SHADOW_CSS = `
   }
 
   @media (max-width: 360px) {
+    .header {
+      gap: 3px;
+      padding: 0 4px;
+    }
+
     .brand {
-      width: 98px;
+      min-width: 96px;
+      flex-basis: 96px;
     }
 
     .menu {
-      width: 29px;
-      min-width: 29px;
+      width: 28px;
+      min-width: 28px;
     }
 
     .menu span {
-      width: 25px;
+      width: 24px;
     }
 
     .brand strong {
-      font-size: 13.5px;
+      font-size: 13px;
     }
 
     .account {
-      left: 103px;
-      right: 77px;
+      max-width: 145px;
       height: 40px;
-      max-width: 148px;
-      grid-template-columns: 23px minmax(0, 1fr) 9px;
-      gap: 4px;
+      grid-template-columns: 22px minmax(0, 1fr) 9px;
+      gap: 3px;
       padding: 4px 5px;
     }
 
     .accountIcon {
-      width: 22px;
-      height: 22px;
+      width: 21px;
+      height: 21px;
     }
 
     .account b {
-      font-size: 8.7px;
+      font-size: 8.6px;
     }
 
     .actions {
-      right: 2px;
-      width: 70px;
+      min-width: 68px;
+      flex-basis: 68px;
+    }
+
+    .bell {
+      width: 29px;
+      min-width: 29px;
+    }
+
+    .avatar {
+      width: 33px;
+      min-width: 33px;
+      height: 33px;
+      font-size: 10px;
     }
   }
 `;
@@ -621,19 +645,21 @@ export default function MobileHeader({
           <strong>Meta</strong>
         </div>
 
-        <button
-          type="button"
-          className={`account ${panel === "account" ? "open" : ""}`}
-          onClick={() => setPanel((current) => (current === "account" ? "" : "account"))}
-          aria-expanded={panel === "account"}
-          aria-haspopup="listbox"
-        >
-          <span className={`accountIcon ${isReal ? "real" : "demo"}`}>
-            {isReal ? <span className="flag" /> : "D"}
-          </span>
-          <b>{money(balance)} USD</b>
-          <span className="chevron">⌄</span>
-        </button>
+        <div className="accountWrap">
+          <button
+            type="button"
+            className={`account ${panel === "account" ? "open" : ""}`}
+            onClick={() => setPanel((current) => (current === "account" ? "" : "account"))}
+            aria-expanded={panel === "account"}
+            aria-haspopup="listbox"
+          >
+            <span className={`accountIcon ${isReal ? "real" : "demo"}`}>
+              {isReal ? <span className="flag" /> : "D"}
+            </span>
+            <b>{money(balance)} USD</b>
+            <span className="chevron">⌄</span>
+          </button>
+        </div>
 
         <div className="actions">
           <button
@@ -746,5 +772,9 @@ export default function MobileHeader({
     </>
   );
 
-  return <div ref={hostRef} style={{ width: "100%", height: "68px" }}>{shadowRoot && createPortal(content, shadowRoot)}</div>;
+  return (
+    <div ref={hostRef} style={{ width: "100%", height: "68px" }}>
+      {shadowRoot && createPortal(content, shadowRoot)}
+    </div>
+  );
 }
