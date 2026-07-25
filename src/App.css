@@ -48644,3 +48644,116 @@ body,
       72px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V233 — transaction area fills down to stats/nav
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .app {
+    grid-template-rows: 86px minmax(0, 1fr) 58px !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .mainScreen {
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .mainScreen:has(.finalBotLivePage) {
+    padding: 8px 10px 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows:
+      88px
+      78px
+      44px
+      minmax(0, 1fr)
+      78px !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage .botLiveContentV231 {
+    grid-row: 4 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    align-self: stretch !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231,
+  .finalBotLivePage .botLiveSummaryV231 {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+
+  .finalBotLivePage .botLiveTransactionsV231 > p {
+    flex: 0 0 auto !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 {
+    grid-row: 5 !important;
+    width: 100% !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    align-self: end !important;
+    margin: 0 !important;
+    position: relative !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+
+  .bottomNav {
+    height: 58px !important;
+    min-height: 58px !important;
+    margin: 0 !important;
+    padding-bottom: max(0px, env(safe-area-inset-bottom)) !important;
+    align-self: end !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .finalBotLivePage {
+    grid-template-rows:
+      82px
+      72px
+      40px
+      minmax(0, 1fr)
+      72px !important;
+    gap: 6px !important;
+  }
+
+  .finalBotLivePage .botLiveBottomStatsV231 {
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+  }
+}
