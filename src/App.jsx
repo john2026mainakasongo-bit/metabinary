@@ -4242,7 +4242,13 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "history" && <HistoryPage transactions={transactions} />}
+        {activePage === "history" && (
+          <HistoryPage
+            transactions={transactions}
+            closedPositions={closedPositions}
+            botTrades={botTrades}
+          />
+        )}
 
         {activePage === "reports" && (
           <ReportsPage
@@ -8002,27 +8008,187 @@ function ReferralDashboardPage({ dashboard, loading, applyReferralProgram, refre
   );
 }
 
-function HistoryPage({ transactions }) {
+function HistoryPage({ transactions = [], closedPositions = [], botTrades = [] }) {
+  const [historyTab, setHistoryTab] = useState("all");
+  const [historySearch, setHistorySearch] = useState("");
+  const [historyStatus, setHistoryStatus] = useState("all");
+  const [expandedHistoryId, setExpandedHistoryId] = useState("");
+
+  const rows = useMemo(() => {
+    const transactionRows = (transactions || []).map((item, index) => ({
+      id: item.id || `transaction-${index}`,
+      category:
+        /deposit/i.test(`${item.type} ${item.method}`) ? "deposits" :
+        /withdraw/i.test(`${item.type} ${item.method}`) ? "withdrawals" :
+        /bot/i.test(`${item.type} ${item.method}`) ? "bots" :
+        /trade|profit|loss|closed|forex|manual|ai auto/i.test(`${item.type} ${item.method}`) ? "trading" :
+        "other",
+      title: item.type || "Account activity",
+      method: item.method || "MetaBinary",
+      account: item.account || "real",
+      amount: Number(item.amount || 0),
+      status: item.status || "Completed",
+      details: item.details || "",
+      time: item.time || item.createdAt || "",
+      timestamp: Number(new Date(item.createdAt || item.time || 0)) || Date.now() - index,
+      source: "transaction",
+    }));
+
+    const knownTransactionKeys = new Set(
+      transactionRows.map((row) => `${row.title}|${row.time}|${row.amount.toFixed(2)}`)
+    );
+
+    const positionRows = (closedPositions || []).map((item, index) => ({
+      id: `closed-position-${item.id || index}`,
+      category: "trading",
+      title: `Closed ${item.side || "trade"} ${item.instrument || item.symbol || ""}`.trim(),
+      method: "Forex",
+      account: item.account || "real",
+      amount: Number(item.pl ?? item.profit ?? 0),
+      status: Number(item.pl ?? item.profit ?? 0) >= 0 ? "WON" : "LOST",
+      details: `${item.volume || item.lots || ""}${item.volume || item.lots ? " lot" : ""}`.trim(),
+      time: item.closedAt || item.time || item.createdAt || "",
+      timestamp: Number(new Date(item.closedAt || item.time || item.createdAt || 0)) || Date.now() - index,
+      source: "position",
+    })).filter((row) => !knownTransactionKeys.has(`${row.title}|${row.time}|${row.amount.toFixed(2)}`));
+
+    const botRows = (botTrades || []).map((item, index) => ({
+      id: `bot-history-${item.id || index}`,
+      category: "bots",
+      title: item.won ? "Bot profit" : "Bot loss",
+      method: item.botName || item.name || "Bot",
+      account: item.account || "demo",
+      amount: Number(item.net ?? item.amount ?? item.profit ?? 0),
+      status: item.status || (item.won ? "WON" : "LOST"),
+      details: `${item.market || ""}${item.type ? ` · ${item.type}` : ""}`.replace(/^ · | · $/g, ""),
+      time: item.time || item.createdAt || "",
+      timestamp: Number(new Date(item.createdAt || item.time || 0)) || Date.now() - index,
+      source: "bot",
+    })).filter((row) => !knownTransactionKeys.has(`${row.title}|${row.time}|${row.amount.toFixed(2)}`));
+
+    return [...transactionRows, ...positionRows, ...botRows]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 300);
+  }, [transactions, closedPositions, botTrades]);
+
+  const filteredRows = useMemo(() => {
+    const query = historySearch.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (historyTab !== "all" && row.category !== historyTab) return false;
+      if (historyStatus !== "all" && String(row.status).toLowerCase() !== historyStatus) return false;
+      if (!query) return true;
+      return `${row.title} ${row.method} ${row.details} ${row.status} ${row.account}`
+        .toLowerCase()
+        .includes(query);
+    });
+  }, [rows, historyTab, historyStatus, historySearch]);
+
+  const completedDeposits = rows
+    .filter((row) => row.category === "deposits" && /complete|success|paid/i.test(row.status))
+    .reduce((sum, row) => sum + Math.max(0, row.amount), 0);
+  const withdrawals = rows
+    .filter((row) => row.category === "withdrawals")
+    .reduce((sum, row) => sum + Math.abs(Math.min(0, row.amount)), 0);
+  const tradingNet = rows
+    .filter((row) => ["trading", "bots"].includes(row.category))
+    .reduce((sum, row) => sum + row.amount, 0);
+
+  function historyIcon(row) {
+    if (row.category === "deposits") return "↓";
+    if (row.category === "withdrawals") return "↑";
+    if (row.category === "bots") return "AI";
+    if (row.category === "trading") return row.amount >= 0 ? "↗" : "↘";
+    return "•";
+  }
+
+  function exportHistory() {
+    const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+    const csv = [
+      ["Date", "Type", "Method", "Account", "Status", "Amount USD", "Details"],
+      ...filteredRows.map((row) => [row.time, row.title, row.method, row.account, row.status, row.amount, row.details]),
+    ].map((line) => line.map(escapeCsv).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `metabinary-history-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
-    <div className="page listPage">
-      <h1>History</h1>
+    <div className="page listPage historyPageV226">
+      <header className="historyHeroV226">
+        <div>
+          <small>ACCOUNT ACTIVITY</small>
+          <h1>History</h1>
+          <p>Deposits, withdrawals, manual trades and bot activity in one place.</p>
+        </div>
+        <button type="button" onClick={exportHistory} disabled={!filteredRows.length}>⇩ Export</button>
+      </header>
 
-      <section className="listPanel">
-        {transactions.length === 0 && <p>No history yet.</p>}
+      <section className="historySummaryV226">
+        <article><span>Completed deposits</span><strong className="green">+{money(completedDeposits)} USD</strong></article>
+        <article><span>Withdrawals</span><strong>{money(withdrawals)} USD</strong></article>
+        <article><span>Trading net</span><strong className={tradingNet >= 0 ? "green" : "red"}>{tradingNet >= 0 ? "+" : ""}{money(tradingNet)} USD</strong></article>
+      </section>
 
-        {transactions.slice(0, 14).map((tx) => (
-          <div key={tx.id}>
-            <span>
-              <strong>{tx.type}</strong>
-              <small>{tx.time}</small>
-            </span>
+      <section className="historyWorkspaceV226">
+        <nav className="historyTabsV226" aria-label="History categories">
+          {[
+            ["all", "All"],
+            ["deposits", "Deposits"],
+            ["withdrawals", "Withdrawals"],
+            ["trading", "Trading"],
+            ["bots", "Bots"],
+          ].map(([value, label]) => (
+            <button key={value} type="button" className={historyTab === value ? "active" : ""} onClick={() => setHistoryTab(value)}>
+              {label}<b>{value === "all" ? rows.length : rows.filter((row) => row.category === value).length}</b>
+            </button>
+          ))}
+        </nav>
 
-            <b className={tx.amount >= 0 ? "green" : "red"}>
-              {tx.amount >= 0 ? "+" : ""}
-              {money(tx.amount)} USD
-            </b>
-          </div>
-        ))}
+        <div className="historyFiltersV226">
+          <label><span>⌕</span><input value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} placeholder="Search history" /></label>
+          <select value={historyStatus} onChange={(event) => setHistoryStatus(event.target.value)}>
+            <option value="all">All statuses</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="won">Won</option>
+            <option value="lost">Lost</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div className="historyListV226">
+          {!filteredRows.length && (
+            <div className="historyEmptyV226"><b>◎</b><strong>No activity found</strong><span>Try another category, status or search.</span></div>
+          )}
+
+          {filteredRows.map((row) => {
+            const expanded = expandedHistoryId === row.id;
+            return (
+              <article key={row.id} className={`historyRowV226 ${expanded ? "expanded" : ""}`}>
+                <button type="button" className="historyRowMainV226" onClick={() => setExpandedHistoryId(expanded ? "" : row.id)}>
+                  <i className={`historyIconV226 historyIcon-${row.category}`}>{historyIcon(row)}</i>
+                  <span className="historyRowTextV226"><strong>{row.title}</strong><small>{row.method} · {row.account === "demo" ? "Demo" : "Real"} account</small></span>
+                  <span className="historyRowMetaV226"><b className={`historyStatusV226 status-${String(row.status).toLowerCase().replace(/\s+/g, "-")}`}>{row.status}</b><small>{row.time || "Just now"}</small></span>
+                  <strong className={`historyAmountV226 ${row.amount > 0 ? "green" : row.amount < 0 ? "red" : ""}`}>{row.amount > 0 ? "+" : ""}{money(row.amount)} <small>USD</small></strong>
+                  <em>{expanded ? "⌃" : "⌄"}</em>
+                </button>
+                {expanded && (
+                  <div className="historyDetailsV226">
+                    <span><small>Details</small><strong>{row.details || "No additional details"}</strong></span>
+                    <span><small>Reference</small><strong>{String(row.id).slice(-12).toUpperCase()}</strong></span>
+                    <span><small>Category</small><strong>{row.category}</strong></span>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
       </section>
     </div>
   );
