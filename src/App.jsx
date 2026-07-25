@@ -4818,19 +4818,14 @@ function Header({
           aria-expanded={accountMenuOpen}
           aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
         >
-          {isReal ? (
-            <div className="usdWalletSelectorV12">
-              <span className="usdFlagCircleV12" aria-hidden="true">
-                <span className="usdFlagStarsV12"></span>
-              </span>
-              <span className="usdWalletInlineV12">{money(balance)} USD</span>
-            </div>
-          ) : (
-            <div className="demoWalletSelectorV12">
-              <span className="demoWalletBadgeV12">DEMO</span>
-              <span className="demoWalletInlineV12">{money(balance)} USD</span>
-            </div>
-          )}
+          <span className={`accountSwitcherIconV241 ${isReal ? "real" : "demo"}`} aria-hidden="true">
+            {isReal ? "🇺🇸" : "D"}
+          </span>
+          <span className="accountSwitcherMainV241">
+            <small>{isReal ? "Real Account" : "Demo Account"}</small>
+            <strong>{money(balance)} USD</strong>
+          </span>
+          <span className={`accountSwitcherChevronV241 ${accountMenuOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
         </button>
 
         <button
@@ -4881,45 +4876,82 @@ function Header({
 
       <div ref={overlayRef}>
         {accountMenuOpen && (
-          <div className="accountPickerPanel accountPickerCompactV221" role="listbox" aria-label="Choose account">
-            <div className="accountPickerHeading">
+          <section className="accountSwitcherPanelV241" role="listbox" aria-label="Choose trading account">
+            <header className="accountSwitcherHeaderV241">
               <div>
-                <strong>Select account</strong>
-                <small>Choose balance</small>
+                <span>Trading account</span>
+                <strong>Switch account</strong>
+                <small>Your trades and balance will use the selected account.</small>
               </div>
-              <button type="button" className="headerPopupCloseV221" onClick={closeHeaderOverlays} aria-label="Close account selector">×</button>
+              <button type="button" onClick={closeHeaderOverlays} aria-label="Close account selector">×</button>
+            </header>
+
+            <div className="accountSwitcherCurrentV241">
+              <span className={`accountSwitcherCurrentIconV241 ${isReal ? "real" : "demo"}`}>
+                {isReal ? "🇺🇸" : "D"}
+              </span>
+              <span>
+                <small>Currently active</small>
+                <strong>{isReal ? "Real Account" : "Demo Account"}</strong>
+              </span>
+              <b>{money(balance)} USD</b>
             </div>
 
-            <button
-              type="button"
-              role="option"
-              aria-selected={account === "demo"}
-              className={account === "demo" ? "selected" : ""}
-              onClick={() => chooseAccount("demo")}
-            >
-              <span className="accountPickerIconV221 demo">D</span>
-              <span className="accountPickerCopyV221">
-                <strong>Demo Account</strong>
-                <small>{money(balances.demo)} USD</small>
-              </span>
-              <i>{account === "demo" ? "✓" : ""}</i>
-            </button>
+            <div className="accountSwitcherOptionsV241">
+              <button
+                type="button"
+                role="option"
+                aria-selected={account === "demo"}
+                className={account === "demo" ? "selected demo" : "demo"}
+                onClick={() => chooseAccount("demo")}
+              >
+                <span className="accountSwitcherOptionIconV241">D</span>
+                <span className="accountSwitcherOptionCopyV241">
+                  <strong>Demo Account</strong>
+                  <small>Practice with virtual funds</small>
+                  <b>{money(balances.demo)} USD</b>
+                </span>
+                <span className="accountSwitcherCheckV241">{account === "demo" ? "✓" : ""}</span>
+              </button>
 
-            <button
-              type="button"
-              role="option"
-              aria-selected={account === "real"}
-              className={account === "real" ? "selected" : ""}
-              onClick={() => chooseAccount("real")}
-            >
-              <span className="accountPickerIconV221 real" aria-hidden="true">🇺🇸</span>
-              <span className="accountPickerCopyV221">
-                <strong>Real Account</strong>
-                <small>{money(balances.real)} USD</small>
-              </span>
-              <i>{account === "real" ? "✓" : ""}</i>
-            </button>
-          </div>
+              <button
+                type="button"
+                role="option"
+                aria-selected={account === "real"}
+                className={account === "real" ? "selected real" : "real"}
+                onClick={() => chooseAccount("real")}
+              >
+                <span className="accountSwitcherOptionIconV241">🇺🇸</span>
+                <span className="accountSwitcherOptionCopyV241">
+                  <strong>Real Account</strong>
+                  <small>Trade using your deposited funds</small>
+                  <b>{money(balances.real)} USD</b>
+                </span>
+                <span className="accountSwitcherCheckV241">{account === "real" ? "✓" : ""}</span>
+              </button>
+            </div>
+
+            <footer className="accountSwitcherFooterV241">
+              <button
+                type="button"
+                onClick={() => {
+                  closeHeaderOverlays();
+                  openDeposit();
+                }}
+              >
+                ＋ Deposit
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  closeHeaderOverlays();
+                  setActivePage("history");
+                }}
+              >
+                ↺ History
+              </button>
+            </footer>
+          </section>
         )}
 
         {notificationOpen && (
