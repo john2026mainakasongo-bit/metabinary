@@ -4783,7 +4783,7 @@ function Header({
   }, [accountMenuOpen, notificationOpen]);
 
   return (
-    <header className="topHeader brokerTopHeader cleanBrokerHeader">
+    <header className="topHeader brokerTopHeader cleanBrokerHeader headerGridV255">
       <div className="desktopHeaderLeftGroupV94">
         <button
           className="menuBtn brokerMenuBtn"
@@ -4812,8 +4812,7 @@ function Header({
         </nav>
       </div>
 
-      <div className="desktopHeaderRightGroupV94">
-        <button
+      <button
           type="button"
           className={`mbAccountButtonV250 ${accountMenuOpen ? "open" : ""}`}
           onClick={() => {
@@ -4831,6 +4830,7 @@ function Header({
           <span className="mbAccountArrowV250" aria-hidden="true">⌄</span>
         </button>
 
+      <div className="desktopHeaderRightGroupV94">
         <button
           type="button"
           className="depositTop brokerDepositBtn compactDepositButton"
