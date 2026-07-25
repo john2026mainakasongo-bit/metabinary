@@ -4876,81 +4876,32 @@ function Header({
 
       <div ref={overlayRef}>
         {accountMenuOpen && (
-          <section className="accountSwitcherPanelV241" role="listbox" aria-label="Choose trading account">
-            <header className="accountSwitcherHeaderV241">
-              <div>
-                <span>Trading account</span>
-                <strong>Switch account</strong>
-                <small>Your trades and balance will use the selected account.</small>
-              </div>
-              <button type="button" onClick={closeHeaderOverlays} aria-label="Close account selector">×</button>
-            </header>
+          <section className="accountSwitcherPanelV242" role="listbox" aria-label="Choose trading account">
+            <button
+              type="button"
+              role="option"
+              aria-selected={account === "demo"}
+              className={`accountSwitcherRowV242 ${account === "demo" ? "selected" : ""}`}
+              onClick={() => chooseAccount("demo")}
+            >
+              <span className="accountSwitcherRowIconV242 demo">D</span>
+              <span className="accountSwitcherRowLabelV242">Demo Account</span>
+              <span className="accountSwitcherRowCheckV242">{account === "demo" ? "✓" : ""}</span>
+              <strong>{money(balances.demo)} USD</strong>
+            </button>
 
-            <div className="accountSwitcherCurrentV241">
-              <span className={`accountSwitcherCurrentIconV241 ${isReal ? "real" : "demo"}`}>
-                {isReal ? "🇺🇸" : "D"}
-              </span>
-              <span>
-                <small>Currently active</small>
-                <strong>{isReal ? "Real Account" : "Demo Account"}</strong>
-              </span>
-              <b>{money(balance)} USD</b>
-            </div>
-
-            <div className="accountSwitcherOptionsV241">
-              <button
-                type="button"
-                role="option"
-                aria-selected={account === "demo"}
-                className={account === "demo" ? "selected demo" : "demo"}
-                onClick={() => chooseAccount("demo")}
-              >
-                <span className="accountSwitcherOptionIconV241">D</span>
-                <span className="accountSwitcherOptionCopyV241">
-                  <strong>Demo Account</strong>
-                  <small>Practice with virtual funds</small>
-                  <b>{money(balances.demo)} USD</b>
-                </span>
-                <span className="accountSwitcherCheckV241">{account === "demo" ? "✓" : ""}</span>
-              </button>
-
-              <button
-                type="button"
-                role="option"
-                aria-selected={account === "real"}
-                className={account === "real" ? "selected real" : "real"}
-                onClick={() => chooseAccount("real")}
-              >
-                <span className="accountSwitcherOptionIconV241">🇺🇸</span>
-                <span className="accountSwitcherOptionCopyV241">
-                  <strong>Real Account</strong>
-                  <small>Trade using your deposited funds</small>
-                  <b>{money(balances.real)} USD</b>
-                </span>
-                <span className="accountSwitcherCheckV241">{account === "real" ? "✓" : ""}</span>
-              </button>
-            </div>
-
-            <footer className="accountSwitcherFooterV241">
-              <button
-                type="button"
-                onClick={() => {
-                  closeHeaderOverlays();
-                  openDeposit();
-                }}
-              >
-                ＋ Deposit
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  closeHeaderOverlays();
-                  setActivePage("history");
-                }}
-              >
-                ↺ History
-              </button>
-            </footer>
+            <button
+              type="button"
+              role="option"
+              aria-selected={account === "real"}
+              className={`accountSwitcherRowV242 ${account === "real" ? "selected" : ""}`}
+              onClick={() => chooseAccount("real")}
+            >
+              <span className="accountSwitcherRowIconV242 real">🇺🇸</span>
+              <span className="accountSwitcherRowLabelV242">Real Account</span>
+              <span className="accountSwitcherRowCheckV242">{account === "real" ? "✓" : ""}</span>
+              <strong>{money(balances.real)} USD</strong>
+            </button>
           </section>
         )}
 

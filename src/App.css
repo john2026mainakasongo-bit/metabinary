@@ -51165,3 +51165,241 @@ body,
     font-size: 11px;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V242 — exact compact top account dropdown
+   ========================================================= */
+
+.accountSelectorButton {
+  min-width: 210px !important;
+  height: 58px !important;
+  padding: 7px 10px !important;
+  display: grid !important;
+  grid-template-columns: 40px minmax(0, 1fr) 18px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(49, 132, 255, .46) !important;
+  background: linear-gradient(135deg, rgba(6, 26, 48, .99), rgba(3, 14, 26, .99)) !important;
+  box-shadow:
+    inset 0 0 20px rgba(22, 104, 255, .05),
+    0 0 0 1px rgba(22, 104, 255, .05) !important;
+}
+
+.accountSelectorButton.menuOpen {
+  border-color: rgba(43, 132, 255, .82) !important;
+  box-shadow:
+    inset 0 0 22px rgba(21, 107, 255, .08),
+    0 0 0 3px rgba(28, 116, 255, .09) !important;
+}
+
+.accountSwitcherIconV241 {
+  width: 37px !important;
+  height: 37px !important;
+  font-size: 19px !important;
+}
+
+.accountSwitcherMainV241 small {
+  display: none !important;
+}
+
+.accountSwitcherMainV241 strong {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+.accountSwitcherMainV241 strong::before {
+  content: "Real · ";
+}
+
+.accountSelectorButton:has(.accountSwitcherIconV241.demo) .accountSwitcherMainV241 strong::before {
+  content: "Demo · ";
+}
+
+.accountSwitcherChevronV241 {
+  color: #37a0ff !important;
+  font-size: 19px !important;
+}
+
+.accountSwitcherPanelV242 {
+  position: fixed;
+  top: 74px;
+  right: 74px;
+  z-index: 10002;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(59, 137, 255, .28);
+  background:
+    radial-gradient(circle at 0 0, rgba(21, 95, 199, .12), transparent 40%),
+    linear-gradient(145deg, rgba(5, 22, 41, .995), rgba(2, 12, 23, .995));
+  box-shadow: 0 24px 70px rgba(0,0,0,.48);
+  animation: accountDropV242 .14s ease-out;
+}
+
+@keyframes accountDropV242 {
+  from { opacity: 0; transform: translateY(-7px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.accountSwitcherRowV242 {
+  width: 100%;
+  min-height: 86px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 34px auto;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.05);
+  background: rgba(255,255,255,.02);
+}
+
+.accountSwitcherRowV242 + .accountSwitcherRowV242 {
+  margin-top: 8px;
+}
+
+.accountSwitcherRowV242.selected {
+  border-color: rgba(34, 127, 255, .36);
+  background: rgba(19, 79, 161, .08);
+}
+
+.accountSwitcherRowIconV242 {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: 1000;
+}
+
+.accountSwitcherRowIconV242.demo {
+  background: rgba(92, 118, 167, .23);
+  color: #eef4ff;
+}
+
+.accountSwitcherRowIconV242.real {
+  background: rgba(22, 77, 151, .28);
+}
+
+.accountSwitcherRowLabelV242 {
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.accountSwitcherRowCheckV242 {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 15px;
+  font-weight: 1000;
+}
+
+.accountSwitcherRowV242.selected .accountSwitcherRowCheckV242 {
+  background: #0d7dff;
+  box-shadow: 0 0 0 4px rgba(13, 125, 255, .08);
+}
+
+.accountSwitcherRowV242 strong {
+  justify-self: end;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .accountSelectorButton {
+    width: min(220px, 49vw) !important;
+    min-width: 0 !important;
+    height: 58px !important;
+    grid-template-columns: 34px minmax(0, 1fr) 14px !important;
+    gap: 7px !important;
+    padding: 7px 8px !important;
+  }
+
+  .accountSwitcherIconV241 {
+    width: 33px !important;
+    height: 33px !important;
+    font-size: 17px !important;
+  }
+
+  .accountSwitcherMainV241 strong {
+    font-size: 13px !important;
+  }
+
+  .accountSwitcherPanelV242 {
+    top: 70px !important;
+    right: 10px !important;
+    left: auto !important;
+    bottom: auto !important;
+    width: min(360px, calc(100vw - 20px)) !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 9px !important;
+    border-radius: 17px !important;
+  }
+
+  .accountSwitcherRowV242 {
+    min-height: 78px !important;
+    padding: 10px 11px !important;
+    grid-template-columns: 40px minmax(0, 1fr) 30px auto !important;
+    gap: 8px !important;
+  }
+
+  .accountSwitcherRowIconV242 {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 18px !important;
+  }
+
+  .accountSwitcherRowLabelV242 {
+    font-size: 14px !important;
+  }
+
+  .accountSwitcherRowCheckV242 {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 13px !important;
+  }
+
+  .accountSwitcherRowV242 strong {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .accountSwitcherMainV241 strong {
+    font-size: 11px !important;
+  }
+
+  .accountSwitcherPanelV242 {
+    width: calc(100vw - 16px) !important;
+    right: 8px !important;
+  }
+
+  .accountSwitcherRowV242 {
+    grid-template-columns: 36px minmax(0, 1fr) 26px auto !important;
+    padding: 9px !important;
+  }
+
+  .accountSwitcherRowIconV242 {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .accountSwitcherRowLabelV242 {
+    font-size: 12px !important;
+  }
+
+  .accountSwitcherRowV242 strong {
+    font-size: 11px !important;
+  }
+}
