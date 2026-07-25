@@ -47735,3 +47735,415 @@ body,
     font-size: 10px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V230 — final exact mobile Bot Live layout
+   Overrides earlier Bot Live rules.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .mainScreen:has(.finalBotLivePage) {
+    padding: 8px 10px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage,
+  .botLivePage.finalBotLivePage {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows:
+      100px
+      96px
+      48px
+      minmax(0, 1fr)
+      92px !important;
+    gap: 12px !important;
+    padding: 0 0 8px !important;
+    overflow: hidden !important;
+  }
+
+  /* Top row: Run Bot left, status/settings right */
+  .finalBotLivePage .botLiveExactTopV228 {
+    width: 100% !important;
+    height: 100px !important;
+    min-height: 100px !important;
+    display: grid !important;
+    grid-template-columns: 32% minmax(0, 68%) !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  .finalBotLivePage .botLiveRunCardV228 {
+    width: 100% !important;
+    height: 100px !important;
+    min-height: 100px !important;
+    border-radius: 14px !important;
+    padding: 14px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage .botLiveRunCardV228:not(.isRunning) {
+    background:
+      radial-gradient(circle at 22% 24%, rgba(38, 145, 255, 0.5), transparent 48%),
+      linear-gradient(135deg, #086cff 0%, #074fe6 58%, #0733b6 100%) !important;
+    border-color: rgba(65, 145, 255, 0.72) !important;
+  }
+
+  .finalBotLivePage .botLiveRunIconV228 {
+    flex: 0 0 auto !important;
+    font-size: 34px !important;
+    line-height: 1 !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 {
+    min-width: 0 !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 strong {
+    display: block !important;
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 small {
+    display: block !important;
+    margin-top: 5px !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLivePausePanelV228 {
+    width: 100% !important;
+    height: 100px !important;
+    min-height: 100px !important;
+    border-radius: 14px !important;
+    padding: 13px 13px 10px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 {
+    height: 61px !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) 128px !important;
+    gap: 9px !important;
+    align-items: center !important;
+  }
+
+  .finalBotLivePage .botLivePauseIconV228 {
+    font-size: 25px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 strong {
+    font-size: 16px !important;
+    line-height: 1.12 !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 small {
+    margin-top: 4px !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 {
+    width: 128px !important;
+    min-width: 128px !important;
+    height: 45px !important;
+    padding: 0 9px !important;
+    border-radius: 10px !important;
+    gap: 6px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveProgressTrackV228 {
+    width: 100% !important;
+    height: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  /* Three metric cards */
+  .finalBotLivePage .botLiveMetricCardsV228 {
+    width: 100% !important;
+    height: 96px !important;
+    min-height: 96px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 > div {
+    height: 96px !important;
+    min-height: 96px !important;
+    padding: 10px 5px !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 span {
+    margin-bottom: 8px !important;
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 strong {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Tabs directly touch the transaction list */
+  .finalBotLivePage .runnerTabs.runnerTabsWithReset {
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    margin: 0 !important;
+    border-radius: 13px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotLivePage .runnerTabs.runnerTabsWithReset button {
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: 13px !important;
+  }
+
+  .finalBotLivePage .resetBotSessionBtn {
+    width: 92px !important;
+    min-width: 92px !important;
+  }
+
+  /* Remove the blank area: list begins immediately under tabs */
+  .finalBotLivePage .runnerBody {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: hidden !important;
+    border-radius: 14px !important;
+  }
+
+  .finalBotLivePage .runnerList,
+  .finalBotLivePage .finalRunnerList {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-radius: 14px !important;
+    background:
+      linear-gradient(135deg, rgba(6, 23, 40, 0.98), rgba(3, 14, 26, 0.99)) !important;
+    border: 1px solid rgba(70, 145, 255, 0.18) !important;
+  }
+
+  .finalBotLivePage .runnerList p,
+  .finalBotLivePage .finalRunnerList p {
+    width: 100% !important;
+    min-height: 66px !important;
+    margin: 0 !important;
+    padding: 11px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  }
+
+  .finalBotLivePage .runnerList p > span:first-child,
+  .finalBotLivePage .finalRunnerList p > span:first-child {
+    min-width: 0 !important;
+  }
+
+  .finalBotLivePage .runnerList p b,
+  .finalBotLivePage .finalRunnerList p b {
+    font-size: 14px !important;
+    line-height: 1.15 !important;
+  }
+
+  .finalBotLivePage .runnerList p small,
+  .finalBotLivePage .finalRunnerList p small {
+    margin-top: 5px !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+  }
+
+  .finalBotLivePage .transactionStake {
+    flex: 0 0 78px !important;
+    width: 78px !important;
+    text-align: right !important;
+  }
+
+  .finalBotLivePage .transactionStake b {
+    margin-top: 5px !important;
+    font-size: 15px !important;
+  }
+
+  /* Fixed four counters at the bottom of the page */
+  .finalBotLivePage .runnerStats {
+    width: 100% !important;
+    height: 92px !important;
+    min-height: 92px !important;
+    max-height: 92px !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    border-radius: 14px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard {
+    height: 76px !important;
+    min-height: 76px !important;
+    padding: 8px 3px !important;
+    border-radius: 11px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard strong {
+    font-size: 19px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard span {
+    margin-top: 6px !important;
+    font-size: 10px !important;
+  }
+}
+
+/* Narrow phones: preserve the same structure without stacking */
+@media (max-width: 390px) {
+  .finalBotLivePage,
+  .botLivePage.finalBotLivePage {
+    grid-template-rows:
+      92px
+      84px
+      44px
+      minmax(0, 1fr)
+      82px !important;
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveExactTopV228,
+  .finalBotLivePage .botLiveRunCardV228,
+  .finalBotLivePage .botLivePausePanelV228 {
+    height: 92px !important;
+    min-height: 92px !important;
+  }
+
+  .finalBotLivePage .botLiveExactTopV228 {
+    grid-template-columns: 31% minmax(0, 69%) !important;
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCardV228 {
+    padding: 10px 8px !important;
+    gap: 6px !important;
+  }
+
+  .finalBotLivePage .botLiveRunIconV228 {
+    font-size: 27px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 strong {
+    font-size: 13px !important;
+  }
+
+  .finalBotLivePage .botLiveRunCopyV228 small {
+    font-size: 8px !important;
+  }
+
+  .finalBotLivePage .botLivePausePanelV228 {
+    padding: 10px 8px 8px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 {
+    grid-template-columns: 22px minmax(0, 1fr) 104px !important;
+    gap: 5px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 strong {
+    font-size: 13px !important;
+  }
+
+  .finalBotLivePage .botLivePauseRowV228 small {
+    font-size: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveSettingsBtnV228 {
+    width: 104px !important;
+    min-width: 104px !important;
+    height: 39px !important;
+    padding: 0 5px !important;
+    font-size: 9px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228,
+  .finalBotLivePage .botLiveMetricCardsV228 > div {
+    height: 84px !important;
+    min-height: 84px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 {
+    gap: 8px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 span {
+    font-size: 8.5px !important;
+  }
+
+  .finalBotLivePage .botLiveMetricCardsV228 strong {
+    font-size: 13px !important;
+  }
+
+  .finalBotLivePage .runnerTabs.runnerTabsWithReset,
+  .finalBotLivePage .runnerTabs.runnerTabsWithReset button {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .finalBotLivePage .runnerTabs.runnerTabsWithReset button {
+    font-size: 11px !important;
+  }
+
+  .finalBotLivePage .resetBotSessionBtn {
+    width: 72px !important;
+    min-width: 72px !important;
+  }
+
+  .finalBotLivePage .runnerList p,
+  .finalBotLivePage .finalRunnerList p {
+    min-height: 60px !important;
+    padding: 9px 11px !important;
+  }
+
+  .finalBotLivePage .runnerStats {
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard {
+    height: 68px !important;
+    min-height: 68px !important;
+  }
+
+  .finalBotLivePage .runnerStats .statCard strong {
+    font-size: 16px !important;
+  }
+}
