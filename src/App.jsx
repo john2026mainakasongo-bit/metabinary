@@ -7471,7 +7471,6 @@ function BotLivePage({
   const totalStake = trades.reduce((sum, trade) => sum + Number(trade.stake || 0), 0);
   const totalPayout = trades.reduce((sum, trade) => sum + Number(trade.payout || 0), 0);
   const winRate = trades.length ? (wins / trades.length) * 100 : 0;
-  const [botLiveMenuOpen, setBotLiveMenuOpen] = useState(false);
 
   if (!bot) {
     return (
@@ -7483,41 +7482,41 @@ function BotLivePage({
   }
 
   return (
-    <div className="page botLivePage finalBotLivePage">
-      <section className="botLiveExactTopV228">
+    <div className="botLiveV236">
+      <section className="botLiveTopV236">
         <button
           type="button"
-          className={`botLiveRunCardV228 ${running ? "isRunning" : ""}`}
+          className={`botLiveRunV236 ${running ? "running" : ""}`}
           onClick={running ? stopBot : startBot}
         >
-          <span className="botLiveRunIconV228">{running ? "■" : "▷"}</span>
-          <span className="botLiveRunCopyV228">
+          <span className="botLiveRunIconV236">{running ? "■" : "▷"}</span>
+          <span>
             <strong>{running ? "Stop Bot" : "Run Bot"}</strong>
             <small>{running ? "Stop the bot" : "Start the bot"}</small>
           </span>
         </button>
 
-        <div className="botLivePausePanelV228">
-          <div className="botLivePauseRowV228">
-            <span className={`botLivePauseIconV228 ${running ? "running" : ""}`}>
+        <div className="botLiveStatusV236">
+          <div className="botLiveStatusRowV236">
+            <span className={`botLiveStatusIconV236 ${running ? "running" : ""}`}>
               {running ? "▶" : "Ⅱ"}
             </span>
-            <div>
+            <div className="botLiveStatusCopyV236">
               <strong>{running ? "Bot running" : "Bot paused"}</strong>
               <small>{running ? "Bot is monitoring the market" : "Click run to start the bot"}</small>
             </div>
-            <button type="button" className="botLiveSettingsBtnV228" onClick={edit}>
+            <button type="button" className="botLiveSettingsV236" onClick={edit}>
               <span>⚙</span>
               Bot Settings
             </button>
           </div>
-          <div className="botLiveProgressTrackV228">
+          <div className="botLiveProgressV236">
             <span className={running ? "running" : ""}></span>
           </div>
         </div>
       </section>
 
-      <section className="botLiveMetricCardsV228">
+      <section className="botLiveMetricsV236">
         <div>
           <span>Session P/L</span>
           <strong className={sessionPnl >= 0 ? "green" : "red"}>
@@ -7534,7 +7533,7 @@ function BotLivePage({
         </div>
       </section>
 
-      <section className="botLiveTabsV231">
+      <section className="botLiveTabsV236">
         {["transactions", "summary", "journal"].map((tab) => (
           <button
             type="button"
@@ -7547,7 +7546,7 @@ function BotLivePage({
         ))}
         <button
           type="button"
-          className="botLiveResetV231"
+          className="botLiveResetV236"
           onClick={resetSession}
           title="Clear bot transactions, summary and journal"
         >
@@ -7555,36 +7554,37 @@ function BotLivePage({
         </button>
       </section>
 
-      <section className="botLiveContentV231">
+      <section className="botLiveBodyV236">
         {botTab === "transactions" && (
-          <div className="botLiveTransactionsV231">
-            {trades.length === 0 && (
-              <div className="botLiveEmptyV231">
+          <div className="botLiveScrollV236">
+            {trades.length === 0 ? (
+              <div className="botLiveEmptyV236">
                 {running ? "The bot is buying its first contract…" : "The first transaction will appear here."}
               </div>
+            ) : (
+              trades.slice(0, 30).map((trade) => (
+                <article className="botLiveRowV236" key={trade.id}>
+                  <span className="botLiveRowInfoV236">
+                    <b>{trade.market?.replace("Volatility ", "V")}</b>
+                    <small>
+                      {trade.type} · {trade.action} · digit {trade.resultDigit} · MG {trade.martingaleStep}
+                    </small>
+                  </span>
+                  <span className="botLiveRowValueV236">
+                    <small>Stake {money(trade.stake)}</small>
+                    <b className={trade.won ? "green" : "red"}>
+                      {trade.net >= 0 ? "+" : ""}{money(trade.net)}
+                    </b>
+                  </span>
+                </article>
+              ))
             )}
-            {trades.slice(0, 30).map((trade) => (
-              <article className="botLiveTxRowV235" key={trade.id}>
-                <span>
-                  <b>{trade.market?.replace("Volatility ", "V")}</b>
-                  <small>
-                    {trade.type} · {trade.action} · digit {trade.resultDigit} · MG {trade.martingaleStep}
-                  </small>
-                </span>
-                <span className="transactionStake">
-                  <small>Stake {money(trade.stake)}</small>
-                  <b className={trade.won ? "green" : "red"}>
-                    {trade.net >= 0 ? "+" : ""}{money(trade.net)}
-                  </b>
-                </span>
-              </article>
-            ))}
           </div>
         )}
 
         {botTab === "summary" && (
-          <div className="botLiveSummaryV231">
-            <div className={last?.won ? "botLiveResultV231 won" : last ? "botLiveResultV231 lost" : "botLiveResultV231"}>
+          <div className="botLiveSummaryV236">
+            <div className={`botLiveResultV236 ${last?.won ? "won" : last ? "lost" : ""}`}>
               <strong>{last ? last.status : running ? "RUNNING" : "READY"}</strong>
               <h2>{last ? `${last.net >= 0 ? "+" : ""}${money(last.net)} USD` : "Start the bot"}</h2>
               <small>
@@ -7594,7 +7594,7 @@ function BotLivePage({
               </small>
             </div>
 
-            <div className="botLiveSummaryGridV231">
+            <div className="botLiveSummaryGridV236">
               <p><span>Total runs</span><strong>{trades.length}</strong></p>
               <p><span>Win rate</span><strong>{winRate.toFixed(1)}%</strong></p>
               <p><span>Total stake</span><strong>{money(totalStake)}</strong></p>
@@ -7604,33 +7604,34 @@ function BotLivePage({
         )}
 
         {botTab === "journal" && (
-          <div className="botLiveTransactionsV231 botLiveJournalV231">
-            {trades.length === 0 && (
-              <div className="botLiveEmptyV231">
+          <div className="botLiveScrollV236">
+            {trades.length === 0 ? (
+              <div className="botLiveEmptyV236">
                 Bot decisions and contract results will be recorded here.
               </div>
+            ) : (
+              trades.slice(0, 30).map((trade, index) => (
+                <article className="botLiveRowV236" key={trade.id}>
+                  <span className="botLiveRowInfoV236">
+                    <b>{trade.won ? "Winning contract" : "Losing contract"}</b>
+                    <small>
+                      #{trades.length - index} · {trade.market?.replace("Volatility ", "V")} · {trade.type} · {trade.action}
+                    </small>
+                  </span>
+                  <span className="botLiveRowValueV236">
+                    <b className={trade.won ? "green" : "red"}>
+                      {trade.net >= 0 ? "+" : ""}{money(trade.net)}
+                    </b>
+                    <small>{trade.time}</small>
+                  </span>
+                </article>
+              ))
             )}
-            {trades.slice(0, 30).map((trade, index) => (
-              <article className="botLiveTxRowV235 journalEntry" key={trade.id}>
-                <span>
-                  <b>{trade.won ? "Winning contract" : "Losing contract"}</b>
-                  <small>
-                    #{trades.length - index} · {trade.market?.replace("Volatility ", "V")} · {trade.type} · {trade.action}
-                  </small>
-                </span>
-                <span className="journalMeta">
-                  <b className={trade.won ? "green" : "red"}>
-                    {trade.net >= 0 ? "+" : ""}{money(trade.net)}
-                  </b>
-                  <small>{trade.time}</small>
-                </span>
-              </article>
-            ))}
           </div>
         )}
       </section>
 
-      <section className="botLiveBottomStatsV231">
+      <section className="botLiveStatsV236">
         <Stat value={trades.length} label="Runs" />
         <Stat value={wins} label="Won" />
         <Stat value={losses} label="Lost" />

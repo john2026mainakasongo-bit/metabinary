@@ -48998,3 +48998,526 @@ body,
     padding: 7px 9px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V236 — clean Bot Live rebuild
+   ========================================================= */
+
+.botLiveV236 {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.botLiveTopV236 {
+  flex: 0 0 98px;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.botLiveRunV236,
+.botLiveStatusV236,
+.botLiveMetricsV236 > div,
+.botLiveTabsV236,
+.botLiveScrollV236,
+.botLiveSummaryV236,
+.botLiveStatsV236 {
+  border: 1px solid rgba(70, 145, 255, 0.18);
+  background: linear-gradient(135deg, rgba(7, 25, 44, 0.98), rgba(3, 13, 25, 0.99));
+  box-shadow: inset 0 0 28px rgba(0, 119, 255, 0.035);
+}
+
+.botLiveRunV236 {
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: white;
+  text-align: left;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(38, 145, 255, 0.52), transparent 48%),
+    linear-gradient(135deg, #086cff 0%, #074fe6 58%, #0733b6 100%);
+  border-color: rgba(65, 145, 255, 0.72);
+}
+
+.botLiveRunV236.running {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 85, 106, 0.28), transparent 46%),
+    linear-gradient(135deg, #9d1630 0%, #6e1021 60%, #3c0812 100%);
+  border-color: rgba(255, 85, 106, 0.65);
+}
+
+.botLiveRunIconV236 {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.botLiveRunV236 strong,
+.botLiveRunV236 small {
+  display: block;
+}
+
+.botLiveRunV236 strong {
+  font-size: 20px;
+}
+
+.botLiveRunV236 small {
+  margin-top: 5px;
+  color: rgba(255,255,255,.8);
+  font-size: 12px;
+}
+
+.botLiveStatusV236 {
+  border-radius: 14px;
+  padding: 14px 15px 11px;
+}
+
+.botLiveStatusRowV236 {
+  height: 58px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 145px;
+  gap: 10px;
+  align-items: center;
+}
+
+.botLiveStatusIconV236 {
+  color: #ffc21a;
+  font-size: 26px;
+  font-weight: 1000;
+}
+
+.botLiveStatusIconV236.running {
+  color: #00e884;
+}
+
+.botLiveStatusCopyV236 {
+  min-width: 0;
+}
+
+.botLiveStatusCopyV236 strong,
+.botLiveStatusCopyV236 small {
+  display: block;
+}
+
+.botLiveStatusCopyV236 strong {
+  font-size: 19px;
+}
+
+.botLiveStatusCopyV236 small {
+  margin-top: 4px;
+  color: #9eacc0;
+  font-size: 12px;
+}
+
+.botLiveSettingsV236 {
+  height: 44px;
+  border-radius: 10px;
+  color: white;
+  background: rgba(0, 82, 255, 0.08);
+  border: 1px solid #1767ff;
+  font-weight: 800;
+}
+
+.botLiveSettingsV236 span {
+  margin-right: 7px;
+  color: #1687ff;
+}
+
+.botLiveProgressV236 {
+  height: 8px;
+  margin-top: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,.07);
+}
+
+.botLiveProgressV236 span {
+  display: block;
+  width: 16%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0a7cff, #2467ff);
+}
+
+.botLiveProgressV236 span.running {
+  width: 72%;
+  background: linear-gradient(90deg, #00d980, #00f29a);
+}
+
+.botLiveMetricsV236 {
+  flex: 0 0 92px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.botLiveMetricsV236 > div {
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.botLiveMetricsV236 span,
+.botLiveMetricsV236 strong {
+  display: block;
+}
+
+.botLiveMetricsV236 span {
+  margin-bottom: 8px;
+  color: #a8b4c8;
+  font-size: 13px;
+}
+
+.botLiveMetricsV236 strong {
+  font-size: 18px;
+}
+
+.botLiveTabsV236 {
+  flex: 0 0 46px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 82px;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.botLiveTabsV236 button {
+  height: 46px;
+  background: transparent;
+  color: #95a3b7;
+  border-bottom: 2px solid transparent;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+.botLiveTabsV236 button.active {
+  color: #24ddb0;
+  border-bottom-color: #24ddb0;
+}
+
+.botLiveResetV236 {
+  border-left: 1px solid rgba(255,255,255,.08);
+}
+
+.botLiveBodyV236 {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.botLiveScrollV236 {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 11px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.botLiveRowV236 {
+  min-height: 58px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  border-bottom: 1px solid rgba(255,255,255,.075);
+}
+
+.botLiveRowInfoV236 {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.botLiveRowInfoV236 b,
+.botLiveRowInfoV236 small,
+.botLiveRowValueV236 b,
+.botLiveRowValueV236 small {
+  display: block;
+}
+
+.botLiveRowInfoV236 b {
+  font-size: 13px;
+}
+
+.botLiveRowInfoV236 small,
+.botLiveRowValueV236 small {
+  margin-top: 4px;
+  color: #8393aa;
+  font-size: 9px;
+}
+
+.botLiveRowValueV236 {
+  flex: 0 0 76px;
+  text-align: right;
+}
+
+.botLiveRowValueV236 b {
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.botLiveEmptyV236 {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  color: #8393aa;
+  text-align: center;
+}
+
+.botLiveSummaryV236 {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 10px;
+  border-radius: 11px;
+  overflow-y: auto;
+}
+
+.botLiveResultV236 {
+  min-height: 116px;
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+}
+
+.botLiveResultV236 h2 {
+  margin: 8px 0;
+}
+
+.botLiveSummaryGridV236 {
+  margin-top: 9px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.botLiveSummaryGridV236 p {
+  min-height: 70px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+}
+
+.botLiveSummaryGridV236 span,
+.botLiveSummaryGridV236 strong {
+  display: block;
+}
+
+.botLiveSummaryGridV236 span {
+  color: #95a3b7;
+  font-size: 11px;
+}
+
+.botLiveSummaryGridV236 strong {
+  margin-top: 7px;
+  font-size: 17px;
+}
+
+.botLiveStatsV236 {
+  flex: 0 0 78px;
+  margin: 0;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  border-radius: 11px 11px 0 0;
+}
+
+.botLiveStatsV236 .statCard {
+  min-width: 0;
+  height: 64px;
+  padding: 6px 2px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border-radius: 9px;
+}
+
+.botLiveStatsV236 .statCard strong {
+  font-size: 17px;
+}
+
+.botLiveStatsV236 .statCard span {
+  margin-top: 6px;
+  font-size: 9px;
+}
+
+@media (max-width: 760px) {
+  .mainScreen:has(.botLiveV236) {
+    height: 100%;
+    min-height: 0;
+    padding: 8px 10px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .botLiveV236 {
+    height: 100%;
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .botLiveTopV236 {
+    flex-basis: 88px;
+    grid-template-columns: 32% minmax(0, 68%);
+    gap: 8px;
+  }
+
+  .botLiveRunV236 {
+    padding: 10px;
+    gap: 7px;
+  }
+
+  .botLiveRunIconV236 {
+    font-size: 28px;
+  }
+
+  .botLiveRunV236 strong {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .botLiveRunV236 small {
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .botLiveStatusV236 {
+    padding: 10px 9px 8px;
+  }
+
+  .botLiveStatusRowV236 {
+    height: 55px;
+    grid-template-columns: 20px minmax(0, 1fr) 98px;
+    gap: 6px;
+  }
+
+  .botLiveStatusIconV236 {
+    font-size: 21px;
+  }
+
+  .botLiveStatusCopyV236 strong {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .botLiveStatusCopyV236 small {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 8px;
+    white-space: nowrap;
+  }
+
+  .botLiveSettingsV236 {
+    height: 38px;
+    padding: 0 6px;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .botLiveProgressV236 {
+    height: 7px;
+    margin-top: 7px;
+  }
+
+  .botLiveMetricsV236 {
+    flex-basis: 78px;
+    gap: 8px;
+  }
+
+  .botLiveMetricsV236 > div {
+    border-radius: 11px;
+  }
+
+  .botLiveMetricsV236 span {
+    margin-bottom: 7px;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .botLiveMetricsV236 strong {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .botLiveTabsV236 {
+    flex-basis: 44px;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 72px;
+  }
+
+  .botLiveTabsV236 button {
+    height: 44px;
+    padding: 0 3px;
+    font-size: 10px;
+  }
+
+  .botLiveBodyV236 {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  .botLiveScrollV236 {
+    height: 100%;
+  }
+
+  .botLiveRowV236 {
+    min-height: 54px;
+    padding: 8px 11px;
+  }
+
+  .botLiveStatsV236 {
+    flex-basis: 78px;
+    margin-bottom: 0;
+    border-radius: 11px 11px 0 0;
+  }
+
+  .bottomNav,
+  nav.bottomNav {
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .botLiveTopV236 {
+    flex-basis: 82px;
+    grid-template-columns: 31% minmax(0, 69%);
+    gap: 6px;
+  }
+
+  .botLiveMetricsV236 {
+    flex-basis: 72px;
+    gap: 6px;
+  }
+
+  .botLiveTabsV236 {
+    flex-basis: 40px;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 62px;
+  }
+
+  .botLiveTabsV236 button {
+    height: 40px;
+    font-size: 8.5px;
+  }
+
+  .botLiveStatsV236 {
+    flex-basis: 72px;
+    height: 72px;
+  }
+}
