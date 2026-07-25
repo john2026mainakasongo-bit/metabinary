@@ -53238,105 +53238,240 @@ body,
 
 
 /* =========================================================
-   MetaBinary V255 — real 3-column mobile header
+   MetaBinary V256 — final isolated mobile header structure
    ========================================================= */
 
 @media (max-width: 760px) {
-  .headerGridV255 {
+  .mbHeaderV256 {
     position: relative !important;
     width: 100% !important;
+    height: 74px !important;
     min-height: 74px !important;
-    padding: 0 10px !important;
-    display: grid !important;
-    grid-template-columns: minmax(120px, 1fr) 190px minmax(106px, 1fr) !important;
-    align-items: center !important;
-    gap: 8px !important;
+    padding: 0 !important;
+    display: block !important;
     overflow: visible !important;
   }
 
-  .headerGridV255 .desktopHeaderLeftGroupV94 {
-    grid-column: 1 !important;
-    justify-self: start !important;
+  .mbHeaderLeftV256 {
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
     width: auto !important;
+    max-width: 116px !important;
     min-width: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 9px !important;
-  }
-
-  .headerGridV255 > .mbAccountButtonV250 {
-    position: static !important;
-    grid-column: 2 !important;
-    justify-self: center !important;
-    align-self: center !important;
-    width: 190px !important;
-    min-width: 190px !important;
-    max-width: 190px !important;
-    height: 48px !important;
+    height: 54px !important;
     margin: 0 !important;
-    transform: none !important;
-    z-index: 60 !important;
-  }
-
-  .headerGridV255 .desktopHeaderRightGroupV94 {
-    grid-column: 3 !important;
-    justify-self: end !important;
-    width: auto !important;
-    min-width: 0 !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
     gap: 8px !important;
+    transform: translateY(-50%) !important;
+    z-index: 70 !important;
+    overflow: hidden !important;
   }
 
-  .headerGridV255 .desktopTradeHeaderActionsV89,
-  .headerGridV255 .compactDepositButton {
+  .mbHeaderLeftV256 .desktopTradeHeaderActionsV89 {
     display: none !important;
   }
 
-  .headerGridV255 .menuBtn,
-  .headerGridV255 .brokerMenuBtn,
-  .headerGridV255 .brokerBellBtn,
-  .headerGridV255 .bellBtn,
-  .headerGridV255 .brokerAvatarBtn,
-  .headerGridV255 .avatarBtn {
+  .mbHeaderLeftV256 .menuBtn,
+  .mbHeaderLeftV256 .brokerMenuBtn {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 42px !important;
+    flex: 0 0 38px !important;
+    margin: 0 !important;
+    padding: 6px 3px !important;
+  }
+
+  .mbHeaderLeftV256 .logo,
+  .mbHeaderLeftV256 .brand,
+  .mbHeaderLeftV256 .brokerLogo {
+    min-width: 0 !important;
+    max-width: 70px !important;
+    overflow: hidden !important;
+  }
+
+  .mbHeaderCenterV256 {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 166px !important;
+    height: 48px !important;
+    display: grid !important;
+    place-items: center !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 60 !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountButtonV250 {
+    position: static !important;
+    inset: auto !important;
+    width: 166px !important;
+    min-width: 166px !important;
+    max-width: 166px !important;
+    height: 46px !important;
+    margin: 0 !important;
+    padding: 5px 7px !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) 12px !important;
+    align-items: center !important;
+    gap: 5px !important;
+    transform: none !important;
+    border-radius: 14px !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountIconV250 {
+    width: 27px !important;
+    height: 27px !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountButtonV250 > strong {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    font-size: 10.7px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountArrowV250 {
+    justify-self: center !important;
+    color: #c8d3df !important;
+    font-size: 13px !important;
+  }
+
+  .mbHeaderRightV256 {
+    position: absolute !important;
+    right: 9px !important;
+    top: 50% !important;
+    width: 94px !important;
+    min-width: 94px !important;
+    height: 54px !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 7px !important;
+    transform: translateY(-50%) !important;
+    z-index: 80 !important;
+  }
+
+  .mbHeaderRightV256 .compactDepositButton,
+  .mbHeaderRightV256 .desktopTradeHeaderActionsV89 {
+    display: none !important;
+  }
+
+  .mbHeaderRightV256 .brokerBellBtn,
+  .mbHeaderRightV256 .bellBtn {
     position: relative !important;
     inset: auto !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 48px !important;
+    margin: 0 !important;
     transform: none !important;
-    flex: 0 0 auto !important;
+    flex: 0 0 42px !important;
   }
 
-  .headerGridV255 .desktopHeaderLeftGroupV94 .brand,
-  .headerGridV255 .desktopHeaderLeftGroupV94 .logo,
-  .headerGridV255 .desktopHeaderLeftGroupV94 .brokerLogo {
-    min-width: 0 !important;
+  .mbHeaderRightV256 .brokerAvatarBtn,
+  .mbHeaderRightV256 .avatarBtn {
+    position: relative !important;
+    inset: auto !important;
+    width: 45px !important;
+    min-width: 45px !important;
+    height: 45px !important;
+    margin: 0 !important;
+    transform: none !important;
+    flex: 0 0 45px !important;
+  }
+
+  .mbAccountMenuV250 {
+    top: 69px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
   }
 }
 
-@media (max-width: 430px) {
-  .headerGridV255 {
-    grid-template-columns: 118px 184px 100px !important;
+@media (max-width: 410px) {
+  .mbHeaderLeftV256 {
+    left: 7px !important;
+    max-width: 108px !important;
     gap: 6px !important;
-    padding: 0 8px !important;
   }
 
-  .headerGridV255 > .mbAccountButtonV250 {
-    width: 184px !important;
-    min-width: 184px !important;
-    max-width: 184px !important;
-    height: 46px !important;
+  .mbHeaderLeftV256 .menuBtn,
+  .mbHeaderLeftV256 .brokerMenuBtn {
+    width: 35px !important;
+    min-width: 35px !important;
+    flex-basis: 35px !important;
   }
-}
 
-@media (max-width: 390px) {
-  .headerGridV255 {
-    grid-template-columns: 110px 176px 92px !important;
+  .mbHeaderCenterV256,
+  .mbHeaderCenterV256 .mbAccountButtonV250 {
+    width: 158px !important;
+    min-width: 158px !important;
+    max-width: 158px !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountButtonV250 {
+    grid-template-columns: 26px minmax(0, 1fr) 11px !important;
+    gap: 4px !important;
+    padding: 5px 6px !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountIconV250 {
+    width: 25px !important;
+    height: 25px !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountButtonV250 > strong {
+    font-size: 10.2px !important;
+  }
+
+  .mbHeaderRightV256 {
+    right: 6px !important;
+    width: 88px !important;
+    min-width: 88px !important;
     gap: 5px !important;
   }
 
-  .headerGridV255 > .mbAccountButtonV250 {
-    width: 176px !important;
-    min-width: 176px !important;
-    max-width: 176px !important;
+  .mbHeaderRightV256 .brokerBellBtn,
+  .mbHeaderRightV256 .bellBtn {
+    width: 39px !important;
+    min-width: 39px !important;
+    flex-basis: 39px !important;
+  }
+
+  .mbHeaderRightV256 .brokerAvatarBtn,
+  .mbHeaderRightV256 .avatarBtn {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .mbHeaderLeftV256 {
+    max-width: 100px !important;
+  }
+
+  .mbHeaderCenterV256,
+  .mbHeaderCenterV256 .mbAccountButtonV250 {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  .mbHeaderCenterV256 .mbAccountButtonV250 > strong {
+    font-size: 9.7px !important;
+  }
+
+  .mbHeaderRightV256 {
+    width: 83px !important;
+    min-width: 83px !important;
   }
 }
