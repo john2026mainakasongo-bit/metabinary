@@ -7564,7 +7564,7 @@ function BotLivePage({
               </div>
             )}
             {trades.slice(0, 30).map((trade) => (
-              <p key={trade.id}>
+              <article className="botLiveTxRowV235" key={trade.id}>
                 <span>
                   <b>{trade.market?.replace("Volatility ", "V")}</b>
                   <small>
@@ -7577,7 +7577,7 @@ function BotLivePage({
                     {trade.net >= 0 ? "+" : ""}{money(trade.net)}
                   </b>
                 </span>
-              </p>
+              </article>
             ))}
           </div>
         )}
@@ -7611,7 +7611,7 @@ function BotLivePage({
               </div>
             )}
             {trades.slice(0, 30).map((trade, index) => (
-              <p className="journalEntry" key={trade.id}>
+              <article className="botLiveTxRowV235 journalEntry" key={trade.id}>
                 <span>
                   <b>{trade.won ? "Winning contract" : "Losing contract"}</b>
                   <small>
@@ -7624,7 +7624,7 @@ function BotLivePage({
                   </b>
                   <small>{trade.time}</small>
                 </span>
-              </p>
+              </article>
             ))}
           </div>
         )}
