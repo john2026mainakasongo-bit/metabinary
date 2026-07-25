@@ -51971,3 +51971,295 @@ body,
     visibility: visible !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V247 — exact account switcher mockup match
+   ========================================================= */
+
+/* Header layout */
+.cleanBrokerHeader,
+.brokerTopHeader,
+.topHeader {
+  position: relative !important;
+  min-height: 76px !important;
+}
+
+.cleanBrokerHeader .accountSelectorButton,
+.brokerTopHeader .accountSelectorButton,
+.topHeader .accountSelectorButton {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 236px !important;
+  min-width: 236px !important;
+  max-width: 236px !important;
+  height: 58px !important;
+  margin: 0 !important;
+  padding: 7px 12px !important;
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) 20px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  transform: translate(-50%, -50%) !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(21, 114, 255, .76) !important;
+  background:
+    radial-gradient(circle at 22% 0%, rgba(30, 104, 235, .12), transparent 40%),
+    linear-gradient(135deg, rgba(5, 24, 44, .995), rgba(2, 12, 24, .995)) !important;
+  box-shadow:
+    inset 0 0 24px rgba(22, 104, 255, .05),
+    0 0 0 2px rgba(22, 104, 255, .05) !important;
+  z-index: 20 !important;
+}
+
+.accountSwitcherFlagV244 {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+}
+
+.accountSwitcherDemoV244 {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 18px !important;
+}
+
+.accountSwitcherMainV247 {
+  min-width: 0 !important;
+}
+
+.accountSwitcherMainV247 strong {
+  display: block !important;
+  overflow: hidden !important;
+  color: #fff !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.accountSwitcherChevronV241 {
+  color: #41a3ff !important;
+  font-size: 20px !important;
+}
+
+/* Dropdown exact look */
+.accountSwitcherPanelV242 {
+  position: fixed !important;
+  top: 82px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 440px !important;
+  max-width: calc(100vw - 22px) !important;
+  padding: 12px !important;
+  transform: translateX(-50%) !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(45, 116, 255, .28) !important;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(27, 95, 217, .11), transparent 44%),
+    linear-gradient(145deg, rgba(5, 22, 40, .998), rgba(2, 12, 22, .998)) !important;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.52),
+    inset 0 0 26px rgba(41, 121, 255, .035) !important;
+  z-index: 10002 !important;
+}
+
+.accountSwitcherRowV242 {
+  width: 100% !important;
+  min-height: 102px !important;
+  padding: 14px 16px !important;
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) 38px auto !important;
+  align-items: center !important;
+  gap: 13px !important;
+  border-radius: 16px !important;
+  color: white !important;
+  text-align: left !important;
+  border: 1px solid rgba(255,255,255,.035) !important;
+  background: rgba(255,255,255,.012) !important;
+}
+
+.accountSwitcherRowV242 + .accountSwitcherRowV242 {
+  margin-top: 10px !important;
+  border-top-color: rgba(255,255,255,.05) !important;
+}
+
+.accountSwitcherRowV242.selected {
+  border-color: rgba(29, 120, 255, .22) !important;
+  background: rgba(27, 80, 161, .045) !important;
+}
+
+.accountSwitcherRowIconV242,
+.accountSwitcherRowFlagV244 {
+  width: 48px !important;
+  height: 48px !important;
+  flex: 0 0 48px !important;
+}
+
+.accountSwitcherRowIconV242.demo {
+  color: #fff !important;
+  font-size: 21px !important;
+  background: linear-gradient(145deg, #514f95, #2c2f61) !important;
+  box-shadow: 0 0 0 4px rgba(88, 88, 160, .07) !important;
+}
+
+.accountSwitcherRowLabelV242 {
+  min-width: 0 !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.accountSwitcherRowCheckV242 {
+  width: 34px !important;
+  height: 34px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  color: #fff !important;
+  font-size: 16px !important;
+  font-weight: 1000 !important;
+}
+
+.accountSwitcherRowV242.selected .accountSwitcherRowCheckV242 {
+  background: #0d7fff !important;
+  box-shadow: 0 0 0 4px rgba(13, 127, 255, .09) !important;
+}
+
+.accountSwitcherRowV242 strong {
+  justify-self: end !important;
+  color: #edf4ff !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+/* Keep bell/profile separated from the centered switcher */
+.cleanBrokerHeader .brokerBellBtn,
+.cleanBrokerHeader .bellBtn,
+.cleanBrokerHeader .brokerAvatarBtn,
+.cleanBrokerHeader .avatarBtn,
+.brokerTopHeader .brokerBellBtn,
+.brokerTopHeader .bellBtn,
+.brokerTopHeader .brokerAvatarBtn,
+.brokerTopHeader .avatarBtn {
+  position: relative !important;
+  z-index: 30 !important;
+  flex: 0 0 auto !important;
+}
+
+/* Mobile-sized exact version */
+@media (max-width: 760px) {
+  .cleanBrokerHeader .accountSelectorButton,
+  .brokerTopHeader .accountSelectorButton,
+  .topHeader .accountSelectorButton {
+    width: 212px !important;
+    min-width: 212px !important;
+    max-width: 212px !important;
+    height: 54px !important;
+    padding: 6px 10px !important;
+    grid-template-columns: 38px minmax(0, 1fr) 18px !important;
+    gap: 8px !important;
+    border-radius: 17px !important;
+  }
+
+  .accountSwitcherFlagV244,
+  .accountSwitcherDemoV244 {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .accountSwitcherMainV247 strong {
+    font-size: 14px !important;
+  }
+
+  .accountSwitcherPanelV242 {
+    top: 70px !important;
+    width: min(380px, calc(100vw - 18px)) !important;
+    padding: 10px !important;
+    border-radius: 18px !important;
+  }
+
+  .accountSwitcherRowV242 {
+    min-height: 82px !important;
+    padding: 11px 12px !important;
+    grid-template-columns: 42px minmax(0, 1fr) 30px auto !important;
+    gap: 9px !important;
+    border-radius: 14px !important;
+  }
+
+  .accountSwitcherRowIconV242,
+  .accountSwitcherRowFlagV244 {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .accountSwitcherRowIconV242.demo {
+    font-size: 18px !important;
+  }
+
+  .accountSwitcherRowLabelV242 {
+    font-size: 14px !important;
+  }
+
+  .accountSwitcherRowCheckV242 {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 13px !important;
+  }
+
+  .accountSwitcherRowV242 strong {
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .cleanBrokerHeader .accountSelectorButton,
+  .brokerTopHeader .accountSelectorButton,
+  .topHeader .accountSelectorButton {
+    width: 194px !important;
+    min-width: 194px !important;
+    max-width: 194px !important;
+    grid-template-columns: 34px minmax(0, 1fr) 16px !important;
+    gap: 7px !important;
+  }
+
+  .accountSwitcherFlagV244,
+  .accountSwitcherDemoV244 {
+    width: 33px !important;
+    height: 33px !important;
+  }
+
+  .accountSwitcherMainV247 strong {
+    font-size: 12px !important;
+  }
+
+  .accountSwitcherPanelV242 {
+    width: calc(100vw - 14px) !important;
+  }
+
+  .accountSwitcherRowV242 {
+    min-height: 74px !important;
+    grid-template-columns: 36px minmax(0, 1fr) 26px auto !important;
+    padding: 9px 10px !important;
+  }
+
+  .accountSwitcherRowIconV242,
+  .accountSwitcherRowFlagV244 {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .accountSwitcherRowLabelV242 {
+    font-size: 12px !important;
+  }
+
+  .accountSwitcherRowV242 strong {
+    font-size: 12px !important;
+  }
+}

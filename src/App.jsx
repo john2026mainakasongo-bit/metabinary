@@ -4829,7 +4829,7 @@ function Header({
           ) : (
             <span className="accountSwitcherDemoV244" aria-hidden="true">D</span>
           )}
-          <span className="accountSwitcherMainV245">
+          <span className="accountSwitcherMainV247">
             <strong>{isReal ? "Real" : "Demo"} · {money(balance)} USD</strong>
           </span>
           <span className={`accountSwitcherChevronV241 ${accountMenuOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
