@@ -47008,3 +47008,346 @@ body,
   .historyDetailsV226 span { padding:7px 8px; }
   .historyDetailsV226 strong { font-size:9px; }
 }
+
+
+/* =========================================================
+   MetaBinary V227 — Bot Live command-center redesign
+   ========================================================= */
+
+.botLiveCommandCenterV227 {
+  min-height: 138px;
+  display: grid;
+  grid-template-columns: minmax(210px, 0.82fr) minmax(360px, 1.65fr) minmax(190px, 0.72fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.botLivePrimaryActionV227,
+.botLiveSettingsActionV227,
+.botLiveStatusCardV227,
+.botLiveCompactMetricsV227 {
+  border: 1px solid rgba(70, 145, 255, 0.22);
+  background:
+    linear-gradient(145deg, rgba(8, 29, 50, 0.97), rgba(3, 12, 24, 0.98));
+  box-shadow:
+    inset 0 0 32px rgba(0, 119, 255, 0.045),
+    0 14px 34px rgba(0, 0, 0, 0.2);
+}
+
+.botLivePrimaryActionV227 {
+  width: 100%;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  color: #fff;
+  text-align: left;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 232, 132, 0.24), transparent 45%),
+    linear-gradient(135deg, #053d34, #06251f);
+  border-color: rgba(0, 232, 132, 0.52);
+  box-shadow:
+    0 0 34px rgba(0, 232, 132, 0.12),
+    inset 0 0 28px rgba(0, 232, 132, 0.08);
+}
+
+.botLivePrimaryActionV227.isRunning {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 64, 87, 0.22), transparent 45%),
+    linear-gradient(135deg, #46131c, #26090f);
+  border-color: rgba(255, 64, 87, 0.55);
+  box-shadow:
+    0 0 34px rgba(255, 64, 87, 0.12),
+    inset 0 0 28px rgba(255, 64, 87, 0.08);
+}
+
+.botLiveActionIconV227 {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+  background: rgba(0, 232, 132, 0.16);
+  border: 1px solid rgba(0, 232, 132, 0.55);
+}
+
+.botLivePrimaryActionV227.isRunning .botLiveActionIconV227 {
+  background: rgba(255, 64, 87, 0.15);
+  border-color: rgba(255, 64, 87, 0.55);
+}
+
+.botLivePrimaryActionV227 strong,
+.botLiveSettingsActionV227 strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.botLivePrimaryActionV227 small,
+.botLiveSettingsActionV227 small {
+  display: block;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.botLiveStatusCardV227 {
+  border-radius: 16px;
+  padding: 20px 22px;
+  display: grid;
+  align-content: center;
+}
+
+.botLiveStatusCardV227.isRunning {
+  border-color: rgba(0, 232, 132, 0.34);
+}
+
+.botLiveStatusTopV227 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.botLiveStatusTopV227 strong {
+  font-size: 21px;
+}
+
+.botLiveStatusTopV227 em {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 1000;
+  letter-spacing: 0.8px;
+  color: #aebbd2;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.botLiveStatusCardV227.isRunning .botLiveStatusTopV227 em {
+  color: #00e884;
+  background: rgba(0, 232, 132, 0.1);
+}
+
+.botLiveStatusPulseV227 {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #7f8ca1;
+  box-shadow: 0 0 0 5px rgba(127, 140, 161, 0.1);
+}
+
+.botLiveStatusCardV227.isRunning .botLiveStatusPulseV227 {
+  background: #00e884;
+  box-shadow: 0 0 0 5px rgba(0, 232, 132, 0.1), 0 0 18px rgba(0, 232, 132, 0.8);
+  animation: botLivePulseV227 1.7s ease-in-out infinite;
+}
+
+@keyframes botLivePulseV227 {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.78); opacity: 0.65; }
+}
+
+.botLiveStatusCardV227 p {
+  margin: 11px 0 14px;
+  color: #aebbd2;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.botLiveStatusMetaV227 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.botLiveStatusMetaV227 span {
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: #dbe7ff;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.botLiveSettingsActionV227 {
+  width: 100%;
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  text-align: left;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.botLiveSettingsActionV227 > span {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #4fa5ff;
+  background: rgba(0, 119, 255, 0.13);
+  border: 1px solid rgba(0, 140, 255, 0.3);
+  font-size: 20px;
+}
+
+.botLiveCompactMetricsV227 {
+  min-height: 62px;
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.botLiveCompactMetricsV227 > div {
+  min-width: 0;
+  padding: 8px 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.botLiveCompactMetricsV227 > div:last-child {
+  border-right: 0;
+}
+
+.botLiveCompactMetricsV227 span,
+.botLiveCompactMetricsV227 strong {
+  display: block;
+}
+
+.botLiveCompactMetricsV227 span {
+  color: #8f9db2;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.botLiveCompactMetricsV227 strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+  font-size: 15px;
+}
+
+@media (max-width: 760px) {
+  .botLiveCommandCenterV227 {
+    min-height: 0;
+    grid-template-columns: 1fr 112px;
+    gap: 8px;
+  }
+
+  .botLivePrimaryActionV227 {
+    min-height: 78px;
+    padding: 13px 14px;
+    gap: 11px;
+  }
+
+  .botLiveActionIconV227 {
+    width: 43px;
+    height: 43px;
+    flex-basis: 43px;
+    font-size: 17px;
+  }
+
+  .botLivePrimaryActionV227 strong,
+  .botLiveSettingsActionV227 strong {
+    font-size: 15px;
+  }
+
+  .botLivePrimaryActionV227 small {
+    font-size: 10px;
+  }
+
+  .botLiveStatusCardV227 {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 92px;
+    padding: 13px 14px;
+  }
+
+  .botLiveStatusTopV227 strong {
+    font-size: 16px;
+  }
+
+  .botLiveStatusCardV227 p {
+    margin: 7px 0 9px;
+    font-size: 11px;
+  }
+
+  .botLiveStatusMetaV227 {
+    gap: 5px;
+  }
+
+  .botLiveStatusMetaV227 span {
+    padding: 4px 7px;
+    font-size: 9px;
+  }
+
+  .botLiveSettingsActionV227 {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 78px;
+    padding: 10px;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .botLiveSettingsActionV227 > span {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 5px;
+    font-size: 15px;
+  }
+
+  .botLiveSettingsActionV227 small {
+    display: none;
+  }
+
+  .botLiveCompactMetricsV227 {
+    min-height: 54px;
+    padding: 5px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .botLiveCompactMetricsV227 > div {
+    padding: 6px 5px;
+    text-align: center;
+  }
+
+  .botLiveCompactMetricsV227 span {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .botLiveCompactMetricsV227 strong {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .botLivePrimaryActionV227 small {
+    display: none;
+  }
+
+  .botLivePrimaryActionV227 {
+    min-height: 68px;
+  }
+
+  .botLiveSettingsActionV227 {
+    min-height: 68px;
+  }
+
+  .botLiveStatusCardV227 {
+    min-height: 82px;
+  }
+}

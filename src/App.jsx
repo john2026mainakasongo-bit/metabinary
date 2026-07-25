@@ -7516,21 +7516,64 @@ function BotLivePage({
         </div>
       </header>
 
-      <section className="runnerBox finalRunnerBox">
-        <button className={running ? "stopRunner" : "startRunner"} onClick={running ? stopBot : startBot}>
-          {running ? "■ Stop Bot" : "▶ Run Bot"}
+      <section className="botLiveCommandCenterV227">
+        <button
+          type="button"
+          className={`botLivePrimaryActionV227 ${running ? "isRunning" : ""}`}
+          onClick={running ? stopBot : startBot}
+        >
+          <span className="botLiveActionIconV227">{running ? "■" : "▶"}</span>
+          <span>
+            <strong>{running ? "Stop Bot" : "Run Bot"}</strong>
+            <small>{running ? "End the current bot session" : "Start automated trading"}</small>
+          </span>
         </button>
-        <div className="runnerStatusCopy">
-          <strong>{running ? "Watching for the next contract" : "Bot paused"}</strong>
-          <small>{bot.market} · {bot.type} · {bot.action} · {bot.ticks} ticks</small>
-          <span><i className={running ? "active" : ""}></i></span>
+
+        <div className={`botLiveStatusCardV227 ${running ? "isRunning" : "isPaused"}`}>
+          <div className="botLiveStatusTopV227">
+            <span className="botLiveStatusPulseV227" aria-hidden="true"></span>
+            <strong>{running ? "Bot is running" : "Bot paused"}</strong>
+            <em>{running ? "LIVE" : "READY"}</em>
+          </div>
+          <p>
+            {running
+              ? "Watching the market and waiting for the next qualified entry."
+              : "Review your settings, then press Run Bot when you are ready."}
+          </p>
+          <div className="botLiveStatusMetaV227">
+            <span>{bot.market?.replace("Volatility ", "V")}</span>
+            <span>{bot.type}</span>
+            <span>{bot.action}</span>
+            <span>{bot.ticks} ticks</span>
+          </div>
         </div>
+
+        <button type="button" className="botLiveSettingsActionV227" onClick={edit}>
+          <span>⚙</span>
+          <strong>Bot Settings</strong>
+          <small>Edit stake, limits and strategy</small>
+        </button>
       </section>
 
-      <section className="botLiveMetrics">
-        <div><span>Session P/L</span><strong className={sessionPnl >= 0 ? "green" : "red"}>{sessionPnl >= 0 ? "+" : ""}{money(sessionPnl)} USD</strong></div>
-        <div><span>Current MG step</span><strong>{martingaleStep}/{bot.martingaleSteps || 0}</strong></div>
-        <div><span>Next base stake</span><strong>{money(bot.stake)} USD</strong></div>
+      <section className="botLiveCompactMetricsV227">
+        <div>
+          <span>Session P/L</span>
+          <strong className={sessionPnl >= 0 ? "green" : "red"}>
+            {sessionPnl >= 0 ? "+" : ""}{money(sessionPnl)} USD
+          </strong>
+        </div>
+        <div>
+          <span>Martingale</span>
+          <strong>{martingaleStep}/{bot.martingaleSteps || 0}</strong>
+        </div>
+        <div>
+          <span>Base stake</span>
+          <strong>{money(bot.stake)} USD</strong>
+        </div>
+        <div>
+          <span>Contracts</span>
+          <strong>{trades.length}</strong>
+        </div>
       </section>
 
       <section className="runnerTabs runnerTabsWithReset">
