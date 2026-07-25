@@ -1,5 +1,6 @@
-/* MetaBinary V265 — isolated mobile header
-   This file owns the complete phone header and does not depend on App.css header rules. */
+/* MetaBinary V268 — exact isolated mobile header.
+   Copy this as src/MobileHeaderOnly.css.
+   It does not change MobileTradeFix.css or the trading page. */
 
 .mobileHeaderOnlyV265,
 .mobileHeaderBackdropV265,
@@ -8,67 +9,85 @@
   display: none;
 }
 
-@media (max-width: 760px) {
-  .isolatedHeaderHostV265 {
+@media screen and (max-width: 760px) {
+  body .app > .isolatedHeaderHostV265 {
     position: sticky !important;
+    inset: auto !important;
     top: 0 !important;
     z-index: 18000 !important;
     width: 100% !important;
     max-width: 100vw !important;
-    height: 70px !important;
-    min-height: 70px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    margin: 0 !important;
     padding: 0 !important;
     display: block !important;
     overflow: visible !important;
-    background: #03111f !important;
-    border-bottom: 1px solid rgba(65, 119, 174, 0.2) !important;
+    background:
+      radial-gradient(circle at 54% 0%, rgba(14, 75, 145, .08), transparent 42%),
+      #03111f !important;
+    border-bottom: 1px solid rgba(64, 119, 173, .20) !important;
+    box-shadow: none !important;
   }
 
-  /* Hide every legacy header element on phones. */
-  .isolatedHeaderHostV265 > .desktopHeaderLeftGroupV94,
-  .isolatedHeaderHostV265 > .mbHeaderCenterV261,
-  .isolatedHeaderHostV265 > .desktopHeaderRightGroupV94,
-  .isolatedHeaderHostV265 > .headerOverlayBackdropV221,
-  .isolatedHeaderHostV265 > div[ref] {
+  body .app > .isolatedHeaderHostV265 > .desktopHeaderLeftGroupV94,
+  body .app > .isolatedHeaderHostV265 > .mbHeaderCenterV261,
+  body .app > .isolatedHeaderHostV265 > .desktopHeaderRightGroupV94,
+  body .app > .isolatedHeaderHostV265 > .headerOverlayBackdropV221 {
     display: none !important;
   }
 
-  .mobileHeaderOnlyV265 {
+  body .app > .isolatedHeaderHostV265 > .mobileHeaderOnlyV265 {
+    position: relative !important;
+    inset: auto !important;
     width: 100% !important;
-    height: 70px !important;
-    padding: 0 7px !important;
-    box-sizing: border-box !important;
-    display: grid !important;
-    grid-template-columns: 106px minmax(0, 1fr) 78px !important;
-    align-items: center !important;
-    gap: 5px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    transform: none !important;
   }
 
+  /* LEFT: menu + Meta */
   .mobileHeaderBrandV265 {
-    min-width: 0 !important;
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    width: 108px !important;
     height: 52px !important;
-    display: grid !important;
-    grid-template-columns: 32px 23px minmax(0, 1fr) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 5px !important;
     overflow: visible !important;
+    transform: translateY(-50%) !important;
+    z-index: 3 !important;
   }
 
   .mobileHeaderMenuV265 {
-    width: 32px !important;
-    min-width: 32px !important;
-    height: 42px !important;
+    position: static !important;
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 44px !important;
+    margin: 0 !important;
     padding: 7px 2px !important;
     display: flex !important;
+    flex: 0 0 34px !important;
     flex-direction: column !important;
     justify-content: center !important;
     gap: 6px !important;
     border: 0 !important;
     background: transparent !important;
+    transform: none !important;
   }
 
   .mobileHeaderMenuV265 span {
-    width: 28px !important;
+    width: 29px !important;
     height: 3px !important;
     display: block !important;
     border-radius: 999px !important;
@@ -76,58 +95,79 @@
   }
 
   .mobileHeaderLogoV265 {
-    width: 23px !important;
-    height: 23px !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    height: 24px !important;
     display: grid !important;
     place-items: center !important;
+    flex: 0 0 24px !important;
     border-radius: 50% !important;
-    color: #168cff !important;
-    background: linear-gradient(145deg, #ff315f, #cf19dc) !important;
+    color: #147fff !important;
+    background: linear-gradient(145deg, #ff315f, #d317d8) !important;
+    box-shadow: 0 0 10px rgba(232, 30, 176, .18) !important;
     font-size: 10px !important;
     font-weight: 1000 !important;
   }
 
   .mobileHeaderBrandV265 > strong {
-    min-width: 42px !important;
+    display: block !important;
+    width: 45px !important;
+    min-width: 45px !important;
+    max-width: 45px !important;
+    margin: 0 !important;
     overflow: visible !important;
     color: #fff !important;
-    font-size: 16px !important;
+    font-size: 17px !important;
     font-weight: 1000 !important;
     line-height: 1 !important;
-    letter-spacing: -0.45px !important;
+    letter-spacing: -.55px !important;
+    text-overflow: clip !important;
     white-space: nowrap !important;
   }
 
+  /* CENTER: account selector. Its left/right bounds protect it from overlap. */
   .mobileHeaderAccountV265 {
-    justify-self: stretch !important;
-    width: 100% !important;
+    position: absolute !important;
+    left: 121px !important;
+    right: 91px !important;
+    top: 50% !important;
+    width: auto !important;
     min-width: 0 !important;
-    max-width: 164px !important;
-    height: 44px !important;
-    padding: 5px 6px !important;
+    max-width: 184px !important;
+    height: 48px !important;
+    margin: 0 auto !important;
+    padding: 6px 8px !important;
     box-sizing: border-box !important;
     display: grid !important;
-    grid-template-columns: 25px minmax(0, 1fr) 10px !important;
+    grid-template-columns: 30px minmax(0, 1fr) 12px !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 6px !important;
     overflow: hidden !important;
+    transform: translateY(-50%) !important;
     color: #fff !important;
-    border: 1px solid rgba(20, 123, 255, 0.8) !important;
-    border-radius: 14px !important;
-    background: linear-gradient(135deg, #071a2e, #04111f) !important;
-    box-shadow: inset 0 0 16px rgba(25, 101, 219, 0.05) !important;
+    text-align: left !important;
+    border: 1px solid rgba(25, 111, 225, .42) !important;
+    border-radius: 16px !important;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(29, 104, 222, .10), transparent 42%),
+      linear-gradient(135deg, #071a2e, #04111f) !important;
+    box-shadow:
+      inset 0 0 18px rgba(25, 101, 219, .035),
+      0 0 0 1px rgba(20, 116, 255, .025) !important;
+    z-index: 4 !important;
   }
 
   .mobileHeaderAccountV265.open {
-    border-color: #1688ff !important;
+    border-color: #147fff !important;
     box-shadow:
-      inset 0 0 18px rgba(25, 101, 219, 0.08),
-      0 0 0 3px rgba(20, 116, 255, 0.07) !important;
+      inset 0 0 20px rgba(25, 101, 219, .07),
+      0 0 0 3px rgba(20, 116, 255, .07) !important;
   }
 
   .mobileHeaderAccountIconV265 {
-    width: 24px !important;
-    height: 24px !important;
+    width: 29px !important;
+    height: 29px !important;
+    min-width: 29px !important;
     display: grid !important;
     place-items: center !important;
     overflow: hidden !important;
@@ -135,13 +175,13 @@
   }
 
   .mobileHeaderAccountIconV265.real {
-    border: 1px solid rgba(255,255,255,.14) !important;
+    border: 1px solid rgba(255, 255, 255, .14) !important;
     background: #102b50 !important;
   }
 
   .mobileHeaderAccountIconV265.demo {
     color: #fff !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 1000 !important;
     background: linear-gradient(145deg, #6250b5, #32266d) !important;
   }
@@ -172,60 +212,79 @@
     width: 55% !important;
     height: 54% !important;
     background:
-      radial-gradient(circle, #fff 0 .8px, transparent 1px) 1px 1px / 4px 4px,
+      radial-gradient(circle, #fff 0 .85px, transparent 1.05px) 1px 1px / 4px 4px,
       #3c3b6e !important;
   }
 
   .mobileHeaderAccountV265 > b {
     min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
     overflow: hidden !important;
     color: #fff !important;
-    font-size: 9.5px !important;
+    font-size: 11px !important;
     font-weight: 900 !important;
     line-height: 1 !important;
-    letter-spacing: -0.05px !important;
+    letter-spacing: -.08px !important;
     text-align: left !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
   }
 
   .mobileHeaderChevronV265 {
-    color: #d4dce7 !important;
-    font-size: 12px !important;
+    justify-self: center !important;
+    color: #d5dfeb !important;
+    font-size: 14px !important;
     line-height: 1 !important;
   }
 
+  /* RIGHT: bell + profile */
   .mobileHeaderActionsV265 {
+    position: absolute !important;
+    right: 7px !important;
+    top: 50% !important;
+    width: 80px !important;
     height: 52px !important;
+    margin: 0 !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 3px !important;
+    gap: 4px !important;
+    overflow: visible !important;
+    transform: translateY(-50%) !important;
+    z-index: 5 !important;
   }
 
   .mobileHeaderBellV265 {
     position: relative !important;
-    width: 34px !important;
-    min-width: 34px !important;
-    height: 44px !important;
+    width: 35px !important;
+    min-width: 35px !important;
+    height: 46px !important;
+    margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
     place-items: center !important;
+    flex: 0 0 35px !important;
     border: 0 !important;
     background: transparent !important;
   }
 
-  .mobileHeaderBellV265 > span {
-    font-size: 24px !important;
-    line-height: 1 !important;
+  .mobileHeaderBellIconV265 {
+    width: 27px !important;
+    height: 31px !important;
+    display: block !important;
+    overflow: visible !important;
+    fill: #d3dbe6 !important;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45)) !important;
   }
 
   .mobileHeaderBellV265 > b {
     position: absolute !important;
-    right: -1px !important;
-    top: 2px !important;
-    min-width: 19px !important;
-    height: 19px !important;
+    right: -2px !important;
+    top: 1px !important;
+    min-width: 20px !important;
+    height: 20px !important;
     padding: 0 4px !important;
     display: grid !important;
     place-items: center !important;
@@ -234,20 +293,23 @@
     background: #147fff !important;
     font-size: 8px !important;
     font-weight: 1000 !important;
+    box-shadow: 0 0 10px rgba(20, 127, 255, .34) !important;
   }
 
   .mobileHeaderAvatarV265 {
     position: relative !important;
-    width: 38px !important;
-    min-width: 38px !important;
-    height: 38px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
     place-items: center !important;
+    flex: 0 0 40px !important;
     border-radius: 50% !important;
     color: #fff !important;
-    border: 1px solid rgba(151, 177, 206, 0.24) !important;
-    background: rgba(4, 18, 31, 0.98) !important;
+    border: 1px solid rgba(151, 177, 206, .24) !important;
+    background: rgba(4, 18, 31, .98) !important;
     font-size: 12px !important;
     font-weight: 900 !important;
   }
@@ -260,6 +322,7 @@
     height: 9px !important;
     border-radius: 50% !important;
     background: #00e889 !important;
+    box-shadow: 0 0 7px rgba(0, 232, 137, .50) !important;
   }
 
   .mobileHeaderBackdropV265 {
@@ -268,23 +331,23 @@
     z-index: 17990 !important;
     display: block !important;
     border: 0 !important;
-    background: rgba(0, 5, 12, 0.22) !important;
+    background: rgba(0, 5, 12, .22) !important;
   }
 
   .mobileAccountPanelV265,
   .mobileNotificationsPanelV265 {
     position: fixed !important;
     left: 50% !important;
-    top: 72px !important;
+    top: 74px !important;
     z-index: 18010 !important;
     width: min(340px, calc(100vw - 14px)) !important;
     transform: translateX(-50%) !important;
     display: block !important;
     overflow: hidden !important;
-    border: 1px solid rgba(39, 113, 224, 0.35) !important;
+    border: 1px solid rgba(39, 113, 224, .35) !important;
     border-radius: 17px !important;
     background: linear-gradient(145deg, #06182b, #03111f) !important;
-    box-shadow: 0 24px 70px rgba(0,0,0,.58) !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .58) !important;
   }
 
   .mobileAccountPanelV265 {
@@ -296,14 +359,14 @@
     min-height: 72px !important;
     padding: 10px !important;
     display: grid !important;
-    grid-template-columns: 38px minmax(0,1fr) 30px !important;
+    grid-template-columns: 38px minmax(0, 1fr) 30px !important;
     align-items: center !important;
     gap: 10px !important;
     color: #fff !important;
     text-align: left !important;
     border-radius: 13px !important;
     border: 1px solid transparent !important;
-    background: rgba(255,255,255,.018) !important;
+    background: rgba(255, 255, 255, .018) !important;
   }
 
   .mobileAccountPanelV265 > button + button {
@@ -311,8 +374,8 @@
   }
 
   .mobileAccountPanelV265 > button.selected {
-    border-color: rgba(20,127,255,.45) !important;
-    background: rgba(20,95,190,.09) !important;
+    border-color: rgba(20, 127, 255, .45) !important;
+    background: rgba(20, 95, 190, .09) !important;
   }
 
   .mobileAccountPanelIconV265 {
@@ -360,13 +423,7 @@
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    border-bottom: 1px solid rgba(255,255,255,.08) !important;
-  }
-
-  .mobileNotificationsPanelV265 header span,
-  .mobileNotificationsPanelV265 header strong,
-  .mobileNotificationsPanelV265 header small {
-    display: block !important;
+    border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
   }
 
   .mobileNotificationsPanelV265 header > span:last-child {
@@ -375,12 +432,17 @@
     gap: 7px !important;
   }
 
+  .mobileNotificationsPanelV265 header strong,
+  .mobileNotificationsPanelV265 header small {
+    display: block !important;
+  }
+
   .mobileNotificationsPanelV265 header button {
     min-height: 30px !important;
     padding: 0 9px !important;
     border-radius: 8px !important;
     color: #fff !important;
-    background: rgba(20,127,255,.12) !important;
+    background: rgba(20, 127, 255, .12) !important;
   }
 
   .mobileNotificationsPanelV265 > div {
@@ -393,12 +455,12 @@
     min-height: 72px !important;
     padding: 10px 12px !important;
     display: grid !important;
-    grid-template-columns: 28px minmax(0,1fr) 8px !important;
+    grid-template-columns: 28px minmax(0, 1fr) 8px !important;
     align-items: center !important;
     gap: 9px !important;
     color: #fff !important;
     text-align: left !important;
-    border-bottom: 1px solid rgba(255,255,255,.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, .06) !important;
     background: transparent !important;
   }
 
@@ -439,25 +501,73 @@
     min-height: 38px !important;
     border-radius: 9px !important;
     color: #fff !important;
-    background: rgba(20,127,255,.13) !important;
+    background: rgba(20, 127, 255, .13) !important;
   }
 }
 
-@media (max-width: 370px) {
-  .mobileHeaderOnlyV265 {
-    grid-template-columns: 101px minmax(0, 1fr) 75px !important;
-    padding: 0 5px !important;
+@media screen and (max-width: 390px) {
+  .mobileHeaderBrandV265 {
+    left: 6px !important;
+    width: 105px !important;
+    gap: 4px !important;
+  }
+
+  .mobileHeaderBrandV265 > strong {
+    font-size: 16px !important;
+  }
+
+  .mobileHeaderAccountV265 {
+    left: 113px !important;
+    right: 86px !important;
+    height: 46px !important;
+    grid-template-columns: 27px minmax(0, 1fr) 10px !important;
+    gap: 5px !important;
+    padding: 5px 7px !important;
+  }
+
+  .mobileHeaderAccountIconV265 {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+  }
+
+  .mobileHeaderAccountV265 > b {
+    font-size: 10px !important;
+  }
+
+  .mobileHeaderActionsV265 {
+    right: 4px !important;
+    width: 78px !important;
     gap: 3px !important;
   }
 
+  .mobileHeaderBellV265 {
+    width: 34px !important;
+    min-width: 34px !important;
+    flex-basis: 34px !important;
+  }
+
+  .mobileHeaderAvatarV265 {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    flex-basis: 38px !important;
+  }
+}
+
+@media screen and (max-width: 360px) {
   .mobileHeaderBrandV265 {
-    grid-template-columns: 30px 22px minmax(0, 1fr) !important;
-    gap: 3px !important;
+    width: 102px !important;
   }
 
   .mobileHeaderMenuV265 {
-    width: 30px !important;
-    min-width: 30px !important;
+    width: 31px !important;
+    min-width: 31px !important;
+    flex-basis: 31px !important;
+  }
+
+  .mobileHeaderMenuV265 span {
+    width: 27px !important;
   }
 
   .mobileHeaderBrandV265 > strong {
@@ -465,28 +575,25 @@
   }
 
   .mobileHeaderAccountV265 {
-    grid-template-columns: 23px minmax(0,1fr) 9px !important;
-    gap: 3px !important;
-    padding: 5px !important;
+    left: 108px !important;
+    right: 82px !important;
+    grid-template-columns: 25px minmax(0, 1fr) 9px !important;
+    gap: 4px !important;
+    padding: 5px 6px !important;
   }
 
   .mobileHeaderAccountIconV265 {
-    width: 22px !important;
-    height: 22px !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
   }
 
   .mobileHeaderAccountV265 > b {
-    font-size: 8.8px !important;
+    font-size: 9px !important;
   }
 
-  .mobileHeaderBellV265 {
-    width: 33px !important;
-    min-width: 33px !important;
-  }
-
-  .mobileHeaderAvatarV265 {
-    width: 37px !important;
-    min-width: 37px !important;
-    height: 37px !important;
+  .mobileHeaderActionsV265 {
+    right: 3px !important;
+    width: 76px !important;
   }
 }

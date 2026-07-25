@@ -111,7 +111,16 @@ export default function MobileHeader({
             aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
             aria-expanded={panel === "notifications"}
           >
-            <span aria-hidden="true">🔔</span>
+            <svg
+              className="mobileHeaderBellIconV265"
+              viewBox="0 0 32 36"
+              aria-hidden="true"
+            >
+              <path
+                d="M16 3.5c-5.2 0-9.1 4.2-9.1 9.6v5.2c0 2.3-.8 4.6-2.3 6.4l-1.3 1.6c-.8 1-.1 2.5 1.2 2.5h23c1.3 0 2-1.5 1.2-2.5l-1.3-1.6a10.2 10.2 0 0 1-2.3-6.4v-5.2c0-5.4-3.9-9.6-9.1-9.6Z"
+              />
+              <path d="M11.8 30.4c.7 2 2.2 3.1 4.2 3.1s3.5-1.1 4.2-3.1h-8.4Z" />
+            </svg>
             {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
           </button>
 
