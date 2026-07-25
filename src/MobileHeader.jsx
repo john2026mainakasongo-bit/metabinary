@@ -11,11 +11,10 @@ function money(value) {
 const SHADOW_CSS = `
   :host {
     display: block;
-    width: 100vw;
-    min-width: 100vw;
-    max-width: 100vw;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
     height: 68px;
-    margin-left: calc(50% - 50vw);
     contain: layout style paint;
   }
 
@@ -29,14 +28,15 @@ const SHADOW_CSS = `
   }
 
   .header {
-    width: 100vw;
-    min-width: 100vw;
-    max-width: 100vw;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
     height: 68px;
     padding: 0 8px;
-    display: flex;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) 80px;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     color: #fff;
     background:
       radial-gradient(circle at 52% 0%, rgba(20, 76, 145, .08), transparent 42%),
@@ -45,12 +45,13 @@ const SHADOW_CSS = `
   }
 
   .brand {
-    min-width: 108px;
+    min-width: 0;
+    width: 112px;
     height: 48px;
     display: flex;
     align-items: center;
     gap: 5px;
-    flex: 0 0 108px;
+    overflow: visible;
   }
 
   .menu {
@@ -98,7 +99,7 @@ const SHADOW_CSS = `
 
   .accountWrap {
     min-width: 0;
-    flex: 1 1 auto;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,13 +202,13 @@ const SHADOW_CSS = `
   }
 
   .actions {
-    min-width: 76px;
+    width: 80px;
+    min-width: 80px;
     height: 48px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 3px;
-    flex: 0 0 76px;
   }
 
   .bell {
@@ -455,13 +456,14 @@ const SHADOW_CSS = `
 
   @media (max-width: 390px) {
     .header {
-      gap: 5px;
+      grid-template-columns: 104px minmax(0, 1fr) 76px;
+      gap: 4px;
       padding: 0 5px;
     }
 
     .brand {
-      min-width: 101px;
-      flex-basis: 101px;
+      width: 104px;
+      min-width: 0;
       gap: 4px;
     }
 
@@ -496,8 +498,8 @@ const SHADOW_CSS = `
     }
 
     .actions {
-      min-width: 72px;
-      flex-basis: 72px;
+      width: 76px;
+      min-width: 76px;
       gap: 2px;
     }
 
@@ -515,13 +517,14 @@ const SHADOW_CSS = `
 
   @media (max-width: 360px) {
     .header {
+      grid-template-columns: 98px minmax(0, 1fr) 72px;
       gap: 3px;
       padding: 0 4px;
     }
 
     .brand {
-      min-width: 96px;
-      flex-basis: 96px;
+      width: 98px;
+      min-width: 0;
     }
 
     .menu {
@@ -555,8 +558,8 @@ const SHADOW_CSS = `
     }
 
     .actions {
-      min-width: 68px;
-      flex-basis: 68px;
+      width: 72px;
+      min-width: 72px;
     }
 
     .bell {
@@ -782,11 +785,10 @@ export default function MobileHeader({
       ref={hostRef}
       style={{
         display: "block",
-        width: "100vw",
-        minWidth: "100vw",
-        maxWidth: "100vw",
+        width: "100%",
+        minWidth: "100%",
+        maxWidth: "100%",
         height: "68px",
-        marginLeft: "calc(50% - 50vw)",
         overflow: "visible",
       }}
     >
