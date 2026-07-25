@@ -50498,49 +50498,7 @@ body,
   display: none !important;
 }
 
-/* Pull-to-refresh feedback. */
-.pullRefreshV239 {
-  position: fixed;
-  left: 50%;
-  top: 8px;
-  z-index: 100000;
-  min-width: 122px;
-  height: 38px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  pointer-events: none;
-  opacity: .92;
-  border-radius: 999px;
-  color: #b7c9df;
-  background: rgba(4, 20, 36, .96);
-  border: 1px solid rgba(66, 145, 255, .26);
-  box-shadow: 0 9px 24px rgba(0,0,0,.28);
-  transition: transform .12s ease, border-color .12s ease;
-}
 
-.pullRefreshV239.ready {
-  color: #17e59a;
-  border-color: rgba(23, 229, 154, .4);
-}
-
-.pullRefreshV239 span {
-  font-size: 17px;
-  font-weight: 1000;
-}
-
-.pullRefreshV239 small {
-  font-size: 8px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-html,
-body {
-  overscroll-behavior-y: auto !important;
-}
 
 @media (max-width: 760px) {
   /* Let profile/referral pages scroll naturally from the document top. */
