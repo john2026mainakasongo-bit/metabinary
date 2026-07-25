@@ -47351,3 +47351,307 @@ body,
     min-height: 82px;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V228 — Bot Live exact reference layout
+   ========================================================= */
+
+.botLiveExactTopV228 {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.botLiveRunCardV228 {
+  min-height: 98px;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: white;
+  text-align: left;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(34, 126, 255, 0.45), transparent 46%),
+    linear-gradient(135deg, #0865ff 0%, #0849e9 60%, #0732b8 100%);
+  border: 1px solid rgba(72, 145, 255, 0.7);
+  box-shadow:
+    0 0 28px rgba(0, 102, 255, 0.28),
+    inset 0 0 24px rgba(255, 255, 255, 0.08);
+}
+
+.botLiveRunCardV228.isRunning {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 85, 106, 0.28), transparent 46%),
+    linear-gradient(135deg, #9d1630 0%, #6e1021 60%, #3c0812 100%);
+  border-color: rgba(255, 85, 106, 0.65);
+  box-shadow:
+    0 0 28px rgba(255, 64, 87, 0.2),
+    inset 0 0 24px rgba(255, 255, 255, 0.05);
+}
+
+.botLiveRunIconV228 {
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 300;
+  text-shadow: 0 0 18px rgba(255,255,255,.5);
+}
+
+.botLiveRunCopyV228 strong,
+.botLiveRunCopyV228 small {
+  display: block;
+}
+
+.botLiveRunCopyV228 strong {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.botLiveRunCopyV228 small {
+  margin-top: 6px;
+  color: rgba(255,255,255,.82);
+  font-size: 13px;
+}
+
+.botLivePausePanelV228 {
+  min-height: 98px;
+  border-radius: 14px;
+  padding: 16px 16px 12px;
+  background:
+    linear-gradient(135deg, rgba(8, 25, 43, 0.98), rgba(4, 14, 26, 0.98));
+  border: 1px solid rgba(70, 145, 255, 0.18);
+  box-shadow:
+    inset 0 0 28px rgba(0, 119, 255, 0.035),
+    0 14px 32px rgba(0, 0, 0, 0.18);
+}
+
+.botLivePauseRowV228 {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.botLivePauseIconV228 {
+  color: #ffc21a;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 1000;
+}
+
+.botLivePauseIconV228.running {
+  color: #00e884;
+}
+
+.botLivePauseRowV228 strong,
+.botLivePauseRowV228 small {
+  display: block;
+}
+
+.botLivePauseRowV228 strong {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.botLivePauseRowV228 small {
+  margin-top: 5px;
+  color: #a9b5c9;
+  font-size: 13px;
+}
+
+.botLiveSettingsBtnV228 {
+  min-width: 145px;
+  height: 48px;
+  border-radius: 10px;
+  padding: 0 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: white;
+  background: rgba(0, 82, 255, 0.08);
+  border: 1px solid #1767ff;
+  box-shadow: inset 0 0 16px rgba(0, 95, 255, 0.06);
+  font-weight: 800;
+}
+
+.botLiveSettingsBtnV228 span {
+  color: #1687ff;
+  font-size: 19px;
+}
+
+.botLiveProgressTrackV228 {
+  height: 9px;
+  margin-top: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,.07);
+}
+
+.botLiveProgressTrackV228 span {
+  display: block;
+  width: 16%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0a7cff, #2467ff);
+  transition: width .25s ease;
+}
+
+.botLiveProgressTrackV228 span.running {
+  width: 72%;
+  background: linear-gradient(90deg, #00d980, #00f29a);
+}
+
+.botLiveMetricCardsV228 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.botLiveMetricCardsV228 > div {
+  min-height: 96px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+  background:
+    linear-gradient(135deg, rgba(8, 25, 43, 0.98), rgba(4, 14, 26, 0.98));
+  border: 1px solid rgba(70, 145, 255, 0.18);
+  box-shadow:
+    inset 0 0 28px rgba(0, 119, 255, 0.035),
+    0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.botLiveMetricCardsV228 span,
+.botLiveMetricCardsV228 strong {
+  display: block;
+}
+
+.botLiveMetricCardsV228 span {
+  color: #a9b5c9;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.botLiveMetricCardsV228 strong {
+  color: white;
+  font-size: 19px;
+}
+
+@media (max-width: 760px) {
+  .botLiveExactTopV228 {
+    grid-template-columns: minmax(150px, 0.9fr) minmax(0, 1.75fr);
+    gap: 8px;
+  }
+
+  .botLiveRunCardV228 {
+    min-height: 84px;
+    padding: 13px 14px;
+    gap: 10px;
+  }
+
+  .botLiveRunIconV228 {
+    font-size: 32px;
+  }
+
+  .botLiveRunCopyV228 strong {
+    font-size: 17px;
+  }
+
+  .botLiveRunCopyV228 small {
+    font-size: 11px;
+  }
+
+  .botLivePausePanelV228 {
+    min-height: 84px;
+    padding: 11px 11px 9px;
+  }
+
+  .botLivePauseRowV228 {
+    grid-template-columns: 24px minmax(0, 1fr) 112px;
+    gap: 8px;
+  }
+
+  .botLivePauseIconV228 {
+    font-size: 22px;
+  }
+
+  .botLivePauseRowV228 strong {
+    font-size: 15px;
+  }
+
+  .botLivePauseRowV228 small {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+
+  .botLiveSettingsBtnV228 {
+    min-width: 112px;
+    height: 40px;
+    padding: 0 9px;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .botLiveSettingsBtnV228 span {
+    font-size: 15px;
+  }
+
+  .botLiveProgressTrackV228 {
+    height: 7px;
+    margin-top: 9px;
+  }
+
+  .botLiveMetricCardsV228 {
+    gap: 8px;
+  }
+
+  .botLiveMetricCardsV228 > div {
+    min-height: 78px;
+    border-radius: 12px;
+  }
+
+  .botLiveMetricCardsV228 span {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .botLiveMetricCardsV228 strong {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .botLiveExactTopV228 {
+    grid-template-columns: 1fr;
+  }
+
+  .botLiveRunCardV228 {
+    min-height: 82px;
+  }
+
+  .botLivePausePanelV228 {
+    min-height: 86px;
+  }
+
+  .botLiveMetricCardsV228 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .botLiveMetricCardsV228 > div {
+    min-width: 0;
+    padding: 8px 4px;
+  }
+
+  .botLiveMetricCardsV228 span {
+    font-size: 9px;
+  }
+
+  .botLiveMetricCardsV228 strong {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}

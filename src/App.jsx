@@ -7516,46 +7516,40 @@ function BotLivePage({
         </div>
       </header>
 
-      <section className="botLiveCommandCenterV227">
+      <section className="botLiveExactTopV228">
         <button
           type="button"
-          className={`botLivePrimaryActionV227 ${running ? "isRunning" : ""}`}
+          className={`botLiveRunCardV228 ${running ? "isRunning" : ""}`}
           onClick={running ? stopBot : startBot}
         >
-          <span className="botLiveActionIconV227">{running ? "■" : "▶"}</span>
-          <span>
+          <span className="botLiveRunIconV228">{running ? "■" : "▷"}</span>
+          <span className="botLiveRunCopyV228">
             <strong>{running ? "Stop Bot" : "Run Bot"}</strong>
-            <small>{running ? "End the current bot session" : "Start automated trading"}</small>
+            <small>{running ? "Stop the bot" : "Start the bot"}</small>
           </span>
         </button>
 
-        <div className={`botLiveStatusCardV227 ${running ? "isRunning" : "isPaused"}`}>
-          <div className="botLiveStatusTopV227">
-            <span className="botLiveStatusPulseV227" aria-hidden="true"></span>
-            <strong>{running ? "Bot is running" : "Bot paused"}</strong>
-            <em>{running ? "LIVE" : "READY"}</em>
+        <div className="botLivePausePanelV228">
+          <div className="botLivePauseRowV228">
+            <span className={`botLivePauseIconV228 ${running ? "running" : ""}`}>
+              {running ? "▶" : "Ⅱ"}
+            </span>
+            <div>
+              <strong>{running ? "Bot running" : "Bot paused"}</strong>
+              <small>{running ? "Bot is monitoring the market" : "Click run to start the bot"}</small>
+            </div>
+            <button type="button" className="botLiveSettingsBtnV228" onClick={edit}>
+              <span>⚙</span>
+              Bot Settings
+            </button>
           </div>
-          <p>
-            {running
-              ? "Watching the market and waiting for the next qualified entry."
-              : "Review your settings, then press Run Bot when you are ready."}
-          </p>
-          <div className="botLiveStatusMetaV227">
-            <span>{bot.market?.replace("Volatility ", "V")}</span>
-            <span>{bot.type}</span>
-            <span>{bot.action}</span>
-            <span>{bot.ticks} ticks</span>
+          <div className="botLiveProgressTrackV228">
+            <span className={running ? "running" : ""}></span>
           </div>
         </div>
-
-        <button type="button" className="botLiveSettingsActionV227" onClick={edit}>
-          <span>⚙</span>
-          <strong>Bot Settings</strong>
-          <small>Edit stake, limits and strategy</small>
-        </button>
       </section>
 
-      <section className="botLiveCompactMetricsV227">
+      <section className="botLiveMetricCardsV228">
         <div>
           <span>Session P/L</span>
           <strong className={sessionPnl >= 0 ? "green" : "red"}>
@@ -7563,16 +7557,12 @@ function BotLivePage({
           </strong>
         </div>
         <div>
-          <span>Martingale</span>
+          <span>Current MG step</span>
           <strong>{martingaleStep}/{bot.martingaleSteps || 0}</strong>
         </div>
         <div>
-          <span>Base stake</span>
+          <span>Next base stake</span>
           <strong>{money(bot.stake)} USD</strong>
-        </div>
-        <div>
-          <span>Contracts</span>
-          <strong>{trades.length}</strong>
         </div>
       </section>
 
