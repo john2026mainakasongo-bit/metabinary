@@ -4784,11 +4784,11 @@ function Header({
 
   return (
     <header className="topHeader brokerTopHeader cleanBrokerHeader mbHeaderV261">
-      <div className="mbMobileHeaderV262">
-        <div className="mbMobileBrandV262">
+      <div className="mbMobileHeaderV263">
+        <div className="mbMobileBrandV263">
           <button
             type="button"
-            className="mbMobileMenuV262"
+            className="mbMobileMenuV263"
             onClick={() => {
               closeHeaderOverlays();
               if (typeof window !== "undefined") {
@@ -4803,7 +4803,7 @@ function Header({
             <span></span>
           </button>
 
-          <div className="mbMobileLogoV262" aria-label="MetaBinary">
+          <div className="mbMobileLogoV263" aria-label="MetaBinary">
             <span>M</span>
           </div>
           <strong>Meta</strong>
@@ -4811,7 +4811,7 @@ function Header({
 
         <button
           type="button"
-          className={`mbMobileAccountV262 ${accountMenuOpen ? "open" : ""}`}
+          className={`mbMobileAccountV263 ${accountMenuOpen ? "open" : ""}`}
           onClick={() => {
             setAccountMenuOpen((open) => !open);
             setNotificationOpen(false);
@@ -4820,17 +4820,17 @@ function Header({
           aria-expanded={accountMenuOpen}
           aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
         >
-          <span className={`mbMobileAccountIconV262 ${isReal ? "real" : "demo"}`} aria-hidden="true">
-            {isReal ? <span className="mbMobileUsFlagV262"></span> : "D"}
+          <span className={`mbMobileAccountIconV263 ${isReal ? "real" : "demo"}`} aria-hidden="true">
+            {isReal ? <span className="mbMobileUsFlagV263"></span> : "D"}
           </span>
           <strong>{money(balance)} USD</strong>
-          <span className="mbMobileAccountArrowV262" aria-hidden="true">⌄</span>
+          <span className="mbMobileAccountArrowV263" aria-hidden="true">⌄</span>
         </button>
 
-        <div className="mbMobileActionsV262">
+        <div className="mbMobileActionsV263">
           <button
             type="button"
-            className={`mbMobileBellV262 ${notificationOpen ? "active" : ""}`}
+            className={`mbMobileBellV263 ${notificationOpen ? "active" : ""}`}
             aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
             aria-expanded={notificationOpen}
             onClick={() => {
@@ -4844,7 +4844,7 @@ function Header({
 
           <button
             type="button"
-            className="mbMobileAvatarV262"
+            className="mbMobileAvatarV263"
             onClick={() => {
               closeHeaderOverlays();
               setActivePage("profile");
