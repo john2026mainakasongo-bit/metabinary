@@ -7642,189 +7642,193 @@ function BotLivePage({
 }
 
 function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage }) {
-  const realBalance = balances?.real || 0;
-  const demoBalance = balances?.demo || 10000;
+  const realBalance = Number(balances?.real || 0);
+  const demoBalance = Number(balances?.demo || 10000);
   const accountId = user?.brokerId || "MB168844";
-  const userName = user?.name || user?.email?.split("@")[0] || "captionfitness";
-  const userEmail = user?.email || "captionfitness@gmail.com";
+  const userName = user?.fullName || user?.name || user?.email?.split("@")[0] || "MetaBinary Trader";
+  const userEmail = user?.email || "trader@metabinaryfx.com";
   const userInitial = user?.initials || initials(userName);
-  const referralCode = referral?.code || "";
-  const referralLink = referral?.link || "";
-  const referralApproved = referral?.status === "approved";
-  const referralEarned = Number(referral?.totalEarned ?? user?.partnerBalance ?? 0);
-  const referralCount = Number(referral?.totalReferrals ?? user?.referralCount ?? 0);
-  const referralRate = Number(
-    referral?.commissionRate ?? user?.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT
-  );
+  const verified = Boolean(user?.verified);
   const accountLabel = account === "real" ? "Real Account" : "Demo Account";
+
   const tradeTransactions = (transactions || []).filter((tx) => {
     if (!["Manual", "Bot", "AI Auto-Trade"].includes(tx.method)) return false;
-    if (Number(tx.amount) === 0) return false;
     const status = String(tx.status || "").trim().toLowerCase();
     return !status || ["complete", "completed", "settled", "won", "lost", "success", "successful", "closed"].includes(status);
   });
+
   const totalProfit = tradeTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
   const winningTrades = tradeTransactions.filter((tx) => Number(tx.amount) > 0).length;
-  const winRate = tradeTransactions.length
-    ? (winningTrades / tradeTransactions.length) * 100
-    : 0;
+  const winRate = tradeTransactions.length ? (winningTrades / tradeTransactions.length) * 100 : 0;
+  const referralEarned = Number(referral?.totalEarned ?? user?.partnerBalance ?? 0);
+  const referralCount = Number(referral?.totalReferrals ?? user?.referralCount ?? 0);
 
-  const profileCards = [
+  const quickActions = [
+    { icon: "＋", label: "Deposit", sub: "Fund real account", tone: "blue", action: () => setActivePage("deposit") },
+    { icon: "↗", label: "Withdraw", sub: "Send funds out", tone: "green", action: () => setActivePage("withdraw") },
+    { icon: "↺", label: "History", sub: "All transactions", tone: "purple", action: () => setActivePage("history") },
+    { icon: "⚙", label: "Settings", sub: "Account preferences", tone: "orange", action: () => setActivePage("settings") },
+  ];
+
+  const menuItems = [
     {
-      icon: "⚙",
-      title: "Settings",
-      text: "Manage your preferences and platform settings",
-      button: "Customize",
-      color: "blue",
+      icon: "🛡",
+      title: "Identity verification",
+      text: verified ? "Your account is fully verified" : "Verify your identity to unlock all features",
+      badge: verified ? "Verified" : "Pending",
+      badgeTone: verified ? "green" : "yellow",
       action: () => setActivePage("settings"),
     },
     {
-      icon: "↺",
-      title: "Transaction History",
-      text: "View deposits, withdrawals and trading history",
-      button: "View History",
-      color: "purple",
-      action: () => setActivePage("history"),
-    },
-    {
-      icon: "🛡",
-      title: "KYC Verification",
-      text: "Verify your identity to unlock all platform features",
-      button: user?.verified ? "Verified ✓" : "Start Verification",
-      color: "green",
-      action: () => {},
-    },
-    {
       icon: "💳",
-      title: "Payment Methods",
-      text: "Manage your deposit and withdrawal methods",
-      button: "Manage Methods",
-      color: "blue",
-      action: () => setActivePage("history"),
+      title: "Payment methods",
+      text: "Manage deposit and withdrawal channels",
+      action: () => setActivePage("deposit"),
     },
     {
       icon: "🔒",
       title: "Security",
-      text: "Password, 2FA and account security settings",
-      button: "Security Center",
-      color: "green",
+      text: "Password and account protection",
       action: () => setActivePage("settings"),
     },
     {
       icon: "🔔",
       title: "Notifications",
-      text: "Manage email, SMS and push notifications",
-      button: "Manage Alerts",
-      color: "yellow",
+      text: "Control trading and account alerts",
       action: () => setActivePage("settings"),
+    },
+    {
+      icon: "🎧",
+      title: "Support center",
+      text: "Get help from the MetaBinary team",
+      badge: "Online",
+      badgeTone: "green",
+      action: () => window.dispatchEvent(new Event("mb-open-support")),
     },
   ];
 
   return (
-    <div className="page profilePage proProfilePage">
-      <section className="proProfileHero">
-        <div className="proProfileAvatarWrap">
-          <div className="proProfileAvatar">{userInitial}</div>
-          <span className="profileOnlineBadge">✓</span>
-        </div>
+    <div className="profileV237">
+      <section className="profileHeroV237">
+        <div className="profileHeroGlowV237"></div>
 
-        <div className="proProfileIdentity">
-          <h1>
-            {userName}
-            <span>✓</span>
-          </h1>
-
-          <p>{userEmail}</p>
-
-          <div className="profileVerifiedRow">
-            <b>Verified</b>
-          </div>
-
-          <div className="profileMetaRow">
-            <span>
-              Account ID
-              <strong>{accountId}</strong>
-            </span>
-
+        <div className="profileIdentityV237">
+          <div className="profileAvatarV237">
+            <span>{userInitial}</span>
             <i></i>
-
-            <span>
-              Status
-              <strong className="activeStatus">● Active — {accountLabel}</strong>
-            </span>
           </div>
-        </div>
 
-        <div className="profileHeroArt">
-          <div className="profileArtLine"></div>
-          <div className="profileArtBadge">MB</div>
-        </div>
-      </section>
-
-      <section className="proProfileStats">
-        <ProfileBalanceCard icon="💼" label="REAL BALANCE" value={`${money(realBalance)} USD`} color="blue" />
-        <ProfileBalanceCard icon="▮▮▮" label="DEMO BALANCE" value={`${money(demoBalance)} USD`} color="purple" />
-        <ProfileBalanceCard icon="📈" label="TOTAL PROFIT" value={`${totalProfit >= 0 ? "+" : ""}${money(totalProfit)} USD`} color={totalProfit >= 0 ? "green" : "red"} />
-        <ProfileBalanceCard icon="◎" label="WIN RATE" value={`${winRate.toFixed(1)}%`} color="yellow" />
-      </section>
-
-      <section className="proProfileMain">
-        <div className="profileCardsGrid">
-          {profileCards.map((card) => (
-            <button className="profileActionCard" key={card.title} onClick={card.action}>
-              <div className={`profileActionIcon ${card.color}`}>{card.icon}</div>
-
-              <div>
-                <h3>{card.title}</h3>
-                <p>{card.text}</p>
-
-                <span className={`profileActionCta ${card.title === "KYC Verification" ? "verifiedMiniBtn" : ""}`}>
-                  {card.button} <em>›</em>
-                </span>
-              </div>
-            </button>
-          ))}
-
-          <div className="supportWideCard">
-            <div className="profileActionIcon blue">🎧</div>
-
+          <div className="profileNameV237">
             <div>
-              <h3>Support Center</h3>
-              <p>Get help from our support team 24/7</p>
+              <h1>{userName}</h1>
+              <span className={verified ? "verified" : "pending"}>
+                {verified ? "✓ Verified" : "Verification pending"}
+              </span>
             </div>
-
-            <div className="responseTime">
-              <small>Support Availability</small>
-              <strong>● Online</strong>
-            </div>
-
-            <button type="button" onClick={() => window.dispatchEvent(new Event("mb-open-support"))}>Contact Support ›</button>
+            <p>{userEmail}</p>
+            <small>{accountId} · {accountLabel}</small>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="referralPanel referralShortcutCardV105"
-          onClick={() => setActivePage("referrals")}
-          aria-label="Open Referral Program"
-        >
-          <div className="profileActionIcon purple">👥</div>
-          <div className="referralShortcutCopyV105">
-            <h2>Referral Program</h2>
-            <p>View your referral link, referrals and commission.</p>
-          </div>
-          <strong className="referralShortcutArrowV105">›</strong>
+        <button type="button" className="profileEditV237" onClick={() => setActivePage("settings")}>
+          Edit profile
         </button>
       </section>
 
-      <button className="proLogoutButton" onClick={logout}>
-        <span>⇥</span>
-
-        <div>
-          <strong>Logout</strong>
-          <small>Sign out of your account</small>
+      <section className="profileBalanceV237">
+        <div className="profileBalanceMainV237">
+          <span>Available balance</span>
+          <strong>{money(account === "real" ? realBalance : demoBalance)} USD</strong>
+          <small>{accountLabel}</small>
         </div>
 
+        <div className="profileBalanceSideV237">
+          <p>
+            <span>Real balance</span>
+            <strong>{money(realBalance)} USD</strong>
+          </p>
+          <p>
+            <span>Demo balance</span>
+            <strong>{money(demoBalance)} USD</strong>
+          </p>
+        </div>
+      </section>
+
+      <section className="profileQuickV237">
+        {quickActions.map((item) => (
+          <button type="button" key={item.label} onClick={item.action}>
+            <span className={`profileQuickIconV237 ${item.tone}`}>{item.icon}</span>
+            <strong>{item.label}</strong>
+            <small>{item.sub}</small>
+          </button>
+        ))}
+      </section>
+
+      <section className="profilePerformanceV237">
+        <div>
+          <span>Total P/L</span>
+          <strong className={totalProfit >= 0 ? "green" : "red"}>
+            {totalProfit >= 0 ? "+" : ""}{money(totalProfit)} USD
+          </strong>
+        </div>
+        <div>
+          <span>Win rate</span>
+          <strong>{winRate.toFixed(1)}%</strong>
+        </div>
+        <div>
+          <span>Trades</span>
+          <strong>{tradeTransactions.length}</strong>
+        </div>
+      </section>
+
+      <button type="button" className="profileReferralV237" onClick={() => setActivePage("referrals")}>
+        <span className="profileReferralIconV237">👥</span>
+        <span className="profileReferralCopyV237">
+          <strong>Referral program</strong>
+          <small>Invite traders and earn commissions</small>
+        </span>
+        <span className="profileReferralNumbersV237">
+          <b>{referralCount}</b>
+          <small>Referrals</small>
+        </span>
+        <span className="profileReferralNumbersV237">
+          <b>{money(referralEarned)}</b>
+          <small>Earned</small>
+        </span>
+        <em>›</em>
+      </button>
+
+      <section className="profileMenuV237">
+        <div className="profileSectionTitleV237">
+          <h2>Account</h2>
+          <span>Manage your profile</span>
+        </div>
+
+        <div className="profileMenuListV237">
+          {menuItems.map((item) => (
+            <button type="button" key={item.title} onClick={item.action}>
+              <span className="profileMenuIconV237">{item.icon}</span>
+              <span className="profileMenuCopyV237">
+                <strong>{item.title}</strong>
+                <small>{item.text}</small>
+              </span>
+              {item.badge && (
+                <span className={`profileMenuBadgeV237 ${item.badgeTone || ""}`}>
+                  {item.badge}
+                </span>
+              )}
+              <em>›</em>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <button type="button" className="profileLogoutV237" onClick={logout}>
+        <span>⇥</span>
+        <span>
+          <strong>Log out</strong>
+          <small>Sign out of this MetaBinary account</small>
+        </span>
         <em>›</em>
       </button>
     </div>
