@@ -51739,3 +51739,209 @@ body,
     font-size: 11px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V245 — exact compact reference match
+   ========================================================= */
+
+/* Header button: one clean line, smaller so bell and profile remain visible. */
+.cleanBrokerHeader .accountSelectorButton,
+.brokerTopHeader .accountSelectorButton,
+.topHeader .accountSelectorButton {
+  left: 50% !important;
+  width: 186px !important;
+  min-width: 186px !important;
+  max-width: 186px !important;
+  height: 48px !important;
+  padding: 5px 9px !important;
+  grid-template-columns: 34px minmax(0, 1fr) 16px !important;
+  gap: 7px !important;
+  border-radius: 14px !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.accountSwitcherMainV245 {
+  min-width: 0 !important;
+}
+
+.accountSwitcherMainV245 strong {
+  display: block !important;
+  overflow: hidden !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Round flag: crop the emoji into a true circular badge like the reference. */
+.accountSwitcherFlagV244,
+.accountSwitcherRowFlagV244 {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  color: transparent !important;
+  background:
+    linear-gradient(
+      to bottom,
+      #b22234 0 7.7%,
+      #fff 7.7% 15.4%,
+      #b22234 15.4% 23.1%,
+      #fff 23.1% 30.8%,
+      #b22234 30.8% 38.5%,
+      #fff 38.5% 46.2%,
+      #b22234 46.2% 53.9%,
+      #fff 53.9% 61.6%,
+      #b22234 61.6% 69.3%,
+      #fff 69.3% 77%,
+      #b22234 77% 84.7%,
+      #fff 84.7% 92.4%,
+      #b22234 92.4% 100%
+    ) !important;
+  border: 1px solid rgba(255,255,255,.2) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 0 0 3px rgba(16, 104, 255, .07) !important;
+}
+
+.accountSwitcherFlagV244::before,
+.accountSwitcherRowFlagV244::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 54% !important;
+  height: 54% !important;
+  background:
+    radial-gradient(circle, #fff 0 1px, transparent 1.25px) 1px 1px / 5px 5px,
+    #3c3b6e !important;
+}
+
+.accountSwitcherFlagV244 {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 0 !important;
+}
+
+.accountSwitcherRowFlagV244 {
+  width: 35px !important;
+  height: 35px !important;
+  font-size: 0 !important;
+}
+
+.accountSwitcherDemoV244 {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 15px !important;
+}
+
+/* Dropdown: same simple two-row card, but compact enough for phones. */
+.accountSwitcherPanelV242 {
+  top: 62px !important;
+  left: 50% !important;
+  right: auto !important;
+  width: min(334px, calc(100vw - 18px)) !important;
+  padding: 8px !important;
+  transform: translateX(-50%) !important;
+  border-radius: 16px !important;
+}
+
+.accountSwitcherRowV242 {
+  min-height: 68px !important;
+  padding: 9px 11px !important;
+  grid-template-columns: 36px minmax(0, 1fr) 27px auto !important;
+  gap: 8px !important;
+  border-radius: 12px !important;
+}
+
+.accountSwitcherRowV242 + .accountSwitcherRowV242 {
+  margin-top: 6px !important;
+}
+
+.accountSwitcherRowIconV242 {
+  width: 35px !important;
+  height: 35px !important;
+  font-size: 16px !important;
+}
+
+.accountSwitcherRowLabelV242 {
+  font-size: 13px !important;
+  white-space: nowrap !important;
+}
+
+.accountSwitcherRowCheckV242 {
+  width: 25px !important;
+  height: 25px !important;
+  font-size: 12px !important;
+}
+
+.accountSwitcherRowV242 strong {
+  font-size: 12px !important;
+  white-space: nowrap !important;
+}
+
+/* Bell and profile stay on the right with guaranteed space. */
+.cleanBrokerHeader .brokerBellBtn,
+.cleanBrokerHeader .bellBtn,
+.cleanBrokerHeader .brokerAvatarBtn,
+.cleanBrokerHeader .avatarBtn,
+.brokerTopHeader .brokerBellBtn,
+.brokerTopHeader .bellBtn,
+.brokerTopHeader .brokerAvatarBtn,
+.brokerTopHeader .avatarBtn {
+  flex: 0 0 auto !important;
+  z-index: 35 !important;
+}
+
+@media (max-width: 400px) {
+  .cleanBrokerHeader .accountSelectorButton,
+  .brokerTopHeader .accountSelectorButton,
+  .topHeader .accountSelectorButton {
+    left: 49% !important;
+    width: 170px !important;
+    min-width: 170px !important;
+    max-width: 170px !important;
+    height: 46px !important;
+    grid-template-columns: 31px minmax(0, 1fr) 14px !important;
+    gap: 6px !important;
+    padding: 5px 7px !important;
+  }
+
+  .accountSwitcherFlagV244,
+  .accountSwitcherDemoV244 {
+    width: 29px !important;
+    height: 29px !important;
+  }
+
+  .accountSwitcherMainV245 strong {
+    font-size: 11px !important;
+  }
+
+  .accountSwitcherPanelV242 {
+    width: calc(100vw - 14px) !important;
+  }
+
+  .accountSwitcherRowV242 {
+    grid-template-columns: 34px minmax(0, 1fr) 24px auto !important;
+    padding: 8px 9px !important;
+  }
+
+  .accountSwitcherRowFlagV244,
+  .accountSwitcherRowIconV242 {
+    width: 33px !important;
+    height: 33px !important;
+  }
+
+  .accountSwitcherRowLabelV242 {
+    font-size: 12px !important;
+  }
+
+  .accountSwitcherRowV242 strong {
+    font-size: 11px !important;
+  }
+}
