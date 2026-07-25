@@ -4827,7 +4827,7 @@ function Header({
           <span className={`mbAccountIconV250 ${isReal ? "real" : "demo"}`} aria-hidden="true">
             {isReal ? <span className="mbUsFlagV250"></span> : "D"}
           </span>
-          <strong>{isReal ? "Real" : "Demo"} · {money(balance)} USD</strong>
+          <strong>{money(balance)} USD</strong>
           <span className="mbAccountArrowV250" aria-hidden="true">⌄</span>
         </button>
 
