@@ -14,7 +14,7 @@ const SHADOW_CSS = `
     width: 100%;
     min-width: 100%;
     max-width: 100%;
-    height: 68px;
+    height: 62px;
     contain: layout style paint;
   }
 
@@ -31,10 +31,10 @@ const SHADOW_CSS = `
     width: 100%;
     min-width: 100%;
     max-width: 100%;
-    height: 68px;
-    padding: 0 8px;
+    height: 62px;
+    padding: 0 7px;
     display: grid;
-    grid-template-columns: 112px minmax(0, 1fr) 80px;
+    grid-template-columns: 108px minmax(0, 1fr) 76px;
     align-items: center;
     gap: 6px;
     color: #fff;
@@ -46,8 +46,8 @@ const SHADOW_CSS = `
 
   .brand {
     min-width: 0;
-    width: 112px;
-    height: 48px;
+    width: 108px;
+    height: 46px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -55,9 +55,9 @@ const SHADOW_CSS = `
   }
 
   .menu {
-    width: 32px;
-    min-width: 32px;
-    height: 40px;
+    width: 31px;
+    min-width: 31px;
+    height: 38px;
     padding: 7px 2px;
     display: flex;
     flex-direction: column;
@@ -69,16 +69,16 @@ const SHADOW_CSS = `
   }
 
   .menu span {
-    width: 27px;
+    width: 26px;
     height: 3px;
     border-radius: 999px;
     background: #aab8ca;
   }
 
   .logo {
-    width: 22px;
-    min-width: 22px;
-    height: 22px;
+    width: 23px;
+    min-width: 23px;
+    height: 23px;
     display: grid;
     place-items: center;
     border-radius: 50%;
@@ -90,7 +90,7 @@ const SHADOW_CSS = `
 
   .brand strong {
     color: #fff;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 1000;
     line-height: 1;
     letter-spacing: -.45px;
@@ -106,19 +106,19 @@ const SHADOW_CSS = `
   }
 
   .account {
-    width: min(100%, 168px);
+    width: min(100%, 150px);
     min-width: 0;
-    height: 44px;
+    height: 42px;
     padding: 5px 7px;
     display: grid;
-    grid-template-columns: 27px minmax(0, 1fr) 11px;
+    grid-template-columns: 26px minmax(0, 1fr) 10px;
     align-items: center;
     gap: 5px;
     overflow: hidden;
     color: #fff;
     text-align: left;
     border: 1px solid rgba(25, 111, 225, .46);
-    border-radius: 14px;
+    border-radius: 13px;
     background:
       radial-gradient(circle at 18% 0%, rgba(29, 104, 222, .10), transparent 42%),
       linear-gradient(135deg, #071a2e, #04111f);
@@ -134,8 +134,8 @@ const SHADOW_CSS = `
   }
 
   .accountIcon {
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
     display: grid;
     place-items: center;
     overflow: hidden;
@@ -186,7 +186,7 @@ const SHADOW_CSS = `
   .account b {
     min-width: 0;
     overflow: hidden;
-    font-size: 10px;
+    font-size: 9.8px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -.05px;
@@ -202,9 +202,9 @@ const SHADOW_CSS = `
   }
 
   .actions {
-    width: 80px;
-    min-width: 80px;
-    height: 48px;
+    width: 76px;
+    min-width: 76px;
+    height: 46px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -213,9 +213,9 @@ const SHADOW_CSS = `
 
   .bell {
     position: relative;
-    width: 33px;
-    min-width: 33px;
-    height: 42px;
+    width: 32px;
+    min-width: 32px;
+    height: 40px;
     padding: 0;
     display: grid;
     place-items: center;
@@ -225,8 +225,8 @@ const SHADOW_CSS = `
   }
 
   .bell svg {
-    width: 24px;
-    height: 28px;
+    width: 23px;
+    height: 27px;
     fill: #d3dbe6;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45));
   }
@@ -249,9 +249,9 @@ const SHADOW_CSS = `
 
   .avatar {
     position: relative;
-    width: 37px;
-    min-width: 37px;
-    height: 37px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
     padding: 0;
     display: grid;
     place-items: center;
@@ -286,7 +286,7 @@ const SHADOW_CSS = `
   .panel {
     position: fixed;
     left: 50%;
-    top: 72px;
+    top: 66px;
     z-index: 21;
     width: min(340px, calc(100vw - 14px));
     transform: translateX(-50%);
@@ -456,20 +456,19 @@ const SHADOW_CSS = `
 
   @media (max-width: 390px) {
     .header {
-      grid-template-columns: 104px minmax(0, 1fr) 76px;
+      grid-template-columns: 102px minmax(0, 1fr) 72px;
       gap: 4px;
       padding: 0 5px;
     }
 
     .brand {
-      width: 104px;
-      min-width: 0;
+      width: 102px;
       gap: 4px;
     }
 
     .menu {
-      width: 30px;
-      min-width: 30px;
+      width: 29px;
+      min-width: 29px;
     }
 
     .menu span {
@@ -477,15 +476,15 @@ const SHADOW_CSS = `
     }
 
     .brand strong {
-      font-size: 14px;
+      font-size: 15px;
     }
 
     .account {
-      max-width: 154px;
-      height: 42px;
-      grid-template-columns: 24px minmax(0, 1fr) 10px;
+      width: min(100%, 144px);
+      height: 40px;
+      grid-template-columns: 24px minmax(0, 1fr) 9px;
       gap: 4px;
-      padding: 5px 6px;
+      padding: 4px 6px;
     }
 
     .accountIcon {
@@ -494,33 +493,93 @@ const SHADOW_CSS = `
     }
 
     .account b {
-      font-size: 9.2px;
+      font-size: 9.1px;
     }
 
     .actions {
-      width: 76px;
-      min-width: 76px;
+      width: 72px;
+      min-width: 72px;
       gap: 2px;
     }
 
     .bell {
-      width: 31px;
-      min-width: 31px;
+      width: 30px;
+      min-width: 30px;
     }
 
     .avatar {
-      width: 35px;
-      min-width: 35px;
-      height: 35px;
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
+      font-size: 10.5px;
     }
   }
 
   @media (max-width: 360px) {
     .header {
-      grid-template-columns: 98px minmax(0, 1fr) 72px;
+      grid-template-columns: 96px minmax(0, 1fr) 68px;
       gap: 3px;
       padding: 0 4px;
     }
+
+    .brand {
+      width: 96px;
+      gap: 3px;
+    }
+
+    .menu {
+      width: 27px;
+      min-width: 27px;
+    }
+
+    .menu span {
+      width: 23px;
+    }
+
+    .logo {
+      width: 21px;
+      min-width: 21px;
+      height: 21px;
+    }
+
+    .brand strong {
+      font-size: 14px;
+    }
+
+    .account {
+      width: min(100%, 136px);
+      height: 38px;
+      grid-template-columns: 22px minmax(0, 1fr) 8px;
+      gap: 3px;
+      padding: 4px 5px;
+    }
+
+    .accountIcon {
+      width: 21px;
+      height: 21px;
+    }
+
+    .account b {
+      font-size: 8.5px;
+    }
+
+    .actions {
+      width: 68px;
+      min-width: 68px;
+    }
+
+    .bell {
+      width: 28px;
+      min-width: 28px;
+    }
+
+    .avatar {
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      font-size: 10px;
+    }
+  }
 
     .brand {
       width: 98px;
