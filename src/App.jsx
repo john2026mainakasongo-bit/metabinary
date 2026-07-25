@@ -57,7 +57,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v266-mobile-header-only-2026-07-25";
+const FRONTEND_BUILD = "metabinary-v267-complete-isolated-mobile-header-2026-07-25";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4754,7 +4754,8 @@ function Header({
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
   const unreadCount = safeNotifications.filter((item) => !item.read).length;
   const aiLastNet = Number(autoSession?.lastNet || 0);
-  const aiBalanceClass = aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
+  const aiBalanceClass =
+    aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
 
   function closeHeaderOverlays() {
     setAccountMenuOpen(false);
