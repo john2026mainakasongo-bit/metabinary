@@ -11,8 +11,11 @@ function money(value) {
 const SHADOW_CSS = `
   :host {
     display: block;
-    width: 100%;
+    width: 100vw;
+    min-width: 100vw;
+    max-width: 100vw;
     height: 68px;
+    margin-left: calc(50% - 50vw);
     contain: layout style paint;
   }
 
@@ -26,7 +29,9 @@ const SHADOW_CSS = `
   }
 
   .header {
-    width: 100%;
+    width: 100vw;
+    min-width: 100vw;
+    max-width: 100vw;
     height: 68px;
     padding: 0 8px;
     display: flex;
@@ -773,7 +778,18 @@ export default function MobileHeader({
   );
 
   return (
-    <div ref={hostRef} style={{ width: "100%", height: "68px" }}>
+    <div
+      ref={hostRef}
+      style={{
+        display: "block",
+        width: "100vw",
+        minWidth: "100vw",
+        maxWidth: "100vw",
+        height: "68px",
+        marginLeft: "calc(50% - 50vw)",
+        overflow: "visible",
+      }}
+    >
       {shadowRoot && createPortal(content, shadowRoot)}
     </div>
   );
