@@ -12,7 +12,7 @@ const SHADOW_CSS = `
   :host {
     display: block;
     width: 100%;
-    height: 72px;
+    height: 68px;
     contain: layout style paint;
   }
 
@@ -28,7 +28,7 @@ const SHADOW_CSS = `
   .header {
     position: relative;
     width: 100%;
-    height: 72px;
+    height: 68px;
     overflow: visible;
     color: #fff;
     background:
@@ -39,10 +39,10 @@ const SHADOW_CSS = `
 
   .brand {
     position: absolute;
-    left: 10px;
+    left: 8px;
     top: 50%;
-    width: 111px;
-    height: 52px;
+    width: 106px;
+    height: 48px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -50,9 +50,9 @@ const SHADOW_CSS = `
   }
 
   .menu {
-    width: 34px;
-    min-width: 34px;
-    height: 44px;
+    width: 32px;
+    min-width: 32px;
+    height: 40px;
     padding: 7px 2px;
     display: flex;
     flex-direction: column;
@@ -64,16 +64,16 @@ const SHADOW_CSS = `
   }
 
   .menu span {
-    width: 29px;
+    width: 27px;
     height: 3px;
     border-radius: 999px;
     background: #aab8ca;
   }
 
   .logo {
-    width: 24px;
-    min-width: 24px;
-    height: 24px;
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
     display: grid;
     place-items: center;
     border-radius: 50%;
@@ -84,10 +84,10 @@ const SHADOW_CSS = `
   }
 
   .brand strong {
-    width: 46px;
-    min-width: 46px;
+    width: 43px;
+    min-width: 43px;
     color: #fff;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 1000;
     line-height: 1;
     letter-spacing: -.55px;
@@ -96,16 +96,16 @@ const SHADOW_CSS = `
 
   .account {
     position: absolute;
-    left: 121px;
-    right: 91px;
+    left: 116px;
+    right: 86px;
     top: 50%;
     width: auto;
-    max-width: 184px;
-    height: 48px;
+    max-width: 166px;
+    height: 44px;
     margin: 0 auto;
-    padding: 6px 8px;
+    padding: 5px 7px;
     display: grid;
-    grid-template-columns: 30px minmax(0, 1fr) 12px;
+    grid-template-columns: 27px minmax(0, 1fr) 11px;
     align-items: center;
     gap: 6px;
     overflow: hidden;
@@ -113,7 +113,7 @@ const SHADOW_CSS = `
     color: #fff;
     text-align: left;
     border: 1px solid rgba(25, 111, 225, .46);
-    border-radius: 16px;
+    border-radius: 14px;
     background:
       radial-gradient(circle at 18% 0%, rgba(29, 104, 222, .11), transparent 42%),
       linear-gradient(135deg, #071a2e, #04111f);
@@ -129,8 +129,8 @@ const SHADOW_CSS = `
   }
 
   .accountIcon {
-    width: 29px;
-    height: 29px;
+    width: 26px;
+    height: 26px;
     display: grid;
     place-items: center;
     overflow: hidden;
@@ -181,7 +181,7 @@ const SHADOW_CSS = `
   .account b {
     min-width: 0;
     overflow: hidden;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: -.08px;
@@ -198,10 +198,10 @@ const SHADOW_CSS = `
 
   .actions {
     position: absolute;
-    right: 7px;
+    right: 6px;
     top: 50%;
-    width: 80px;
-    height: 52px;
+    width: 76px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -211,9 +211,9 @@ const SHADOW_CSS = `
 
   .bell {
     position: relative;
-    width: 35px;
-    min-width: 35px;
-    height: 46px;
+    width: 33px;
+    min-width: 33px;
+    height: 42px;
     padding: 0;
     display: grid;
     place-items: center;
@@ -223,8 +223,8 @@ const SHADOW_CSS = `
   }
 
   .bell svg {
-    width: 27px;
-    height: 31px;
+    width: 24px;
+    height: 28px;
     fill: #d3dbe6;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .45));
   }
@@ -247,9 +247,9 @@ const SHADOW_CSS = `
 
   .avatar {
     position: relative;
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
+    width: 37px;
+    min-width: 37px;
+    height: 37px;
     padding: 0;
     display: grid;
     place-items: center;
@@ -257,7 +257,7 @@ const SHADOW_CSS = `
     color: #fff;
     border: 1px solid rgba(151, 177, 206, .24);
     background: rgba(4, 18, 31, .98);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 900;
     cursor: pointer;
   }
@@ -284,7 +284,7 @@ const SHADOW_CSS = `
   .panel {
     position: fixed;
     left: 50%;
-    top: 76px;
+    top: 72px;
     z-index: 21;
     width: min(340px, calc(100vw - 14px));
     transform: translateX(-50%);
@@ -454,73 +454,21 @@ const SHADOW_CSS = `
 
   @media (max-width: 390px) {
     .brand {
-      left: 6px;
-      width: 105px;
+      left: 5px;
+      width: 101px;
       gap: 4px;
     }
 
     .brand strong {
-      font-size: 16px;
-    }
-
-    .account {
-      left: 113px;
-      right: 86px;
-      height: 46px;
-      grid-template-columns: 27px minmax(0, 1fr) 10px;
-      gap: 5px;
-      padding: 5px 7px;
-    }
-
-    .accountIcon {
-      width: 26px;
-      height: 26px;
-    }
-
-    .account b {
-      font-size: 10px;
-    }
-
-    .actions {
-      right: 4px;
-      width: 78px;
-      gap: 3px;
-    }
-
-    .bell {
-      width: 34px;
-      min-width: 34px;
-    }
-
-    .avatar {
-      width: 38px;
-      min-width: 38px;
-      height: 38px;
-    }
-  }
-
-  @media (max-width: 360px) {
-    .brand {
-      width: 102px;
-    }
-
-    .menu {
-      width: 31px;
-      min-width: 31px;
-    }
-
-    .menu span {
-      width: 27px;
-    }
-
-    .brand strong {
-      font-size: 15px;
+      font-size: 14px;
     }
 
     .account {
       left: 108px;
       right: 82px;
-      grid-template-columns: 25px minmax(0, 1fr) 9px;
+      height: 42px;
+      max-width: 158px;
+      grid-template-columns: 25px minmax(0, 1fr) 10px;
       gap: 4px;
       padding: 5px 6px;
     }
@@ -531,12 +479,67 @@ const SHADOW_CSS = `
     }
 
     .account b {
-      font-size: 9px;
+      font-size: 9.3px;
     }
 
     .actions {
       right: 3px;
-      width: 76px;
+      width: 73px;
+      gap: 3px;
+    }
+
+    .bell {
+      width: 32px;
+      min-width: 32px;
+    }
+
+    .avatar {
+      width: 35px;
+      min-width: 35px;
+      height: 35px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .brand {
+      width: 98px;
+    }
+
+    .menu {
+      width: 29px;
+      min-width: 29px;
+    }
+
+    .menu span {
+      width: 25px;
+    }
+
+    .brand strong {
+      font-size: 13.5px;
+    }
+
+    .account {
+      left: 103px;
+      right: 77px;
+      height: 40px;
+      max-width: 148px;
+      grid-template-columns: 23px minmax(0, 1fr) 9px;
+      gap: 4px;
+      padding: 4px 5px;
+    }
+
+    .accountIcon {
+      width: 22px;
+      height: 22px;
+    }
+
+    .account b {
+      font-size: 8.7px;
+    }
+
+    .actions {
+      right: 2px;
+      width: 70px;
     }
   }
 `;
@@ -743,5 +746,5 @@ export default function MobileHeader({
     </>
   );
 
-  return <div ref={hostRef} style={{ width: "100%", height: "72px" }}>{shadowRoot && createPortal(content, shadowRoot)}</div>;
+  return <div ref={hostRef} style={{ width: "100%", height: "68px" }}>{shadowRoot && createPortal(content, shadowRoot)}</div>;
 }
