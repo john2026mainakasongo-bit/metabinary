@@ -1968,14 +1968,9 @@ function TradingApp() {
   }, [activeBinaryTrade?.id, authToken]);
 
   useEffect(() => {
-    // Very small and short phones use the browser's native vertical scrolling.
-    // Disabling the custom pull gesture here prevents older Android browsers
-    // from trapping touchmove events and making the Trade page feel frozen.
-    const compactTouchViewport =
-      typeof window !== "undefined" &&
-      (window.innerWidth <= 480 || window.innerHeight <= 720);
-    if (compactTouchViewport) return undefined;
-
+    // Custom pull-to-refresh is enabled on Chrome/Android as well.
+    // The app uses internal scroll containers, so Chrome's native pull refresh
+    // is not always triggered reliably.
     const pageIsAtTop = () => {
       const main = document.querySelector(".mainScreen");
       return window.scrollY <= 0 && Number(main?.scrollTop || 0) <= 0;
@@ -1985,9 +1980,16 @@ function TradingApp() {
       if (pullRefreshingRef.current || !pageIsAtTop()) return;
       const touch = event.touches?.[0];
       if (!touch) return;
-      // Refresh starts only from the browser/header edge, never from inside the chart or order panel.
-      if (touch.clientY > Math.max(34, Number(window.visualViewport?.offsetTop || 0) + 34)) return;
-      if (event.target?.closest?.("button, input, select, textarea, [role='dialog'], .volatilitySwitchMenu")) return;
+      // Allow pulling from the visible app header area. Chrome's own browser
+      // toolbar sits above the webpage, so a 34px-only trigger was too small.
+      const viewportOffset = Number(window.visualViewport?.offsetTop || 0);
+      const triggerLimit = Math.max(150, viewportOffset + 150);
+      if (touch.clientY > triggerLimit) return;
+      if (
+        event.target?.closest?.(
+          "button, input, select, textarea, [role='dialog'], .volatilitySwitchMenu, .accountSwitcherPanelV242, .notificationPanel"
+        )
+      ) return;
       pullStartYRef.current = touch.clientY;
       pullTrackingRef.current = true;
     };
@@ -2018,7 +2020,11 @@ function TradingApp() {
         pullRefreshingRef.current = true;
         setPullRefreshing(true);
         setPullRefreshDistance(68);
-        window.setTimeout(() => window.location.reload(), 260);
+        window.setTimeout(() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("_refresh", Date.now().toString());
+          window.location.replace(url.toString());
+        }, 220);
         return;
       }
 
