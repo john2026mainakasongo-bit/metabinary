@@ -4783,8 +4783,8 @@ function Header({
   }, [accountMenuOpen, notificationOpen]);
 
   return (
-    <header className="topHeader brokerTopHeader cleanBrokerHeader mbHeaderV257">
-      <div className="desktopHeaderLeftGroupV94 mbHeaderLeftV257">
+    <header className="topHeader brokerTopHeader cleanBrokerHeader mbHeaderV258">
+      <div className="desktopHeaderLeftGroupV94 mbHeaderLeftV258">
         <button
           className="menuBtn brokerMenuBtn"
           onClick={() => {
@@ -4812,10 +4812,10 @@ function Header({
         </nav>
       </div>
 
-      <div className="mbHeaderCenterV257">
+      <div className="mbHeaderCenterV258">
         <button
           type="button"
-          className={`mbApprovedAccountV257 ${accountMenuOpen ? "open" : ""}`}
+          className={`mbAccountContainedV258 ${accountMenuOpen ? "open" : ""}`}
           onClick={() => {
             setAccountMenuOpen((open) => !open);
             setNotificationOpen(false);
@@ -4824,16 +4824,16 @@ function Header({
           aria-expanded={accountMenuOpen}
           aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
         >
-          <span className={`mbApprovedAccountIconV257 ${isReal ? "real" : "demo"}`} aria-hidden="true">
-            {isReal ? <span className="mbApprovedUsFlagV257"></span> : "D"}
+          <span className={`mbAccountIconV258 ${isReal ? "real" : "demo"}`} aria-hidden="true">
+            {isReal ? <span className="mbUsFlagV258"></span> : "D"}
           </span>
           <strong>{money(balance)} USD</strong>
-          <span className="mbApprovedArrowV257" aria-hidden="true">⌄</span>
+          <span className="mbAccountArrowV258" aria-hidden="true">⌄</span>
         </button>
 
       </div>
 
-      <div className="desktopHeaderRightGroupV94 mbHeaderRightV257">
+      <div className="desktopHeaderRightGroupV94 mbHeaderRightV258">
         <button
           type="button"
           className="depositTop brokerDepositBtn compactDepositButton"
