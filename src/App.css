@@ -54117,3 +54117,57 @@ body,
     flex-basis: 38px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V259 — show full Meta and shift account slightly right
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .mbHeaderV258 {
+    grid-template-columns: 122px minmax(142px, 1fr) 82px !important;
+    column-gap: 6px !important;
+  }
+
+  .mbHeaderLeftV258 {
+    width: 122px !important;
+    max-width: 122px !important;
+    gap: 7px !important;
+  }
+
+  .mbHeaderLeftV258 .logo,
+  .mbHeaderLeftV258 .brand,
+  .mbHeaderLeftV258 .brokerLogo {
+    max-width: 80px !important;
+    overflow: visible !important;
+  }
+
+  .mbHeaderLeftV258 .logoText,
+  .mbHeaderLeftV258 .brandName,
+  .mbHeaderLeftV258 .brokerBrandName {
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+  }
+
+  .mbHeaderCenterV258 {
+    transform: translateX(8px) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .mbHeaderV258 {
+    grid-template-columns: 114px minmax(136px, 1fr) 78px !important;
+    column-gap: 4px !important;
+  }
+
+  .mbHeaderLeftV258 {
+    width: 114px !important;
+    max-width: 114px !important;
+  }
+
+  .mbHeaderCenterV258 {
+    transform: translateX(6px) !important;
+  }
+}
