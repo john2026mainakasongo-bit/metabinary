@@ -50298,3 +50298,191 @@ body,
     border-radius: 12px;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V238 — Profile navigation and clean settings
+   ========================================================= */
+
+/* The support chat already exists, so remove the extra floating AI/question
+   launcher from the profile screen only. */
+.floatingAiButton.aiPage-profile {
+  display: none !important;
+}
+
+/* Ensure every profile action clearly behaves as a button. */
+.profileV237 button,
+.profileV237 [role="button"] {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.profileV237 button:active {
+  transform: scale(.985);
+}
+
+/* Settings opened from Profile: organized hero and reliable mobile layout. */
+.professionalSettingsHero {
+  position: relative;
+}
+
+.settingsBackV238 {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  min-width: 74px;
+  height: 34px;
+  padding: 0 11px;
+  z-index: 3;
+  border-radius: 9px;
+  color: #d9eaff;
+  border: 1px solid rgba(58, 143, 255, .32);
+  background: rgba(7, 74, 155, .18);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.settingsBackV238:hover {
+  border-color: #2086ff;
+  background: rgba(15, 111, 235, .22);
+}
+
+@media (max-width: 760px) {
+  .mainScreen:has(.professionalSettingsPage) {
+    height: auto !important;
+    min-height: 100% !important;
+    padding: 8px 10px 14px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .professionalSettingsPage {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 0 12px !important;
+    overflow: visible !important;
+  }
+
+  .professionalSettingsHero {
+    min-height: 142px !important;
+    padding: 54px 14px 14px !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    gap: 10px !important;
+    align-items: start !important;
+    border-radius: 15px !important;
+  }
+
+  .settingsBackV238 {
+    left: 12px;
+    top: 11px;
+  }
+
+  .professionalSettingsHero .settingsHeroIcon {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+  }
+
+  .professionalSettingsHero h1 {
+    margin: 2px 0 5px !important;
+    font-size: 21px !important;
+  }
+
+  .professionalSettingsHero p {
+    margin: 0 !important;
+    max-width: 100% !important;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+  }
+
+  .professionalSettingsHero .settingsAccountBadge {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    margin: 4px 0 0 !important;
+    padding: 9px 11px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  .professionalSettingsLayout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+  }
+
+  .settingsSectionNav {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    border-radius: 12px !important;
+    overflow: visible !important;
+  }
+
+  .settingsSectionNav button {
+    min-width: 0 !important;
+    min-height: 64px !important;
+    padding: 8px 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    border-radius: 9px !important;
+    text-align: center !important;
+  }
+
+  .settingsSectionNav button b {
+    font-size: 16px !important;
+  }
+
+  .settingsSectionNav button span strong {
+    font-size: 8px !important;
+    white-space: normal !important;
+  }
+
+  .settingsSectionNav button span small {
+    display: none !important;
+  }
+
+  .settingsContentPanel,
+  .settingsFormCard {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .settingsFormCard {
+    padding: 13px !important;
+    border-radius: 13px !important;
+  }
+
+  .settingsFormCard > header {
+    gap: 8px !important;
+    align-items: flex-start !important;
+  }
+
+  .settingsFormCard > header h2 {
+    font-size: 16px !important;
+  }
+
+  .settingsReadOnlyGrid,
+  .settingsInputGrid,
+  .settingsPasswordGrid {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  .settingsFormCard footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+  }
+
+  .settingsSaveButton {
+    width: 100% !important;
+    min-height: 43px !important;
+  }
+}

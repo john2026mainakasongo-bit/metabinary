@@ -7663,11 +7663,20 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
   const referralEarned = Number(referral?.totalEarned ?? user?.partnerBalance ?? 0);
   const referralCount = Number(referral?.totalReferrals ?? user?.referralCount ?? 0);
 
+  function openSettings(section = "profile") {
+    try {
+      window.sessionStorage.setItem("mb-settings-section", section);
+    } catch {
+      // Settings still opens even when browser storage is unavailable.
+    }
+    setActivePage("settings");
+  }
+
   const quickActions = [
     { icon: "＋", label: "Deposit", sub: "Fund real account", tone: "blue", action: () => setActivePage("deposit") },
     { icon: "↗", label: "Withdraw", sub: "Send funds out", tone: "green", action: () => setActivePage("withdraw") },
     { icon: "↺", label: "History", sub: "All transactions", tone: "purple", action: () => setActivePage("history") },
-    { icon: "⚙", label: "Settings", sub: "Account preferences", tone: "orange", action: () => setActivePage("settings") },
+    { icon: "⚙", label: "Settings", sub: "Account preferences", tone: "orange", action: () => openSettings("profile") },
   ];
 
   const menuItems = [
@@ -7677,7 +7686,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
       text: verified ? "Your account is fully verified" : "Verify your identity to unlock all features",
       badge: verified ? "Verified" : "Pending",
       badgeTone: verified ? "green" : "yellow",
-      action: () => setActivePage("settings"),
+      action: () => openSettings("profile"),
     },
     {
       icon: "💳",
@@ -7689,13 +7698,13 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
       icon: "🔒",
       title: "Security",
       text: "Password and account protection",
-      action: () => setActivePage("settings"),
+      action: () => openSettings("security"),
     },
     {
       icon: "🔔",
       title: "Notifications",
       text: "Control trading and account alerts",
-      action: () => setActivePage("settings"),
+      action: () => openSettings("notifications"),
     },
     {
       icon: "🎧",
@@ -7730,7 +7739,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
           </div>
         </div>
 
-        <button type="button" className="profileEditV237" onClick={() => setActivePage("settings")}>
+        <button type="button" className="profileEditV237" onClick={() => openSettings("profile")}>
           Edit profile
         </button>
       </section>
@@ -7871,7 +7880,15 @@ function ToggleSetting({ label, description, checked, onChange }) {
 
 function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword }) {
   const defaultNotifications = { push: true, security: true, wallet: true, referrals: true, botSounds: true, takeProfitSound: true, stopLossSound: true, soundVolume: 70 };
-  const [section, setSection] = useState("profile");
+  const [section, setSection] = useState(() => {
+    try {
+      const requested = window.sessionStorage.getItem("mb-settings-section");
+      window.sessionStorage.removeItem("mb-settings-section");
+      return ["profile", "security", "notifications"].includes(requested) ? requested : "profile";
+    } catch {
+      return "profile";
+    }
+  });
   const [profile, setProfile] = useState({ fullName: user?.fullName || user?.name || "", phone: user?.phone || "", country: user?.country || "Kenya" });
   const [notificationPrefs, setNotificationPrefs] = useState({ ...defaultNotifications, ...(user?.preferences?.notifications || {}) });
   const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -7888,7 +7905,7 @@ function SettingsPage({ user, busy, saveProfile, saveNotifications, changePasswo
 
   return (
     <div className="page settingsPage professionalSettingsPage">
-      <section className="professionalSettingsHero"><div className="settingsHeroIcon">⚙</div><div><small>ACCOUNT CONTROL CENTER</small><h1>Settings</h1><p>Manage identity, security and important alerts. Trading values are kept on trading screens.</p></div><div className="settingsAccountBadge"><span>{user?.verified ? "Verified account" : "Verification pending"}</span><strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong></div></section>
+      <section className="professionalSettingsHero"><button type="button" className="settingsBackV238" onClick={() => { window.location.hash = "#profile"; }}>‹ Profile</button><div className="settingsHeroIcon">⚙</div><div><small>ACCOUNT CONTROL CENTER</small><h1>Settings</h1><p>Manage identity, security and important alerts. Trading values are kept on trading screens.</p></div><div className="settingsAccountBadge"><span>{user?.verified ? "Verified account" : "Verification pending"}</span><strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong></div></section>
       <section className="professionalSettingsLayout">
         <nav className="settingsSectionNav"><button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}><b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span></button><button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}><b>◆</b><span><strong>Security</strong><small>Change your password</small></span></button><button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}><b>🔔</b><span><strong>Notifications & sounds</strong><small>Important alerts only</small></span></button></nav>
         <div className="settingsContentPanel">
