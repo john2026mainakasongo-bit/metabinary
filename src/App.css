@@ -54848,3 +54848,330 @@ body,
     font-size: 8.7px !important;
   }
 }
+
+
+/* =========================================================
+   MetaBinary V262 — dedicated mobile-only header
+   Old desktop header groups remain only for desktop.
+   ========================================================= */
+
+.mbMobileHeaderV262 {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .cleanBrokerHeader {
+    position: relative !important;
+    width: 100% !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #03111f !important;
+    border-bottom: 1px solid rgba(64, 119, 173, .18) !important;
+  }
+
+  /* Hide every old header group on mobile. */
+  .cleanBrokerHeader > .desktopHeaderLeftGroupV94,
+  .cleanBrokerHeader > .mbHeaderCenterV261,
+  .cleanBrokerHeader > .desktopHeaderRightGroupV94 {
+    display: none !important;
+  }
+
+  .mbMobileHeaderV262 {
+    width: 100% !important;
+    height: 72px !important;
+    padding: 0 8px !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 108px minmax(0, 1fr) 82px !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .mbMobileBrandV262 {
+    min-width: 0 !important;
+    height: 52px !important;
+    display: grid !important;
+    grid-template-columns: 34px 24px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 5px !important;
+    overflow: visible !important;
+  }
+
+  .mbMobileMenuV262 {
+    width: 34px !important;
+    height: 42px !important;
+    padding: 7px 2px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .mbMobileMenuV262 span {
+    width: 29px !important;
+    height: 3px !important;
+    display: block !important;
+    border-radius: 999px !important;
+    background: #aab8ca !important;
+  }
+
+  .mbMobileLogoV262 {
+    width: 24px !important;
+    height: 24px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg, #ff315f, #cf19dc) !important;
+    box-shadow: 0 0 12px rgba(255, 35, 138, .2) !important;
+  }
+
+  .mbMobileLogoV262 span {
+    color: #168cff !important;
+    font-size: 10px !important;
+    font-weight: 1000 !important;
+  }
+
+  .mbMobileBrandV262 > strong {
+    min-width: 0 !important;
+    overflow: visible !important;
+    color: #fff !important;
+    font-size: 17px !important;
+    font-weight: 1000 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .mbMobileAccountV262 {
+    justify-self: center !important;
+    width: min(100%, 154px) !important;
+    min-width: 0 !important;
+    max-width: 154px !important;
+    height: 44px !important;
+    padding: 5px 7px !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 26px minmax(0, 1fr) 11px !important;
+    align-items: center !important;
+    gap: 5px !important;
+    overflow: hidden !important;
+    color: #fff !important;
+    text-align: left !important;
+    border: 1px solid rgba(20, 112, 240, .45) !important;
+    border-radius: 13px !important;
+    background: linear-gradient(135deg, #071a2e, #04111f) !important;
+    box-shadow: inset 0 0 16px rgba(25, 101, 219, .04) !important;
+  }
+
+  .mbMobileAccountV262.open {
+    border-color: #147fff !important;
+    box-shadow:
+      inset 0 0 18px rgba(25, 101, 219, .07),
+      0 0 0 2px rgba(20, 116, 255, .07) !important;
+  }
+
+  .mbMobileAccountIconV262 {
+    width: 25px !important;
+    height: 25px !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: hidden !important;
+    border-radius: 50% !important;
+  }
+
+  .mbMobileAccountIconV262.real {
+    background: #102b50 !important;
+    border: 1px solid rgba(255,255,255,.13) !important;
+  }
+
+  .mbMobileAccountIconV262.demo {
+    color: #fff !important;
+    font-size: 12px !important;
+    font-weight: 1000 !important;
+    background: linear-gradient(145deg, #6250b5, #32266d) !important;
+  }
+
+  .mbMobileUsFlagV262 {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    overflow: hidden !important;
+    border-radius: 50% !important;
+    background:
+      linear-gradient(
+        to bottom,
+        #b22234 0 7.69%,
+        #fff 7.69% 15.38%,
+        #b22234 15.38% 23.07%,
+        #fff 23.07% 30.76%,
+        #b22234 30.76% 38.45%,
+        #fff 38.45% 46.14%,
+        #b22234 46.14% 53.83%,
+        #fff 53.83% 61.52%,
+        #b22234 61.52% 69.21%,
+        #fff 69.21% 76.90%,
+        #b22234 76.90% 84.59%,
+        #fff 84.59% 92.28%,
+        #b22234 92.28% 100%
+      ) !important;
+  }
+
+  .mbMobileUsFlagV262::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 55% !important;
+    height: 54% !important;
+    background:
+      radial-gradient(circle, #fff 0 .8px, transparent 1px) 1px 1px / 4px 4px,
+      #3c3b6e !important;
+  }
+
+  .mbMobileAccountV262 > strong {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    color: #fff !important;
+    font-size: 9.7px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: -.08px !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+  }
+
+  .mbMobileAccountArrowV262 {
+    justify-self: center !important;
+    color: #d2dce7 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  .mbMobileActionsV262 {
+    height: 52px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 4px !important;
+  }
+
+  .mbMobileBellV262 {
+    position: relative !important;
+    width: 36px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .mbMobileBellV262 > span {
+    font-size: 25px !important;
+    line-height: 1 !important;
+  }
+
+  .mbMobileBellV262 b {
+    position: absolute !important;
+    right: -1px !important;
+    top: 3px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    padding: 0 4px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 999px !important;
+    color: #fff !important;
+    background: #147fff !important;
+    font-size: 8px !important;
+    font-weight: 1000 !important;
+  }
+
+  .mbMobileAvatarV262 {
+    position: relative !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+    color: #fff !important;
+    border: 1px solid rgba(151, 177, 206, .22) !important;
+    background: rgba(4, 18, 31, .95) !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+  }
+
+  .mbMobileAvatarV262 i {
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 1px !important;
+    width: 9px !important;
+    height: 9px !important;
+    border-radius: 50% !important;
+    background: #00e889 !important;
+    box-shadow: 0 0 7px rgba(0, 232, 137, .5) !important;
+  }
+
+  .mbAccountMenuV250 {
+    top: 67px !important;
+    left: 50% !important;
+    right: auto !important;
+    width: min(330px, calc(100vw - 14px)) !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .mbMobileHeaderV262 {
+    grid-template-columns: 103px minmax(0, 1fr) 78px !important;
+    gap: 4px !important;
+    padding: 0 6px !important;
+  }
+
+  .mbMobileBrandV262 {
+    grid-template-columns: 32px 23px minmax(0, 1fr) !important;
+    gap: 4px !important;
+  }
+
+  .mbMobileMenuV262 {
+    width: 32px !important;
+  }
+
+  .mbMobileBrandV262 > strong {
+    font-size: 16px !important;
+  }
+
+  .mbMobileAccountV262 {
+    max-width: 146px !important;
+    grid-template-columns: 24px minmax(0, 1fr) 10px !important;
+    gap: 4px !important;
+    padding: 5px 6px !important;
+  }
+
+  .mbMobileAccountIconV262 {
+    width: 23px !important;
+    height: 23px !important;
+  }
+
+  .mbMobileAccountV262 > strong {
+    font-size: 9.1px !important;
+  }
+
+  .mbMobileActionsV262 {
+    gap: 3px !important;
+  }
+
+  .mbMobileBellV262 {
+    width: 34px !important;
+  }
+
+  .mbMobileAvatarV262 {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}

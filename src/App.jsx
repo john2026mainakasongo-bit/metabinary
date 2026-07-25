@@ -4784,6 +4784,78 @@ function Header({
 
   return (
     <header className="topHeader brokerTopHeader cleanBrokerHeader mbHeaderV261">
+      <div className="mbMobileHeaderV262">
+        <div className="mbMobileBrandV262">
+          <button
+            type="button"
+            className="mbMobileMenuV262"
+            onClick={() => {
+              closeHeaderOverlays();
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event("metabinary:close-trade-overlays"));
+              }
+              openMenu();
+            }}
+            aria-label="Open menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div className="mbMobileLogoV262" aria-label="MetaBinary">
+            <span>M</span>
+          </div>
+          <strong>Meta</strong>
+        </div>
+
+        <button
+          type="button"
+          className={`mbMobileAccountV262 ${accountMenuOpen ? "open" : ""}`}
+          onClick={() => {
+            setAccountMenuOpen((open) => !open);
+            setNotificationOpen(false);
+          }}
+          aria-haspopup="listbox"
+          aria-expanded={accountMenuOpen}
+          aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
+        >
+          <span className={`mbMobileAccountIconV262 ${isReal ? "real" : "demo"}`} aria-hidden="true">
+            {isReal ? <span className="mbMobileUsFlagV262"></span> : "D"}
+          </span>
+          <strong>{money(balance)} USD</strong>
+          <span className="mbMobileAccountArrowV262" aria-hidden="true">⌄</span>
+        </button>
+
+        <div className="mbMobileActionsV262">
+          <button
+            type="button"
+            className={`mbMobileBellV262 ${notificationOpen ? "active" : ""}`}
+            aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
+            aria-expanded={notificationOpen}
+            onClick={() => {
+              setNotificationOpen((open) => !open);
+              setAccountMenuOpen(false);
+            }}
+          >
+            <span aria-hidden="true">🔔</span>
+            {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
+          </button>
+
+          <button
+            type="button"
+            className="mbMobileAvatarV262"
+            onClick={() => {
+              closeHeaderOverlays();
+              setActivePage("profile");
+            }}
+            aria-label="Open profile"
+          >
+            {user.initials}
+            <i></i>
+          </button>
+        </div>
+      </div>
       <div className="desktopHeaderLeftGroupV94 mbHeaderLeftV261">
         <button
           className="menuBtn brokerMenuBtn"
