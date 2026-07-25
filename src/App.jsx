@@ -4818,9 +4818,11 @@ function Header({
           aria-expanded={accountMenuOpen}
           aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
         >
-          <span className={`accountSwitcherIconV241 ${isReal ? "real" : "demo"}`} aria-hidden="true">
-            {isReal ? "🇺🇸" : "D"}
-          </span>
+          {isReal ? (
+            <span className="accountSwitcherFlagV244" aria-hidden="true">🇺🇸</span>
+          ) : (
+            <span className="accountSwitcherDemoV244" aria-hidden="true">D</span>
+          )}
           <span className="accountSwitcherMainV241">
             <small>{isReal ? "Real Account" : "Demo Account"}</small>
             <strong>{money(balance)} USD</strong>
@@ -4897,7 +4899,7 @@ function Header({
               className={`accountSwitcherRowV242 ${account === "real" ? "selected" : ""}`}
               onClick={() => chooseAccount("real")}
             >
-              <span className="accountSwitcherRowIconV242 real">🇺🇸</span>
+              <span className="accountSwitcherRowFlagV244" aria-hidden="true">🇺🇸</span>
               <span className="accountSwitcherRowLabelV242">Real Account</span>
               <span className="accountSwitcherRowCheckV242">{account === "real" ? "✓" : ""}</span>
               <strong>{money(balances.real)} USD</strong>
