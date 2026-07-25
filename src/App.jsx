@@ -1171,6 +1171,61 @@ function TradingApp() {
   );
 
   const [activePage, setActivePage] = useState(initialTradingPage);
+  const [pullRefreshDistance, setPullRefreshDistance] = useState(0);
+
+  useEffect(() => {
+    let startY = 0;
+    let tracking = false;
+    let latestDistance = 0;
+
+    function currentScrollTop() {
+      const main = document.querySelector(".mainScreen");
+      return Math.max(
+        Number(window.scrollY || 0),
+        Number(document.documentElement?.scrollTop || 0),
+        Number(document.body?.scrollTop || 0),
+        Number(main?.scrollTop || 0)
+      );
+    }
+
+    function onTouchStart(event) {
+      if (event.touches.length !== 1 || currentScrollTop() > 2) return;
+      startY = event.touches[0].clientY;
+      tracking = true;
+      latestDistance = 0;
+    }
+
+    function onTouchMove(event) {
+      if (!tracking || event.touches.length !== 1) return;
+      const distance = Math.max(0, event.touches[0].clientY - startY);
+      latestDistance = Math.min(125, distance * 0.58);
+      setPullRefreshDistance(latestDistance);
+    }
+
+    function finishPull() {
+      if (!tracking) return;
+      tracking = false;
+      if (latestDistance >= 62) {
+        setPullRefreshDistance(76);
+        window.setTimeout(() => window.location.reload(), 120);
+      } else {
+        setPullRefreshDistance(0);
+      }
+      latestDistance = 0;
+    }
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", finishPull, { passive: true });
+    window.addEventListener("touchcancel", finishPull, { passive: true });
+
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", finishPull);
+      window.removeEventListener("touchcancel", finishPull);
+    };
+  }, [activePage]);
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
   const [balances, setBalances] = useState(() =>
     readStore(STORE.balances, { demo: 10000, real: 0 })
@@ -4100,6 +4155,14 @@ function TradingApp() {
 
   return (
     <div className={`app activePage-${activePage} ${activePage === "trade" && tradeType === "Rise/Fall" ? "riseFallActivePageV183" : ""}`}>
+      <div
+        className={`pullRefreshV239 ${pullRefreshDistance >= 62 ? "ready" : ""}`}
+        style={{ transform: `translate(-50%, ${Math.max(-46, pullRefreshDistance - 46)}px)` }}
+        aria-hidden="true"
+      >
+        <span>{pullRefreshDistance >= 62 ? "↻" : "↓"}</span>
+        <small>{pullRefreshDistance >= 62 ? "Release to refresh" : "Pull to refresh"}</small>
+      </div>
       <div
         className={`pullRefreshIndicator ${pullRefreshing ? "refreshing" : ""} ${pullRefreshDistance > 0 ? "visible" : ""}`}
         style={{ transform: `translate(-50%, ${Math.max(-52, pullRefreshDistance - 52)}px)` }}
