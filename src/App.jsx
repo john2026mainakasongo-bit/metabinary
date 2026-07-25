@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./App.css";
@@ -7,6 +6,8 @@ import "./MobileTradeFix.css";
 import "./RiseFallChartV183.css";
 import "./InteractionFixV221.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
+import MobileHeader from "./MobileHeader.jsx";
+import "./MobileHeaderOnly.css";
 
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
@@ -56,7 +57,7 @@ const API_URL = String(
     (import.meta.env.DEV ? "http://localhost:5000" : "")
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v225-withdraw-mobile-fix-2026-07-24";
+const FRONTEND_BUILD = "metabinary-v266-mobile-header-only-2026-07-25";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4783,79 +4784,21 @@ function Header({
   }, [accountMenuOpen, notificationOpen]);
 
   return (
-    <header className="topHeader brokerTopHeader cleanBrokerHeader mbHeaderV261">
-      <div className="mbMobileHeaderV262">
-        <div className="mbMobileBrandV262">
-          <button
-            type="button"
-            className="mbMobileMenuV262"
-            onClick={() => {
-              closeHeaderOverlays();
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new Event("metabinary:close-trade-overlays"));
-              }
-              openMenu();
-            }}
-            aria-label="Open menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+    <header className="topHeader brokerTopHeader cleanBrokerHeader isolatedHeaderHostV265">
+      <MobileHeader
+        user={user}
+        account={account}
+        setAccount={setAccount}
+        balances={balances}
+        balance={balance}
+        notifications={safeNotifications}
+        setActivePage={setActivePage}
+        openMenu={openMenu}
+        markNotificationRead={markNotificationRead}
+        markAllNotificationsRead={markAllNotificationsRead}
+        clearNotifications={clearNotifications}
+      />
 
-          <div className="mbMobileLogoV262" aria-label="MetaBinary">
-            <span>M</span>
-          </div>
-          <strong>Meta</strong>
-        </div>
-
-        <button
-          type="button"
-          className={`mbMobileAccountV262 ${accountMenuOpen ? "open" : ""}`}
-          onClick={() => {
-            setAccountMenuOpen((open) => !open);
-            setNotificationOpen(false);
-          }}
-          aria-haspopup="listbox"
-          aria-expanded={accountMenuOpen}
-          aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
-        >
-          <span className={`mbMobileAccountIconV262 ${isReal ? "real" : "demo"}`} aria-hidden="true">
-            {isReal ? <span className="mbMobileUsFlagV262"></span> : "D"}
-          </span>
-          <strong>{money(balance)} USD</strong>
-          <span className="mbMobileAccountArrowV262" aria-hidden="true">⌄</span>
-        </button>
-
-        <div className="mbMobileActionsV262">
-          <button
-            type="button"
-            className={`mbMobileBellV262 ${notificationOpen ? "active" : ""}`}
-            aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
-            aria-expanded={notificationOpen}
-            onClick={() => {
-              setNotificationOpen((open) => !open);
-              setAccountMenuOpen(false);
-            }}
-          >
-            <span aria-hidden="true">🔔</span>
-            {unreadCount > 0 && <b>{unreadCount > 9 ? "9+" : unreadCount}</b>}
-          </button>
-
-          <button
-            type="button"
-            className="mbMobileAvatarV262"
-            onClick={() => {
-              closeHeaderOverlays();
-              setActivePage("profile");
-            }}
-            aria-label="Open profile"
-          >
-            {user.initials}
-            <i></i>
-          </button>
-        </div>
-      </div>
       <div className="desktopHeaderLeftGroupV94 mbHeaderLeftV261">
         <button
           className="menuBtn brokerMenuBtn"
