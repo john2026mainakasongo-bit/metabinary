@@ -7351,7 +7351,7 @@ button:disabled {
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: var(--mobile-gap) var(--mobile-gap) calc(18px + env(safe-area-inset-bottom)) !important;
+    padding: calc(var(--mobile-gap) * 0.92) calc(var(--mobile-gap) * 0.92) calc(16px + env(safe-area-inset-bottom)) !important;
   }
 
   .page::-webkit-scrollbar {
@@ -7370,9 +7370,9 @@ button:disabled {
 
   .bottomNav {
     width: calc(100% - 12px) !important;
-    height: 62px !important;
-    min-height: 62px !important;
-    margin: 3px 6px calc(3px + env(safe-area-inset-bottom)) !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    margin: 2px 6px calc(2px + env(safe-area-inset-bottom)) !important;
     align-self: center !important;
     position: relative !important;
     z-index: 200 !important;
@@ -7383,27 +7383,27 @@ button:disabled {
 
   .bottomNav button {
     min-width: 0 !important;
-    min-height: 58px !important;
-    padding: 6px 2px !important;
+    min-height: 54px !important;
+    padding: 4px 2px !important;
     gap: 2px !important;
     touch-action: manipulation;
   }
 
   .bottomNav span {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
 
   .bottomNav small {
-    font-size: 10px !important;
+    font-size: 9px !important;
   }
 
   .bottomNav button:nth-child(3) {
-    transform: translateY(-10px) !important;
+    transform: translateY(-8px) !important;
   }
 
   .bottomNav button:nth-child(3) span {
-    width: 46px !important;
-    height: 46px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
 
   /* COMMON CARDS */
@@ -11499,11 +11499,11 @@ button:disabled {
 
 @media (max-width: 760px) {
   .tradePagePro {
-    grid-template-rows: 38px minmax(0, 1fr) 114px !important;
+    grid-template-rows: 34px minmax(0, 1fr) 106px !important;
   }
 
   .tradePagePro .proTradeChartCard {
-    grid-template-rows: 34px minmax(0, 1fr) 14px 25px !important;
+    grid-template-rows: 32px minmax(0, 1fr) 12px 22px !important;
   }
 
   .tradePagePro .proDigitsCard {
@@ -11511,26 +11511,26 @@ button:disabled {
   }
 
   .tradePagePro .proChartCanvas .lineChart {
-    padding-bottom: 78px !important;
+    padding-bottom: 72px !important;
   }
 
   .chartDigitsOverlay {
     left: 4px !important;
     right: 4px !important;
     bottom: 4px !important;
-    gap: 3px 5px !important;
-    padding: 4px 5px !important;
+    gap: 2px 4px !important;
+    padding: 3px 4px !important;
   }
 
   .chartDigit {
-    width: clamp(29px, 8.5vw, 37px) !important;
-    height: clamp(29px, 8.5vw, 37px) !important;
+    width: clamp(27px, 8vw, 34px) !important;
+    height: clamp(27px, 8vw, 34px) !important;
   }
 
   .binaryTradeStatus {
     top: 4px !important;
     left: 5px !important;
-    min-height: 27px !important;
+    min-height: 25px !important;
     padding: 4px 7px !important;
   }
 }
@@ -14579,7 +14579,7 @@ button:disabled {
    the space between the fixed account header and bottom navigation. */
 @media (max-width: 760px) {
   .mainScreen:has(.finalBinaryTradePage) {
-    padding: 4px !important;
+    padding: 3px !important;
     overflow: hidden !important;
   }
 
@@ -14589,16 +14589,16 @@ button:disabled {
     min-height: 0 !important;
     max-height: 100% !important;
     display: grid !important;
-    grid-template-rows: 36px minmax(0, 1fr) 139px !important;
-    gap: 5px !important;
+    grid-template-rows: 34px minmax(0, 1fr) 122px !important;
+    gap: 3px !important;
     padding: 0 !important;
     overflow: hidden !important;
   }
 
   .finalBinaryTradePage .finalContractTabs {
     width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
+    height: 32px !important;
+    min-height: 32px !important;
     padding: 3px !important;
     gap: 3px !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
@@ -14607,10 +14607,10 @@ button:disabled {
   }
 
   .finalBinaryTradePage .finalContractTabs button {
-    height: 30px !important;
-    min-height: 30px !important;
+    height: 26px !important;
+    min-height: 26px !important;
     padding: 0 2px !important;
-    font-size: clamp(7px, 2.2vw, 8.2px) !important;
+    font-size: clamp(7px, 2vw, 8px) !important;
     line-height: 1.02 !important;
     border-radius: 8px !important;
   }
@@ -14620,7 +14620,7 @@ button:disabled {
     height: 100% !important;
     min-height: 0 !important;
     display: grid !important;
-    grid-template-rows: 30px minmax(120px, 1fr) 10px auto !important;
+    grid-template-rows: 28px minmax(103px, 1fr) 10px auto !important;
     gap: 3px !important;
     padding: 6px !important;
     overflow: hidden !important;
@@ -14657,7 +14657,7 @@ button:disabled {
   .finalBinaryTradePage .finalBinaryChartArea {
     width: 100% !important;
     height: auto !important;
-    min-height: 120px !important;
+    min-height: 104px !important;
     max-height: none !important;
     overflow: hidden !important;
   }
@@ -14686,16 +14686,16 @@ button:disabled {
     width: 100% !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     grid-template-rows: repeat(2, auto) !important;
-    gap: 8px 3px !important;
+    gap: 7px 3px !important;
     padding: 0 1px 4px !important;
     overflow: visible !important;
   }
 
   .finalBinaryTradePage .chartDigit {
-    width: clamp(40px, 11.8vw, 46px) !important;
-    height: clamp(40px, 11.8vw, 46px) !important;
-    min-width: clamp(40px, 11.8vw, 46px) !important;
-    min-height: clamp(40px, 11.8vw, 46px) !important;
+    width: clamp(34px, 10vw, 40px) !important;
+    height: clamp(34px, 10vw, 40px) !important;
+    min-width: clamp(34px, 10vw, 40px) !important;
+    min-height: clamp(34px, 10vw, 40px) !important;
     gap: 2px !important;
   }
 
@@ -14726,28 +14726,28 @@ button:disabled {
 
   .finalBinaryTradePage .finalBinaryOrderCard {
     width: 100% !important;
-    height: 139px !important;
-    min-height: 139px !important;
+    height: 122px !important;
+    min-height: 122px !important;
     display: grid !important;
-    grid-template-rows: 67px 59px !important;
-    gap: 6px !important;
-    padding: 7px !important;
+    grid-template-rows: 59px 51px !important;
+    gap: 5px !important;
+    padding: 6px !important;
     overflow: hidden !important;
     border-radius: 14px !important;
   }
 
   .finalBinaryTradePage .finalOrderInputs {
     width: 100% !important;
-    height: 67px !important;
-    min-height: 67px !important;
+    height: 58px !important;
+    min-height: 58px !important;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.35fr) !important;
-    gap: 6px !important;
+    gap: 5px !important;
     align-items: start !important;
   }
 
   .finalBinaryTradePage .finalOrderInputs > label {
-    height: 67px !important;
-    min-height: 67px !important;
+    height: 62px !important;
+    min-height: 62px !important;
     gap: 3px !important;
     overflow: hidden !important;
   }
@@ -14761,9 +14761,9 @@ button:disabled {
   .finalBinaryTradePage .finalTicksBox,
   .finalBinaryTradePage .finalStakeBox {
     width: 100% !important;
-    min-height: 34px !important;
-    height: 34px !important;
-    grid-template-columns: 31px minmax(0, 1fr) 31px !important;
+    min-height: 29px !important;
+    height: 29px !important;
+    grid-template-columns: 27px minmax(0, 1fr) 27px !important;
     border-radius: 10px !important;
   }
 
@@ -14771,13 +14771,13 @@ button:disabled {
   .finalBinaryTradePage .finalStakeBox > button,
   .finalBinaryTradePage .finalTicksBox select,
   .finalBinaryTradePage .finalStakeInputWrap {
-    height: 34px !important;
-    min-height: 34px !important;
+    height: 28px !important;
+    min-height: 28px !important;
   }
 
   .finalBinaryTradePage .finalTicksBox button,
   .finalBinaryTradePage .finalStakeBox > button {
-    font-size: 18px !important;
+    font-size: 17px !important;
   }
 
   .finalBinaryTradePage .finalTicksBox select {
@@ -14786,7 +14786,7 @@ button:disabled {
   }
 
   .finalBinaryTradePage .finalStakeInputWrap input {
-    height: 32px !important;
+    height: 28px !important;
     padding: 0 2px !important;
     font-size: 14px !important;
   }
@@ -14798,37 +14798,37 @@ button:disabled {
 
   .finalBinaryTradePage .quickStakeRow {
     width: 100% !important;
-    height: 18px !important;
+    height: 15px !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    gap: 3px !important;
+    gap: 2px !important;
   }
 
   .finalBinaryTradePage .quickStakeRow button,
   .finalBinaryTradePage .quickStakeRow button:last-child {
     display: block !important;
-    height: 18px !important;
-    min-height: 18px !important;
+    height: 15px !important;
+    min-height: 15px !important;
     padding: 0 1px !important;
     border-radius: 5px !important;
-    font-size: 6.8px !important;
-    line-height: 18px !important;
+    font-size: 6px !important;
+    line-height: 15px !important;
   }
 
   .finalBinaryTradePage .finalTradeButtons {
     width: 100% !important;
-    height: 59px !important;
-    min-height: 59px !important;
+    height: 46px !important;
+    min-height: 46px !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px !important;
+    gap: 6px !important;
     margin: 0 !important;
   }
 
   .finalBinaryTradePage .finalTradeButtons > button {
     width: 100% !important;
     min-width: 0 !important;
-    height: 59px !important;
-    min-height: 59px !important;
-    padding: 6px 7px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 4px 6px !important;
     border-radius: 12px !important;
     overflow: hidden !important;
   }
@@ -14838,13 +14838,13 @@ button:disabled {
   }
 
   .finalBinaryTradePage .finalTradeButtons strong {
-    font-size: 17px !important;
+    font-size: 14px !important;
     line-height: 1 !important;
   }
 
   .finalBinaryTradePage .finalTradeButtons small {
     margin-top: 3px !important;
-    font-size: 8.2px !important;
+    font-size: 7px !important;
     line-height: 1.05 !important;
   }
 }
@@ -55502,366 +55502,6 @@ body,
 
   .mbMobileAvatarV263 {
     width: 38px !important;
-    height: 38px !important;
-  }
-}
-
-
-/* =====================================================================
-   METABINARY V264 — FINAL APPROVED MOBILE HEADER
-   One mobile header only. All controls remain inside the header.
-   ===================================================================== */
-
-.finalMobileHeaderV264 {
-  display: none;
-}
-
-@media (max-width: 760px) {
-  .finalHeaderV264 {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 16000 !important;
-    width: 100% !important;
-    max-width: 100vw !important;
-    height: 72px !important;
-    min-height: 72px !important;
-    padding: 0 !important;
-    display: block !important;
-    overflow: visible !important;
-    background: #03111f !important;
-    border-bottom: 1px solid rgba(80, 129, 181, 0.2) !important;
-  }
-
-  /* Desktop header remains available on desktop only. */
-  .finalHeaderV264 > .desktopHeaderLeftGroupV94,
-  .finalHeaderV264 > .mbHeaderCenterV261,
-  .finalHeaderV264 > .desktopHeaderRightGroupV94 {
-    display: none !important;
-  }
-
-  .finalMobileHeaderV264 {
-    width: 100% !important;
-    height: 72px !important;
-    padding: 0 8px !important;
-    box-sizing: border-box !important;
-    display: grid !important;
-    grid-template-columns: 112px minmax(0, 1fr) 82px !important;
-    align-items: center !important;
-    gap: 6px !important;
-    overflow: visible !important;
-  }
-
-  .finalMobileBrandV264 {
-    min-width: 0 !important;
-    height: 54px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    overflow: visible !important;
-  }
-
-  .finalMobileMenuV264 {
-    width: 34px !important;
-    min-width: 34px !important;
-    height: 42px !important;
-    padding: 7px 2px !important;
-    display: flex !important;
-    flex: 0 0 34px !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    border: 0 !important;
-    background: transparent !important;
-  }
-
-  .finalMobileMenuV264 span {
-    width: 29px !important;
-    height: 3px !important;
-    display: block !important;
-    border-radius: 999px !important;
-    background: #aab8ca !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogo {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 5px !important;
-    overflow: visible !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogoMark {
-    width: 24px !important;
-    min-width: 24px !important;
-    height: 24px !important;
-    flex: 0 0 24px !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogoMark span {
-    font-size: 10px !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogo strong {
-    width: auto !important;
-    min-width: 42px !important;
-    max-width: none !important;
-    display: block !important;
-    overflow: visible !important;
-    color: #fff !important;
-    font-size: 17px !important;
-    line-height: 1 !important;
-    letter-spacing: -0.5px !important;
-    text-overflow: clip !important;
-    white-space: nowrap !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogo strong span {
-    display: none !important;
-  }
-
-  .finalMobileAccountV264 {
-    justify-self: center !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 172px !important;
-    height: 46px !important;
-    padding: 5px 8px !important;
-    box-sizing: border-box !important;
-    display: grid !important;
-    grid-template-columns: 28px minmax(0, 1fr) 12px !important;
-    align-items: center !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-    color: #fff !important;
-    text-align: left !important;
-    border: 1px solid rgba(16, 124, 255, 0.8) !important;
-    border-radius: 15px !important;
-    background:
-      radial-gradient(circle at 18% 0%, rgba(30, 114, 255, 0.12), transparent 44%),
-      linear-gradient(135deg, #071a2e, #04111f) !important;
-    box-shadow:
-      inset 0 0 18px rgba(25, 101, 219, 0.05),
-      0 0 0 1px rgba(20, 116, 255, 0.04) !important;
-  }
-
-  .finalMobileAccountV264.open {
-    border-color: #1688ff !important;
-    box-shadow:
-      inset 0 0 20px rgba(25, 101, 219, 0.08),
-      0 0 0 3px rgba(20, 116, 255, 0.07) !important;
-  }
-
-  .finalMobileAccountIconV264 {
-    width: 27px !important;
-    height: 27px !important;
-    display: grid !important;
-    place-items: center !important;
-    overflow: hidden !important;
-    border-radius: 50% !important;
-  }
-
-  .finalMobileAccountIconV264.real {
-    background: #102b50 !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  }
-
-  .finalMobileAccountIconV264.demo {
-    color: #fff !important;
-    font-size: 13px !important;
-    font-weight: 1000 !important;
-    background: linear-gradient(145deg, #6250b5, #32266d) !important;
-  }
-
-  .finalMobileUsFlagV264 {
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-    display: block !important;
-    overflow: hidden !important;
-    border-radius: 50% !important;
-    background:
-      linear-gradient(
-        to bottom,
-        #b22234 0 7.69%,
-        #fff 7.69% 15.38%,
-        #b22234 15.38% 23.07%,
-        #fff 23.07% 30.76%,
-        #b22234 30.76% 38.45%,
-        #fff 38.45% 46.14%,
-        #b22234 46.14% 53.83%,
-        #fff 53.83% 61.52%,
-        #b22234 61.52% 69.21%,
-        #fff 69.21% 76.9%,
-        #b22234 76.9% 84.59%,
-        #fff 84.59% 92.28%,
-        #b22234 92.28% 100%
-      ) !important;
-  }
-
-  .finalMobileUsFlagV264::before {
-    content: "" !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 55% !important;
-    height: 54% !important;
-    background:
-      radial-gradient(circle, #fff 0 0.8px, transparent 1px) 1px 1px / 4px 4px,
-      #3c3b6e !important;
-  }
-
-  .finalMobileAccountV264 > strong {
-    min-width: 0 !important;
-    overflow: hidden !important;
-    color: #fff !important;
-    font-size: 10.3px !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    letter-spacing: -0.05px !important;
-    text-overflow: clip !important;
-    white-space: nowrap !important;
-  }
-
-  .finalMobileAccountArrowV264 {
-    justify-self: center !important;
-    color: #d4dce7 !important;
-    font-size: 13px !important;
-    line-height: 1 !important;
-  }
-
-  .finalMobileActionsV264 {
-    height: 54px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 4px !important;
-  }
-
-  .finalMobileBellV264 {
-    position: relative !important;
-    width: 36px !important;
-    min-width: 36px !important;
-    height: 46px !important;
-    padding: 0 !important;
-    display: grid !important;
-    place-items: center !important;
-    border: 0 !important;
-    background: transparent !important;
-  }
-
-  .finalMobileBellV264 > span {
-    font-size: 25px !important;
-    line-height: 1 !important;
-  }
-
-  .finalMobileBellV264 b {
-    position: absolute !important;
-    right: -1px !important;
-    top: 3px !important;
-    min-width: 20px !important;
-    height: 20px !important;
-    padding: 0 4px !important;
-    display: grid !important;
-    place-items: center !important;
-    border-radius: 999px !important;
-    color: #fff !important;
-    background: #147fff !important;
-    font-size: 8px !important;
-    font-weight: 1000 !important;
-  }
-
-  .finalMobileAvatarV264 {
-    position: relative !important;
-    width: 40px !important;
-    min-width: 40px !important;
-    height: 40px !important;
-    padding: 0 !important;
-    display: grid !important;
-    place-items: center !important;
-    border-radius: 50% !important;
-    color: #fff !important;
-    border: 1px solid rgba(151, 177, 206, 0.24) !important;
-    background: rgba(4, 18, 31, 0.98) !important;
-    font-size: 12px !important;
-    font-weight: 900 !important;
-  }
-
-  .finalMobileAvatarV264 i {
-    position: absolute !important;
-    right: 0 !important;
-    bottom: 1px !important;
-    width: 9px !important;
-    height: 9px !important;
-    border-radius: 50% !important;
-    background: #00e889 !important;
-    box-shadow: 0 0 7px rgba(0, 232, 137, 0.5) !important;
-  }
-
-  .finalHeaderV264 .mbAccountMenuV250,
-  .finalHeaderV264 .accountPickerPanel {
-    top: 68px !important;
-    left: 50% !important;
-    right: auto !important;
-    width: min(340px, calc(100vw - 16px)) !important;
-    transform: translateX(-50%) !important;
-  }
-}
-
-@media (max-width: 390px) {
-  .finalMobileHeaderV264 {
-    grid-template-columns: 106px minmax(0, 1fr) 78px !important;
-    padding: 0 6px !important;
-    gap: 4px !important;
-  }
-
-  .finalMobileMenuV264 {
-    width: 32px !important;
-    min-width: 32px !important;
-    flex-basis: 32px !important;
-  }
-
-  .finalMobileBrandV264 {
-    gap: 4px !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogo {
-    gap: 4px !important;
-  }
-
-  .finalMobileBrandV264 .brokerLogo strong {
-    font-size: 16px !important;
-  }
-
-  .finalMobileAccountV264 {
-    max-width: 154px !important;
-    grid-template-columns: 25px minmax(0, 1fr) 10px !important;
-    gap: 4px !important;
-    padding: 5px 6px !important;
-  }
-
-  .finalMobileAccountIconV264 {
-    width: 24px !important;
-    height: 24px !important;
-  }
-
-  .finalMobileAccountV264 > strong {
-    font-size: 9.5px !important;
-  }
-
-  .finalMobileActionsV264 {
-    gap: 3px !important;
-  }
-
-  .finalMobileBellV264 {
-    width: 34px !important;
-    min-width: 34px !important;
-  }
-
-  .finalMobileAvatarV264 {
-    width: 38px !important;
-    min-width: 38px !important;
     height: 38px !important;
   }
 }

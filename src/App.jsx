@@ -52,8 +52,9 @@ function useResponsiveViewportSize() {
 }
 
 const API_URL = String(
-  import.meta.env.VITE_API_URL ||
-    (import.meta.env.DEV ? "http://localhost:5000" : "")
+  import.meta.env.DEV
+    ? `${window.location.protocol}//${window.location.hostname}:5000`
+    : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
 const FRONTEND_BUILD = "metabinary-v274-exact-reference-header-2026-07-25";
