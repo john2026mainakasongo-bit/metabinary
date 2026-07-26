@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./App.css";
@@ -7,6 +6,7 @@ import "./MobileTradeFix.css";
 import "./RiseFallChartV183.css";
 import "./InteractionFixV221.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
+import MobileHeader from "./MobileHeader.jsx";
 
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
@@ -52,11 +52,12 @@ function useResponsiveViewportSize() {
 }
 
 const API_URL = String(
-  import.meta.env.VITE_API_URL ||
-    (import.meta.env.DEV ? "http://localhost:5000" : "")
+  import.meta.env.DEV
+    ? `${window.location.protocol}//${window.location.hostname}:5000`
+    : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v183-rise-fall-chart-controls-2026-07-21";
+const FRONTEND_BUILD = "metabinary-v274-exact-reference-header-2026-07-25";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -200,6 +201,7 @@ const STORE = {
   botConfig: "mb_bot_config",
   aiPosition: "mb_ai_position",
   supportTicket: "mb_support_ticket",
+  theme: "mb_theme",
 };
 
 const MARKET_API_KEY =
@@ -1172,6 +1174,10 @@ function TradingApp() {
 
   const [activePage, setActivePage] = useState(initialTradingPage);
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = readStore(STORE.theme, "dark");
+    return storedTheme === "light" ? "light" : "dark";
+  });
   const [balances, setBalances] = useState(() =>
     readStore(STORE.balances, { demo: 10000, real: 0 })
   );
@@ -1315,6 +1321,11 @@ function TradingApp() {
 
   useEffect(() => saveStore(STORE.user, user), [user]);
   useEffect(() => saveStore(STORE.account, account), [account]);
+  useEffect(() => {
+    saveStore(STORE.theme, theme);
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+  }, [theme]);
   useEffect(() => saveStore(STORE.balances, balances), [balances]);
   useEffect(() => saveStore(STORE.positions, positions), [positions]);
   useEffect(() => saveStore(STORE.closed, closedPositions), [closedPositions]);
@@ -1968,14 +1979,9 @@ function TradingApp() {
   }, [activeBinaryTrade?.id, authToken]);
 
   useEffect(() => {
-    // Very small and short phones use the browser's native vertical scrolling.
-    // Disabling the custom pull gesture here prevents older Android browsers
-    // from trapping touchmove events and making the Trade page feel frozen.
-    const compactTouchViewport =
-      typeof window !== "undefined" &&
-      (window.innerWidth <= 480 || window.innerHeight <= 720);
-    if (compactTouchViewport) return undefined;
-
+    // Custom pull-to-refresh is enabled on Chrome/Android as well.
+    // The app uses internal scroll containers, so Chrome's native pull refresh
+    // is not always triggered reliably.
     const pageIsAtTop = () => {
       const main = document.querySelector(".mainScreen");
       return window.scrollY <= 0 && Number(main?.scrollTop || 0) <= 0;
@@ -1985,9 +1991,16 @@ function TradingApp() {
       if (pullRefreshingRef.current || !pageIsAtTop()) return;
       const touch = event.touches?.[0];
       if (!touch) return;
-      // Refresh starts only from the browser/header edge, never from inside the chart or order panel.
-      if (touch.clientY > Math.max(34, Number(window.visualViewport?.offsetTop || 0) + 34)) return;
-      if (event.target?.closest?.("button, input, select, textarea, [role='dialog'], .volatilitySwitchMenu")) return;
+      // Allow pulling from the visible app header area. Chrome's own browser
+      // toolbar sits above the webpage, so a 34px-only trigger was too small.
+      const viewportOffset = Number(window.visualViewport?.offsetTop || 0);
+      const triggerLimit = Math.max(150, viewportOffset + 150);
+      if (touch.clientY > triggerLimit) return;
+      if (
+        event.target?.closest?.(
+          "button, input, select, textarea, [role='dialog'], .volatilitySwitchMenu, .accountSwitcherPanelV242, .notificationPanel"
+        )
+      ) return;
       pullStartYRef.current = touch.clientY;
       pullTrackingRef.current = true;
     };
@@ -2018,7 +2031,11 @@ function TradingApp() {
         pullRefreshingRef.current = true;
         setPullRefreshing(true);
         setPullRefreshDistance(68);
-        window.setTimeout(() => window.location.reload(), 260);
+        window.setTimeout(() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("_refresh", Date.now().toString());
+          window.location.replace(url.toString());
+        }, 220);
         return;
       }
 
@@ -4099,7 +4116,7 @@ function TradingApp() {
   }
 
   return (
-    <div className={`app activePage-${activePage} ${activePage === "trade" && tradeType === "Rise/Fall" ? "riseFallActivePageV183" : ""}`}>
+    <div className={`app theme-${theme} activePage-${activePage} ${activePage === "trade" && tradeType === "Rise/Fall" ? "riseFallActivePageV183" : ""}`}>
       <div
         className={`pullRefreshIndicator ${pullRefreshing ? "refreshing" : ""} ${pullRefreshDistance > 0 ? "visible" : ""}`}
         style={{ transform: `translate(-50%, ${Math.max(-52, pullRefreshDistance - 52)}px)` }}
@@ -4172,6 +4189,7 @@ function TradingApp() {
             volatilityOptions={VOLATILITY_OPTIONS}
             closedPositions={closedPositions}
             account={account}
+            theme={theme}
           />
         )}
 
@@ -4229,6 +4247,8 @@ function TradingApp() {
             saveProfile={saveProfileSettings}
             saveNotifications={saveNotificationSettings}
             changePassword={changeAccountPassword}
+            theme={theme}
+            setTheme={setTheme}
           />
         )}
 
@@ -4242,7 +4262,13 @@ function TradingApp() {
           />
         )}
 
-        {activePage === "history" && <HistoryPage transactions={transactions} />}
+        {activePage === "history" && (
+          <HistoryPage
+            transactions={transactions}
+            closedPositions={closedPositions}
+            botTrades={botTrades}
+          />
+        )}
 
         {activePage === "reports" && (
           <ReportsPage
@@ -4295,7 +4321,14 @@ function TradingApp() {
 
       {depositOpen && <DepositModal close={() => setDepositOpen(false)} submit={submitDeposit} />}
 
-      {withdrawOpen && <WithdrawModal close={() => setWithdrawOpen(false)} submit={submitWithdraw} />}
+      {withdrawOpen && (
+        <WithdrawModal
+          close={() => setWithdrawOpen(false)}
+          submit={submitWithdraw}
+          availableBalance={balances.real}
+          defaultPhone={user?.phone || ""}
+        />
+      )}
 
       {toast && <Toast toast={toast} />}
     </div>
@@ -4727,6 +4760,11 @@ function Header({
   clearNotifications,
   autoSession,
 }) {
+  const [isMobileHeader, setIsMobileHeader] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 760px)").matches
+      : false
+  );
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const overlayRef = useRef(null);
@@ -4734,7 +4772,16 @@ function Header({
   const safeNotifications = Array.isArray(notifications) ? notifications : [];
   const unreadCount = safeNotifications.filter((item) => !item.read).length;
   const aiLastNet = Number(autoSession?.lastNet || 0);
-  const aiBalanceClass = aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
+  const aiBalanceClass =
+    aiLastNet > 0 ? "aiBalanceWin" : aiLastNet < 0 ? "aiBalanceLoss" : "";
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const update = () => setIsMobileHeader(media.matches);
+    update();
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
 
   function closeHeaderOverlays() {
     setAccountMenuOpen(false);
@@ -4763,9 +4810,27 @@ function Header({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [accountMenuOpen, notificationOpen]);
 
+  if (isMobileHeader) {
+    return (
+      <MobileHeader
+        user={user}
+        account={account}
+        setAccount={setAccount}
+        balances={balances}
+        balance={balance}
+        notifications={safeNotifications}
+        setActivePage={setActivePage}
+        openMenu={openMenu}
+        markNotificationRead={markNotificationRead}
+        markAllNotificationsRead={markAllNotificationsRead}
+        clearNotifications={clearNotifications}
+      />
+    );
+  }
+
   return (
     <header className="topHeader brokerTopHeader cleanBrokerHeader">
-      <div className="desktopHeaderLeftGroupV94">
+      <div className="desktopHeaderLeftGroupV94 mbHeaderLeftV261">
         <button
           className="menuBtn brokerMenuBtn"
           onClick={() => {
@@ -4793,10 +4858,10 @@ function Header({
         </nav>
       </div>
 
-      <div className="desktopHeaderRightGroupV94">
+      <div className="mbHeaderCenterV261">
         <button
           type="button"
-          className={`walletBox brokerWallet accountSelectorButton ${accountMenuOpen ? "menuOpen" : ""} ${autoSession?.running ? "aiTradingBalance" : ""} ${aiBalanceClass}`}
+          className={`mbAccountV261 ${accountMenuOpen ? "open" : ""}`}
           onClick={() => {
             setAccountMenuOpen((open) => !open);
             setNotificationOpen(false);
@@ -4805,21 +4870,16 @@ function Header({
           aria-expanded={accountMenuOpen}
           aria-label={`Selected ${isReal ? "real" : "demo"} account. Balance ${money(balance)} USD`}
         >
-          {isReal ? (
-            <div className="usdWalletSelectorV12">
-              <span className="usdFlagCircleV12" aria-hidden="true">
-                <span className="usdFlagStarsV12"></span>
-              </span>
-              <span className="usdWalletInlineV12">{money(balance)} USD</span>
-            </div>
-          ) : (
-            <div className="demoWalletSelectorV12">
-              <span className="demoWalletBadgeV12">DEMO</span>
-              <span className="demoWalletInlineV12">{money(balance)} USD</span>
-            </div>
-          )}
+          <span className={`mbAccountIconV261 ${isReal ? "real" : "demo"}`} aria-hidden="true">
+            {isReal ? <span className="mbUsFlagV261"></span> : "D"}
+          </span>
+          <strong>{money(balance)} USD</strong>
+          <span className="mbAccountArrowV261" aria-hidden="true">⌄</span>
         </button>
 
+      </div>
+
+      <div className="desktopHeaderRightGroupV94 mbHeaderRightV261">
         <button
           type="button"
           className="depositTop brokerDepositBtn compactDepositButton"
@@ -4868,45 +4928,33 @@ function Header({
 
       <div ref={overlayRef}>
         {accountMenuOpen && (
-          <div className="accountPickerPanel accountPickerCompactV221" role="listbox" aria-label="Choose account">
-            <div className="accountPickerHeading">
-              <div>
-                <strong>Select account</strong>
-                <small>Choose balance</small>
-              </div>
-              <button type="button" className="headerPopupCloseV221" onClick={closeHeaderOverlays} aria-label="Close account selector">×</button>
-            </div>
-
+          <section className="mbAccountMenuV250" role="listbox" aria-label="Choose trading account">
             <button
               type="button"
               role="option"
               aria-selected={account === "demo"}
-              className={account === "demo" ? "selected" : ""}
+              className={`mbAccountRowV250 ${account === "demo" ? "selected" : ""}`}
               onClick={() => chooseAccount("demo")}
             >
-              <span className="accountPickerIconV221 demo">D</span>
-              <span className="accountPickerCopyV221">
-                <strong>Demo Account</strong>
-                <small>{money(balances.demo)} USD</small>
-              </span>
-              <i>{account === "demo" ? "✓" : ""}</i>
+              <span className="mbAccountRowIconV250 demo">D</span>
+              <span className="mbAccountRowNameV250">Demo Account</span>
+              <span className="mbAccountRowCheckV250">{account === "demo" ? "✓" : ""}</span>
+              <strong>{money(balances.demo)} USD</strong>
             </button>
 
             <button
               type="button"
               role="option"
               aria-selected={account === "real"}
-              className={account === "real" ? "selected" : ""}
+              className={`mbAccountRowV250 ${account === "real" ? "selected" : ""}`}
               onClick={() => chooseAccount("real")}
             >
-              <span className="accountPickerIconV221 real" aria-hidden="true">🇺🇸</span>
-              <span className="accountPickerCopyV221">
-                <strong>Real Account</strong>
-                <small>{money(balances.real)} USD</small>
-              </span>
-              <i>{account === "real" ? "✓" : ""}</i>
+              <span className="mbAccountRowIconV250 real"><span className="mbUsFlagV250"></span></span>
+              <span className="mbAccountRowNameV250">Real Account</span>
+              <span className="mbAccountRowCheckV250">{account === "real" ? "✓" : ""}</span>
+              <strong>{money(balances.real)} USD</strong>
             </button>
-          </div>
+          </section>
         )}
 
         {notificationOpen && (
@@ -6296,6 +6344,7 @@ function TradePage({
   volatilityOptions,
   closedPositions = [],
   account = "demo",
+  theme = "dark",
 }) {
   const [marketMenuOpen, setMarketMenuOpen] = useState(false);
 
@@ -6581,7 +6630,7 @@ function TradePage({
 
   return (
     <div className={`page tradePage tradePagePro finalBinaryTradePage ${digitMode ? "digitContractPage" : "priceContractPage"}`}>
-      <section className="proTradeTypeRow finalContractTabs">
+      <section className={`proTradeTypeRow finalContractTabs ${theme === "light" ? "mbLightTradeTabsFinalV305" : ""}`}>
         <span>Trade Type</span>
         {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall"].map((type) => (
           <button
@@ -6652,7 +6701,7 @@ function TradePage({
         </section>
       )}
 
-      <section className={`proTradeChartCard binaryChartWithDigits finalBinaryChartCard ${digitMode ? "digitOnlyCard" : "priceOnlyCard"}`}>
+      <section className={`proTradeChartCard binaryChartWithDigits finalBinaryChartCard ${digitMode ? "digitOnlyCard" : "priceOnlyCard"} ${digitMode && theme === "light" ? "mbLightDigitCardV308" : ""}`}>
         {!digitMode && (
           <>
         <div className="proChartTitle finalBinaryChartTitle">
@@ -6853,8 +6902,15 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${digitVisualTrade ? "isTrading" : ""}`}
+            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${theme === "light" ? "mbLightBoardFinalV305" : ""} ${digitVisualTrade ? "isTrading" : ""}`}
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
+            style={theme === "light" ? {
+              background: "#ffffff",
+              backgroundColor: "#ffffff",
+              backgroundImage: "none",
+              border: "1px solid #e0e6ed",
+              boxShadow: "0 6px 18px rgba(31, 55, 86, 0.05)",
+            } : undefined}
           >
             <div
               className="mbDigitGridV7 mobileDigitGridFinalV130"
@@ -7014,17 +7070,64 @@ function TradePage({
                         {Number(percent).toFixed(1)}%
                       </text>
                     </svg>
-                    <span className="mbDigitRingV7" aria-hidden="true" />
+                    <span
+                      className="mbDigitRingV7"
+                      aria-hidden="true"
+                      style={theme === "light" ? {
+                        background: isHighest
+                          ? "conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg)"
+                          : isLowest
+                            ? "conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg)"
+                            : `conic-gradient(from ${whiteStart}deg, #dfe3e9 0deg, #dfe3e9 ${whiteSweep}deg, #f1f3f6 ${whiteSweep}deg, #f1f3f6 360deg)`,
+                        border: "0",
+                        boxShadow: "none",
+                      } : undefined}
+                    />
                     {isWaitingCandidate && !isResultDigit && (
                       <span className="mbDigitCandidateRingV182" aria-hidden="true" />
                     )}
                     {isPredictionSelected && !isResultDigit && (
                       <span className="mbDigitPredictionRingV180" aria-hidden="true" />
                     )}
-                    <span className="mbDigitCoreV7">
-                      <strong>{digit}</strong>
-                      <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
+                    <span
+                      className="mbDigitCoreV7"
+                      style={theme === "light" ? {
+                        background: "#ffffff",
+                        backgroundColor: "#ffffff",
+                        backgroundImage: "none",
+                        border: "0",
+                        boxShadow: "none",
+                      } : undefined}
+                    >
+                      <strong style={theme === "light" ? { color: "#050a12", textShadow: "none" } : undefined}>
+                        {digit}
+                      </strong>
+                      <span
+                        className="mbDigitPercentV7"
+                        style={theme === "light" ? { color: "#111827", textShadow: "none" } : undefined}
+                      >
+                        {Number(percent).toFixed(1)}%
+                      </span>
                     </span>
+
+                    {theme === "light" && (
+                      <span
+                        className="mbLightDigitFaceV306"
+                        aria-hidden="true"
+                        style={{
+                          background: isHighest
+                            ? "conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg)"
+                            : isLowest
+                              ? "conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg)"
+                              : `conic-gradient(from ${whiteStart}deg, #dfe3e9 0deg, #dfe3e9 ${whiteSweep}deg, #f1f3f6 ${whiteSweep}deg, #f1f3f6 360deg)`,
+                        }}
+                      >
+                        <span className="mbLightDigitInnerV306">
+                          <strong>{digit}</strong>
+                          <small>{Number(percent).toFixed(1)}%</small>
+                        </span>
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -7458,7 +7561,6 @@ function BotLivePage({
   const totalStake = trades.reduce((sum, trade) => sum + Number(trade.stake || 0), 0);
   const totalPayout = trades.reduce((sum, trade) => sum + Number(trade.payout || 0), 0);
   const winRate = trades.length ? (wins / trades.length) * 100 : 0;
-  const [botLiveMenuOpen, setBotLiveMenuOpen] = useState(false);
 
   if (!bot) {
     return (
@@ -7470,57 +7572,58 @@ function BotLivePage({
   }
 
   return (
-    <div className="page botLivePage finalBotLivePage">
-      <header className="botLiveTop botLiveTopV221">
-        <div className="botLiveIdentityV221">
-          <strong>{bot.name}</strong>
-          <small>{bot.market} · {bot.type} · {bot.action} · {bot.ticks} ticks</small>
-        </div>
-        <div className="botLiveMenuWrapV221">
-          <button
-            type="button"
-            className="botLiveMenuButtonV221"
-            onClick={() => setBotLiveMenuOpen((open) => !open)}
-            aria-haspopup="menu"
-            aria-expanded={botLiveMenuOpen}
-            aria-label="Bot navigation"
-          >
-            ⋮
-          </button>
-          {botLiveMenuOpen && (
-            <>
-              <button type="button" className="botLiveMenuBackdropV221" onClick={() => setBotLiveMenuOpen(false)} aria-label="Close bot menu" />
-              <div className="botLiveMenuV221" role="menu">
-                <button type="button" role="menuitem" onClick={() => { setBotLiveMenuOpen(false); back(); }}>
-                  <span>🤖</span><div><strong>Back to Bots</strong><small>Choose another bot</small></div>
-                </button>
-                <button type="button" role="menuitem" onClick={() => { setBotLiveMenuOpen(false); edit(); }}>
-                  <span>⚙</span><div><strong>Bot Settings</strong><small>Edit this bot setup</small></div>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </header>
-
-      <section className="runnerBox finalRunnerBox">
-        <button className={running ? "stopRunner" : "startRunner"} onClick={running ? stopBot : startBot}>
-          {running ? "■ Stop Bot" : "▶ Run Bot"}
+    <div className="botLiveV236">
+      <section className="botLiveTopV236">
+        <button
+          type="button"
+          className={`botLiveRunV236 ${running ? "running" : ""}`}
+          onClick={running ? stopBot : startBot}
+        >
+          <span className="botLiveRunIconV236">{running ? "■" : "▷"}</span>
+          <span>
+            <strong>{running ? "Stop Bot" : "Run Bot"}</strong>
+            <small>{running ? "Stop the bot" : "Start the bot"}</small>
+          </span>
         </button>
-        <div className="runnerStatusCopy">
-          <strong>{running ? "Watching for the next contract" : "Bot paused"}</strong>
-          <small>{bot.market} · {bot.type} · {bot.action} · {bot.ticks} ticks</small>
-          <span><i className={running ? "active" : ""}></i></span>
+
+        <div className="botLiveStatusV236">
+          <div className="botLiveStatusRowV236">
+            <span className={`botLiveStatusIconV236 ${running ? "running" : ""}`}>
+              {running ? "▶" : "Ⅱ"}
+            </span>
+            <div className="botLiveStatusCopyV236">
+              <strong>{running ? "Bot running" : "Bot paused"}</strong>
+              <small>{running ? "Bot is monitoring the market" : "Click run to start the bot"}</small>
+            </div>
+            <button type="button" className="botLiveSettingsV236" onClick={edit}>
+              <span>⚙</span>
+              Bot Settings
+            </button>
+          </div>
+          <div className="botLiveProgressV236">
+            <span className={running ? "running" : ""}></span>
+          </div>
         </div>
       </section>
 
-      <section className="botLiveMetrics">
-        <div><span>Session P/L</span><strong className={sessionPnl >= 0 ? "green" : "red"}>{sessionPnl >= 0 ? "+" : ""}{money(sessionPnl)} USD</strong></div>
-        <div><span>Current MG step</span><strong>{martingaleStep}/{bot.martingaleSteps || 0}</strong></div>
-        <div><span>Next base stake</span><strong>{money(bot.stake)} USD</strong></div>
+      <section className="botLiveMetricsV236">
+        <div>
+          <span>Session P/L</span>
+          <strong className={sessionPnl >= 0 ? "green" : "red"}>
+            {sessionPnl >= 0 ? "+" : ""}{money(sessionPnl)} USD
+          </strong>
+        </div>
+        <div>
+          <span>Current MG step</span>
+          <strong>{martingaleStep}/{bot.martingaleSteps || 0}</strong>
+        </div>
+        <div>
+          <span>Next base stake</span>
+          <strong>{money(bot.stake)} USD</strong>
+        </div>
       </section>
 
-      <section className="runnerTabs runnerTabsWithReset">
+      <section className="botLiveTabsV236">
         {["transactions", "summary", "journal"].map((tab) => (
           <button
             type="button"
@@ -7533,7 +7636,7 @@ function BotLivePage({
         ))}
         <button
           type="button"
-          className="resetBotSessionBtn"
+          className="botLiveResetV236"
           onClick={resetSession}
           title="Clear bot transactions, summary and journal"
         >
@@ -7541,36 +7644,37 @@ function BotLivePage({
         </button>
       </section>
 
-      <section className="runnerBody">
+      <section className="botLiveBodyV236">
         {botTab === "transactions" && (
-          <div className="runnerList finalRunnerList">
-            {trades.length === 0 && (
-              <div className="runnerEmpty">
+          <div className="botLiveScrollV236">
+            {trades.length === 0 ? (
+              <div className="botLiveEmptyV236">
                 {running ? "The bot is buying its first contract…" : "The first transaction will appear here."}
               </div>
+            ) : (
+              trades.slice(0, 30).map((trade) => (
+                <article className="botLiveRowV236" key={trade.id}>
+                  <span className="botLiveRowInfoV236">
+                    <b>{trade.market?.replace("Volatility ", "V")}</b>
+                    <small>
+                      {trade.type} · {trade.action} · digit {trade.resultDigit} · MG {trade.martingaleStep}
+                    </small>
+                  </span>
+                  <span className="botLiveRowValueV236">
+                    <small>Stake {money(trade.stake)}</small>
+                    <b className={trade.won ? "green" : "red"}>
+                      {trade.net >= 0 ? "+" : ""}{money(trade.net)}
+                    </b>
+                  </span>
+                </article>
+              ))
             )}
-            {trades.slice(0, 30).map((trade) => (
-              <p key={trade.id}>
-                <span>
-                  <b>{trade.market?.replace("Volatility ", "V")}</b>
-                  <small>
-                    {trade.type} · {trade.action} · digit {trade.resultDigit} · MG {trade.martingaleStep}
-                  </small>
-                </span>
-                <span className="transactionStake">
-                  <small>Stake {money(trade.stake)}</small>
-                  <b className={trade.won ? "green" : "red"}>
-                    {trade.net >= 0 ? "+" : ""}{money(trade.net)}
-                  </b>
-                </span>
-              </p>
-            ))}
           </div>
         )}
 
         {botTab === "summary" && (
-          <div className="runnerSummaryPanel">
-            <div className={last?.won ? "runnerResult won" : last ? "runnerResult lost" : "runnerResult"}>
+          <div className="botLiveSummaryV236">
+            <div className={`botLiveResultV236 ${last?.won ? "won" : last ? "lost" : ""}`}>
               <strong>{last ? last.status : running ? "RUNNING" : "READY"}</strong>
               <h2>{last ? `${last.net >= 0 ? "+" : ""}${money(last.net)} USD` : "Start the bot"}</h2>
               <small>
@@ -7580,7 +7684,7 @@ function BotLivePage({
               </small>
             </div>
 
-            <div className="runnerSummaryGrid">
+            <div className="botLiveSummaryGridV236">
               <p><span>Total runs</span><strong>{trades.length}</strong></p>
               <p><span>Win rate</span><strong>{winRate.toFixed(1)}%</strong></p>
               <p><span>Total stake</span><strong>{money(totalStake)}</strong></p>
@@ -7590,33 +7694,34 @@ function BotLivePage({
         )}
 
         {botTab === "journal" && (
-          <div className="runnerList finalRunnerList botJournalList">
-            {trades.length === 0 && (
-              <div className="runnerEmpty">
+          <div className="botLiveScrollV236">
+            {trades.length === 0 ? (
+              <div className="botLiveEmptyV236">
                 Bot decisions and contract results will be recorded here.
               </div>
+            ) : (
+              trades.slice(0, 30).map((trade, index) => (
+                <article className="botLiveRowV236" key={trade.id}>
+                  <span className="botLiveRowInfoV236">
+                    <b>{trade.won ? "Winning contract" : "Losing contract"}</b>
+                    <small>
+                      #{trades.length - index} · {trade.market?.replace("Volatility ", "V")} · {trade.type} · {trade.action}
+                    </small>
+                  </span>
+                  <span className="botLiveRowValueV236">
+                    <b className={trade.won ? "green" : "red"}>
+                      {trade.net >= 0 ? "+" : ""}{money(trade.net)}
+                    </b>
+                    <small>{trade.time}</small>
+                  </span>
+                </article>
+              ))
             )}
-            {trades.slice(0, 30).map((trade, index) => (
-              <p className="journalEntry" key={trade.id}>
-                <span>
-                  <b>{trade.won ? "Winning contract" : "Losing contract"}</b>
-                  <small>
-                    #{trades.length - index} · {trade.market?.replace("Volatility ", "V")} · {trade.type} · {trade.action}
-                  </small>
-                </span>
-                <span className="journalMeta">
-                  <b className={trade.won ? "green" : "red"}>
-                    {trade.net >= 0 ? "+" : ""}{money(trade.net)}
-                  </b>
-                  <small>{trade.time}</small>
-                </span>
-              </p>
-            ))}
           </div>
         )}
       </section>
 
-      <section className="runnerStats">
+      <section className="botLiveStatsV236">
         <Stat value={trades.length} label="Runs" />
         <Stat value={wins} label="Won" />
         <Stat value={losses} label="Lost" />
@@ -7627,189 +7732,199 @@ function BotLivePage({
 }
 
 function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage }) {
-  const realBalance = balances?.real || 0;
-  const demoBalance = balances?.demo || 10000;
+  const realBalance = Number(balances?.real || 0);
+  const demoBalance = Number(balances?.demo || 10000);
   const accountId = user?.brokerId || "MB168844";
-  const userName = user?.name || user?.email?.split("@")[0] || "captionfitness";
-  const userEmail = user?.email || "captionfitness@gmail.com";
+  const userName = user?.fullName || user?.name || user?.email?.split("@")[0] || "MetaBinary Trader";
+  const userEmail = user?.email || "trader@metabinaryfx.com";
   const userInitial = user?.initials || initials(userName);
-  const referralCode = referral?.code || "";
-  const referralLink = referral?.link || "";
-  const referralApproved = referral?.status === "approved";
-  const referralEarned = Number(referral?.totalEarned ?? user?.partnerBalance ?? 0);
-  const referralCount = Number(referral?.totalReferrals ?? user?.referralCount ?? 0);
-  const referralRate = Number(
-    referral?.commissionRate ?? user?.referralCommissionRate ?? REFERRAL_COMMISSION_PERCENT
-  );
+  const verified = Boolean(user?.verified);
   const accountLabel = account === "real" ? "Real Account" : "Demo Account";
+
   const tradeTransactions = (transactions || []).filter((tx) => {
     if (!["Manual", "Bot", "AI Auto-Trade"].includes(tx.method)) return false;
-    if (Number(tx.amount) === 0) return false;
     const status = String(tx.status || "").trim().toLowerCase();
     return !status || ["complete", "completed", "settled", "won", "lost", "success", "successful", "closed"].includes(status);
   });
+
   const totalProfit = tradeTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
   const winningTrades = tradeTransactions.filter((tx) => Number(tx.amount) > 0).length;
-  const winRate = tradeTransactions.length
-    ? (winningTrades / tradeTransactions.length) * 100
-    : 0;
+  const winRate = tradeTransactions.length ? (winningTrades / tradeTransactions.length) * 100 : 0;
+  const referralEarned = Number(referral?.totalEarned ?? user?.partnerBalance ?? 0);
+  const referralCount = Number(referral?.totalReferrals ?? user?.referralCount ?? 0);
 
-  const profileCards = [
-    {
-      icon: "⚙",
-      title: "Settings",
-      text: "Manage your preferences and platform settings",
-      button: "Customize",
-      color: "blue",
-      action: () => setActivePage("settings"),
-    },
-    {
-      icon: "↺",
-      title: "Transaction History",
-      text: "View deposits, withdrawals and trading history",
-      button: "View History",
-      color: "purple",
-      action: () => setActivePage("history"),
-    },
+  function openSettings(section = "profile") {
+    try {
+      window.sessionStorage.setItem("mb-settings-section", section);
+    } catch {
+      // Settings still opens even when browser storage is unavailable.
+    }
+    setActivePage("settings");
+  }
+
+  const quickActions = [
+    { icon: "＋", label: "Deposit", sub: "Fund real account", tone: "blue", action: () => setActivePage("deposit") },
+    { icon: "↗", label: "Withdraw", sub: "Send funds out", tone: "green", action: () => setActivePage("withdraw") },
+    { icon: "↺", label: "History", sub: "All transactions", tone: "purple", action: () => setActivePage("history") },
+    { icon: "⚙", label: "Settings", sub: "Account preferences", tone: "orange", action: () => openSettings("profile") },
+  ];
+
+  const menuItems = [
     {
       icon: "🛡",
-      title: "KYC Verification",
-      text: "Verify your identity to unlock all platform features",
-      button: user?.verified ? "Verified ✓" : "Start Verification",
-      color: "green",
-      action: () => {},
+      title: "Identity verification",
+      text: verified ? "Your account is fully verified" : "Verify your identity to unlock all features",
+      badge: verified ? "Verified" : "Pending",
+      badgeTone: verified ? "green" : "yellow",
+      action: () => openSettings("profile"),
     },
     {
       icon: "💳",
-      title: "Payment Methods",
-      text: "Manage your deposit and withdrawal methods",
-      button: "Manage Methods",
-      color: "blue",
-      action: () => setActivePage("history"),
+      title: "Payment methods",
+      text: "Manage deposit and withdrawal channels",
+      action: () => setActivePage("deposit"),
     },
     {
       icon: "🔒",
       title: "Security",
-      text: "Password, 2FA and account security settings",
-      button: "Security Center",
-      color: "green",
-      action: () => setActivePage("settings"),
+      text: "Password and account protection",
+      action: () => openSettings("security"),
     },
     {
       icon: "🔔",
       title: "Notifications",
-      text: "Manage email, SMS and push notifications",
-      button: "Manage Alerts",
-      color: "yellow",
-      action: () => setActivePage("settings"),
+      text: "Control trading and account alerts",
+      action: () => openSettings("notifications"),
+    },
+    {
+      icon: "🎧",
+      title: "Support center",
+      text: "Get help from the MetaBinary team",
+      badge: "Online",
+      badgeTone: "green",
+      action: () => window.dispatchEvent(new Event("mb-open-support")),
     },
   ];
 
   return (
-    <div className="page profilePage proProfilePage">
-      <section className="proProfileHero">
-        <div className="proProfileAvatarWrap">
-          <div className="proProfileAvatar">{userInitial}</div>
-          <span className="profileOnlineBadge">✓</span>
-        </div>
+    <div className="profileV237">
+      <section className="profileHeroV237">
+        <div className="profileHeroGlowV237"></div>
 
-        <div className="proProfileIdentity">
-          <h1>
-            {userName}
-            <span>✓</span>
-          </h1>
-
-          <p>{userEmail}</p>
-
-          <div className="profileVerifiedRow">
-            <b>Verified</b>
-          </div>
-
-          <div className="profileMetaRow">
-            <span>
-              Account ID
-              <strong>{accountId}</strong>
-            </span>
-
+        <div className="profileIdentityV237">
+          <div className="profileAvatarV237">
+            <span>{userInitial}</span>
             <i></i>
+          </div>
 
-            <span>
-              Status
-              <strong className="activeStatus">● Active — {accountLabel}</strong>
-            </span>
+          <div className="profileNameV237">
+            <div>
+              <h1>{userName}</h1>
+              <span className={verified ? "verified" : "pending"}>
+                {verified ? "✓ Verified" : "Verification pending"}
+              </span>
+            </div>
+            <p>{userEmail}</p>
+            <small>{accountId} · {accountLabel}</small>
           </div>
         </div>
 
-        <div className="profileHeroArt">
-          <div className="profileArtLine"></div>
-          <div className="profileArtBadge">MB</div>
+      </section>
+
+      <section className="profileBalanceV237">
+        <div className="profileBalanceMainV237">
+          <span>Available balance</span>
+          <strong>{money(account === "real" ? realBalance : demoBalance)} USD</strong>
+          <small>{accountLabel}</small>
+        </div>
+
+        <div className="profileBalanceSideV237">
+          <p>
+            <span>Real balance</span>
+            <strong>{money(realBalance)} USD</strong>
+          </p>
+          <p>
+            <span>Demo balance</span>
+            <strong>{money(demoBalance)} USD</strong>
+          </p>
         </div>
       </section>
 
-      <section className="proProfileStats">
-        <ProfileBalanceCard icon="💼" label="REAL BALANCE" value={`${money(realBalance)} USD`} color="blue" />
-        <ProfileBalanceCard icon="▮▮▮" label="DEMO BALANCE" value={`${money(demoBalance)} USD`} color="purple" />
-        <ProfileBalanceCard icon="📈" label="TOTAL PROFIT" value={`${totalProfit >= 0 ? "+" : ""}${money(totalProfit)} USD`} color={totalProfit >= 0 ? "green" : "red"} />
-        <ProfileBalanceCard icon="◎" label="WIN RATE" value={`${winRate.toFixed(1)}%`} color="yellow" />
+      <section className="profileQuickV237">
+        {quickActions.map((item) => (
+          <button type="button" key={item.label} onClick={item.action}>
+            <span className={`profileQuickIconV237 ${item.tone}`}>{item.icon}</span>
+            <strong>{item.label}</strong>
+            <small>{item.sub}</small>
+          </button>
+        ))}
       </section>
 
-      <section className="proProfileMain">
-        <div className="profileCardsGrid">
-          {profileCards.map((card) => (
-            <button className="profileActionCard" key={card.title} onClick={card.action}>
-              <div className={`profileActionIcon ${card.color}`}>{card.icon}</div>
+      <section className="profilePerformanceV237">
+        <div>
+          <span>Total P/L</span>
+          <strong className={totalProfit >= 0 ? "green" : "red"}>
+            {totalProfit >= 0 ? "+" : ""}{money(totalProfit)} USD
+          </strong>
+        </div>
+        <div>
+          <span>Win rate</span>
+          <strong>{winRate.toFixed(1)}%</strong>
+        </div>
+        <div>
+          <span>Trades</span>
+          <strong>{tradeTransactions.length}</strong>
+        </div>
+      </section>
 
-              <div>
-                <h3>{card.title}</h3>
-                <p>{card.text}</p>
+      <button type="button" className="profileReferralV237" onClick={() => setActivePage("referrals")}>
+        <span className="profileReferralIconV237">👥</span>
+        <span className="profileReferralCopyV237">
+          <strong>Referral program</strong>
+          <small>Invite traders and earn commissions</small>
+        </span>
+        <span className="profileReferralNumbersV237">
+          <b>{referralCount}</b>
+          <small>Referrals</small>
+        </span>
+        <span className="profileReferralNumbersV237">
+          <b>{money(referralEarned)}</b>
+          <small>Earned</small>
+        </span>
+        <em>›</em>
+      </button>
 
-                <span className={`profileActionCta ${card.title === "KYC Verification" ? "verifiedMiniBtn" : ""}`}>
-                  {card.button} <em>›</em>
+      <section className="profileMenuV237">
+        <div className="profileSectionTitleV237">
+          <h2>Account</h2>
+          <span>Manage your profile</span>
+        </div>
+
+        <div className="profileMenuListV237">
+          {menuItems.map((item) => (
+            <button type="button" key={item.title} onClick={item.action}>
+              <span className="profileMenuIconV237">{item.icon}</span>
+              <span className="profileMenuCopyV237">
+                <strong>{item.title}</strong>
+                <small>{item.text}</small>
+              </span>
+              {item.badge && (
+                <span className={`profileMenuBadgeV237 ${item.badgeTone || ""}`}>
+                  {item.badge}
                 </span>
-              </div>
+              )}
+              <em>›</em>
             </button>
           ))}
-
-          <div className="supportWideCard">
-            <div className="profileActionIcon blue">🎧</div>
-
-            <div>
-              <h3>Support Center</h3>
-              <p>Get help from our support team 24/7</p>
-            </div>
-
-            <div className="responseTime">
-              <small>Support Availability</small>
-              <strong>● Online</strong>
-            </div>
-
-            <button type="button" onClick={() => window.dispatchEvent(new Event("mb-open-support"))}>Contact Support ›</button>
-          </div>
         </div>
-
-        <button
-          type="button"
-          className="referralPanel referralShortcutCardV105"
-          onClick={() => setActivePage("referrals")}
-          aria-label="Open Referral Program"
-        >
-          <div className="profileActionIcon purple">👥</div>
-          <div className="referralShortcutCopyV105">
-            <h2>Referral Program</h2>
-            <p>View your referral link, referrals and commission.</p>
-          </div>
-          <strong className="referralShortcutArrowV105">›</strong>
-        </button>
       </section>
 
-      <button className="proLogoutButton" onClick={logout}>
+      <button type="button" className="profileLogoutV237" onClick={logout}>
         <span>⇥</span>
-
-        <div>
-          <strong>Logout</strong>
-          <small>Sign out of your account</small>
-        </div>
-
+        <span>
+          <strong>Log out</strong>
+          <small>Sign out of this MetaBinary account</small>
+        </span>
         <em>›</em>
       </button>
     </div>
@@ -7850,9 +7965,17 @@ function ToggleSetting({ label, description, checked, onChange }) {
   );
 }
 
-function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword }) {
+function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword, theme, setTheme }) {
   const defaultNotifications = { push: true, security: true, wallet: true, referrals: true, botSounds: true, takeProfitSound: true, stopLossSound: true, soundVolume: 70 };
-  const [section, setSection] = useState("profile");
+  const [section, setSection] = useState(() => {
+    try {
+      const requested = window.sessionStorage.getItem("mb-settings-section");
+      window.sessionStorage.removeItem("mb-settings-section");
+      return ["profile", "security", "notifications", "appearance"].includes(requested) ? requested : "profile";
+    } catch {
+      return "profile";
+    }
+  });
   const [profile, setProfile] = useState({ fullName: user?.fullName || user?.name || "", phone: user?.phone || "", country: user?.country || "Kenya" });
   const [notificationPrefs, setNotificationPrefs] = useState({ ...defaultNotifications, ...(user?.preferences?.notifications || {}) });
   const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -7869,13 +7992,55 @@ function SettingsPage({ user, busy, saveProfile, saveNotifications, changePasswo
 
   return (
     <div className="page settingsPage professionalSettingsPage">
-      <section className="professionalSettingsHero"><div className="settingsHeroIcon">⚙</div><div><small>ACCOUNT CONTROL CENTER</small><h1>Settings</h1><p>Manage identity, security and important alerts. Trading values are kept on trading screens.</p></div><div className="settingsAccountBadge"><span>{user?.verified ? "Verified account" : "Verification pending"}</span><strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong></div></section>
+      <section className="professionalSettingsHero"><button type="button" className="settingsBackV238" onClick={() => { window.location.hash = "#profile"; }}>‹ Profile</button><div className="settingsHeroIcon">⚙</div><div><small>ACCOUNT CONTROL CENTER</small><h1>Settings</h1><p>Manage identity, security and important alerts. Trading values are kept on trading screens.</p></div><div className="settingsAccountBadge"><span>{user?.verified ? "Verified account" : "Verification pending"}</span><strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong></div></section>
       <section className="professionalSettingsLayout">
-        <nav className="settingsSectionNav"><button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}><b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span></button><button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}><b>◆</b><span><strong>Security</strong><small>Change your password</small></span></button><button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}><b>🔔</b><span><strong>Notifications & sounds</strong><small>Important alerts only</small></span></button></nav>
+        <nav className="settingsSectionNav"><button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}><b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span></button><button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}><b>◆</b><span><strong>Security</strong><small>Change your password</small></span></button><button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}><b>🔔</b><span><strong>Notifications & sounds</strong><small>Important alerts only</small></span></button><button className={section === "appearance" ? "active" : ""} onClick={() => setSection("appearance")}><b>◐</b><span><strong>Appearance</strong><small>Black or white theme</small></span></button></nav>
         <div className="settingsContentPanel">
           {section === "profile" && <form className="settingsFormCard" onSubmit={submitProfile}><header><div><small>PERSONAL DETAILS</small><h2>Profile information</h2></div><span className="settingsSecurePill">Protected</span></header><div className="settingsReadOnlyGrid"><label><span>Email address</span><strong>{user?.email || "—"}</strong><small>Email changes require support verification.</small></label><label><span>Broker account ID</span><strong>{user?.accountId || user?.brokerId || "—"}</strong><small>Your permanent account number.</small></label></div><div className="settingsInputGrid"><label><span>Full legal name</span><input value={profile.fullName} onChange={(event) => setProfile((old) => ({ ...old, fullName: event.target.value }))} required /></label><label><span>Phone number</span><input value={profile.phone} onChange={(event) => setProfile((old) => ({ ...old, phone: event.target.value }))} placeholder="07XXXXXXXX" inputMode="tel" required /></label><label><span>Country</span><select value={profile.country} onChange={(event) => setProfile((old) => ({ ...old, country: event.target.value }))}><option>Kenya</option></select></label><label><span>Verification</span><div className={user?.verified ? "settingsVerification verified" : "settingsVerification"}>{user?.verified ? "✓ Identity verified" : "Verification pending"}</div></label></div><footer><small>Used for ownership and payment verification.</small><button className="settingsSaveButton" disabled={busy === "profile"}>{busy === "profile" ? "Saving…" : "Save profile"}</button></footer></form>}
           {section === "security" && <form className="settingsFormCard" onSubmit={submitPassword}><header><div><small>ACCOUNT SECURITY</small><h2>Change password</h2></div><span className="settingsSecurePill">Encrypted</span></header><div className="settingsSecurityNotice"><b>Security recommendation</b><span>Use at least 8 characters. Password fields include show/hide controls.</span></div><div className="settingsPasswordGrid"><label><span>Current password</span><PasswordField value={passwords.currentPassword} onChange={(event) => setPasswords((old) => ({ ...old, currentPassword: event.target.value }))} autoComplete="current-password" /></label><label><span>New password</span><PasswordField value={passwords.newPassword} onChange={(event) => setPasswords((old) => ({ ...old, newPassword: event.target.value }))} autoComplete="new-password" minLength="8" /></label><label><span>Confirm new password</span><PasswordField value={passwords.confirmPassword} onChange={(event) => setPasswords((old) => ({ ...old, confirmPassword: event.target.value }))} autoComplete="new-password" minLength="8" />{passwordMismatch && <small className="settingsFieldError">Passwords do not match.</small>}</label></div><footer><small>Forgotten passwords can be reset from the Login page by email.</small><button className="settingsSaveButton" disabled={busy === "password" || passwordMismatch}>{busy === "password" ? "Changing…" : "Change password"}</button></footer></form>}
           {section === "notifications" && <section className="settingsFormCard notificationSettingsCard"><header><div><small>COMMUNICATIONS</small><h2>Notifications and bot sounds</h2></div><span className="settingsSecurePill">Account alerts</span></header><div className="settingsToggleList"><ToggleSetting label="In-app notifications" description="Show account updates in the notification center." checked={notificationPrefs.push} onChange={(value) => setNotificationPrefs((old) => ({ ...old, push: value }))} /><ToggleSetting label="Security alerts" description="Login and password events." checked={notificationPrefs.security} onChange={(value) => setNotificationPrefs((old) => ({ ...old, security: value }))} /><ToggleSetting label="Wallet updates" description="Deposits, withdrawals and reversals." checked={notificationPrefs.wallet} onChange={(value) => setNotificationPrefs((old) => ({ ...old, wallet: value }))} /><ToggleSetting label="Referral updates" description="New traders and earned 5% commissions." checked={notificationPrefs.referrals} onChange={(value) => setNotificationPrefs((old) => ({ ...old, referrals: value }))} /><ToggleSetting label="Bot sounds" description="Allow bot target and stop-loss sounds." checked={notificationPrefs.botSounds} onChange={(value) => setNotificationPrefs((old) => ({ ...old, botSounds: value }))} /><ToggleSetting label="Take-profit sound" description="Positive sound when the target is reached." checked={notificationPrefs.takeProfitSound} onChange={(value) => setNotificationPrefs((old) => ({ ...old, takeProfitSound: value }))} /><ToggleSetting label="Stop-loss warning" description="Warning alarm when stop loss is reached." checked={notificationPrefs.stopLossSound} onChange={(value) => setNotificationPrefs((old) => ({ ...old, stopLossSound: value }))} /><label className="soundVolumeSetting"><span><strong>Sound volume</strong><small>{Number(notificationPrefs.soundVolume || 0)}%</small></span><input type="range" min="0" max="100" value={notificationPrefs.soundVolume} onChange={(event) => setNotificationPrefs((old) => ({ ...old, soundVolume: Number(event.target.value) }))} /></label></div><footer><small>Browser sound begins after your first interaction.</small><button type="button" className="settingsSaveButton" onClick={submitNotifications} disabled={busy === "notifications"}>{busy === "notifications" ? "Saving…" : "Save preferences"}</button></footer></section>}
+          {section === "appearance" && (
+            <section className="settingsFormCard appearanceSettingsCard">
+              <header>
+                <div>
+                  <small>APPEARANCE</small>
+                  <h2>Choose your preferred theme</h2>
+                </div>
+                <span className="settingsSecurePill">Saved automatically</span>
+              </header>
+              <div className="themeChoiceGrid">
+                <button
+                  type="button"
+                  className={theme === "dark" ? "themeChoice active" : "themeChoice"}
+                  onClick={() => setTheme("dark")}
+                  aria-pressed={theme === "dark"}
+                >
+                  <span className="themePreview themePreviewDark">
+                    <i></i><i></i><i></i>
+                  </span>
+                  <strong>Black</strong>
+                  <small>Classic MetaBinary dark mode</small>
+                  <b>{theme === "dark" ? "✓ Selected" : "Select"}</b>
+                </button>
+                <button
+                  type="button"
+                  className={theme === "light" ? "themeChoice active" : "themeChoice"}
+                  onClick={() => setTheme("light")}
+                  aria-pressed={theme === "light"}
+                >
+                  <span className="themePreview themePreviewLight">
+                    <i></i><i></i><i></i>
+                  </span>
+                  <strong>White</strong>
+                  <small>Bright and clean light mode</small>
+                  <b>{theme === "light" ? "✓ Selected" : "Select"}</b>
+                </button>
+              </div>
+              <footer>
+                <small>Your selection stays saved on this device.</small>
+              </footer>
+            </section>
+          )}
         </div>
       </section>
     </div>
@@ -7995,27 +8160,187 @@ function ReferralDashboardPage({ dashboard, loading, applyReferralProgram, refre
   );
 }
 
-function HistoryPage({ transactions }) {
+function HistoryPage({ transactions = [], closedPositions = [], botTrades = [] }) {
+  const [historyTab, setHistoryTab] = useState("all");
+  const [historySearch, setHistorySearch] = useState("");
+  const [historyStatus, setHistoryStatus] = useState("all");
+  const [expandedHistoryId, setExpandedHistoryId] = useState("");
+
+  const rows = useMemo(() => {
+    const transactionRows = (transactions || []).map((item, index) => ({
+      id: item.id || `transaction-${index}`,
+      category:
+        /deposit/i.test(`${item.type} ${item.method}`) ? "deposits" :
+        /withdraw/i.test(`${item.type} ${item.method}`) ? "withdrawals" :
+        /bot/i.test(`${item.type} ${item.method}`) ? "bots" :
+        /trade|profit|loss|closed|forex|manual|ai auto/i.test(`${item.type} ${item.method}`) ? "trading" :
+        "other",
+      title: item.type || "Account activity",
+      method: item.method || "MetaBinary",
+      account: item.account || "real",
+      amount: Number(item.amount || 0),
+      status: item.status || "Completed",
+      details: item.details || "",
+      time: item.time || item.createdAt || "",
+      timestamp: Number(new Date(item.createdAt || item.time || 0)) || Date.now() - index,
+      source: "transaction",
+    }));
+
+    const knownTransactionKeys = new Set(
+      transactionRows.map((row) => `${row.title}|${row.time}|${row.amount.toFixed(2)}`)
+    );
+
+    const positionRows = (closedPositions || []).map((item, index) => ({
+      id: `closed-position-${item.id || index}`,
+      category: "trading",
+      title: `Closed ${item.side || "trade"} ${item.instrument || item.symbol || ""}`.trim(),
+      method: "Forex",
+      account: item.account || "real",
+      amount: Number(item.pl ?? item.profit ?? 0),
+      status: Number(item.pl ?? item.profit ?? 0) >= 0 ? "WON" : "LOST",
+      details: `${item.volume || item.lots || ""}${item.volume || item.lots ? " lot" : ""}`.trim(),
+      time: item.closedAt || item.time || item.createdAt || "",
+      timestamp: Number(new Date(item.closedAt || item.time || item.createdAt || 0)) || Date.now() - index,
+      source: "position",
+    })).filter((row) => !knownTransactionKeys.has(`${row.title}|${row.time}|${row.amount.toFixed(2)}`));
+
+    const botRows = (botTrades || []).map((item, index) => ({
+      id: `bot-history-${item.id || index}`,
+      category: "bots",
+      title: item.won ? "Bot profit" : "Bot loss",
+      method: item.botName || item.name || "Bot",
+      account: item.account || "demo",
+      amount: Number(item.net ?? item.amount ?? item.profit ?? 0),
+      status: item.status || (item.won ? "WON" : "LOST"),
+      details: `${item.market || ""}${item.type ? ` · ${item.type}` : ""}`.replace(/^ · | · $/g, ""),
+      time: item.time || item.createdAt || "",
+      timestamp: Number(new Date(item.createdAt || item.time || 0)) || Date.now() - index,
+      source: "bot",
+    })).filter((row) => !knownTransactionKeys.has(`${row.title}|${row.time}|${row.amount.toFixed(2)}`));
+
+    return [...transactionRows, ...positionRows, ...botRows]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 300);
+  }, [transactions, closedPositions, botTrades]);
+
+  const filteredRows = useMemo(() => {
+    const query = historySearch.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (historyTab !== "all" && row.category !== historyTab) return false;
+      if (historyStatus !== "all" && String(row.status).toLowerCase() !== historyStatus) return false;
+      if (!query) return true;
+      return `${row.title} ${row.method} ${row.details} ${row.status} ${row.account}`
+        .toLowerCase()
+        .includes(query);
+    });
+  }, [rows, historyTab, historyStatus, historySearch]);
+
+  const completedDeposits = rows
+    .filter((row) => row.category === "deposits" && /complete|success|paid/i.test(row.status))
+    .reduce((sum, row) => sum + Math.max(0, row.amount), 0);
+  const withdrawals = rows
+    .filter((row) => row.category === "withdrawals")
+    .reduce((sum, row) => sum + Math.abs(Math.min(0, row.amount)), 0);
+  const tradingNet = rows
+    .filter((row) => ["trading", "bots"].includes(row.category))
+    .reduce((sum, row) => sum + row.amount, 0);
+
+  function historyIcon(row) {
+    if (row.category === "deposits") return "↓";
+    if (row.category === "withdrawals") return "↑";
+    if (row.category === "bots") return "AI";
+    if (row.category === "trading") return row.amount >= 0 ? "↗" : "↘";
+    return "•";
+  }
+
+  function exportHistory() {
+    const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+    const csv = [
+      ["Date", "Type", "Method", "Account", "Status", "Amount USD", "Details"],
+      ...filteredRows.map((row) => [row.time, row.title, row.method, row.account, row.status, row.amount, row.details]),
+    ].map((line) => line.map(escapeCsv).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `metabinary-history-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
-    <div className="page listPage">
-      <h1>History</h1>
+    <div className="page listPage historyPageV226">
+      <header className="historyHeroV226">
+        <div>
+          <small>ACCOUNT ACTIVITY</small>
+          <h1>History</h1>
+          <p>Deposits, withdrawals, manual trades and bot activity in one place.</p>
+        </div>
+        <button type="button" onClick={exportHistory} disabled={!filteredRows.length}>⇩ Export</button>
+      </header>
 
-      <section className="listPanel">
-        {transactions.length === 0 && <p>No history yet.</p>}
+      <section className="historySummaryV226">
+        <article><span>Completed deposits</span><strong className="green">+{money(completedDeposits)} USD</strong></article>
+        <article><span>Withdrawals</span><strong>{money(withdrawals)} USD</strong></article>
+        <article><span>Trading net</span><strong className={tradingNet >= 0 ? "green" : "red"}>{tradingNet >= 0 ? "+" : ""}{money(tradingNet)} USD</strong></article>
+      </section>
 
-        {transactions.slice(0, 14).map((tx) => (
-          <div key={tx.id}>
-            <span>
-              <strong>{tx.type}</strong>
-              <small>{tx.time}</small>
-            </span>
+      <section className="historyWorkspaceV226">
+        <nav className="historyTabsV226" aria-label="History categories">
+          {[
+            ["all", "All"],
+            ["deposits", "Deposits"],
+            ["withdrawals", "Withdrawals"],
+            ["trading", "Trading"],
+            ["bots", "Bots"],
+          ].map(([value, label]) => (
+            <button key={value} type="button" className={historyTab === value ? "active" : ""} onClick={() => setHistoryTab(value)}>
+              {label}<b>{value === "all" ? rows.length : rows.filter((row) => row.category === value).length}</b>
+            </button>
+          ))}
+        </nav>
 
-            <b className={tx.amount >= 0 ? "green" : "red"}>
-              {tx.amount >= 0 ? "+" : ""}
-              {money(tx.amount)} USD
-            </b>
-          </div>
-        ))}
+        <div className="historyFiltersV226">
+          <label><span>⌕</span><input value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} placeholder="Search history" /></label>
+          <select value={historyStatus} onChange={(event) => setHistoryStatus(event.target.value)}>
+            <option value="all">All statuses</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="won">Won</option>
+            <option value="lost">Lost</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div className="historyListV226">
+          {!filteredRows.length && (
+            <div className="historyEmptyV226"><b>◎</b><strong>No activity found</strong><span>Try another category, status or search.</span></div>
+          )}
+
+          {filteredRows.map((row) => {
+            const expanded = expandedHistoryId === row.id;
+            return (
+              <article key={row.id} className={`historyRowV226 ${expanded ? "expanded" : ""}`}>
+                <button type="button" className="historyRowMainV226" onClick={() => setExpandedHistoryId(expanded ? "" : row.id)}>
+                  <i className={`historyIconV226 historyIcon-${row.category}`}>{historyIcon(row)}</i>
+                  <span className="historyRowTextV226"><strong>{row.title}</strong><small>{row.method} · {row.account === "demo" ? "Demo" : "Real"} account</small></span>
+                  <span className="historyRowMetaV226"><b className={`historyStatusV226 status-${String(row.status).toLowerCase().replace(/\s+/g, "-")}`}>{row.status}</b><small>{row.time || "Just now"}</small></span>
+                  <strong className={`historyAmountV226 ${row.amount > 0 ? "green" : row.amount < 0 ? "red" : ""}`}>{row.amount > 0 ? "+" : ""}{money(row.amount)} <small>USD</small></strong>
+                  <em>{expanded ? "⌃" : "⌄"}</em>
+                </button>
+                {expanded && (
+                  <div className="historyDetailsV226">
+                    <span><small>Details</small><strong>{row.details || "No additional details"}</strong></span>
+                    <span><small>Reference</small><strong>{String(row.id).slice(-12).toUpperCase()}</strong></span>
+                    <span><small>Category</small><strong>{row.category}</strong></span>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
       </section>
     </div>
   );
@@ -8137,7 +8462,6 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
           </DrawerBlock>
 
           <DrawerBlock title="AUTOMATION">
-            <DrawerButton icon="AI" label="AI Trading" onClick={() => go("ai")} />
             <DrawerButton icon="🤖" label="My Bots" onClick={() => go("bots")} />
             <DrawerButton icon="▶" label="Running Bots" onClick={() => go("botLive")} />
             <DrawerButton icon="▣" label="Reports" onClick={() => go("reports")} />
@@ -8550,45 +8874,9 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       )}
 
       {open && (
-        <>
-          <button
-            type="button"
-            className="aiScannerBackdrop"
-            onClick={closeScanner}
-            aria-label="Close MetaBinary AI"
-          />
-          <section className="aiScannerPanel aiScannerPremiumV222" style={panelStyle}>
-            <div className="aiSheetHandleV222" aria-hidden="true" />
-            <header>
-              <div>
-                <small>METABINARY INTELLIGENCE</small>
-                <h2>AI Auto-Trade Scanner</h2>
-                <p>Let AI analyze the market and find the strongest trading opportunity.</p>
-              </div>
-              <button type="button" onClick={closeScanner} aria-label="Close AI scanner">×</button>
-            </header>
-
-            {!scanning && !result && !autoSession?.id && (
-              <div className="aiFeatureGridV222">
-                <article>
-                  <span className="aiFeatureIconV222 scan">◉</span>
-                  <strong>Scan Market</strong>
-                  <small>Analyzes live market conditions and volatility.</small>
-                </article>
-                <article>
-                  <span className="aiFeatureIconV222 rank">▥</span>
-                  <strong>Rank Opportunities</strong>
-                  <small>Compares setups and selects the strongest signal.</small>
-                </article>
-                <article>
-                  <span className="aiFeatureIconV222 trade">▣</span>
-                  <strong>Auto Trade</strong>
-                  <small>Executes the selected setup using your risk limits.</small>
-                </article>
-              </div>
-            )}
-
-            <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
+        <section className="aiScannerPanel" style={panelStyle}>
+          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Auto-Trade Scanner</h2></div><button onClick={closeScanner}>×</button></header>
+          <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
 
           {scanning && (
             <div className="aiScanningState" aria-live="polite">
@@ -8631,15 +8919,16 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
               </button>
             </footer>
           )}
-          <small className="aiSafetyNote">AI analyzes historical data and live patterns. Results are not guaranteed.</small>
-          </section>
-        </>
+          <small className="aiSafetyNote">AI automatically ranks the current markets and contract types, then starts the strongest available setup. Results are not guaranteed.</small>
+        </section>
       )}
     </>
   );
 }
 
 function DepositModal({ close, submit }) {
+  const [step, setStep] = useState("method");
+  const [selectedMethod, setSelectedMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(10);
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -8647,6 +8936,35 @@ function DepositModal({ close, submit }) {
   const [depositStatus, setDepositStatus] = useState("");
   const [depositMessage, setDepositMessage] = useState("");
 
+  const methods = [
+    {
+      id: "mpesa",
+      icon: "M",
+      title: "M-PESA",
+      subtitle: "STK Push",
+      timing: "Instant",
+      detail: "Secure mobile payment",
+      recommended: true,
+    },
+    {
+      id: "bank",
+      icon: "▦",
+      title: "Bank Transfer",
+      subtitle: "Local bank account",
+      timing: "1–3 hours",
+      detail: "Transfer from your bank",
+    },
+    {
+      id: "card",
+      icon: "▰",
+      title: "Debit / Credit Card",
+      subtitle: "Visa or Mastercard",
+      timing: "Instant",
+      detail: "Secure card checkout",
+    },
+  ];
+
+  const selected = methods.find((method) => method.id === selectedMethod) || methods[0];
   const quickAmounts = [5, 10, 20, 50, 100];
   const safeAmount = Math.max(0, Number(amountUsd || 0));
   const usdRate = Math.max(1, Number(import.meta.env.VITE_USD_RATE || 130));
@@ -8659,10 +8977,8 @@ function DepositModal({ close, submit }) {
       const detail = event.detail || {};
       const incomingDepositId = String(detail.depositId || "");
       if (!depositId || (incomingDepositId && incomingDepositId !== depositId)) return;
-
       const nextStatus = String(detail.status || "").toLowerCase();
       if (!nextStatus) return;
-
       setDepositStatus(nextStatus);
       if (detail.message) setDepositMessage(String(detail.message));
     };
@@ -8673,16 +8989,18 @@ function DepositModal({ close, submit }) {
 
   function handlePhoneChange(event) {
     let digits = String(event.target.value || "").replace(/\D/g, "");
-
     if (digits.startsWith("254")) digits = digits.slice(3);
     if (digits.startsWith("0")) digits = digits.slice(1);
-
     setPhone(digits.slice(0, 9));
+  }
+
+  function continueWithMethod() {
+    setDepositMessage("");
+    setStep(selectedMethod === "mpesa" ? "mpesa" : "unavailable");
   }
 
   async function handleSubmit() {
     if (submitting || safeAmount < 1 || !phoneValid) return;
-
     setSubmitting(true);
     setDepositMessage("");
 
@@ -8708,20 +9026,13 @@ function DepositModal({ close, submit }) {
 
   if (depositStatus === "completed") {
     return (
-      <div className="modalLayer mpesaDepositLayer">
-        <div
-          className="depositModal mpesaDepositResultModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Deposit complete"
-        >
-          <div className="mpesaDepositResultIcon success">✓</div>
+      <div className="modalLayer mbDepositLayerV223">
+        <div className="mbDepositResultV223" role="dialog" aria-modal="true" aria-label="Deposit complete">
+          <div className="mbDepositResultIconV223 success">✓</div>
           <small>PAYMENT CONFIRMED</small>
           <h2>Deposit successful</h2>
           <p>${money(safeAmount)} USD has been added to your Real Account.</p>
-          <button type="button" className="mpesaDepositConfirm" onClick={close}>
-            Done
-          </button>
+          <button type="button" className="mbDepositPrimaryV223" onClick={close}>Done</button>
         </div>
       </div>
     );
@@ -8729,166 +9040,140 @@ function DepositModal({ close, submit }) {
 
   if (depositStatus === "failed") {
     return (
-      <div className="modalLayer mpesaDepositLayer">
-        <div
-          className="depositModal mpesaDepositResultModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Deposit not completed"
-        >
-          <div className="mpesaDepositResultIcon failed">!</div>
+      <div className="modalLayer mbDepositLayerV223">
+        <div className="mbDepositResultV223" role="dialog" aria-modal="true" aria-label="Deposit not completed">
+          <div className="mbDepositResultIconV223 failed">!</div>
           <small>PAYMENT NOT COMPLETED</small>
           <h2>Try again</h2>
           <p>{depositMessage || "The M-PESA payment was not completed."}</p>
-          <button
-            type="button"
-            className="mpesaDepositConfirm"
-            onClick={() => {
-              setDepositId("");
-              setDepositStatus("");
-              setDepositMessage("");
-            }}
-          >
-            Back to deposit
-          </button>
+          <button type="button" className="mbDepositPrimaryV223" onClick={() => {
+            setDepositId("");
+            setDepositStatus("");
+            setDepositMessage("");
+          }}>Back to deposit</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="modalLayer mpesaDepositLayer">
-      <div
-        className="depositModal mpesaDepositModal"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Deposit funds"
-      >
-        <button
-          type="button"
-          className="closeModal mpesaDepositClose"
-          onClick={close}
-          aria-label="Close dialog"
-          disabled={submitting}
-        >
-          ×
-        </button>
+    <div className="modalLayer mbDepositLayerV223">
+      <div className="mbDepositModalV223" role="dialog" aria-modal="true" aria-label="Deposit funds">
+        <button type="button" className="mbDepositCloseV223" onClick={close} aria-label="Close deposit" disabled={submitting}>×</button>
 
-        <div className="mpesaDepositHead">
-          <span className="mpesaDepositPlus">＋</span>
-          <div>
-            <small>REAL ACCOUNT</small>
-            <h2>Deposit Funds</h2>
-            <p>Enter details to deposit to your real account.</p>
-          </div>
-        </div>
+        {step === "method" && (
+          <>
+            <header className="mbDepositHeaderV223">
+              <span className="mbDepositHeaderIconV223">＋</span>
+              <div>
+                <small>REAL ACCOUNT</small>
+                <h2>Deposit Funds</h2>
+                <p>Choose how you would like to fund your account.</p>
+              </div>
+            </header>
 
-        <label className="mpesaSectionLabel" htmlFor="mpesaDepositAmount">
-          AMOUNT (USD $)
-        </label>
+            <div className="mbDepositStepV223"><b>1</b><span>Select payment method</span><i>Secure checkout</i></div>
 
-        <div className="mpesaDepositAmountBox">
-          <span>$</span>
-          <input
-            id="mpesaDepositAmount"
-            type="number"
-            min="1"
-            step="0.01"
-            inputMode="decimal"
-            value={amountUsd}
-            onChange={(event) => setAmountUsd(event.target.value)}
-            disabled={submitting || depositStatus === "pending"}
-            autoFocus
-          />
-          <b>USD</b>
-        </div>
-
-        <div className="mpesaQuickAmounts" aria-label="Quick deposit amounts">
-          {quickAmounts.map((value) => (
-            <button
-              key={value}
-              type="button"
-              className={Number(amountUsd) === value ? "active" : ""}
-              onClick={() => setAmountUsd(value)}
-              disabled={submitting || depositStatus === "pending"}
-            >
-              ${value}
-            </button>
-          ))}
-        </div>
-
-        <label className="mpesaSectionLabel" htmlFor="mpesaDepositPhone">
-          PHONE NUMBER
-        </label>
-
-        <div className={`mpesaPhoneBox ${phone && !phoneValid ? "invalid" : ""}`}>
-          <span className="mpesaKenyaFlag" aria-hidden="true">🇰🇪</span>
-          <strong>+254</strong>
-          <i aria-hidden="true"></i>
-          <input
-            id="mpesaDepositPhone"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            placeholder="7XX XXX XXX"
-            value={phone}
-            onChange={handlePhoneChange}
-            disabled={submitting || depositStatus === "pending"}
-            aria-invalid={Boolean(phone && !phoneValid)}
-          />
-        </div>
-
-        <p className="mpesaPhoneSecurity">
-          <span>🔒</span> Your phone number is secure and encrypted
-        </p>
-
-        <label className="mpesaSectionLabel">PAYMENT METHOD</label>
-
-        <div className="mpesaMethodCard">
-          <div className="mpesaMethodLogo">M-PESA</div>
-          <div className="mpesaMethodCopy">
-            <strong>M-PESA (STK Push)</strong>
-            <span>Pay safely via M-PESA</span>
-          </div>
-          <span className="mpesaMethodSelected" aria-label="Selected payment method"></span>
-        </div>
-
-        <div className="mpesaDepositSummary">
-          <div><span>You Deposit</span><strong>${money(safeAmount)}</strong></div>
-          <div><span>You Get (USD)</span><strong className="green">${money(safeAmount)}</strong></div>
-          <div><span>Exchange Rate</span><strong>1 USD = KES {money(usdRate)}</strong></div>
-          <div className="mpesaKesPreview"><span>M-PESA Charge Amount</span><strong>KES {amountKes.toLocaleString()}</strong></div>
-        </div>
-
-        {depositStatus === "pending" && (
-          <div className="mpesaDepositPending" role="status">
-            <span className="mpesaPendingPulse"></span>
-            <div>
-              <strong>STK Push sent</strong>
-              <p>{depositMessage || "Check your phone and enter your M-PESA PIN."}</p>
+            <div className="mbDepositMethodsV223" role="radiogroup" aria-label="Deposit method">
+              {methods.map((method) => (
+                <button
+                  type="button"
+                  key={method.id}
+                  role="radio"
+                  aria-checked={selectedMethod === method.id}
+                  className={`mbDepositMethodV223 ${selectedMethod === method.id ? "selected" : ""}`}
+                  onClick={() => setSelectedMethod(method.id)}
+                >
+                  <span className={`mbDepositMethodIconV223 ${method.id}`}>{method.icon}</span>
+                  <span className="mbDepositMethodCopyV223">
+                    <strong>{method.title}{method.recommended && <em>Recommended</em>}</strong>
+                    <small>{method.subtitle} · {method.detail}</small>
+                  </span>
+                  <span className="mbDepositMethodMetaV223"><b>{method.timing}</b><i></i></span>
+                </button>
+              ))}
             </div>
+
+            <div className="mbDepositSelectedV223">
+              <span>Selected method</span>
+              <strong>{selected.title}</strong>
+            </div>
+
+            <button type="button" className="mbDepositPrimaryV223" onClick={continueWithMethod}>
+              Continue with {selected.title} <span>›</span>
+            </button>
+            <p className="mbDepositSecurityV223">🔒 Payments are protected with secure encryption</p>
+          </>
+        )}
+
+        {step === "unavailable" && (
+          <div className="mbDepositUnavailableV223">
+            <button type="button" className="mbDepositBackV223" onClick={() => setStep("method")}>‹ Payment methods</button>
+            <span className={`mbDepositUnavailableIconV223 ${selectedMethod}`}>{selected.icon}</span>
+            <small>{selected.title.toUpperCase()}</small>
+            <h2>Method temporarily unavailable</h2>
+            <p>This payment route cannot complete deposits right now. Use M-PESA for an instant secure deposit.</p>
+            <button type="button" className="mbDepositPrimaryV223" onClick={() => { setSelectedMethod("mpesa"); setStep("mpesa"); }}>
+              Use M-PESA
+            </button>
           </div>
         )}
 
-        <button
-          type="button"
-          className="mpesaDepositConfirm"
-          onClick={handleSubmit}
-          disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}
-        >
-          <span>🔒</span>
-          {submitting
-            ? "Sending STK Push…"
-            : depositStatus === "pending"
-              ? "Waiting for M-PESA confirmation…"
-              : `Confirm $${money(safeAmount)} Deposit`}
-        </button>
+        {step === "mpesa" && (
+          <>
+            <header className="mbDepositHeaderV223 compact">
+              <button type="button" className="mbDepositBackV223" onClick={() => setStep("method")} disabled={submitting || depositStatus === "pending"}>‹ Methods</button>
+              <div>
+                <small>M-PESA · STK PUSH</small>
+                <h2>Complete your deposit</h2>
+                <p>Enter the amount and Safaricom number to receive the prompt.</p>
+              </div>
+            </header>
 
-        {phone && !phoneValid && (
-          <p className="mpesaPhoneError">Enter a valid Kenyan mobile number, for example 712345678.</p>
+            <div className="mbDepositMethodMiniV223">
+              <span className="mbDepositMethodIconV223 mpesa">M</span>
+              <div><strong>M-PESA</strong><small>Instant · Secure mobile payment</small></div>
+              <b>Selected</b>
+            </div>
+
+            <label className="mbDepositLabelV223" htmlFor="mpesaDepositAmount">AMOUNT (USD)</label>
+            <div className="mbDepositAmountV223">
+              <span>$</span>
+              <input id="mpesaDepositAmount" type="number" min="1" step="0.01" inputMode="decimal" value={amountUsd} onChange={(event) => setAmountUsd(event.target.value)} disabled={submitting || depositStatus === "pending"} autoFocus />
+              <b>USD</b>
+            </div>
+
+            <div className="mbDepositQuickV223" aria-label="Quick deposit amounts">
+              {quickAmounts.map((value) => (
+                <button key={value} type="button" className={Number(amountUsd) === value ? "active" : ""} onClick={() => setAmountUsd(value)} disabled={submitting || depositStatus === "pending"}>${value}</button>
+              ))}
+            </div>
+
+            <label className="mbDepositLabelV223" htmlFor="mpesaDepositPhone">M-PESA PHONE NUMBER</label>
+            <div className={`mbDepositPhoneV223 ${phone && !phoneValid ? "invalid" : ""}`}>
+              <span aria-hidden="true">🇰🇪</span><strong>+254</strong><i></i>
+              <input id="mpesaDepositPhone" type="tel" inputMode="numeric" autoComplete="tel" placeholder="7XX XXX XXX" value={phone} onChange={handlePhoneChange} disabled={submitting || depositStatus === "pending"} aria-invalid={Boolean(phone && !phoneValid)} />
+            </div>
+
+            <div className="mbDepositSummaryV223">
+              <div><span>You deposit</span><strong>${money(safeAmount)} USD</strong></div>
+              <div><span>M-PESA charge</span><strong>KES {amountKes.toLocaleString()}</strong></div>
+              <div><span>Real account receives</span><strong className="green">${money(safeAmount)} USD</strong></div>
+              <small>Exchange rate: 1 USD = KES {money(usdRate)}</small>
+            </div>
+
+            {depositStatus === "pending" && (
+              <div className="mbDepositPendingV223" role="status"><span></span><div><strong>STK Push sent</strong><p>{depositMessage || "Check your phone and enter your M-PESA PIN."}</p></div></div>
+            )}
+
+            <button type="button" className="mbDepositPrimaryV223" onClick={handleSubmit} disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}>
+              {submitting ? "Sending STK Push…" : depositStatus === "pending" ? "Waiting for confirmation…" : `Send STK Push · $${money(safeAmount)}`}
+            </button>
+
+            {phone && !phoneValid && <p className="mbDepositErrorV223">Enter a valid Kenyan number, for example 712345678.</p>}
+            <p className="mbDepositSecurityV223">🔒 Secure payment powered by M-PESA</p>
+          </>
         )}
-
-        <p className="mpesaDepositSecurity">🔒 Secure payment powered by M-PESA</p>
       </div>
     </div>
   );
@@ -9661,38 +9946,190 @@ function AdminStat({ title, value }) {
   );
 }
 
-function WithdrawModal({ close, submit }) {
+function WithdrawModal({ close, submit, availableBalance = 0, defaultPhone = "" }) {
+  const [step, setStep] = useState("method");
+  const [method, setMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(5);
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(defaultPhone);
   const [submitting, setSubmitting] = useState(false);
 
+  const amount = Number(amountUsd || 0);
+  const maxAllowed = Math.min(150000, Math.max(0, Number(availableBalance || 0)));
+  const amountValid = Number.isFinite(amount) && amount >= 5 && amount <= maxAllowed;
+  const phoneValid = /^(?:254|0)?(?:7|1)\d{8}$/.test(String(phone).replace(/[\s+-]/g, ""));
+
+  function continueToDetails() {
+    if (method !== "mpesa") return;
+    setStep("details");
+  }
+
+  function continueToReview() {
+    if (!amountValid || !phoneValid) return;
+    setStep("review");
+  }
+
   async function handleSubmit() {
-    if (submitting) return;
+    if (submitting || !amountValid || !phoneValid) return;
     setSubmitting(true);
-    const completed = await submit({ amountUsd, phone });
+    const completed = await submit({ amountUsd: amount, phone });
     if (!completed) setSubmitting(false);
   }
 
   return (
-    <div className="modalLayer">
-      <div className="depositModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
-        <button className="closeModal" onClick={close} aria-label="Close dialog" disabled={submitting}>
-          ×
-        </button>
+    <div className="modalLayer withdrawalFlowLayer" onMouseDown={(event) => {
+      if (event.target === event.currentTarget && !submitting) close();
+    }}>
+      <section className="withdrawFlowModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
+        <header className="withdrawFlowHeader">
+          <button
+            className="withdrawBackBtn"
+            onClick={() => setStep(step === "review" ? "details" : "method")}
+            aria-label="Go back"
+            disabled={step === "method" || submitting}
+          >
+            ←
+          </button>
+          <div>
+            <span>Cashier</span>
+            <h2>Withdraw Funds</h2>
+          </div>
+          <button className="withdrawCloseBtn" onClick={close} aria-label="Close dialog" disabled={submitting}>×</button>
+        </header>
 
-        <h2>Withdraw Funds</h2>
-        <p>Minimum withdrawal is 5 USD.</p>
+        <div className="withdrawStepTrack" aria-label="Withdrawal progress">
+          <i className="active">1</i><span className={step !== "method" ? "active" : ""} />
+          <i className={step !== "method" ? "active" : ""}>2</i><span className={step === "review" ? "active" : ""} />
+          <i className={step === "review" ? "active" : ""}>3</i>
+        </div>
 
-        <label>Amount USD</label>
-        <input type="number" min="5" value={amountUsd} onChange={(e) => setAmountUsd(e.target.value)} disabled={submitting} />
+        {step === "method" && (
+          <div className="withdrawFlowBody">
+            <div className="withdrawBalanceCard">
+              <span>Available real balance</span>
+              <strong>${money(availableBalance)}</strong>
+              <small>Only your Real Account balance can be withdrawn.</small>
+            </div>
 
-        <label>M-Pesa Phone</label>
-        <input placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={submitting} />
+            <div className="withdrawSectionTitle">
+              <strong>Select withdrawal method</strong>
+              <small>Choose where you want to receive your funds.</small>
+            </div>
 
-        <button className="modalPrimary" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Submitting…" : "Request Withdrawal"}
-        </button>
-      </div>
+            <div className="withdrawMethodList">
+              <button className={method === "mpesa" ? "selected" : ""} onClick={() => setMethod("mpesa")}>
+                <b className="withdrawMethodIcon mpesa">M</b>
+                <span><strong>M-PESA</strong><small>Receive directly to your mobile wallet</small></span>
+                <em>{method === "mpesa" ? "✓" : "›"}</em>
+              </button>
+              <button className="disabledMethod" type="button">
+                <b className="withdrawMethodIcon">▣</b>
+                <span><strong>Bank Transfer</strong><small>Coming soon</small></span>
+                <em>🔒</em>
+              </button>
+              <button className="disabledMethod" type="button">
+                <b className="withdrawMethodIcon">₿</b>
+                <span><strong>Crypto Wallet</strong><small>Coming soon</small></span>
+                <em>🔒</em>
+              </button>
+            </div>
+
+            <button className="withdrawPrimaryBtn" onClick={continueToDetails}>Continue</button>
+          </div>
+        )}
+
+        {step === "details" && (
+          <div className="withdrawFlowBody">
+            <div className="withdrawSelectedMethod">
+              <b className="withdrawMethodIcon mpesa">M</b>
+              <div><span>Withdrawal method</span><strong>M-PESA</strong></div>
+              <button onClick={() => setStep("method")}>Change</button>
+            </div>
+
+            <label className="withdrawField">
+              <span>Amount</span>
+              <div className="withdrawAmountInput">
+                <b>$</b>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="5"
+                  max={maxAllowed || 5}
+                  step="0.01"
+                  value={amountUsd}
+                  onChange={(event) => setAmountUsd(event.target.value)}
+                  disabled={submitting}
+                  autoFocus
+                />
+                <em>USD</em>
+              </div>
+              <small className={!amountValid && amount > 0 ? "fieldError" : ""}>
+                Minimum $5 · Maximum ${money(maxAllowed)}
+              </small>
+            </label>
+
+            <div className="withdrawQuickAmounts">
+              {[5, 10, 25, 50].map((value) => (
+                <button key={value} onClick={() => setAmountUsd(Math.min(value, maxAllowed || value))}>${value}</button>
+              ))}
+              <button onClick={() => setAmountUsd(maxAllowed)}>Max</button>
+            </div>
+
+            <label className="withdrawField">
+              <span>M-PESA phone number</span>
+              <div className="withdrawPhoneInput">
+                <b>🇰🇪</b>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="07XXXXXXXX or 2547XXXXXXXX"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+              <small className={phone && !phoneValid ? "fieldError" : ""}>
+                Enter the number registered for M-PESA.
+              </small>
+            </label>
+
+            <div className="withdrawInfoRow">
+              <span><b>Fee</b><strong>Free</strong></span>
+              <span><b>Processing</b><strong>Usually within 24 hours</strong></span>
+            </div>
+
+            <button className="withdrawPrimaryBtn" onClick={continueToReview} disabled={!amountValid || !phoneValid}>
+              Review Withdrawal
+            </button>
+          </div>
+        )}
+
+        {step === "review" && (
+          <div className="withdrawFlowBody">
+            <div className="withdrawReviewHero">
+              <span>You are withdrawing</span>
+              <strong>${money(amount)}</strong>
+              <small>from your Real Account</small>
+            </div>
+
+            <div className="withdrawReviewCard">
+              <p><span>Method</span><strong>M-PESA</strong></p>
+              <p><span>Phone number</span><strong>{phone}</strong></p>
+              <p><span>Withdrawal fee</span><strong className="green">FREE</strong></p>
+              <p className="withdrawReceiveRow"><span>You’ll receive</span><strong>${money(amount)}</strong></p>
+            </div>
+
+            <div className="withdrawNotice">
+              <b>✓</b>
+              <span>Confirm that the M-PESA number is correct. Your request will be submitted for processing.</span>
+            </div>
+
+            <button className="withdrawPrimaryBtn" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? "Submitting withdrawal…" : `Confirm $${money(amount)} Withdrawal`}
+            </button>
+            <button className="withdrawEditBtn" onClick={() => setStep("details")} disabled={submitting}>Edit details</button>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

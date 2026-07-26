@@ -55505,3 +55505,1777 @@ body,
     height: 38px !important;
   }
 }
+
+/* =========================================================
+   MetaBinary V275 — Compact mobile profile hero only
+   Keeps all profile content and functionality unchanged.
+   ========================================================= */
+@media (max-width: 768px) {
+  .profileV237 .profileHeroV237 {
+    min-height: 138px !important;
+    padding: 16px 18px !important;
+    gap: 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .profileV237 .profileIdentityV237 {
+    gap: 13px !important;
+    width: 100% !important;
+  }
+
+  .profileV237 .profileAvatarV237 {
+    width: 72px !important;
+    height: 72px !important;
+    flex-basis: 72px !important;
+    border-width: 3px !important;
+    box-shadow: 0 0 0 4px rgba(0, 111, 255, 0.09) !important;
+  }
+
+  .profileV237 .profileAvatarV237 span {
+    font-size: 25px !important;
+  }
+
+  .profileV237 .profileAvatarV237 i {
+    width: 16px !important;
+    height: 16px !important;
+    right: 1px !important;
+    bottom: 3px !important;
+  }
+
+  .profileV237 .profileNameV237 > div {
+    gap: 7px !important;
+  }
+
+  .profileV237 .profileNameV237 h1 {
+    font-size: clamp(20px, 5.8vw, 27px) !important;
+    line-height: 1.08 !important;
+  }
+
+  .profileV237 .profileNameV237 > div > span {
+    padding: 4px 7px !important;
+    font-size: 8px !important;
+  }
+
+  .profileV237 .profileNameV237 p {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+  }
+
+  .profileV237 .profileNameV237 small {
+    display: block !important;
+    margin-top: 6px !important;
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  .profileV237 .profileHeroGlowV237 {
+    width: 220px !important;
+    height: 220px !important;
+    right: -75px !important;
+    top: -115px !important;
+  }
+
+  .profileV237 .profileEditV237 {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   MetaBinary V276 — Final mobile Bots page compact pass
+   Visual sizing only. No bot logic, setup, running state,
+   desktop layout, header or bottom navigation is changed.
+   ========================================================= */
+@media (max-width: 768px) {
+  .finalBotsPage.vSeriesBotsPage {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .finalBotsPage .vSeriesBotsHeader {
+    min-height: 78px !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .finalBotsPage .vSeriesBotsHeader small {
+    margin-bottom: 3px !important;
+    font-size: 9px !important;
+    letter-spacing: .12em !important;
+  }
+
+  .finalBotsPage .vSeriesBotsHeader h1 {
+    font-size: 25px !important;
+    line-height: 1 !important;
+  }
+
+  .finalBotsPage .vSeriesBotsHeader p {
+    margin-top: 6px !important;
+    max-width: 280px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .finalBotsPage .botsHeaderStatus {
+    min-height: 30px !important;
+    padding: 0 10px !important;
+    font-size: 9px !important;
+  }
+
+  .finalBotsPage .vSeriesBotStats {
+    min-height: 66px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .finalBotsPage .vSeriesBotStats .statCard {
+    min-width: 0 !important;
+    min-height: 66px !important;
+    padding: 8px 6px !important;
+    gap: 5px !important;
+    border-radius: 12px !important;
+  }
+
+  .finalBotsPage .vSeriesBotStats .statCard > b {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px !important;
+    border-radius: 9px !important;
+  }
+
+  .finalBotsPage .vSeriesBotStats .statCard strong {
+    font-size: 16px !important;
+  }
+
+  .finalBotsPage .vSeriesBotStats .statCard span {
+    margin-top: 2px !important;
+    font-size: 8px !important;
+  }
+
+  .finalBotsPage .vSeriesBotGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .finalBotsPage .vSeriesBotCard {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    padding: 13px 14px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+  }
+
+  .finalBotsPage .vSeriesBotCard::before {
+    top: 14px !important;
+    bottom: 14px !important;
+  }
+
+  .finalBotsPage .vSeriesBotCardHead {
+    min-height: 50px !important;
+    gap: 10px !important;
+  }
+
+  .finalBotsPage .vSeriesBotIcon {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 14px !important;
+  }
+
+  .finalBotsPage .vSeriesBotIcon span {
+    font-size: 8px !important;
+  }
+
+  .finalBotsPage .vSeriesBotIcon strong {
+    font-size: 20px !important;
+  }
+
+  .finalBotsPage .botStatusPill {
+    min-height: 28px !important;
+    padding: 0 9px !important;
+    font-size: 9px !important;
+  }
+
+  .finalBotsPage .vSeriesBotCopy h2 {
+    font-size: 21px !important;
+    line-height: 1.05 !important;
+  }
+
+  .finalBotsPage .vSeriesBotCopy p {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  .finalBotsPage .vSeriesBotCopy small {
+    display: -webkit-box !important;
+    margin-top: 5px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+  }
+
+  .finalBotsPage .vSeriesMeta {
+    min-height: 58px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 8px 9px !important;
+    border-radius: 12px !important;
+  }
+
+  .finalBotsPage .vSeriesMeta p {
+    min-width: 0 !important;
+    padding: 0 3px !important;
+  }
+
+  .finalBotsPage .vSeriesMeta span {
+    font-size: 8px !important;
+  }
+
+  .finalBotsPage .vSeriesMeta strong {
+    margin-top: 3px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+  }
+
+  .finalBotsPage .vSeriesBotAction {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 14px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+  }
+
+  .finalBotsPage .vSeriesBotAction b {
+    font-size: 22px !important;
+  }
+}
+
+/* =========================================================
+   MetaBinary V277 — Mobile Bot Live compact + no bottom gap
+   CSS layout only. No bot calculations, trades, martingale,
+   balances, JSX, header, desktop, or navigation logic changed.
+   ========================================================= */
+@media (max-width: 768px) {
+  .app.activePage-botLive {
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive > .mainScreen,
+  .app.activePage-botLive .mainScreen:has(.botLiveV236) {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 6px 8px 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive .botLiveV236 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-rows:
+      72px
+      62px
+      38px
+      minmax(0, 1fr)
+      60px !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive .botLiveTopV236 {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    display: grid !important;
+    grid-template-columns: 31% minmax(0, 69%) !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-botLive .botLiveRunV236 {
+    min-width: 0 !important;
+    height: 72px !important;
+    padding: 8px 9px !important;
+    gap: 6px !important;
+    border-radius: 13px !important;
+  }
+
+  .app.activePage-botLive .botLiveRunIconV236 {
+    font-size: 23px !important;
+  }
+
+  .app.activePage-botLive .botLiveRunV236 strong {
+    font-size: 12px !important;
+    line-height: 1.05 !important;
+  }
+
+  .app.activePage-botLive .botLiveRunV236 small {
+    margin-top: 3px !important;
+    font-size: 8px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatusV236 {
+    min-width: 0 !important;
+    height: 72px !important;
+    padding: 7px 8px 6px !important;
+    border-radius: 13px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatusRowV236 {
+    width: 100% !important;
+    height: 47px !important;
+    grid-template-columns: 17px minmax(0, 1fr) 87px !important;
+    gap: 5px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatusIconV236 {
+    font-size: 18px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatusCopyV236 strong {
+    font-size: 11px !important;
+    line-height: 1.05 !important;
+  }
+
+  .app.activePage-botLive .botLiveStatusCopyV236 small {
+    margin-top: 3px !important;
+    font-size: 7px !important;
+  }
+
+  .app.activePage-botLive .botLiveSettingsV236 {
+    width: 87px !important;
+    height: 32px !important;
+    padding: 0 4px !important;
+    border-radius: 9px !important;
+    font-size: 8px !important;
+  }
+
+  .app.activePage-botLive .botLiveSettingsV236 span {
+    margin-right: 3px !important;
+  }
+
+  .app.activePage-botLive .botLiveProgressV236 {
+    height: 5px !important;
+    margin-top: 5px !important;
+  }
+
+  .app.activePage-botLive .botLiveMetricsV236 {
+    width: 100% !important;
+    height: 62px !important;
+    min-height: 62px !important;
+    max-height: 62px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-botLive .botLiveMetricsV236 > div {
+    min-width: 0 !important;
+    height: 62px !important;
+    padding: 5px 3px !important;
+    border-radius: 11px !important;
+  }
+
+  .app.activePage-botLive .botLiveMetricsV236 span {
+    margin-bottom: 4px !important;
+    font-size: 7.5px !important;
+  }
+
+  .app.activePage-botLive .botLiveMetricsV236 strong {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 11px !important;
+  }
+
+  .app.activePage-botLive .botLiveTabsV236 {
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 60px !important;
+    border-radius: 10px !important;
+  }
+
+  .app.activePage-botLive .botLiveTabsV236 button {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 2px !important;
+    font-size: 8px !important;
+  }
+
+  .app.activePage-botLive .botLiveBodyV236 {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-botLive .botLiveScrollV236,
+  .app.activePage-botLive .botLiveSummaryV236 {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border-radius: 10px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .app.activePage-botLive .botLiveRowV236 {
+    min-height: 47px !important;
+    height: 47px !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+  }
+
+  .app.activePage-botLive .botLiveRowInfoV236 b {
+    font-size: 11px !important;
+  }
+
+  .app.activePage-botLive .botLiveRowInfoV236 small,
+  .app.activePage-botLive .botLiveRowValueV236 small {
+    margin-top: 3px !important;
+    font-size: 7px !important;
+  }
+
+  .app.activePage-botLive .botLiveRowValueV236 {
+    flex-basis: 68px !important;
+  }
+
+  .app.activePage-botLive .botLiveRowValueV236 b {
+    margin-top: 3px !important;
+    font-size: 11px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatsV236 {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    border-radius: 10px 10px 0 0 !important;
+  }
+
+  .app.activePage-botLive .botLiveStatsV236 .statCard {
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 3px 1px !important;
+    border-radius: 8px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatsV236 .statCard strong {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatsV236 .statCard span {
+    margin-top: 3px !important;
+    font-size: 7.5px !important;
+  }
+
+  .app.activePage-botLive > .bottomNav,
+  .app.activePage-botLive > nav.bottomNav {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 380px), (max-height: 740px) and (max-width: 768px) {
+  .app.activePage-botLive .botLiveV236 {
+    grid-template-rows:
+      66px
+      56px
+      34px
+      minmax(0, 1fr)
+      54px !important;
+    gap: 4px !important;
+  }
+
+  .app.activePage-botLive .botLiveTopV236,
+  .app.activePage-botLive .botLiveRunV236,
+  .app.activePage-botLive .botLiveStatusV236 {
+    height: 66px !important;
+    min-height: 66px !important;
+    max-height: 66px !important;
+  }
+
+  .app.activePage-botLive .botLiveMetricsV236,
+  .app.activePage-botLive .botLiveMetricsV236 > div {
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+  }
+
+  .app.activePage-botLive .botLiveTabsV236,
+  .app.activePage-botLive .botLiveTabsV236 button {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  .app.activePage-botLive .botLiveRowV236 {
+    height: 43px !important;
+    min-height: 43px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatsV236 {
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+  }
+
+  .app.activePage-botLive .botLiveStatsV236 .statCard {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+}
+
+/* =========================================================
+   MetaBinary V278 — Black / White theme selector
+   ========================================================= */
+
+.themeChoiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.themeChoice {
+  min-height: 230px;
+  padding: 18px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.themeChoice.active {
+  border-color: #087cff;
+  box-shadow: 0 0 0 2px rgba(8, 124, 255, 0.18), 0 18px 42px rgba(0, 119, 255, 0.12);
+}
+
+.themeChoice strong {
+  font-size: 20px;
+}
+
+.themeChoice small {
+  color: #93a2b8;
+  line-height: 1.4;
+}
+
+.themeChoice > b {
+  margin-top: auto;
+  color: #168cff;
+  font-size: 13px;
+}
+
+.themePreview {
+  width: 100%;
+  height: 105px;
+  padding: 13px;
+  display: grid;
+  grid-template-columns: 28% 1fr;
+  grid-template-rows: 20px 1fr;
+  gap: 8px;
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.themePreview i {
+  display: block;
+  border-radius: 6px;
+}
+
+.themePreview i:first-child {
+  grid-column: 1 / -1;
+}
+
+.themePreview i:nth-child(2) {
+  grid-row: 2;
+}
+
+.themePreview i:nth-child(3) {
+  grid-row: 2;
+}
+
+.themePreviewDark {
+  background: #020812;
+  border: 1px solid #15334f;
+}
+
+.themePreviewDark i {
+  background: #0d1a2a;
+  border: 1px solid #1c3f62;
+}
+
+.themePreviewLight {
+  background: #f4f7fb;
+  border: 1px solid #cad5e4;
+}
+
+.themePreviewLight i {
+  background: #ffffff;
+  border: 1px solid #d8e0ea;
+}
+
+/* ==========================================================================
+   METABINARY V301 — CLEAN, ISOLATED WHITE THEME
+   One final implementation. No legacy light-theme patches below this point.
+   ========================================================================== */
+
+html[data-theme="light"],
+body[data-theme="light"],
+body[data-theme="light"] #root,
+.app.theme-light {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+}
+
+.app.theme-light .mainScreen,
+.app.theme-light .finalBinaryTradePage {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+}
+
+/* Header — exact white reference */
+html[data-theme="light"] .mobile-header,
+body[data-theme="light"] .mobile-header,
+.app.theme-light .mobile-header {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-bottom: 1px solid #e4e9f0 !important;
+  color: #0b1320 !important;
+  box-shadow: 0 4px 14px rgba(30, 50, 76, 0.06) !important;
+}
+
+html[data-theme="light"] .mobile-header-inner,
+body[data-theme="light"] .mobile-header-inner,
+.app.theme-light .mobile-header-inner {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .mobile-header-menu,
+html[data-theme="light"] .mobile-header-bell,
+html[data-theme="light"] .mobile-header-avatar,
+body[data-theme="light"] .mobile-header-menu,
+body[data-theme="light"] .mobile-header-bell,
+body[data-theme="light"] .mobile-header-avatar,
+.app.theme-light .mobile-header-menu,
+.app.theme-light .mobile-header-bell,
+.app.theme-light .mobile-header-avatar {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+}
+
+html[data-theme="light"] .mobile-header-menu span,
+body[data-theme="light"] .mobile-header-menu span,
+.app.theme-light .mobile-header-menu span {
+  background: #1b2430 !important;
+}
+
+html[data-theme="light"] .mobile-header-brand strong,
+body[data-theme="light"] .mobile-header-brand strong,
+.app.theme-light .mobile-header-brand strong {
+  color: #0b1320 !important;
+}
+
+/* One clean account pill — no textbox inside */
+html[data-theme="light"] .mobile-header-account,
+body[data-theme="light"] .mobile-header-account,
+.app.theme-light .mobile-header-account {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #d8e0e9 !important;
+  box-shadow: 0 4px 13px rgba(30, 50, 76, 0.05) !important;
+  color: #0b1320 !important;
+}
+
+html[data-theme="light"] .mobile-header-account *,
+body[data-theme="light"] .mobile-header-account *,
+.app.theme-light .mobile-header-account * {
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .mobile-header-account-balance,
+body[data-theme="light"] .mobile-header-account-balance,
+.app.theme-light .mobile-header-account-balance {
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: #0b1320 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+html[data-theme="light"] .mobile-header-chevron,
+body[data-theme="light"] .mobile-header-chevron,
+.app.theme-light .mobile-header-chevron {
+  background: transparent !important;
+  border: 0 !important;
+  color: #526174 !important;
+}
+
+html[data-theme="light"] .mobile-header-bell svg,
+body[data-theme="light"] .mobile-header-bell svg,
+.app.theme-light .mobile-header-bell svg {
+  fill: #0b1320 !important;
+}
+
+/* Account/notification dropdown */
+html[data-theme="light"] .mobile-header-panel,
+body[data-theme="light"] .mobile-header-panel,
+.app.theme-light .mobile-header-panel {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #d8e0e9 !important;
+  color: #0b1320 !important;
+}
+
+html[data-theme="light"] .mobile-header-panel-row,
+html[data-theme="light"] .mobile-header-notification-row,
+body[data-theme="light"] .mobile-header-panel-row,
+body[data-theme="light"] .mobile-header-notification-row,
+.app.theme-light .mobile-header-panel-row,
+.app.theme-light .mobile-header-notification-row {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+}
+
+/* Contract tabs */
+.app.theme-light .finalBinaryTabs,
+.app.theme-light .tradeTypeRow {
+  background: #f5f6f8 !important;
+  border: 1px solid #eef1f4 !important;
+  box-shadow: none !important;
+}
+
+.app.theme-light .finalBinaryTabs button,
+.app.theme-light .tradeTypeRow button {
+  background: transparent !important;
+  color: #6d7788 !important;
+}
+
+.app.theme-light .finalBinaryTabs button.active,
+.app.theme-light .tradeTypeRow button.active {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+  border: 1px solid #e2e7ee !important;
+  box-shadow: 0 5px 14px rgba(31, 52, 80, 0.07) !important;
+}
+
+/* White chart */
+.app.theme-light .mobileDigitLiveChartV115,
+.app.theme-light .mobileDigitMarketHeadV115,
+.app.theme-light .mobileDigitChartCanvasV115 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0b1320 !important;
+}
+
+.app.theme-light .mobileDigitLiveChartV115 {
+  border: 1px solid #e0e6ed !important;
+  box-shadow: 0 6px 18px rgba(31, 55, 86, 0.05) !important;
+}
+
+.app.theme-light .mobileDigitMarketHeadV115 {
+  border-bottom-color: #e4e9f0 !important;
+}
+
+.app.theme-light .mobileDigitMarketCopyV115 strong,
+.app.theme-light .mobileDigitMarketChevronV115 {
+  color: #0b1320 !important;
+}
+
+.app.theme-light .mobileDigitMarketCopyV115 small,
+.app.theme-light .mobileDigitMarketLiveV115 {
+  color: #08b866 !important;
+}
+
+.app.theme-light .mobileDigitChartGridV115 {
+  background-color: #ffffff !important;
+  background-image:
+    linear-gradient(to right, rgba(210, 218, 228, 0.65) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(210, 218, 228, 0.65) 1px, transparent 1px) !important;
+  opacity: 1 !important;
+}
+
+.app.theme-light .mobileDigitChartCanvasV115 .linePath {
+  stroke: #08b866 !important;
+  stroke-width: 0.8 !important;
+  fill: none !important;
+}
+
+.app.theme-light .mobileDigitChartCanvasV115 .areaPath {
+  fill: rgba(8, 184, 102, 0.02) !important;
+}
+
+.app.theme-light .mobileDigitPriceScaleV115 span,
+.app.theme-light .mobileDigitTimeRowV115 span {
+  color: #687487 !important;
+}
+
+.app.theme-light .mobileDigitCurrentPriceV115 {
+  background: #08bf69 !important;
+  color: #ffffff !important;
+}
+
+/* Pure white digit board — direct exact selectors */
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23,
+.app.theme-light .finalBinaryTradePage .mobileDigitBoardFinalV130,
+.app.theme-light .finalBinaryTradePage .mbDigitBoardV7,
+html[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23,
+body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e0e6ed !important;
+  outline: 0 !important;
+  box-shadow: 0 6px 18px rgba(31, 55, 86, 0.05) !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23::before,
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23::after {
+  display: none !important;
+  content: none !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitGridV7,
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mobileDigitCellFinalV130 {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Light outer ring */
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitRingV7 {
+  background:
+    conic-gradient(
+      from var(--mb-v7-white-start, 0deg),
+      #dfe3e9 0deg,
+      #dfe3e9 var(--mb-v7-white-sweep, 120deg),
+      #f1f3f6 var(--mb-v7-white-sweep, 120deg),
+      #f1f3f6 360deg
+    ) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* White digit centre */
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7::before,
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7::after {
+  display: none !important;
+  content: none !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitCoreV7 > strong {
+  color: #050a12 !important;
+  text-shadow: none !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7 {
+  background: conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg) !important;
+}
+
+.app.theme-light .finalBinaryTradePage .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7 {
+  background: conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg) !important;
+}
+
+/* White controls */
+.app.theme-light .finalBinaryOrderCard,
+.app.theme-light .finalOrderInputs,
+.app.theme-light .finalTicksBox,
+.app.theme-light .finalStakeBox {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+  border-color: #e0e6ed !important;
+  box-shadow: none !important;
+}
+
+.app.theme-light .finalTicksBox button,
+.app.theme-light .finalStakeBox button {
+  background: #f7f8fa !important;
+  color: #0b1320 !important;
+  border-color: #e1e6ed !important;
+}
+
+.app.theme-light .finalTicksBox select,
+.app.theme-light .finalStakeInputWrap,
+.app.theme-light .finalStakeInputWrap input {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+}
+
+.app.theme-light .quickTickRow button,
+.app.theme-light .quickStakeRow button {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+  border: 1px solid #dfe5ed !important;
+}
+
+.app.theme-light .quickTickRow button.active,
+.app.theme-light .quickStakeRow button.active {
+  color: #087cff !important;
+  border-color: #4a86ff !important;
+}
+
+/* ODD / EVEN */
+.app.theme-light .finalTradeButtons .proRedTrade {
+  background: linear-gradient(135deg, #ff1a3b, #ed002f) !important;
+  border-color: #ed002f !important;
+  color: #ffffff !important;
+}
+
+.app.theme-light .finalTradeButtons .proGreenTrade {
+  background: linear-gradient(135deg, #13c975, #00ad60) !important;
+  border-color: #00ad60 !important;
+  color: #ffffff !important;
+}
+
+.app.theme-light .finalTradeButtons .proRedTrade *,
+.app.theme-light .finalTradeButtons .proGreenTrade * {
+  color: #ffffff !important;
+}
+
+/* Bottom nav */
+.app.theme-light .bottomNav {
+  background: #ffffff !important;
+  border: 1px solid #e5e9ef !important;
+  border-bottom: 0 !important;
+  box-shadow: 0 -5px 18px rgba(29, 50, 76, 0.05) !important;
+}
+
+.app.theme-light .bottomNav button {
+  background: transparent !important;
+  color: #4d596a !important;
+}
+
+.app.theme-light .bottomNav button.active {
+  color: #087cff !important;
+}
+
+/* Other pages */
+.app.theme-light :is(
+  .profileV237,
+  .profileHeroV237,
+  .profileBalanceV237,
+  .profileStatsV237,
+  .profileReferralV237,
+  .profileAccountV237,
+  .vSeriesBotsHeader,
+  .vSeriesBotStats,
+  .vSeriesBotCard,
+  .botLiveRunV236,
+  .botLiveStatusV236,
+  .botLiveMetricsV236 > div,
+  .botLiveTabsV236,
+  .botLiveScrollV236,
+  .botLiveSummaryV236,
+  .botLiveStatsV236,
+  .professionalSettingsHero,
+  .professionalSettingsLayout,
+  .settingsFormCard,
+  .settingsSectionNav
+) {
+  background: #ffffff !important;
+  color: #0b1320 !important;
+  border-color: #e0e6ed !important;
+}
+
+@media (max-width: 768px) {
+  .app.theme-light .bottomNav {
+    background: #ffffff !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   METABINARY V302 — FINAL LIGHT TRADE SURFACE LOCK
+   Uses html[data-theme="light"] so it does not depend on the .theme-light
+   ancestor class. This fixes the remaining dark chart and digit board only.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* ---------- CHART: force every layer white ---------- */
+  html[data-theme="light"] .mobileDigitLiveChartV115,
+  html[data-theme="light"] .mobileDigitMarketHeadV115,
+  html[data-theme="light"] .mobileDigitChartCanvasV115,
+  html[data-theme="light"] .mobileDigitChartCanvasV115 .lineChart,
+  html[data-theme="light"] .mobileDigitChartCanvasV115 .lineChart svg,
+  body[data-theme="light"] .mobileDigitLiveChartV115,
+  body[data-theme="light"] .mobileDigitMarketHeadV115,
+  body[data-theme="light"] .mobileDigitChartCanvasV115,
+  body[data-theme="light"] .mobileDigitChartCanvasV115 .lineChart,
+  body[data-theme="light"] .mobileDigitChartCanvasV115 .lineChart svg {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #0b1320 !important;
+  }
+
+  html[data-theme="light"] .mobileDigitLiveChartV115,
+  body[data-theme="light"] .mobileDigitLiveChartV115 {
+    border: 1px solid #e0e6ed !important;
+    box-shadow: 0 6px 18px rgba(31, 55, 86, 0.05) !important;
+  }
+
+  html[data-theme="light"] .mobileDigitChartCanvasV115,
+  body[data-theme="light"] .mobileDigitChartCanvasV115 {
+    background-image:
+      linear-gradient(to right, rgba(210, 218, 228, 0.66) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(210, 218, 228, 0.66) 1px, transparent 1px) !important;
+    background-size: 20% 100%, 100% 25% !important;
+  }
+
+  html[data-theme="light"] .mobileDigitChartGridV115,
+  body[data-theme="light"] .mobileDigitChartGridV115 {
+    display: none !important;
+  }
+
+  html[data-theme="light"] .mobileDigitChartCanvasV115 .linePath,
+  body[data-theme="light"] .mobileDigitChartCanvasV115 .linePath {
+    stroke: #08b866 !important;
+    stroke-width: 1.15 !important;
+    fill: none !important;
+  }
+
+  html[data-theme="light"] .mobileDigitChartCanvasV115 .areaPath,
+  body[data-theme="light"] .mobileDigitChartCanvasV115 .areaPath {
+    fill: rgba(8, 184, 102, 0.025) !important;
+    stroke: none !important;
+  }
+
+  html[data-theme="light"] .mobileDigitPriceScaleV115,
+  html[data-theme="light"] .mobileDigitPriceScaleV115 span,
+  html[data-theme="light"] .mobileDigitTimeRowV115,
+  html[data-theme="light"] .mobileDigitTimeRowV115 span,
+  body[data-theme="light"] .mobileDigitPriceScaleV115,
+  body[data-theme="light"] .mobileDigitPriceScaleV115 span,
+  body[data-theme="light"] .mobileDigitTimeRowV115,
+  body[data-theme="light"] .mobileDigitTimeRowV115 span {
+    color: #687487 !important;
+  }
+
+  /* ---------- DIGIT BOARD: force every container white ---------- */
+  html[data-theme="light"] .mbDigitBoardV7.digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130,
+  html[data-theme="light"] .digitBoardNumbersOnlyV23,
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitGridV7,
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  body[data-theme="light"] .mbDigitBoardV7.digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitGridV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCellV7 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .mbDigitBoardV7.digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130,
+  body[data-theme="light"] .mbDigitBoardV7.digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
+    border: 1px solid #e0e6ed !important;
+    border-radius: 22px !important;
+    box-shadow: 0 6px 18px rgba(31, 55, 86, 0.05) !important;
+  }
+
+  html[data-theme="light"] .digitBoardNumbersOnlyV23::before,
+  html[data-theme="light"] .digitBoardNumbersOnlyV23::after,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23::before,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Digit ring and centre */
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitRingV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitRingV7 {
+    background:
+      conic-gradient(
+        from var(--mb-v7-white-start, 0deg),
+        #dfe3e9 0deg,
+        #dfe3e9 var(--mb-v7-white-sweep, 120deg),
+        #f1f3f6 var(--mb-v7-white-sweep, 120deg),
+        #f1f3f6 360deg
+      ) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCoreV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCoreV7 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCoreV7 strong,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCoreV7 strong {
+    color: #050a12 !important;
+    text-shadow: none !important;
+  }
+
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitPercentV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitPercentV7 {
+    color: #111827 !important;
+    text-shadow: none !important;
+  }
+
+  /* Hide the duplicate SVG digit text used by an older visual layer */
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mobileDigitSvgV144,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mobileDigitSvgV144 {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Keep highest and lowest colors */
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7 {
+    background: conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg) !important;
+  }
+
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7 {
+    background: conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg) !important;
+  }
+}
+
+
+
+/* METABINARY V303 — digit board component safety */
+@media screen and (max-width: 1023px) {
+  html[data-theme="light"] .digitBoardNumbersOnlyV23::before,
+  html[data-theme="light"] .digitBoardNumbersOnlyV23::after,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23::before,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitGridV7,
+  html[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCellV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitGridV7,
+  body[data-theme="light"] .digitBoardNumbersOnlyV23 .mbDigitCellV7 {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   METABINARY V305 — FINAL EXACT WHITE DIGITS + TRADE TYPE
+   Unique classes prevent all previous dark digit-board rules from winning.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Whole trade-type bar must be white */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305,
+  .app.theme-light .finalBinaryTradePage .mbLightTradeTabsFinalV305 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e3e8ef !important;
+    box-shadow: 0 5px 15px rgba(31, 52, 80, 0.05) !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305 > span,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305 > span,
+  .app.theme-light .finalBinaryTradePage .mbLightTradeTabsFinalV305 > span {
+    display: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305 button,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305 button,
+  .app.theme-light .finalBinaryTradePage .mbLightTradeTabsFinalV305 button {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #6b7585 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305 button.active,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightTradeTabsFinalV305 button.active,
+  .app.theme-light .finalBinaryTradePage .mbLightTradeTabsFinalV305 button.active {
+    background: #ffffff !important;
+    color: #0b1320 !important;
+    border: 1px solid #dfe5ec !important;
+    box-shadow: 0 5px 14px rgba(31, 52, 80, 0.09) !important;
+  }
+
+  /* Entire digit board and grid must be white */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e0e6ed !important;
+    outline: 0 !important;
+    box-shadow: 0 6px 18px rgba(31, 55, 86, 0.05) !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mobileDigitGridFinalV130,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mobileDigitGridFinalV130,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mobileDigitGridFinalV130,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCellV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCellV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCellV7 {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove old dark ring/center visuals */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitRingV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitRingV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitRingV7 {
+    background:
+      conic-gradient(
+        from var(--mb-v7-white-start, 0deg),
+        #dfe3e9 0deg,
+        #dfe3e9 var(--mb-v7-white-sweep, 120deg),
+        #f1f3f6 var(--mb-v7-white-sweep, 120deg),
+        #f1f3f6 360deg
+      ) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateV182 .mbDigitCoreV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateV182 .mbDigitCoreV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateV182 .mbDigitCoreV7 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7::after,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7::before,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7 > strong,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7 > strong,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCoreV7 > strong {
+    color: #050a12 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPercentV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPercentV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPercentV7 {
+    color: #111827 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+  }
+
+  /* Highest green, lowest red — white centre stays unchanged */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitHighestV7:not(.mbDigitResultLossV7) .mbDigitRingV7 {
+    background: conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg) !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitLowestV7:not(.mbDigitResultWinV7) .mbDigitRingV7 {
+    background: conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg) !important;
+    box-shadow: none !important;
+  }
+
+  /* Neutralize the old highest/lowest dark filters and size tricks */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitHighestV7,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitLowestV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitHighestV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitLowestV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitHighestV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitLowestV7 {
+    filter: none !important;
+  }
+
+  /* Keep the waiting green outer ring and cursor logic untouched */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateRingV182 {
+    background: transparent !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   METABINARY V306 — SEPARATE LIGHT DIGIT FACE
+   The legacy dark digit face is hidden only in light mode. A clean independent
+   white face is rendered above it, so old digit CSS cannot recolor it.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Remove every dark frame/pseudo-layer from the white board */
+  html[data-theme="light"] .mbLightBoardFinalV305,
+  body[data-theme="light"] .mbLightBoardFinalV305,
+  .app.theme-light .mbLightBoardFinalV305 {
+    overflow: hidden !important;
+    background: #ffffff !important;
+    border: 1px solid #e0e6ed !important;
+    box-shadow: 0 6px 18px rgba(31, 55, 86, 0.05) !important;
+  }
+
+  html[data-theme="light"] .mbLightBoardFinalV305::before,
+  html[data-theme="light"] .mbLightBoardFinalV305::after,
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitGridV7::after,
+  body[data-theme="light"] .mbLightBoardFinalV305::before,
+  body[data-theme="light"] .mbLightBoardFinalV305::after,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitGridV7::after,
+  .app.theme-light .mbLightBoardFinalV305::before,
+  .app.theme-light .mbLightBoardFinalV305::after,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitGridV7::after {
+    display: none !important;
+    content: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitGridV7,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitGridV7,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitGridV7 {
+    background: #ffffff !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide the old dark visual layers but preserve cursor/waiting/result logic */
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCellV7 > .mobileDigitRingSvgV139,
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCellV7 > .mbDigitRingV7,
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCellV7 > .mbDigitCoreV7,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCellV7 > .mobileDigitRingSvgV139,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCellV7 > .mbDigitRingV7,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCellV7 > .mbDigitCoreV7,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitCellV7 > .mobileDigitRingSvgV139,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitCellV7 > .mbDigitRingV7,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitCellV7 > .mbDigitCoreV7 {
+    display: none !important;
+  }
+
+  /* New independent light digit */
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  .app.theme-light .mbLightBoardFinalV305 .mbLightDigitFaceV306 {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 3 !important;
+    width: 56px !important;
+    height: 56px !important;
+    margin: auto !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitInnerV306,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitInnerV306,
+  .app.theme-light .mbLightBoardFinalV305 .mbLightDigitInnerV306 {
+    width: 43px !important;
+    height: 43px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitInnerV306 strong,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitInnerV306 strong,
+  .app.theme-light .mbLightBoardFinalV305 .mbLightDigitInnerV306 strong {
+    color: #050a12 !important;
+    font-size: 23px !important;
+    font-weight: 900 !important;
+    line-height: 0.95 !important;
+    text-shadow: none !important;
+  }
+
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitInnerV306 small,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbLightDigitInnerV306 small,
+  .app.theme-light .mbLightBoardFinalV305 .mbLightDigitInnerV306 small {
+    margin-top: 2px !important;
+    color: #111827 !important;
+    font-size: 8px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    text-shadow: none !important;
+  }
+
+  /* Waiting/prediction/result rings and cursor must remain above the clean face */
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  html[data-theme="light"] .mbLightBoardFinalV305 .mbDigitPredictionRingV180,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  body[data-theme="light"] .mbLightBoardFinalV305 .mbDigitPredictionRingV180,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  .app.theme-light .mbLightBoardFinalV305 .mbDigitPredictionRingV180 {
+    z-index: 4 !important;
+  }
+
+  html[data-theme="light"] .mbLightBoardFinalV305 .singleDigitCursorV7,
+  body[data-theme="light"] .mbLightBoardFinalV305 .singleDigitCursorV7,
+  .app.theme-light .mbLightBoardFinalV305 .singleDigitCursorV7 {
+    z-index: 6 !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   METABINARY V307 — FINAL CSS CLEANUP
+   Only polishes the light digit board and selected prediction ring.
+   No JSX, trading logic, cursor logic, chart logic or dark theme changes.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  /* Clean white board with no dark top/bottom strips or black outline */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 {
+    overflow: visible !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e3e8ef !important;
+    border-top: 1px solid #e3e8ef !important;
+    border-right: 1px solid #e3e8ef !important;
+    border-bottom: 1px solid #e3e8ef !important;
+    border-left: 1px solid #e3e8ef !important;
+    outline: 0 !important;
+    box-shadow: 0 5px 15px rgba(31, 55, 86, 0.045) !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305::after {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7 {
+    overflow: visible !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::after,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::after {
+    display: none !important;
+    content: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Softer neutral digit ring */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitFaceV306 {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitInnerV306,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitInnerV306,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitInnerV306 {
+    background: #ffffff !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Selected prediction: thin blue ring, not a large glowing ring */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionRingV180,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionRingV180,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionRingV180 {
+    inset: 1px !important;
+    border: 2px solid #38a0ff !important;
+    background: transparent !important;
+    box-shadow: 0 0 0 1px rgba(56, 160, 255, 0.10) !important;
+    filter: none !important;
+  }
+
+  /* Keep selected digit centre white */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionV180 .mbLightDigitInnerV306,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionV180 .mbLightDigitInnerV306,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionV180 .mbLightDigitInnerV306 {
+    background: #ffffff !important;
+    color: #050a12 !important;
+  }
+
+  /* Keep waiting ring functional but reduce excess glow */
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateRingV182,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitCandidateRingV182 {
+    border-width: 3px !important;
+    box-shadow:
+      0 0 0 1px rgba(32, 233, 155, 0.18),
+      0 0 8px rgba(32, 233, 155, 0.42) !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   METABINARY V308 — REMOVE LEGACY DIGIT CARD FRAME
+   The dark top/bottom strips were on the parent digit-only chart card, not on
+   the new white digit faces. This class resets only that parent in light mode.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308 {
+    box-sizing: border-box !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    border: 0 !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 0 !important;
+    border-radius: 0 !important;
+
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::after,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308::before,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308::after {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* The actual board is now the only visible card. */
+  html[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  body[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  .app.theme-light .mbLightDigitCardV308 > .mbLightBoardFinalV305 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 16px 10px 20px !important;
+    overflow: visible !important;
+
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    border: 1px solid #e3e8ef !important;
+    border-radius: 22px !important;
+    outline: 0 !important;
+    box-shadow: 0 5px 15px rgba(31, 55, 86, 0.045) !important;
+    filter: none !important;
+  }
+
+  /* Ensure no remaining dark strip can come from nested legacy wrappers. */
+  html[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  html[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305 > .mbDigitGridV7,
+  body[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  body[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305 > .mbDigitGridV7,
+  .app.theme-light .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  .app.theme-light .mbLightDigitCardV308 > .mbLightBoardFinalV305 > .mbDigitGridV7 {
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+  }
+
+  html[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305 > .mbDigitGridV7,
+  body[data-theme="light"] .mbLightDigitCardV308 > .mbLightBoardFinalV305 > .mbDigitGridV7,
+  .app.theme-light .mbLightDigitCardV308 > .mbLightBoardFinalV305 > .mbDigitGridV7 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+}
+
