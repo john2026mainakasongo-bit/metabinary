@@ -2718,3 +2718,71 @@
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V319 — NAVIGATION AT THE TRUE SCREEN BOTTOM
+   Pins the mobile bottom navigation to the device bottom edge and reserves
+   page space so it does not cover or squeeze the trade content.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app > .bottomNav,
+  body .app .bottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 72px !important;
+    height: 72px !important;
+
+    margin: 0 !important;
+    padding:
+      0
+      env(safe-area-inset-right, 0px)
+      env(safe-area-inset-bottom, 0px)
+      env(safe-area-inset-left, 0px) !important;
+
+    border-radius: 0 !important;
+    box-sizing: content-box !important;
+    transform: none !important;
+    z-index: 50000 !important;
+  }
+
+  body .app .bottomNav button {
+    min-height: 72px !important;
+    height: 72px !important;
+    padding: 8px 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Reserve room for the fixed navigation on every mobile page. */
+  body .app,
+  body .app .mainScreen,
+  body .app .finalBinaryTradePage,
+  body .app .digitContractPage,
+  body .app .page {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  body .app > .bottomNav,
+  body .app .bottomNav,
+  body .app .bottomNav button {
+    min-height: 68px !important;
+    height: 68px !important;
+  }
+
+  body .app,
+  body .app .mainScreen,
+  body .app .finalBinaryTradePage,
+  body .app .digitContractPage,
+  body .app .page {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
