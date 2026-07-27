@@ -57628,3 +57628,57 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V313 — CURSOR ATTACHED TO CURRENT DIGIT
+   The light-theme cursor is positioned relative to its own digit button.
+   This keeps it centered and fully outside both top-row and bottom-row circles.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .mbCleanDigitBoardV310 {
+    overflow: visible !important;
+    padding-bottom: 24px !important;
+  }
+
+  .mbCleanDigitGridV310 {
+    overflow: visible !important;
+    row-gap: 24px !important;
+  }
+
+  .mbCleanDigitCellV310 {
+    overflow: visible !important;
+  }
+
+  .mbCleanDigitCursorAttachedV313 {
+    position: absolute;
+    left: 50%;
+    bottom: -16px;
+    z-index: 12;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 11px solid #ff4058;
+    filter: drop-shadow(0 0 6px rgba(255, 64, 88, 0.68));
+    pointer-events: none;
+  }
+
+  /* Disable the obsolete light cursor if any cached markup briefly remains. */
+  .mbCleanDigitCursorV310 {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .mbCleanDigitGridV310 {
+    row-gap: 22px !important;
+  }
+
+  .mbCleanDigitCursorAttachedV313 {
+    bottom: -15px;
+  }
+}
+
