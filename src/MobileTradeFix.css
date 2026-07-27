@@ -2786,3 +2786,921 @@
   }
 }
 
+
+/* ==========================================================================\n   METABINARY V320 — EXACT SCREENSHOT MOBILE TRADE LAYOUT\n   Scoped to LIGHT mobile digit contracts only.\n   Rise/Fall, desktop, bots, profile, settings and dark mode are untouched.\n   ========================================================================== */
+@media screen and (max-width: 760px) {
+  html[data-theme="light"],
+  html[data-theme="light"] body,
+  html[data-theme="light"] #root {
+    background: #ffffff !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111827 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .mobile-header {
+    flex: 0 0 42px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 1 1 0 !important;
+    margin: 0 !important;
+    padding: 5px 8px 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  > .mainScreen
+  > .finalBinaryTradePage.digitContractPage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  /* Contract tabs */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalContractTabs.mbLightTradeTabsFinalV305 {
+    box-sizing: border-box !important;
+    flex: 0 0 30px !important;
+    width: 100% !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #edf0f4 !important;
+    border-radius: 10px !important;
+    background: #f8f9fb !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > span {
+    display: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 button {
+    min-width: 0 !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 2px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: #707a88 !important;
+    font-size: 7.1px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 button.active {
+    border: 1px solid #e2e7ed !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 6px rgba(31, 50, 74, 0.055) !important;
+  }
+
+  /* Chart + digits parent */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 1 1 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Live chart */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 158px !important;
+    max-height: none !important;
+    flex: 1 1 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #e7ebf0 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketHeadV115 {
+    box-sizing: border-box !important;
+    flex: 0 0 40px !important;
+    width: 100% !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto 10px !important;
+    align-items: center !important;
+    column-gap: 5px !important;
+    padding: 6px 9px 5px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #edf0f4 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+    text-align: left !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketBadgeV115 {
+    display: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketCopyV115 {
+    min-width: 0 !important;
+    display: block !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketCopyV115 strong {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    color: #111827 !important;
+    font-size: 10.5px !important;
+    font-weight: 850 !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.15px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketCopyV115 small {
+    display: block !important;
+    margin-top: 3px !important;
+    color: #06b765 !important;
+    font-size: 6.9px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketLiveV115 {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    color: #0cad66 !important;
+    font-size: 7.5px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketLiveV115 i {
+    width: 5px !important;
+    height: 5px !important;
+    border-radius: 50% !important;
+    background: #16c678 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitMarketChevronV115 {
+    color: #9aa3af !important;
+    font-size: 8px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitChartCanvasV115 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 1 1 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitChartCanvasV115 > svg {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitChartGridV115 {
+    opacity: 1 !important;
+    background-color: transparent !important;
+    background-image:
+      linear-gradient(to right, rgba(224, 229, 235, 0.82) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(224, 229, 235, 0.82) 1px, transparent 1px) !important;
+    background-size: 48px 100%, 100% 34px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitChartCanvasV115 .linePath {
+    stroke: #10bd6d !important;
+    stroke-width: 1.05 !important;
+    fill: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitChartCanvasV115 .areaPath {
+    fill: rgba(16, 189, 109, 0.015) !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitPriceScaleV115 {
+    right: 7px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitPriceScaleV115 span,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitTimeRowV115 span {
+    color: #818a97 !important;
+    font-size: 6.1px !important;
+    font-weight: 500 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitCurrentPriceV115 {
+    right: 4px !important;
+    min-width: 38px !important;
+    height: 16px !important;
+    padding: 0 5px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 2px !important;
+    background: #0fbc68 !important;
+    color: #ffffff !important;
+    font-size: 7px !important;
+    font-weight: 850 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitTimeRowV115 {
+    box-sizing: border-box !important;
+    flex: 0 0 14px !important;
+    height: 14px !important;
+    min-height: 14px !important;
+    max-height: 14px !important;
+    padding: 0 32px !important;
+    background: #ffffff !important;
+  }
+
+  /* White two-row digit board */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 126px !important;
+    min-height: 126px !important;
+    max-height: 126px !important;
+    flex: 0 0 126px !important;
+    margin: 0 !important;
+    padding: 9px 6px 10px !important;
+    overflow: visible !important;
+    border: 1px solid #e7ebf0 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 106px !important;
+    min-height: 106px !important;
+    max-height: 106px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    grid-template-rows: 46px 46px !important;
+    column-gap: 0 !important;
+    row-gap: 14px !important;
+    align-items: center !important;
+    justify-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCellV310,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCellV310:disabled {
+    position: relative !important;
+    width: clamp(42px, 14vw, 48px) !important;
+    min-width: clamp(42px, 14vw, 48px) !important;
+    max-width: clamp(42px, 14vw, 48px) !important;
+    height: clamp(42px, 14vw, 48px) !important;
+    min-height: clamp(42px, 14vw, 48px) !important;
+    max-height: clamp(42px, 14vw, 48px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCoreV310 {
+    inset: 4.5px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCoreV310 strong {
+    color: #0b111b !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    line-height: .9 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCoreV310 small {
+    margin-top: 2px !important;
+    color: #111827 !important;
+    font-size: 6.3px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanPredictionRingV310 {
+    inset: 1.5px !important;
+    border-width: 1.5px !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanCandidateRingV310 {
+    inset: -1px !important;
+    border-width: 2px !important;
+    box-shadow: 0 0 5px rgba(32, 233, 155, 0.26) !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    z-index: 60 !important;
+    filter: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorTopV318 {
+    top: 48px !important;
+    border-left-width: 5px !important;
+    border-right-width: 5px !important;
+    border-bottom-width: 8px !important;
+    border-bottom-color: #ff4058 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorBottomV318 {
+    bottom: -9px !important;
+    border-left-width: 5px !important;
+    border-right-width: 5px !important;
+    border-bottom-width: 8px !important;
+    border-bottom-color: #ff4058 !important;
+  }
+
+  /* Controls + contract buttons */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryOrderCard,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proBinaryOrderCard.finalBinaryOrderCard {
+    box-sizing: border-box !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 154px !important;
+    min-height: 154px !important;
+    max-height: 154px !important;
+    flex: 0 0 154px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalOrderInputs,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .orderInputsTop.finalOrderInputs {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 81px !important;
+    min-height: 81px !important;
+    max-height: 81px !important;
+    flex: 0 0 81px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, .98fr) minmax(0, 1.02fr) !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 5px 7px 4px !important;
+    overflow: hidden !important;
+    border: 1px solid #e7ebf0 !important;
+    border-radius: 11px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalOrderInputs > label {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    max-height: 70px !important;
+    display: grid !important;
+    grid-template-rows: 9px 34px 19px !important;
+    gap: 3px !important;
+    align-content: start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalOrderInputs > label > span {
+    color: #98a2b0 !important;
+    font-size: 6.7px !important;
+    font-weight: 650 !important;
+    line-height: 9px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTicksBox,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeBox,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .proStakeBox.finalStakeBox {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) 28px !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #e5e9ef !important;
+    border-radius: 7px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTicksBox button,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeBox button {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #f7f8fa !important;
+    color: #111827 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTicksBox button:first-child,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeBox button:first-child {
+    border-right: 1px solid #edf0f4 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTicksBox button:last-child,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeBox button:last-child {
+    border-left: 1px solid #edf0f4 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTicksBox select {
+    width: 100% !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 2px !important;
+    border: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeInputWrap {
+    height: 32px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 22px !important;
+    align-items: center !important;
+    background: #ffffff !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeInputWrap input {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 32px !important;
+    padding: 0 2px !important;
+    border: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    text-align: center !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalStakeInputWrap small {
+    color: #9aa3af !important;
+    font-size: 5.5px !important;
+    font-weight: 750 !important;
+    text-align: center !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickTickRow,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickStakeRow,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickStakeRowV44 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 19px !important;
+    min-height: 19px !important;
+    max-height: 19px !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickTickRow button,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickStakeRow button {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 19px !important;
+    min-height: 19px !important;
+    max-height: 19px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1px !important;
+    border: 1px solid #e5e9ef !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    color: #303a48 !important;
+    font-size: 6px !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickTickRow button small {
+    color: inherit !important;
+    font-size: 4.8px !important;
+    line-height: 1 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickTickRow button.active,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .quickStakeRow button.active {
+    border-color: #3d82ff !important;
+    background: #ffffff !important;
+    color: #1267e8 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .proTradeButtons.finalTradeButtons {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
+    flex: 0 0 68px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons > button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 8px 12px !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    box-shadow: none !important;
+    text-align: left !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons > button > span {
+    display: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons > button > div {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons > button strong {
+    display: block !important;
+    color: #ffffff !important;
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    line-height: .95 !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons > button small,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .tradePayoutText {
+    display: block !important;
+    margin-top: 5px !important;
+    color: #ffffff !important;
+    font-size: 6.8px !important;
+    font-weight: 650 !important;
+    line-height: 1.25 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .tradePayoutText > span {
+    display: block !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .tradePayoutRate {
+    margin-top: 2px !important;
+    font-size: 6.8px !important;
+    font-weight: 800 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons .proRedTrade {
+    background: #ff1738 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons .proGreenTrade {
+    background: #08bc67 !important;
+  }
+
+  /* Bottom navigation in normal flow at the true screen bottom */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .bottomNav,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > nav.bottomNav {
+    box-sizing: border-box !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    width: calc(100% - 16px) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    flex: 0 0 50px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    margin: 4px 8px 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid #e8ecf1 !important;
+    border-bottom: 0 !important;
+    border-radius: 12px 12px 0 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    transform: none !important;
+    z-index: 50000 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 49px !important;
+    min-height: 49px !important;
+    max-height: 49px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    padding: 4px 2px 3px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #404a58 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button span {
+    color: inherit !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    filter: grayscale(1) contrast(1.25) !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button small {
+    color: inherit !important;
+    font-size: 7.2px !important;
+    font-weight: 650 !important;
+    line-height: 1 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button.active {
+    color: #1267e8 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183) > .bottomNav button.active span {
+    filter: grayscale(1) sepia(1) saturate(8) hue-rotate(185deg) brightness(.9) !important;
+  }
+
+  /* Compact floating AI orb, still draggable because x/y variables are untouched. */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .floatingAiButton.aiPage-trade {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    border-radius: 50% !important;
+    z-index: 55000 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .floatingAiButton.aiPage-trade .aiOrbCore {
+    font-size: 9px !important;
+  }
+}
+
+/* Short-screen safety: only the chart compresses. Everything else remains aligned. */
+@media screen and (max-width: 760px) and (max-height: 620px) {
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    min-height: 135px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310 {
+    height: 118px !important;
+    min-height: 118px !important;
+    max-height: 118px !important;
+    flex-basis: 118px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryOrderCard {
+    height: 148px !important;
+    min-height: 148px !important;
+    max-height: 148px !important;
+    flex-basis: 148px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalOrderInputs {
+    height: 77px !important;
+    min-height: 77px !important;
+    max-height: 77px !important;
+    flex-basis: 77px !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons > button {
+    height: 66px !important;
+    min-height: 66px !important;
+    max-height: 66px !important;
+  }
+}
