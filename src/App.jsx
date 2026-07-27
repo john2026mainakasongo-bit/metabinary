@@ -7105,7 +7105,12 @@ function TradePage({
                           <small>{Number(percent).toFixed(1)}%</small>
                         </span>
                         {isCurrent && (
-                          <span className="mbCleanDigitCursorAttachedV313" aria-hidden="true" />
+                          <span
+                            className={`mbCleanDigitCursorAttachedV313 ${
+                              digit < 5 ? "mbCursorTopRowV315" : "mbCursorBottomRowV315"
+                            }`}
+                            aria-hidden="true"
+                          />
                         )}
                       </>
                     ) : (
