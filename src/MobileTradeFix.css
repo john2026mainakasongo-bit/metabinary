@@ -2623,3 +2623,98 @@
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V318 — VISIBLE SINGLE GRID CURSOR
+   Uses direct inline left position and unscoped selectors so the cursor works
+   even when the root page does not contain .activePage-trade.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .mbCleanDigitBoardV310,
+  .mbCleanDigitGridV310 {
+    overflow: visible !important;
+  }
+
+  .mbCleanDigitBoardV310 {
+    padding-bottom: 32px !important;
+  }
+
+  .mbCleanDigitGridV310 {
+    position: relative !important;
+    row-gap: 26px !important;
+  }
+
+  .mbSingleGridCursorV317,
+  .mbCleanDigitCursorAttachedV313,
+  .mbCleanDigitCursorV310 {
+    display: none !important;
+  }
+
+  .mbSingleGridCursorV318 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    z-index: 999 !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translateX(-50%) !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    filter:
+      drop-shadow(0 0 8px rgba(255, 64, 88, .88))
+      drop-shadow(0 2px 4px rgba(255, 64, 88, .55)) !important;
+    transition: left .18s ease, top .18s ease, bottom .18s ease !important;
+  }
+
+  /* Digits 0–4: place cursor in the gap below the top row. */
+  .mbSingleGridCursorTopV318 {
+    top: 62px !important;
+    bottom: auto !important;
+    border-left: 8px solid transparent !important;
+    border-right: 8px solid transparent !important;
+    border-bottom: 12px solid #ff4058 !important;
+    border-top: 0 !important;
+  }
+
+  /* Digits 5–9: place cursor below the second row. */
+  .mbSingleGridCursorBottomV318 {
+    top: auto !important;
+    bottom: -18px !important;
+    border-left: 8px solid transparent !important;
+    border-right: 8px solid transparent !important;
+    border-bottom: 12px solid #ff4058 !important;
+    border-top: 0 !important;
+  }
+
+  .finalBinaryOrderCard,
+  .finalOrderInputs,
+  .finalTicksBox,
+  .finalStakeBox {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .mbCleanDigitBoardV310 {
+    padding-bottom: 30px !important;
+  }
+
+  .mbCleanDigitGridV310 {
+    row-gap: 24px !important;
+  }
+
+  .mbSingleGridCursorTopV318 {
+    top: 58px !important;
+  }
+
+  .mbSingleGridCursorBottomV318 {
+    bottom: -17px !important;
+  }
+}
+

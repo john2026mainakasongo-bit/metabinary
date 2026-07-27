@@ -7125,11 +7125,11 @@ function TradePage({
               })}
               {theme === "light" ? (
                 <i
-                  className={`mbSingleGridCursorV317 ${
-                    lastDigit < 5 ? "mbSingleGridCursorTopV317" : "mbSingleGridCursorBottomV317"
+                  className={`mbSingleGridCursorV318 ${
+                    lastDigit < 5 ? "mbSingleGridCursorTopV318" : "mbSingleGridCursorBottomV318"
                   }`}
                   aria-hidden="true"
-                  style={{ "--mb-cursor-column-v317": lastDigit % 5 }}
+                  style={{ left: `${10 + (lastDigit % 5) * 20}%` }}
                 />
               ) : (
                 <i
