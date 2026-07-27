@@ -57375,3 +57375,182 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V310 — CLEAN ISOLATED LIGHT DIGIT BOARD
+   No legacy digit-board classes are used by the white-theme board.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .mbCleanDigitBoardV310 {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 15px 12px 18px;
+    overflow: visible;
+    background: #ffffff;
+    border: 1px solid #e2e7ee;
+    border-radius: 22px;
+    box-shadow: 0 4px 14px rgba(31, 55, 86, 0.045);
+  }
+
+  .mbCleanDigitGridV310 {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
+    align-items: center;
+    justify-items: center;
+    row-gap: 18px;
+    column-gap: 5px;
+    width: 100%;
+    background: #ffffff;
+  }
+
+  .mbCleanDigitCellV310 {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    border-radius: 50%;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  .mbCleanDigitCellV310:disabled {
+    cursor: default;
+    opacity: 1;
+  }
+
+  .mbCleanDigitRingV310 {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    border-radius: 50%;
+    border: 0;
+    box-shadow: none;
+    pointer-events: none;
+  }
+
+  .mbCleanDigitCoreV310 {
+    position: absolute;
+    inset: 7px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 0;
+    box-shadow: none;
+    pointer-events: none;
+  }
+
+  .mbCleanDigitCoreV310 strong {
+    color: #050a12;
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 0.95;
+    text-shadow: none;
+  }
+
+  .mbCleanDigitCoreV310 small {
+    margin-top: 3px;
+    color: #111827;
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .mbCleanPredictionRingV310 {
+    position: absolute;
+    inset: 2px;
+    z-index: 4;
+    border: 1.5px solid #2196f3;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.08);
+    pointer-events: none;
+  }
+
+  .mbCleanCandidateRingV310 {
+    position: absolute;
+    inset: -2px;
+    z-index: 4;
+    border: 3px solid rgba(32, 233, 155, 0.85);
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: 0 0 8px rgba(32, 233, 155, 0.38);
+    pointer-events: none;
+  }
+
+  .mbCleanWinV310 .mbCleanDigitCoreV310 {
+    animation: mbCleanWinFlashV310 0.75s ease;
+  }
+
+  .mbCleanLossV310 .mbCleanDigitCoreV310 {
+    animation: mbCleanLossFlashV310 0.75s ease;
+  }
+
+  .mbCleanDigitCursorV310 {
+    position: absolute;
+    left: var(--mb-v58-cursor-left);
+    top: var(--mb-v58-cursor-top);
+    z-index: 8;
+    width: 0;
+    height: 0;
+    transform: translate(-50%, 35px);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 12px solid #ff4058;
+    filter: drop-shadow(0 0 7px rgba(255, 64, 88, 0.72));
+    pointer-events: none;
+    transition: left 180ms ease, top 180ms ease;
+  }
+
+  @keyframes mbCleanWinFlashV310 {
+    0%, 100% { background: #ffffff; box-shadow: none; }
+    45% { background: #22db8f; box-shadow: 0 0 18px rgba(34, 219, 143, 0.72); }
+  }
+
+  @keyframes mbCleanLossFlashV310 {
+    0%, 100% { background: #ffffff; box-shadow: none; }
+    45% { background: #ff4058; box-shadow: 0 0 18px rgba(255, 64, 88, 0.72); }
+  }
+
+  @media (max-width: 390px) {
+    .mbCleanDigitBoardV310 {
+      padding: 13px 8px 17px;
+    }
+
+    .mbCleanDigitGridV310 {
+      row-gap: 16px;
+      column-gap: 2px;
+    }
+
+    .mbCleanDigitCellV310 {
+      width: 54px;
+      height: 54px;
+    }
+
+    .mbCleanDigitCoreV310 {
+      inset: 7px;
+    }
+
+    .mbCleanDigitCoreV310 strong {
+      font-size: 22px;
+    }
+
+    .mbCleanDigitCursorV310 {
+      transform: translate(-50%, 32px);
+    }
+  }
+}
+

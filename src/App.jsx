@@ -6902,18 +6902,16 @@ function TradePage({
 
         {digitMode ? (
           <div
-            className={`mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${theme === "light" ? "mbLightBoardFinalV305" : ""} ${digitVisualTrade ? "isTrading" : ""}`}
+            className={
+              theme === "light"
+                ? `mbCleanDigitBoardV310 ${digitVisualTrade ? "isTrading" : ""}`
+                : `mbDigitBoardV7 digitBoardNumbersOnlyV23 mobileDigitBoardFinalV130 ${digitVisualTrade ? "isTrading" : ""}`
+            }
             aria-label={`Live digit statistics from the last ${DIGIT_HISTORY_LIMIT} ticks. Current digit ${lastDigit}.`}
-            style={theme === "light" ? {
-              background: "#ffffff",
-              backgroundColor: "#ffffff",
-              backgroundImage: "none",
-              border: "1px solid #e0e6ed",
-              boxShadow: "0 6px 18px rgba(31, 55, 86, 0.05)",
-            } : undefined}
+
           >
             <div
-              className="mbDigitGridV7 mobileDigitGridFinalV130"
+              className={theme === "light" ? "mbCleanDigitGridV310" : "mbDigitGridV7 mobileDigitGridFinalV130"}
               aria-label="Digit percentages"
               style={{
                 "--mb-active-digit": lastDigit,
@@ -7005,17 +7003,30 @@ function TradePage({
                     type="button"
                     onClick={() => setPrediction(digit)}
                     disabled={Boolean(activeBinaryTrade)}
-                    className={[
-                      "mbDigitCellV7",
-                      "mobileDigitCellFinalV130",
-                      isHighest ? "mbDigitHighestV7" : "",
-                      isLowest ? "mbDigitLowestV7" : "",
-                      isPredictionSelected ? "mbDigitPredictionV180" : "",
-                      isCurrent ? "mbDigitCurrentV7" : "",
-                      isWaitingCandidate && !isResultDigit ? "mbDigitCandidateV182" : "",
-                      isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
-                      isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
-                    ].filter(Boolean).join(" ")}
+                    className={
+                      theme === "light"
+                        ? [
+                            "mbCleanDigitCellV310",
+                            isHighest ? "mbCleanHighestV310" : "",
+                            isLowest ? "mbCleanLowestV310" : "",
+                            isPredictionSelected ? "mbCleanPredictionV310" : "",
+                            isCurrent ? "mbCleanCurrentV310" : "",
+                            isWaitingCandidate && !isResultDigit ? "mbCleanCandidateV310" : "",
+                            isResultDigit && binaryResultFlash?.result === "win" ? "mbCleanWinV310" : "",
+                            isResultDigit && binaryResultFlash?.result === "loss" ? "mbCleanLossV310" : "",
+                          ].filter(Boolean).join(" ")
+                        : [
+                            "mbDigitCellV7",
+                            "mobileDigitCellFinalV130",
+                            isHighest ? "mbDigitHighestV7" : "",
+                            isLowest ? "mbDigitLowestV7" : "",
+                            isPredictionSelected ? "mbDigitPredictionV180" : "",
+                            isCurrent ? "mbDigitCurrentV7" : "",
+                            isWaitingCandidate && !isResultDigit ? "mbDigitCandidateV182" : "",
+                            isResultDigit && binaryResultFlash?.result === "win" ? "mbDigitResultWinV7" : "",
+                            isResultDigit && binaryResultFlash?.result === "loss" ? "mbDigitResultLossV7" : "",
+                          ].filter(Boolean).join(" ")
+                    }
                     style={{
                       "--mb-v7-white-sweep": `${whiteSweep}deg`,
                       "--mb-v7-white-start": `${whiteStart}deg`,
@@ -7070,69 +7081,50 @@ function TradePage({
                         {Number(percent).toFixed(1)}%
                       </text>
                     </svg>
-                    <span
-                      className="mbDigitRingV7"
-                      aria-hidden="true"
-                      style={theme === "light" ? {
-                        background: isHighest
-                          ? "conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg)"
-                          : isLowest
-                            ? "conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg)"
-                            : `conic-gradient(from ${whiteStart}deg, #dfe3e9 0deg, #dfe3e9 ${whiteSweep}deg, #f1f3f6 ${whiteSweep}deg, #f1f3f6 360deg)`,
-                        border: "0",
-                        boxShadow: "none",
-                      } : undefined}
-                    />
-                    {isWaitingCandidate && !isResultDigit && (
-                      <span className="mbDigitCandidateRingV182" aria-hidden="true" />
-                    )}
-                    {isPredictionSelected && !isResultDigit && (
-                      <span className="mbDigitPredictionRingV180" aria-hidden="true" />
-                    )}
-                    <span
-                      className="mbDigitCoreV7"
-                      style={theme === "light" ? {
-                        background: "#ffffff",
-                        backgroundColor: "#ffffff",
-                        backgroundImage: "none",
-                        border: "0",
-                        boxShadow: "none",
-                      } : undefined}
-                    >
-                      <strong style={theme === "light" ? { color: "#050a12", textShadow: "none" } : undefined}>
-                        {digit}
-                      </strong>
-                      <span
-                        className="mbDigitPercentV7"
-                        style={theme === "light" ? { color: "#111827", textShadow: "none" } : undefined}
-                      >
-                        {Number(percent).toFixed(1)}%
-                      </span>
-                    </span>
-
-                    {theme === "light" && (
-                      <span
-                        className="mbLightDigitFaceV306"
-                        aria-hidden="true"
-                        style={{
-                          background: isHighest
-                            ? "conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg)"
-                            : isLowest
-                              ? "conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg)"
-                              : `conic-gradient(from ${whiteStart}deg, #dfe3e9 0deg, #dfe3e9 ${whiteSweep}deg, #f1f3f6 ${whiteSweep}deg, #f1f3f6 360deg)`,
-                        }}
-                      >
-                        <span className="mbLightDigitInnerV306">
+                    {theme === "light" ? (
+                      <>
+                        <span
+                          className="mbCleanDigitRingV310"
+                          aria-hidden="true"
+                          style={{
+                            background: isHighest
+                              ? "conic-gradient(from 270deg, #08b866 0deg 180deg, #e7ebf0 180deg 360deg)"
+                              : isLowest
+                                ? "conic-gradient(from 82deg, #ff2545 0deg 42deg, #e7ebf0 42deg 360deg)"
+                                : `conic-gradient(from ${whiteStart}deg, #dfe3e9 0deg, #dfe3e9 ${whiteSweep}deg, #f1f3f6 ${whiteSweep}deg, #f1f3f6 360deg)`,
+                          }}
+                        />
+                        {isWaitingCandidate && !isResultDigit && (
+                          <span className="mbCleanCandidateRingV310" aria-hidden="true" />
+                        )}
+                        {isPredictionSelected && !isResultDigit && (
+                          <span className="mbCleanPredictionRingV310" aria-hidden="true" />
+                        )}
+                        <span className="mbCleanDigitCoreV310">
                           <strong>{digit}</strong>
                           <small>{Number(percent).toFixed(1)}%</small>
                         </span>
-                      </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="mbDigitRingV7" aria-hidden="true" />
+                        {isWaitingCandidate && !isResultDigit && (
+                          <span className="mbDigitCandidateRingV182" aria-hidden="true" />
+                        )}
+                        {isPredictionSelected && !isResultDigit && (
+                          <span className="mbDigitPredictionRingV180" aria-hidden="true" />
+                        )}
+                        <span className="mbDigitCoreV7">
+                          <strong>{digit}</strong>
+                          <span className="mbDigitPercentV7">{Number(percent).toFixed(1)}%</span>
+                        </span>
+                      </>
                     )}
                   </button>
                 );
               })}
               <i
-                className="singleDigitCursorV7 mobileDigitCursorFinalV130"
+                className={theme === "light" ? "mbCleanDigitCursorV310" : "singleDigitCursorV7 mobileDigitCursorFinalV130"}
                 aria-hidden="true"
                 style={{
                   "--mb-v58-cursor-left": `${12 + (lastDigit % 5) * 19}%`,
