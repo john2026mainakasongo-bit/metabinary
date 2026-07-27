@@ -57554,3 +57554,35 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V311 — CURSOR OUTSIDE DIGIT CIRCLE
+   Moves the red cursor fully below the active digit ring.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .mbCleanDigitBoardV310 {
+    overflow: visible !important;
+    padding-bottom: 24px !important;
+  }
+
+  .mbCleanDigitGridV310 {
+    overflow: visible !important;
+  }
+
+  .mbCleanDigitCursorV310 {
+    transform: translate(-50%, 48px) !important;
+    border-left-width: 7px !important;
+    border-right-width: 7px !important;
+    border-bottom-width: 11px !important;
+    filter: drop-shadow(0 0 6px rgba(255, 64, 88, 0.68)) !important;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .mbCleanDigitCursorV310 {
+    transform: translate(-50%, 45px) !important;
+  }
+}
+
