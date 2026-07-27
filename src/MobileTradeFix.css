@@ -2529,3 +2529,97 @@
     flex-basis: 68px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V317 — ONE GRID-LEVEL LIGHT CURSOR
+   App.jsx renders exactly one cursor outside all digit buttons.
+   Top row cursor sits in the gap below digits 0–4.
+   Bottom row cursor sits below digits 5–9.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  body .app.activePage-trade .mbCleanDigitBoardV310,
+  body .app.activePage-trade .mbCleanDigitGridV310 {
+    overflow: visible !important;
+  }
+
+  body .app.activePage-trade .mbCleanDigitBoardV310 {
+    padding-top: 15px !important;
+    padding-bottom: 30px !important;
+  }
+
+  body .app.activePage-trade .mbCleanDigitGridV310 {
+    position: relative !important;
+    row-gap: 26px !important;
+  }
+
+  /* Disable every older light-theme cursor. */
+  body .app.activePage-trade .mbCleanDigitCursorAttachedV313,
+  body .app.activePage-trade .mbCleanDigitCursorV310 {
+    display: none !important;
+  }
+
+  body .app.activePage-trade .mbSingleGridCursorV317 {
+    --mb-cursor-column-v317: 0;
+    position: absolute !important;
+    left: calc((var(--mb-cursor-column-v317) + .5) * 20%) !important;
+    z-index: 160 !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translateX(-50%) !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    transition: left .18s ease, top .18s ease, bottom .18s ease !important;
+    filter:
+      drop-shadow(0 0 7px rgba(255, 64, 88, .82))
+      drop-shadow(0 2px 4px rgba(255, 64, 88, .48)) !important;
+  }
+
+  /* 0–4: below the first row, in the clear gap, pointing upward. */
+  body .app.activePage-trade .mbSingleGridCursorTopV317 {
+    top: 61px !important;
+    bottom: auto !important;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid transparent !important;
+    border-bottom: 11px solid #ff4058 !important;
+    border-top: 0 !important;
+  }
+
+  /* 5–9: below the second row, fully visible, pointing upward. */
+  body .app.activePage-trade .mbSingleGridCursorBottomV317 {
+    top: auto !important;
+    bottom: -17px !important;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid transparent !important;
+    border-bottom: 11px solid #ff4058 !important;
+    border-top: 0 !important;
+  }
+
+  body .app.activePage-trade .finalBinaryOrderCard,
+  body .app.activePage-trade .finalOrderInputs {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  body .app.activePage-trade .mbCleanDigitBoardV310 {
+    padding-bottom: 28px !important;
+  }
+
+  body .app.activePage-trade .mbCleanDigitGridV310 {
+    row-gap: 24px !important;
+  }
+
+  body .app.activePage-trade .mbSingleGridCursorTopV317 {
+    top: 57px !important;
+  }
+
+  body .app.activePage-trade .mbSingleGridCursorBottomV317 {
+    bottom: -16px !important;
+  }
+}
+

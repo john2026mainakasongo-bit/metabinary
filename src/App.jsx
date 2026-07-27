@@ -7104,14 +7104,6 @@ function TradePage({
                           <strong>{digit}</strong>
                           <small>{Number(percent).toFixed(1)}%</small>
                         </span>
-                        {isCurrent && (
-                          <span
-                            className={`mbCleanDigitCursorAttachedV313 ${
-                              digit < 5 ? "mbCursorTopRowV315" : "mbCursorBottomRowV315"
-                            }`}
-                            aria-hidden="true"
-                          />
-                        )}
                       </>
                     ) : (
                       <>
@@ -7131,7 +7123,15 @@ function TradePage({
                   </button>
                 );
               })}
-              {theme !== "light" && (
+              {theme === "light" ? (
+                <i
+                  className={`mbSingleGridCursorV317 ${
+                    lastDigit < 5 ? "mbSingleGridCursorTopV317" : "mbSingleGridCursorBottomV317"
+                  }`}
+                  aria-hidden="true"
+                  style={{ "--mb-cursor-column-v317": lastDigit % 5 }}
+                />
+              ) : (
                 <i
                   className="singleDigitCursorV7 mobileDigitCursorFinalV130"
                   aria-hidden="true"
