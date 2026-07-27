@@ -57279,3 +57279,99 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V309 — FINAL WHITE DIGIT BOARD POLISH
+   Cosmetic cleanup only:
+   - removes the remaining dark frame around the digit card
+   - gives the digit card a soft light-gray border
+   - makes the selected blue ring thinner
+   - preserves cursor, waiting, win/loss and trading logic
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308 {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308 > .mbLightBoardFinalV305,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308 > .mbLightBoardFinalV305 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e2e7ee !important;
+    border-radius: 22px !important;
+    outline: 0 !important;
+    box-shadow: 0 4px 14px rgba(31, 55, 86, 0.045) !important;
+    filter: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::after,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightDigitCardV308::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::after,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308::before,
+  .app.theme-light .finalBinaryTradePage .mbLightDigitCardV308::after,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305::before,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305::after,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::before,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7::after {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitGridV7 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionRingV180,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionRingV180,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbDigitPredictionRingV180 {
+    inset: 3px !important;
+    border: 1.5px solid #2196f3 !important;
+    background: transparent !important;
+    box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.08) !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitFaceV306,
+  html[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitInnerV306,
+  body[data-theme="light"] .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitInnerV306,
+  .app.theme-light .finalBinaryTradePage .mbLightBoardFinalV305 .mbLightDigitInnerV306 {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+}
+
