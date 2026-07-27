@@ -57586,3 +57586,45 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V312 — CURSOR FULLY OUTSIDE ALL DIGIT CIRCLES
+   Adds enough vertical clearance for both the first and second digit rows.
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+  .mbCleanDigitBoardV310 {
+    overflow: visible !important;
+    padding-bottom: 30px !important;
+  }
+
+  .mbCleanDigitGridV310 {
+    overflow: visible !important;
+    row-gap: 22px !important;
+  }
+
+  .mbCleanDigitCursorV310 {
+    transform: translate(-50%, 58px) !important;
+    z-index: 10 !important;
+    border-left-width: 7px !important;
+    border-right-width: 7px !important;
+    border-bottom-width: 11px !important;
+    filter: drop-shadow(0 0 6px rgba(255, 64, 88, 0.66)) !important;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .mbCleanDigitBoardV310 {
+    padding-bottom: 28px !important;
+  }
+
+  .mbCleanDigitGridV310 {
+    row-gap: 20px !important;
+  }
+
+  .mbCleanDigitCursorV310 {
+    transform: translate(-50%, 55px) !important;
+  }
+}
+
