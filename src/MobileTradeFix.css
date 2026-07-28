@@ -8141,3 +8141,374 @@
     border-top: 1px solid #dfe6ed !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V337 — MOBILE PROFILE LIGHT/DARK THEME PARITY
+   Scope: Profile page ONLY (<= 760px)
+
+   Fixes from latest screenshots:
+   - full name is visible in White mode
+   - Available balance and Real/Demo balance values are visible
+   - quick-action cards become light in White mode
+   - performance card becomes light in White mode
+   - Account menu becomes light in White mode
+   - referral + logout are readable
+   - Black mode geometry and styling remain unchanged
+   - SAME geometry in both themes; colors only change
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* ---------------- SHARED GEOMETRY ---------------- */
+  html body .app.activePage-profile > .mainScreen,
+  html body .app.activePage-profile .mainScreen:has(.profileV237) {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding:
+      8px
+      10px
+      calc(84px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  html body .app.activePage-profile .profileV237 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 0 10px !important;
+
+    gap: 10px !important;
+  }
+
+  /* Header card geometry stays identical for both themes. */
+  html body .app.activePage-profile .profileHeroV237 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 138px !important;
+
+    margin: 0 !important;
+    padding: 16px 18px !important;
+
+    border-radius: 18px !important;
+  }
+
+  html body .app.activePage-profile .profileIdentityV237 {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .app.activePage-profile .profileNameV237 {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  html body .app.activePage-profile .profileNameV237 h1,
+  html body .app.activePage-profile .profileNameV237 p,
+  html body .app.activePage-profile .profileNameV237 small {
+    max-width: 100% !important;
+  }
+
+  /* Balance values must never disappear through inherited text colors. */
+  html body .app.activePage-profile .profileBalanceMainV237 strong,
+  html body .app.activePage-profile .profileBalanceSideV237 strong,
+  html body .app.activePage-profile .profileQuickV237 strong,
+  html body .app.activePage-profile .profilePerformanceV237 strong,
+  html body .app.activePage-profile .profileReferralCopyV237 strong,
+  html body .app.activePage-profile .profileReferralNumbersV237 b,
+  html body .app.activePage-profile .profileSectionTitleV237 h2,
+  html body .app.activePage-profile .profileMenuCopyV237 strong {
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+  }
+
+  /* ---------------- WHITE / LIGHT PALETTE ---------------- */
+  html body .app.theme-light.activePage-profile,
+  html body .app.theme-light.activePage-profile > .mainScreen,
+  html body .app.theme-light.activePage-profile .profileV237 {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  /* HERO */
+  html body .app.theme-light.activePage-profile .profileHeroV237 {
+    background:
+      radial-gradient(circle at 88% 5%, rgba(82, 151, 255, .17), transparent 42%),
+      linear-gradient(135deg, #ffffff, #f8fbff)
+      !important;
+
+    border-color: #dfe7ef !important;
+    box-shadow: 0 8px 22px rgba(22, 43, 67, .08) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileHeroGlowV237 {
+    background: rgba(70, 142, 255, .12) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileNameV237 h1 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileNameV237 p {
+    color: #8996a5 !important;
+    -webkit-text-fill-color: #8996a5 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileNameV237 small {
+    color: #647487 !important;
+    -webkit-text-fill-color: #647487 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileNameV237 > div > span.verified {
+    color: #0aa66e !important;
+    background: #ecfbf5 !important;
+    border-color: #bfeedd !important;
+  }
+
+  /* BALANCE CARD */
+  html body .app.theme-light.activePage-profile .profileBalanceV237 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    border-color: #dfe6ed !important;
+    box-shadow: 0 5px 16px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileBalanceMainV237 {
+    background:
+      radial-gradient(circle at 0 100%, rgba(44, 225, 172, .11), transparent 52%),
+      #ffffff
+      !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileBalanceMainV237 span,
+  html body .app.theme-light.activePage-profile .profileBalanceMainV237 small,
+  html body .app.theme-light.activePage-profile .profileBalanceSideV237 span {
+    color: #7f8c9b !important;
+    -webkit-text-fill-color: #7f8c9b !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileBalanceMainV237 strong,
+  html body .app.theme-light.activePage-profile .profileBalanceSideV237 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileBalanceSideV237 {
+    border-top-color: #e6ebf0 !important;
+    border-left-color: #e6ebf0 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileBalanceSideV237 p + p {
+    border-left-color: #e6ebf0 !important;
+    border-top-color: #e6ebf0 !important;
+  }
+
+  /* QUICK ACTIONS */
+  html body .app.theme-light.activePage-profile .profileQuickV237 button {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+
+    border-color: #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .05) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileQuickV237 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileQuickIconV237.blue {
+    color: #248fe8 !important;
+    background: #eaf5ff !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileQuickIconV237.green {
+    color: #11aa78 !important;
+    background: #e9faf4 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileQuickIconV237.purple {
+    color: #825be1 !important;
+    background: #f2edff !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileQuickIconV237.orange {
+    color: #d98925 !important;
+    background: #fff5e7 !important;
+  }
+
+  /* PERFORMANCE */
+  html body .app.theme-light.activePage-profile .profilePerformanceV237 {
+    background: #ffffff !important;
+    background-image: none !important;
+
+    border-color: #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profilePerformanceV237 > div + div {
+    border-left-color: #e7ecf1 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profilePerformanceV237 span {
+    color: #8190a0 !important;
+    -webkit-text-fill-color: #8190a0 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profilePerformanceV237 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profilePerformanceV237 strong.green {
+    color: #0db67b !important;
+    -webkit-text-fill-color: #0db67b !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profilePerformanceV237 strong.red {
+    color: #e4495b !important;
+    -webkit-text-fill-color: #e4495b !important;
+  }
+
+  /* REFERRAL */
+  html body .app.theme-light.activePage-profile .profileReferralV237 {
+    background:
+      radial-gradient(circle at 0 50%, rgba(143, 102, 255, .08), transparent 40%),
+      #ffffff
+      !important;
+
+    color: #111923 !important;
+
+    border-color: #e2d9fb !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileReferralCopyV237 strong,
+  html body .app.theme-light.activePage-profile .profileReferralNumbersV237 b {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileReferralCopyV237 small,
+  html body .app.theme-light.activePage-profile .profileReferralNumbersV237 small {
+    color: #8996a5 !important;
+    -webkit-text-fill-color: #8996a5 !important;
+  }
+
+  /* ACCOUNT MENU */
+  html body .app.theme-light.activePage-profile .profileMenuV237 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    border-color: #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileSectionTitleV237 {
+    border-bottom-color: #e8edf2 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileSectionTitleV237 h2 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileSectionTitleV237 span {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileMenuListV237 button {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileMenuListV237 button + button {
+    border-top-color: #e8edf2 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileMenuCopyV237 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileMenuCopyV237 small {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileMenuIconV237 {
+    background: #eef6ff !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileMenuListV237 em {
+    color: #8795a6 !important;
+  }
+
+  /* LOGOUT */
+  html body .app.theme-light.activePage-profile .profileLogoutV237 {
+    background: #fff2f4 !important;
+    background-image: none !important;
+
+    color: #dd4056 !important;
+
+    border-color: #f1c5cc !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileLogoutV237 strong {
+    color: #dd4056 !important;
+    -webkit-text-fill-color: #dd4056 !important;
+  }
+
+  html body .app.theme-light.activePage-profile .profileLogoutV237 small {
+    color: #b87580 !important;
+    -webkit-text-fill-color: #b87580 !important;
+  }
+
+  /* ---------------- DARK PALETTE SAFETY ----------------
+     Keep the current dark design, only make sure its text stays visible. */
+  html body .app.theme-dark.activePage-profile .profileNameV237 h1,
+  html body .app.theme-dark.activePage-profile .profileBalanceMainV237 strong,
+  html body .app.theme-dark.activePage-profile .profileBalanceSideV237 strong,
+  html body .app.theme-dark.activePage-profile .profileQuickV237 strong,
+  html body .app.theme-dark.activePage-profile .profilePerformanceV237 strong,
+  html body .app.theme-dark.activePage-profile .profileReferralCopyV237 strong,
+  html body .app.theme-dark.activePage-profile .profileReferralNumbersV237 b,
+  html body .app.theme-dark.activePage-profile .profileSectionTitleV237 h2,
+  html body .app.theme-dark.activePage-profile .profileMenuCopyV237 strong {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app.theme-dark.activePage-profile .profilePerformanceV237 strong.green {
+    color: #19d892 !important;
+    -webkit-text-fill-color: #19d892 !important;
+  }
+
+  html body .app.theme-dark.activePage-profile .profilePerformanceV237 strong.red {
+    color: #ff5d71 !important;
+    -webkit-text-fill-color: #ff5d71 !important;
+  }
+}
