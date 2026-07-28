@@ -8512,3 +8512,486 @@
     -webkit-text-fill-color: #ff5d71 !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V338 — REMAINING MOBILE LIGHT-THEME SURFACES
+   Scope: mobile only (<=760px)
+   Fixes the remaining screenshots:
+   - Deposit modal follows White/Black theme
+   - Withdraw modal follows White/Black theme
+   - Support chat follows White/Black theme
+   - History page follows White/Black theme
+   - Reports page follows White/Black theme
+   - AI Auto-Trade Scanner follows White/Black theme
+   - overlay dialogs sit ABOVE the bottom navigation
+   - floating AI is hidden on History/Reports so it does not cover headings
+   Geometry/functionality are not changed.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* -----------------------------------------------------------------------
+     OVERLAY STACKING
+     Bottom nav must never cover Cashier / Withdraw / AI / Support dialogs.
+     ----------------------------------------------------------------------- */
+  html body .app .modalLayer,
+  html body .app .mbDepositLayerV223,
+  html body .app .withdrawalFlowLayer {
+    z-index: 2147483500 !important;
+  }
+
+  html body .app .aiScannerPanel,
+  html body .app .supportChatPanel {
+    z-index: 2147483501 !important;
+  }
+
+  /* Reports / History are content pages, not AI working screens. */
+  html body .app.activePage-history .floatingAiButton,
+  html body .app.activePage-reports .floatingAiButton {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+
+  /* =======================================================================
+     DEPOSIT MODAL
+     ======================================================================= */
+
+  /* SHARED MOBILE GEOMETRY */
+  html body .app .mbDepositModalV223,
+  html body .app .mbDepositResultV223 {
+    box-sizing: border-box !important;
+    width: calc(100% - 24px) !important;
+    max-width: 430px !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* LIGHT */
+  html body .app.theme-light .mbDepositLayerV223 {
+    background: rgba(17, 27, 40, .54) !important;
+    backdrop-filter: blur(5px) !important;
+  }
+
+  html body .app.theme-light .mbDepositModalV223,
+  html body .app.theme-light .mbDepositResultV223 {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 22px 55px rgba(18, 37, 61, .22) !important;
+  }
+
+  html body .app.theme-light .mbDepositCloseV223,
+  html body .app.theme-light .mbDepositBackV223 {
+    background: #f3f6f9 !important;
+    color: #263443 !important;
+    border-color: #dce4ec !important;
+  }
+
+  html body .app.theme-light .mbDepositHeaderV223 h2,
+  html body .app.theme-light .mbDepositStepV223 span,
+  html body .app.theme-light .mbDepositMethodCopyV223 strong,
+  html body .app.theme-light .mbDepositSelectedV223 strong,
+  html body .app.theme-light .mbDepositMethodMiniV223 strong,
+  html body .app.theme-light .mbDepositResultV223 h2 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light .mbDepositHeaderV223 p,
+  html body .app.theme-light .mbDepositMethodCopyV223 small,
+  html body .app.theme-light .mbDepositMethodMetaV223 b,
+  html body .app.theme-light .mbDepositSelectedV223 span,
+  html body .app.theme-light .mbDepositSecurityV223,
+  html body .app.theme-light .mbDepositLabelV223,
+  html body .app.theme-light .mbDepositResultV223 p {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light .mbDepositMethodV223,
+  html body .app.theme-light .mbDepositMethodMiniV223,
+  html body .app.theme-light .mbDepositSelectedV223,
+  html body .app.theme-light .mbDepositAmountV223,
+  html body .app.theme-light .mbDepositPhoneV223,
+  html body .app.theme-light .mbDepositSummaryV223 {
+    background: #f8fafc !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light .mbDepositMethodV223.selected {
+    background: #edf7ff !important;
+    border-color: #218de4 !important;
+    box-shadow: 0 0 0 1px rgba(33, 141, 228, .08) !important;
+  }
+
+  html body .app.theme-light .mbDepositAmountV223 input,
+  html body .app.theme-light .mbDepositPhoneV223 input {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    caret-color: #111923 !important;
+    background: transparent !important;
+  }
+
+  html body .app.theme-light .mbDepositQuickV223 button {
+    background: #ffffff !important;
+    color: #263443 !important;
+    border-color: #dce4ec !important;
+  }
+
+  html body .app.theme-light .mbDepositQuickV223 button.active {
+    background: #edf7ff !important;
+    color: #147fd2 !important;
+    border-color: #218de4 !important;
+  }
+
+
+  /* =======================================================================
+     WITHDRAW MODAL
+     ======================================================================= */
+
+  html body .app .withdrawFlowModal {
+    box-sizing: border-box !important;
+    width: min(100%, 430px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  html body .app.theme-light .withdrawalFlowLayer {
+    background: rgba(17, 27, 40, .54) !important;
+    backdrop-filter: blur(5px) !important;
+  }
+
+  html body .app.theme-light .withdrawFlowModal {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 22px 55px rgba(18, 37, 61, .22) !important;
+  }
+
+  html body .app.theme-light .withdrawFlowHeader {
+    background: #ffffff !important;
+    border-bottom-color: #e5eaf0 !important;
+  }
+
+  html body .app.theme-light .withdrawFlowHeader h2,
+  html body .app.theme-light .withdrawSectionTitle strong,
+  html body .app.theme-light .withdrawMethodList button span strong,
+  html body .app.theme-light .withdrawSelectedMethod strong,
+  html body .app.theme-light .withdrawField > span,
+  html body .app.theme-light .withdrawReviewHero strong,
+  html body .app.theme-light .withdrawReviewCard strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light .withdrawFlowHeader span,
+  html body .app.theme-light .withdrawSectionTitle small,
+  html body .app.theme-light .withdrawMethodList button span small,
+  html body .app.theme-light .withdrawBalanceCard span,
+  html body .app.theme-light .withdrawBalanceCard small,
+  html body .app.theme-light .withdrawField small,
+  html body .app.theme-light .withdrawReviewHero span,
+  html body .app.theme-light .withdrawReviewHero small,
+  html body .app.theme-light .withdrawReviewCard span {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light .withdrawCloseBtn,
+  html body .app.theme-light .withdrawBackBtn {
+    background: #f3f6f9 !important;
+    color: #263443 !important;
+    border-color: #dce4ec !important;
+  }
+
+  html body .app.theme-light .withdrawBalanceCard,
+  html body .app.theme-light .withdrawMethodList button,
+  html body .app.theme-light .withdrawSelectedMethod,
+  html body .app.theme-light .withdrawAmountInput,
+  html body .app.theme-light .withdrawPhoneInput,
+  html body .app.theme-light .withdrawInfoRow,
+  html body .app.theme-light .withdrawReviewCard,
+  html body .app.theme-light .withdrawNotice {
+    background: #f8fafc !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light .withdrawMethodList button.selected {
+    background: #edf7ff !important;
+    border-color: #218de4 !important;
+  }
+
+  html body .app.theme-light .withdrawMethodList button.disabledMethod {
+    background: #f5f7f9 !important;
+    opacity: .62 !important;
+  }
+
+  html body .app.theme-light .withdrawAmountInput input,
+  html body .app.theme-light .withdrawPhoneInput input {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    caret-color: #111923 !important;
+    background: transparent !important;
+  }
+
+  html body .app.theme-light .withdrawQuickAmounts button {
+    background: #ffffff !important;
+    color: #263443 !important;
+    border-color: #dce4ec !important;
+  }
+
+
+  /* =======================================================================
+     SUPPORT CHAT
+     ======================================================================= */
+
+  html body .app.theme-light .supportChatPanel {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 22px 55px rgba(18, 37, 61, .24) !important;
+  }
+
+  html body .app.theme-light .supportChatPanel header h2,
+  html body .app.theme-light .supportChatPanel header strong,
+  html body .app.theme-light .supportAiGreeting,
+  html body .app.theme-light .supportTopicGrid button strong,
+  html body .app.theme-light .supportDetailsStep strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light .supportChatPanel header small,
+  html body .app.theme-light .supportAiGreeting p,
+  html body .app.theme-light .supportTopicGrid button small,
+  html body .app.theme-light .supportTicketStatus,
+  html body .app.theme-light .supportMessage small {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light .supportAiGreeting,
+  html body .app.theme-light .supportTopicGrid button,
+  html body .app.theme-light .supportDetailsStep,
+  html body .app.theme-light .supportMessage.agent,
+  html body .app.theme-light .supportMessage.assistant {
+    background: #f7f9fb !important;
+    background-image: none !important;
+    border-color: #dfe6ed !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light .supportMessage.user {
+    background: #1978cf !important;
+    color: #ffffff !important;
+    border-color: #1978cf !important;
+  }
+
+  html body .app.theme-light .supportMessage.user * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app.theme-light .supportComposer textarea,
+  html body .app.theme-light .supportComposer input {
+    background: #f8fafc !important;
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    caret-color: #111923 !important;
+    border-color: #dfe6ed !important;
+  }
+
+
+  /* =======================================================================
+     HISTORY PAGE
+     ======================================================================= */
+
+  html body .app.theme-light.activePage-history,
+  html body .app.theme-light.activePage-history > .mainScreen,
+  html body .app.theme-light.activePage-history .historyPageV226 {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyHeroV226 {
+    background:
+      radial-gradient(circle at 88% 0%, rgba(48, 132, 255, .12), transparent 42%),
+      #ffffff !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 6px 18px rgba(20, 38, 60, .05) !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyHeroV226 h1,
+  html body .app.theme-light.activePage-history .historySummaryV226 strong,
+  html body .app.theme-light.activePage-history .historyRowTextV226 strong,
+  html body .app.theme-light.activePage-history .historyDetailsV226 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyHeroV226 p,
+  html body .app.theme-light.activePage-history .historySummaryV226 span,
+  html body .app.theme-light.activePage-history .historyRowTextV226 small,
+  html body .app.theme-light.activePage-history .historyRowMetaV226 small,
+  html body .app.theme-light.activePage-history .historyDetailsV226 small {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light.activePage-history .historySummaryV226 article,
+  html body .app.theme-light.activePage-history .historyWorkspaceV226,
+  html body .app.theme-light.activePage-history .historyListV226,
+  html body .app.theme-light.activePage-history .historyRowV226 {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyTabsV226 {
+    background: #f7f9fb !important;
+    border-color: #e3e9ef !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyTabsV226 button {
+    background: transparent !important;
+    color: #687789 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyTabsV226 button.active {
+    color: #147fd2 !important;
+    border-bottom-color: #218de4 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyFiltersV226 label,
+  html body .app.theme-light.activePage-history .historyFiltersV226 select {
+    background: #f8fafc !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyFiltersV226 input {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    caret-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyRowV226 + .historyRowV226 {
+    border-top-color: #e8edf2 !important;
+  }
+
+
+  /* =======================================================================
+     REPORTS PAGE
+     ======================================================================= */
+
+  html body .app.theme-light.activePage-reports,
+  html body .app.theme-light.activePage-reports > .mainScreen,
+  html body .app.theme-light.activePage-reports .reportsPage {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-reports .reportsPage > h1 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-reports .homeStats,
+  html body .app.theme-light.activePage-reports .homeStats .statCard,
+  html body .app.theme-light.activePage-reports .homeStats > div {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .05) !important;
+  }
+
+  html body .app.theme-light.activePage-reports .homeStats strong,
+  html body .app.theme-light.activePage-reports .homeStats h2 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-reports .homeStats span,
+  html body .app.theme-light.activePage-reports .homeStats small {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+
+  /* =======================================================================
+     AI AUTO-TRADE SCANNER
+     ======================================================================= */
+
+  html body .app.theme-light .aiScannerPanel {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 22px 55px rgba(18, 37, 61, .24) !important;
+  }
+
+  html body .app.theme-light .aiScannerPanel header h2,
+  html body .app.theme-light .aiSignalCopy h3,
+  html body .app.theme-light .aiAutoRunCard strong,
+  html body .app.theme-light .aiScanProgress strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light .aiScannerPanel header small,
+  html body .app.theme-light .aiSafetyNote,
+  html body .app.theme-light .aiSignalCopy small,
+  html body .app.theme-light .aiSignalCopy em,
+  html body .app.theme-light .aiScanProgress small {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+  html body .app.theme-light .aiScannerPanel header button {
+    background: #f3f6f9 !important;
+    color: #263443 !important;
+    border-color: #dce4ec !important;
+  }
+
+  html body .app.theme-light .aiContextPill,
+  html body .app.theme-light .aiScanningState,
+  html body .app.theme-light .aiSignalResult,
+  html body .app.theme-light .aiAutoRunCard,
+  html body .app.theme-light .aiDataFindingList li {
+    background: #f7f9fb !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html body .app.theme-light .aiDataFindingList li.done {
+    color: #0aa66e !important;
+  }
+
+  html body .app.theme-light .aiScanAgain {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}
