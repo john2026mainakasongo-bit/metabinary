@@ -9876,3 +9876,185 @@
   62%  { transform: scale(1.04); filter: brightness(1.14); opacity: 1; }
   100% { transform: scale(1); filter: brightness(1); opacity: 1; }
 }
+
+/* ==========================================================================
+   METABINARY V342 — TALL PHONE FULL-HEIGHT TRADE
+   Scope: manual digit Trade page on tall phones only.
+
+   Goal:
+   - keep the SAME chart/digit/order design on every phone
+   - on tall phones, do NOT leave the trade/chart sitting in only half screen
+   - use the extra vertical space by expanding ONLY the live chart area
+   - digit board, controls, buttons and bottom navigation keep the same sizing
+   ========================================================================== */
+
+@media screen and (max-width: 760px) and (min-height: 780px) {
+  html,
+  body,
+  #root {
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .mobile-header {
+    flex: 0 0 42px !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    box-sizing: border-box !important;
+
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 4px 8px 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  > .mainScreen
+  > .finalBinaryTradePage.digitContractPage {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  /* Contract tabs keep their approved size. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalContractTabs {
+    flex: 0 0 48px !important;
+  }
+
+  /* The combined chart + digit-board card gets all remaining height. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+
+    overflow: hidden !important;
+  }
+
+  /* IMPORTANT:
+     V341 locked chart height for consistency. On tall phones V342 releases
+     only that vertical cap and lets the same chart fill the spare screen area.
+     Width, styling, axes and digit behaviour remain identical. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .mobileDigitLiveChartV115 {
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 230px !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+  }
+
+  /* Digit board stays exactly the same size as V341. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310 {
+    flex: 0 0 var(--mb-v321-board-h) !important;
+    height: var(--mb-v321-board-h) !important;
+    min-height: var(--mb-v321-board-h) !important;
+    max-height: var(--mb-v321-board-h) !important;
+  }
+
+  /* Order section never stretches and therefore does not create a blank block. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryOrderCard,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proBinaryOrderCard.finalBinaryOrderCard {
+    flex: 0 0 var(--mb-v321-order-h) !important;
+
+    height: var(--mb-v321-order-h) !important;
+    min-height: var(--mb-v321-order-h) !important;
+    max-height: var(--mb-v321-order-h) !important;
+
+    overflow: hidden !important;
+  }
+
+  /* Navigation is the last row at the actual screen bottom. */
+  body .app.activePage-trade:not(.riseFallActivePageV183) > .bottomNav,
+  body .app.activePage-trade:not(.riseFallActivePageV183) > nav.bottomNav {
+    position: relative !important;
+
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+
+    flex: 0 0 var(--mb-v321-nav-h) !important;
+
+    width: calc(100% - 16px) !important;
+
+    height: var(--mb-v321-nav-h) !important;
+    min-height: var(--mb-v321-nav-h) !important;
+    max-height: var(--mb-v321-nav-h) !important;
+
+    margin: 4px 8px max(4px, env(safe-area-inset-bottom, 0px)) !important;
+    padding: 0 !important;
+
+    transform: none !important;
+  }
+}
+
+/* Extra-tall phones: keep filling the spare area without touching digit/control sizes. */
+@media screen and (max-width: 760px) and (min-height: 900px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .mobileDigitLiveChartV115 {
+    min-height: 260px !important;
+  }
+}
