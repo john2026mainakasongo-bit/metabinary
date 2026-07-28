@@ -10776,3 +10776,100 @@
     border-color: #248fe8 !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V345 — RISE/FALL WHITE PRICE AXIS
+   Scope: mobile Rise/Fall light theme only.
+
+   V344 already turns the chart white, but RiseFallChartV183.css still gives
+   .priceScale its original dark gradient. This final override removes that
+   last black strip on the right side of the chart.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html[data-theme="light"] body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale,
+
+  body[data-theme="light"]
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale,
+
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #7f8b99 !important;
+    -webkit-text-fill-color: #7f8b99 !important;
+
+    border-left: 1px solid #e5eaf0 !important;
+    border-right: 0 !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"] body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale span,
+
+  body[data-theme="light"]
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale span,
+
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale span {
+    background: transparent !important;
+    background-image: none !important;
+    color: #7f8b99 !important;
+    -webkit-text-fill-color: #7f8b99 !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Keep the chart/axis seam clean in White mode. */
+  html[data-theme="light"] body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea,
+
+  body[data-theme="light"]
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea,
+
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea,
+
+  html[data-theme="light"] body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceOnlyCard .proChartArea,
+
+  body[data-theme="light"]
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceOnlyCard .proChartArea,
+
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceOnlyCard .proChartArea {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}
