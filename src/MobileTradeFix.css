@@ -9266,3 +9266,451 @@
     -webkit-text-fill-color: #f4f8fc !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V340 — HISTORY NATURAL SCROLL + REFERRAL TRUE LIGHT MODE
+   Scope: mobile only (<=760px)
+
+   Exact class names taken from the current App.jsx / CSS:
+   Referral:
+     referralDashboardPage, referralDashboardHero, referralLinkCard,
+     referralMetricGrid, referralDashboardGrid, referralDataPanel,
+     referralRulesCard, referralTable, referralCommissionList
+   History:
+     historyPageV226, historyWorkspaceV226, historyListV226
+
+   Fixes:
+   - History page scrolls as ONE normal page on mobile.
+   - History no longer gets trapped by overflow:hidden / height:100%.
+   - Bottom content stays reachable above the bottom nav.
+   - Referral White mode becomes genuinely light across ALL referral sections.
+   - Referral text/values are readable.
+   - Floating AI is hidden on Referral + History to stop covering content.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* =======================================================================
+     HISTORY — NATURAL MOBILE PAGE SCROLL
+     ======================================================================= */
+
+  html body .app.activePage-history {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-history > .mainScreen {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding:
+      8px
+      10px
+      calc(88px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  html body .app.activePage-history .historyPageV226 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+
+    margin: 0 !important;
+    padding: 0 0 12px !important;
+
+    overflow: visible !important;
+  }
+
+  html body .app.activePage-history .historyHeroV226,
+  html body .app.activePage-history .historySummaryV226,
+  html body .app.activePage-history .historyWorkspaceV226 {
+    flex: 0 0 auto !important;
+  }
+
+  html body .app.activePage-history .historyWorkspaceV226 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: visible !important;
+    border-radius: 14px !important;
+  }
+
+  html body .app.activePage-history .historyTabsV226,
+  html body .app.activePage-history .historyFiltersV226 {
+    flex: 0 0 auto !important;
+  }
+
+  /* Let the WHOLE History page scroll instead of trapping scrolling here. */
+  html body .app.activePage-history .historyListV226 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    overflow: visible !important;
+
+    padding: 0 8px 10px !important;
+  }
+
+  html body .app.activePage-history .historyRowV226 {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .app.activePage-history .historyRowMainV226 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+
+  /* Make history header/card spacing more balanced on phone. */
+  html body .app.activePage-history .historyHeroV226 {
+    min-height: 112px !important;
+    padding: 16px 14px !important;
+    border-radius: 15px !important;
+  }
+
+  html body .app.activePage-history .historyHeroV226 h1 {
+    font-size: 25px !important;
+  }
+
+  html body .app.activePage-history .historySummaryV226 {
+    gap: 7px !important;
+  }
+
+  html body .app.activePage-history .historySummaryV226 article {
+    min-height: 68px !important;
+    padding: 11px 9px !important;
+  }
+
+  html body .app.activePage-history .historyFiltersV226 {
+    grid-template-columns: minmax(0, 1fr) 116px !important;
+    gap: 7px !important;
+    padding: 8px !important;
+  }
+
+  html body .app.activePage-history .historyFiltersV226 label,
+  html body .app.activePage-history .historyFiltersV226 input,
+  html body .app.activePage-history .historyFiltersV226 select {
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+
+  /* AI bubble should not float over History content. */
+  html body .app.activePage-history .floatingAiButton {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+
+  /* =======================================================================
+     REFERRAL — TRUE LIGHT MODE USING THE REAL CLASS NAMES
+     ======================================================================= */
+
+  html body .app.activePage-referrals > .mainScreen {
+    padding:
+      8px
+      10px
+      calc(88px + env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+
+  html body .app.theme-light.activePage-referrals,
+  html body .app.theme-light.activePage-referrals > .mainScreen,
+  html body .app.theme-light.activePage-referrals .referralDashboardPage {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  /* Hide AI bubble here too — it was sitting between referral cards. */
+  html body .app.activePage-referrals .floatingAiButton {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* HERO */
+  html body .app.theme-light.activePage-referrals .referralDashboardHero {
+    background:
+      radial-gradient(circle at 90% 10%, rgba(134, 72, 255, .13), transparent 36%),
+      linear-gradient(135deg, #ffffff, #f8fbff)
+      !important;
+
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 8px 22px rgba(20, 38, 60, .07) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralBackButton {
+    background: #f5f7fa !important;
+    color: #415064 !important;
+    -webkit-text-fill-color: #415064 !important;
+    border: 1px solid #dce4ec !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralHeroCopy small {
+    color: #388ed8 !important;
+    -webkit-text-fill-color: #388ed8 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralHeroCopy h1 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralHeroCopy p {
+    color: #667587 !important;
+    -webkit-text-fill-color: #667587 !important;
+  }
+
+  /* Keep commission orb premium/purple in both themes. */
+  html body .app.theme-light.activePage-referrals .referralRateOrb {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(127, 61, 255, .14), rgba(127, 61, 255, .05))
+      !important;
+    border-color: #8b4df0 !important;
+    box-shadow: 0 0 24px rgba(126, 68, 246, .16) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRateOrb strong {
+    color: #6e31d7 !important;
+    -webkit-text-fill-color: #6e31d7 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRateOrb span {
+    color: #836ba6 !important;
+    -webkit-text-fill-color: #836ba6 !important;
+  }
+
+  /* REFERRAL LINK */
+  html body .app.theme-light.activePage-referrals .referralLinkCard {
+    background: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 5px 16px rgba(20, 38, 60, .05) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralLinkCard small {
+    color: #667587 !important;
+    -webkit-text-fill-color: #667587 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralLinkCard strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralLinkCard span {
+    color: #738193 !important;
+    -webkit-text-fill-color: #738193 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRefreshButton {
+    background: #f5f7fa !important;
+    color: #59687a !important;
+    border-color: #dce4ec !important;
+  }
+
+  /* FIVE METRIC CARDS */
+  html body .app.theme-light.activePage-referrals .referralMetricGrid article {
+    background: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .045) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralMetricGrid article > span {
+    background: #eef6ff !important;
+    color: #238ddd !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralMetricGrid small {
+    color: #788697 !important;
+    -webkit-text-fill-color: #788697 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralMetricGrid strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralMetricGrid em {
+    color: #8794a4 !important;
+    -webkit-text-fill-color: #8794a4 !important;
+  }
+
+  /* REFERRED TRADERS + COMMISSION JOURNAL */
+  html body .app.theme-light.activePage-referrals .referralDataPanel {
+    background: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 5px 16px rgba(20, 38, 60, .045) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralDataPanel > header {
+    background: #f8fafc !important;
+    border-bottom-color: #e5ebf0 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralDataPanel > header small {
+    color: #3c8ed4 !important;
+    -webkit-text-fill-color: #3c8ed4 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralDataPanel h2 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralDataPanel > header > span {
+    background: #eafaf4 !important;
+    color: #0ca06e !important;
+    border-color: #c9eddf !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralTable,
+  html body .app.theme-light.activePage-referrals .referralCommissionList {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralTableHead {
+    background: #f6f8fa !important;
+    color: #728091 !important;
+    border-bottom-color: #e6ebf0 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralTableRow,
+  html body .app.theme-light.activePage-referrals .referralCommissionList > div {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border-bottom-color: #e7ecf1 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralTableRow b,
+  html body .app.theme-light.activePage-referrals .referralCommissionList b,
+  html body .app.theme-light.activePage-referrals .referralCommissionList strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralTableRow small,
+  html body .app.theme-light.activePage-referrals .referralCommissionList small {
+    color: #7d8a9b !important;
+    -webkit-text-fill-color: #7d8a9b !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralCommissionList strong {
+    color: #0db37a !important;
+    -webkit-text-fill-color: #0db37a !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralEmptyState {
+    background: #f8fafc !important;
+    color: #7d8a9b !important;
+    border-color: #e5ebf0 !important;
+  }
+
+  /* RULES */
+  html body .app.theme-light.activePage-referrals .referralRulesCard {
+    background: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 5px 16px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRulesCard > div {
+    background: #f8fafc !important;
+    border-color: #e5ebf0 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRulesCard > div > b {
+    background: #eaf5ff !important;
+    color: #238ddd !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRulesCard strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralRulesCard small {
+    color: #7b8999 !important;
+    -webkit-text-fill-color: #7b8999 !important;
+  }
+
+  /* Activation card too, if account is not activated. */
+  html body .app.theme-light.activePage-referrals .referralActivationCard {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralActivationCard h2 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals .referralActivationCard p,
+  html body .app.theme-light.activePage-referrals .referralActivationCard small {
+    color: #7b8999 !important;
+    -webkit-text-fill-color: #7b8999 !important;
+  }
+}
