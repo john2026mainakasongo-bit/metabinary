@@ -5232,3 +5232,94 @@
     letter-spacing: -0.38px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V328 — CONTRACT TABS FILL THE WHOLE SECTION
+   Only changes the top contract selector.
+   - All 4 tabs stretch across the full row.
+   - No unused space at the right.
+   - Keeps a clean visible gap between tabs.
+   - Light/Dark colors stay exactly as V327.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+
+    gap: 7px !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    padding: 4px !important;
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button,
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button:disabled {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding-inline: 3px !important;
+
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  /* Give Matches/Differs a little extra room, then share the rest evenly. */
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button:nth-of-type(2) {
+    flex-grow: 1.18 !important;
+  }
+}
+
+/* Narrow phones: keep all four labels visible while still filling the row. */
+@media screen and (max-width: 390px) {
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    gap: 4px !important;
+    padding-inline: 3px !important;
+  }
+
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button,
+  html body
+  .app.activePage-trade
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button:disabled {
+    padding-inline: 1px !important;
+    font-size: 8.4px !important;
+    letter-spacing: -0.4px !important;
+  }
+}
