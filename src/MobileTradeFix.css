@@ -6455,3 +6455,266 @@
     border: 1px solid #f3d5da !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V332 — MOBILE BOTS LIGHT THEME FIX
+   Scope: AI Trading Bots page ONLY (<= 760px)
+   Dark mode is left visually unchanged.
+   Fixes visible in the latest screenshots:
+   - restores AI Trading Bots title in White mode
+   - restores stat values (4 / 0 / 4 / 1–10)
+   - restores bot names (AI Vortex / Velocity / Vector / Vision)
+   - makes strategy / market / risk panel light instead of grey/dark
+   - keeps exactly the same mobile layout/spacing as Black mode
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* ---------------- SAME GEOMETRY FOR BOTH THEMES ---------------- */
+  html body .app.activePage-bots > .mainScreen {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  html body .app.activePage-bots .vSeriesBotsPage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Make sure inherited global white text never disappears on light cards. */
+  html body .app.activePage-bots .vSeriesBotsHeader h1,
+  html body .app.activePage-bots .vSeriesBotStats .statCard strong,
+  html body .app.activePage-bots .vSeriesBotCopy h2,
+  html body .app.activePage-bots .vSeriesMeta strong {
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+  }
+
+  /* ---------------- LIGHT PALETTE ONLY ---------------- */
+  html body .app.theme-light.activePage-bots {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-bots > .mainScreen,
+  html body .app.theme-light.activePage-bots .vSeriesBotsPage {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  /* HERO */
+  html body .app.theme-light.activePage-bots .vSeriesBotsHeader,
+  html body .app.theme-light.activePage-bots .finalBotsHeader.vSeriesBotsHeader {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 8px 22px rgba(20, 38, 60, .07) !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotsHeader > div > small {
+    color: #268ed9 !important;
+    -webkit-text-fill-color: #268ed9 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotsHeader h1 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotsHeader p {
+    color: #8290a0 !important;
+    -webkit-text-fill-color: #8290a0 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .botsHeaderStatus {
+    background: #f7f9fb !important;
+    color: #8c99a8 !important;
+    border-color: #dfe5ec !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-bots .botsHeaderStatus i {
+    background: #93a3b6 !important;
+    box-shadow: none !important;
+  }
+
+  /* STATS */
+  html body .app.theme-light.activePage-bots .vSeriesBotStats,
+  html body .app.theme-light.activePage-bots .botStats.vSeriesBotStats,
+  html body .app.theme-light.activePage-bots .finalBotStats.vSeriesBotStats {
+    background: #f8fafc !important;
+    background-image: none !important;
+    border: 1px solid #e0e7ee !important;
+    box-shadow: 0 8px 20px rgba(20, 38, 60, .05) !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotStats .statCard,
+  html body .app.theme-light.activePage-bots .botStats.vSeriesBotStats .statCard,
+  html body .app.theme-light.activePage-bots .finalBotStats.vSeriesBotStats .statCard {
+    background: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e5eaf0 !important;
+    color: #111923 !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotStats .statCard strong,
+  html body .app.theme-light.activePage-bots .botStats.vSeriesBotStats .statCard strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotStats .statCard span,
+  html body .app.theme-light.activePage-bots .botStats.vSeriesBotStats .statCard span {
+    color: #8a97a6 !important;
+    -webkit-text-fill-color: #8a97a6 !important;
+  }
+
+  /* BOT CARDS */
+  html body .app.theme-light.activePage-bots .vSeriesBotCard,
+  html body .app.theme-light.activePage-bots .botCard.vSeriesBotCard,
+  html body .app.theme-light.activePage-bots .finalBotCard.vSeriesBotCard {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 8px 22px rgba(20, 38, 60, .08) !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotCard::before,
+  html body .app.theme-light.activePage-bots .botCard.vSeriesBotCard::before {
+    background: #6bb8f2 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotCopy h2 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotCopy p {
+    color: #eb4d5d !important;
+    -webkit-text-fill-color: #eb4d5d !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotCopy p b {
+    color: #eb4d5d !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotCopy small {
+    color: #8a97a6 !important;
+    -webkit-text-fill-color: #8a97a6 !important;
+  }
+
+  /* READY pill */
+  html body .app.theme-light.activePage-bots .botStatusPill {
+    background: #f7f9fb !important;
+    background-image: none !important;
+    color: #8c99a8 !important;
+    border: 1px solid #dfe5ec !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-bots .botStatusPill i {
+    background: #94a4b6 !important;
+    box-shadow: none !important;
+  }
+
+  /* META PANEL — Strategy / Market / Risk */
+  html body .app.theme-light.activePage-bots .vSeriesMeta {
+    background: #f6f8fa !important;
+    background-color: #f6f8fa !important;
+    background-image: none !important;
+    border: 1px solid #e1e7ed !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesMeta p {
+    background: transparent !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesMeta span {
+    color: #9aa5b2 !important;
+    -webkit-text-fill-color: #9aa5b2 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesMeta strong {
+    color: #344152 !important;
+    -webkit-text-fill-color: #344152 !important;
+  }
+
+  /* Keep risk colors readable on white. */
+  html body .app.theme-light.activePage-bots .vSeriesMeta strong.riskMedium,
+  html body .app.theme-light.activePage-bots .vSeriesMeta strong.riskLowMedium {
+    color: #c99322 !important;
+    -webkit-text-fill-color: #c99322 !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesMeta strong.riskHigh {
+    color: #e34c5d !important;
+    -webkit-text-fill-color: #e34c5d !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesMeta strong.riskLow {
+    color: #18a86c !important;
+    -webkit-text-fill-color: #18a86c !important;
+  }
+
+  /* LOAD BOT button remains blue in both themes. */
+  html body .app.theme-light.activePage-bots .vSeriesBotAction,
+  html body .app.theme-light.activePage-bots .botAction.vSeriesBotAction {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: linear-gradient(135deg, #1c91f6, #0869ef) !important;
+    border-color: rgba(37, 132, 245, .38) !important;
+  }
+
+  html body .app.theme-light.activePage-bots .vSeriesBotAction span,
+  html body .app.theme-light.activePage-bots .vSeriesBotAction b {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  /* ---------------- DARK PALETTE SAFETY ----------------
+     Do not alter dark geometry; just make sure all visible text stays visible. */
+  html body .app.theme-dark.activePage-bots .vSeriesBotsHeader h1,
+  html body .app.theme-dark.activePage-bots .vSeriesBotStats .statCard strong,
+  html body .app.theme-dark.activePage-bots .vSeriesBotCopy h2,
+  html body .app.theme-dark.activePage-bots .vSeriesMeta strong {
+    color: #f5f8fc !important;
+    -webkit-text-fill-color: #f5f8fc !important;
+  }
+
+  html body .app.theme-dark.activePage-bots .vSeriesBotCopy small,
+  html body .app.theme-dark.activePage-bots .vSeriesMeta span,
+  html body .app.theme-dark.activePage-bots .vSeriesBotStats .statCard span {
+    color: #8f9daf !important;
+    -webkit-text-fill-color: #8f9daf !important;
+  }
+
+  html body .app.theme-dark.activePage-bots .vSeriesBotCopy p {
+    color: #ef4e61 !important;
+    -webkit-text-fill-color: #ef4e61 !important;
+  }
+
+  html body .app.theme-dark.activePage-bots .vSeriesMeta strong.riskMedium,
+  html body .app.theme-dark.activePage-bots .vSeriesMeta strong.riskLowMedium {
+    color: #ffd26f !important;
+    -webkit-text-fill-color: #ffd26f !important;
+  }
+
+  html body .app.theme-dark.activePage-bots .vSeriesMeta strong.riskHigh {
+    color: #ff6f7d !important;
+    -webkit-text-fill-color: #ff6f7d !important;
+  }
+}
