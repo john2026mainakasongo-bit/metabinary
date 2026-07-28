@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./App.css";
 import "./DesktopTrade.css";
-import "./MobileTradeFix.css";
 import "./RiseFallChartV183.css";
 import "./InteractionFixV221.css";
+import "./MobileTradeFix.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 import MobileHeader from "./MobileHeader.jsx";
 

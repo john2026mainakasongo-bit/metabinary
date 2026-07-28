@@ -4802,3 +4802,202 @@
     letter-spacing: -0.35px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V326 — ROOT FIX FOR CONTRACT SELECTOR
+   IMPORTANT:
+   - Does NOT depend on mbLightTradeTabsFinalV305.
+   - Targets the actual .finalContractTabs row in BOTH digit and Rise/Fall pages.
+   - MobileTradeFix.css is imported LAST in App.jsx, so legacy CSS cannot repaint
+     the dark tabs white or collapse the gaps.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body .app.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+
+    display: grid !important;
+    grid-template-columns:
+      minmax(0, 0.96fr)
+      minmax(0, 1.22fr)
+      minmax(0, 1fr)
+      minmax(0, 0.92fr) !important;
+
+    column-gap: 8px !important;
+    row-gap: 0 !important;
+
+    box-sizing: border-box !important;
+    width: calc(100% - 24px) !important;
+    max-width: calc(100% - 24px) !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+
+    flex: 0 0 54px !important;
+    margin: 0 12px 6px !important;
+    padding: 5px !important;
+
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    scrollbar-width: none !important;
+    touch-action: auto !important;
+  }
+
+  html body .app.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  html body .app.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > span {
+    display: none !important;
+  }
+
+  html body .app.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > button {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    translate: none !important;
+
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    flex: none !important;
+    margin: 0 !important;
+    padding: 0 3px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 11px !important;
+    border: 1px solid transparent !important;
+
+    font-size: clamp(9px, 2.55vw, 11px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.3px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  /* LIGHT COLORS ONLY */
+  html body .app.theme-light.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs {
+    background: #f5f6f8 !important;
+    background-color: #f5f6f8 !important;
+    background-image: none !important;
+    border: 1px solid #e5eaf0 !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > button {
+    background: #f5f6f8 !important;
+    background-color: #f5f6f8 !important;
+    background-image: none !important;
+    color: #7e8996 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > button.active {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dce3ea !important;
+    box-shadow: 0 2px 7px rgba(20, 38, 60, .08) !important;
+  }
+
+  /* DARK COLORS ONLY — NO WHITE BACKGROUND */
+  html body .app.theme-dark.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs {
+    background: #02070d !important;
+    background-color: #02070d !important;
+    background-image: none !important;
+    border: 1px solid #173047 !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-dark.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > button {
+    background: #07131f !important;
+    background-color: #07131f !important;
+    background-image: none !important;
+    color: #8e9cac !important;
+    border-color: #14283b !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-dark.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > button.active {
+    background: #0c1d2b !important;
+    background-color: #0c1d2b !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border-color: #38536b !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .34) !important;
+  }
+}
+
+/* Keep four separate buttons on narrower phones. */
+@media screen and (max-width: 390px) {
+  html body .app.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs {
+    grid-template-columns:
+      minmax(0, 0.94fr)
+      minmax(0, 1.26fr)
+      minmax(0, 1fr)
+      minmax(0, 0.90fr) !important;
+    column-gap: 5px !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  html body .app.activePage-trade
+  .finalBinaryTradePage
+  > .finalContractTabs
+  > button {
+    padding-inline: 1px !important;
+    font-size: 8.6px !important;
+    letter-spacing: -0.38px !important;
+  }
+}
