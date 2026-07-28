@@ -848,3 +848,399 @@ body[data-theme="light"] .mobile-header-menu span,
     gap: 5px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V323 — EXACT HEADER PARITY
+   White and Black use the exact same mobile header geometry.
+   Theme switching changes colors only.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  /* SHARED GEOMETRY — BOTH THEMES */
+  body .app > .mobile-header,
+  html[data-theme="light"] body .app > .mobile-header,
+  html[data-theme="dark"] body .app > .mobile-header {
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 42px !important;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    overflow: visible !important;
+    border-width: 0 0 1px 0 !important;
+    border-style: solid !important;
+    box-shadow: none !important;
+    z-index: 60000 !important;
+  }
+
+  body .app > .mobile-header .mobile-header-inner {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 28px 62px minmax(0, 1fr) 28px 28px !important;
+    column-gap: 2px !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 41px !important;
+    min-height: 41px !important;
+    max-height: 41px !important;
+    padding: 0 8px !important;
+    margin: 0 !important;
+  }
+
+  body .app > .mobile-header :is(
+    .mobile-header-menu,
+    .mobile-header-bell,
+    .mobile-header-avatar
+  ) {
+    width: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+  }
+
+  body .app > .mobile-header .mobile-header-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    padding-left: 5px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-menu span {
+    display: block !important;
+    width: 12px !important;
+    height: 1.5px !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+  }
+
+  body .app > .mobile-header .mobile-header-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .app > .mobile-header .mobile-header-logo {
+    flex: 0 0 22px !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+    font-size: 8px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  body .app > .mobile-header .mobile-header-brand strong {
+    min-width: 0 !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.15px !important;
+    white-space: nowrap !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-wrap {
+    min-width: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 136px !important;
+    min-width: 0 !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    display: grid !important;
+    grid-template-columns: 23px minmax(0, 1fr) 10px !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 0 7px !important;
+    margin: 0 !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 17px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-icon {
+    width: 23px !important;
+    min-width: 23px !important;
+    max-width: 23px !important;
+    height: 23px !important;
+    min-height: 23px !important;
+    max-height: 23px !important;
+    border-radius: 50% !important;
+    font-size: 8px !important;
+    box-shadow: none !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-balance {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.1px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-chevron {
+    width: 10px !important;
+    height: 10px !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+  }
+
+  body .app > .mobile-header .mobile-header-bell svg {
+    width: 15px !important;
+    height: 17px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-badge {
+    top: -1px !important;
+    right: -2px !important;
+    min-width: 13px !important;
+    width: auto !important;
+    height: 13px !important;
+    padding: 0 3px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-width: 1.5px !important;
+    border-style: solid !important;
+    border-radius: 999px !important;
+    font-size: 6px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  body .app > .mobile-header .mobile-header-avatar {
+    display: grid !important;
+    place-items: center !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+  }
+
+  body .app > .mobile-header .mobile-header-online {
+    right: 0 !important;
+    bottom: 1px !important;
+    width: 6px !important;
+    height: 6px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    box-shadow: none !important;
+  }
+
+  body .app > .mobile-header .mobile-header-panel {
+    left: 8px !important;
+    right: 8px !important;
+    top: 45px !important;
+    z-index: 60002 !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 13px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-backdrop {
+    z-index: 60001 !important;
+  }
+
+  /* LIGHT PALETTE ONLY */
+  body .app.theme-light > .mobile-header {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-color: #e9edf2 !important;
+    color: #101722 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-inner,
+  body .app.theme-light > .mobile-header :is(
+    .mobile-header-menu,
+    .mobile-header-bell,
+    .mobile-header-avatar
+  ) {
+    background: #ffffff !important;
+    color: #151c26 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-menu span {
+    background: #24303d !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-logo {
+    color: #0f1720 !important;
+    background: #ef2ba9 !important;
+    background-image: none !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-brand strong,
+  body .app.theme-light > .mobile-header .mobile-header-account-balance,
+  body .app.theme-light > .mobile-header .mobile-header-avatar {
+    color: #111821 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-account {
+    border-color: #e6eaf0 !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    box-shadow: 0 1px 4px rgba(28, 48, 73, 0.035) !important;
+    color: #111821 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-chevron {
+    color: #8a94a2 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-bell svg {
+    fill: #0e1722 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-badge {
+    border-color: #ffffff !important;
+    background: #1267df !important;
+    color: #ffffff !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-online {
+    border-color: #ffffff !important;
+    background: #00bf72 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-panel {
+    border-color: #e1e6ed !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    box-shadow: 0 14px 32px rgba(27, 48, 74, 0.16) !important;
+    color: #111821 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-backdrop {
+    background: rgba(10, 20, 32, 0.16) !important;
+  }
+
+  /* DARK PALETTE ONLY — SAME GEOMETRY AS LIGHT */
+  body .app.theme-dark > .mobile-header {
+    background: #03111f !important;
+    background-image: none !important;
+    border-color: #173047 !important;
+    color: #f4f8ff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-inner {
+    background: #03111f !important;
+  }
+
+  body .app.theme-dark > .mobile-header :is(
+    .mobile-header-menu,
+    .mobile-header-bell,
+    .mobile-header-avatar
+  ) {
+    background: transparent !important;
+    color: #f4f8ff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-menu span {
+    background: #aab8ca !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-logo {
+    color: #07111d !important;
+    background: #ef2ba9 !important;
+    background-image: none !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-brand strong,
+  body .app.theme-dark > .mobile-header .mobile-header-account-balance,
+  body .app.theme-dark > .mobile-header .mobile-header-avatar {
+    color: #f4f8ff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-account {
+    border-color: #24415d !important;
+    background: #071624 !important;
+    background-image: none !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .18) !important;
+    color: #f4f8ff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-account.open {
+    border-color: #3f82c7 !important;
+    box-shadow: 0 0 0 2px rgba(31, 125, 255, .08) !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-chevron {
+    color: #8fa3b8 !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-bell svg {
+    fill: #d8e3ef !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-badge {
+    border-color: #03111f !important;
+    background: #1267df !important;
+    color: #ffffff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-online {
+    border-color: #03111f !important;
+    background: #00d987 !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-panel {
+    border-color: #24415d !important;
+    background: #061624 !important;
+    background-image: none !important;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .34) !important;
+    color: #f4f8ff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-backdrop {
+    background: rgba(0, 0, 0, .28) !important;
+  }
+}
+
+@media screen and (max-width: 340px) {
+  body .app > .mobile-header .mobile-header-inner {
+    grid-template-columns: 26px 58px minmax(0, 1fr) 26px 26px !important;
+    column-gap: 1px !important;
+    padding: 0 6px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account {
+    max-width: 128px !important;
+    grid-template-columns: 22px minmax(0, 1fr) 9px !important;
+    gap: 4px !important;
+    padding: 0 6px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-brand {
+    gap: 5px !important;
+  }
+}
