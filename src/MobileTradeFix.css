@@ -5876,3 +5876,235 @@
     max-height: 80px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V330 — SETTINGS MOBILE POLISH
+   Scope: SETTINGS PAGE ONLY
+   Fixes visible in latest screenshots:
+   - remove duplicate floating "‹ Back" (globalPageBack)
+   - keep only the internal "‹ Profile" button in the Settings hero
+   - make light-theme tab labels/icons readable
+   - make light-theme inputs/selects truly light (not dark fields)
+   - preserve identical geometry between Black and White
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  /* There are TWO back controls in App.jsx on Settings:
+     1) globalPageBack => "‹ Back"
+     2) settingsBackV238 => "‹ Profile"
+     Keep the Settings-specific one only. */
+  html body .app.activePage-settings .globalPageBack {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* Make the hero's own Profile button clean and non-overlapping. */
+  html body .app.activePage-settings .professionalSettingsHero .settingsBackV238 {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+
+    width: auto !important;
+    min-width: 72px !important;
+    max-width: none !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+
+    margin: 0 0 2px !important;
+    padding: 0 10px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 9px !important;
+    transform: none !important;
+    z-index: 2 !important;
+
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Shared tab geometry stays unchanged. Force all labels/icons visible. */
+  html body .app.activePage-settings .settingsSectionNav > button > b {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button span,
+  html body .app.activePage-settings .settingsSectionNav > button span strong {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* ---------------- LIGHT PALETTE ONLY ---------------- */
+  html body .app.theme-light.activePage-settings {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-settings :is(
+    .professionalSettingsHero,
+    .settingsSectionNav,
+    .settingsFormCard
+  ) {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #e0e6ed !important;
+  }
+
+  html body .app.theme-light.activePage-settings .professionalSettingsHero .settingsBackV238 {
+    background: #f5f7fa !important;
+    color: #1a2430 !important;
+    border: 1px solid #dce4ec !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-settings .professionalSettingsHero :is(
+    h1,
+    .settingsAccountBadge strong
+  ) {
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .professionalSettingsHero :is(
+    p,
+    .settingsAccountBadge span
+  ) {
+    color: #6f7c8d !important;
+  }
+
+  /* Four section buttons: readable text in light mode. */
+  html body .app.theme-light.activePage-settings .settingsSectionNav > button {
+    background: #f7f9fb !important;
+    background-image: none !important;
+    color: #526173 !important;
+    border: 1px solid #e6ebf1 !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsSectionNav > button > b {
+    color: #2f88d8 !important;
+    background: #eaf5ff !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsSectionNav > button span strong {
+    color: #4e5c6c !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsSectionNav > button.active {
+    background: #edf7ff !important;
+    color: #0879d8 !important;
+    border-color: #73bdf0 !important;
+    box-shadow: inset 0 0 0 1px rgba(8, 124, 216, .08) !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsSectionNav > button.active > b,
+  html body .app.theme-light.activePage-settings .settingsSectionNav > button.active span strong {
+    color: #0879d8 !important;
+  }
+
+  /* Read-only profile cards become proper light cards. */
+  html body .app.theme-light.activePage-settings .settingsReadOnlyGrid > label {
+    background: #f8fafc !important;
+    background-image: none !important;
+    border-color: #e2e8ef !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsReadOnlyGrid > label > span,
+  html body .app.theme-light.activePage-settings .settingsInputGrid label > span,
+  html body .app.theme-light.activePage-settings .settingsPasswordGrid label > span {
+    color: #7b8999 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsReadOnlyGrid strong {
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsReadOnlyGrid small {
+    color: #8a97a6 !important;
+  }
+
+  /* Critical fix: base App.css makes these fields dark.
+     In White mode they now become actual white/light inputs. */
+  html body .app.theme-light.activePage-settings .settingsInputGrid input,
+  html body .app.theme-light.activePage-settings .settingsInputGrid select,
+  html body .app.theme-light.activePage-settings .settingsPasswordGrid input {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+    caret-color: #111923 !important;
+
+    border: 1px solid #d9e1ea !important;
+    box-shadow: none !important;
+
+    -webkit-text-fill-color: #111923 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsInputGrid input::placeholder,
+  html body .app.theme-light.activePage-settings .settingsPasswordGrid input::placeholder {
+    color: #9aa6b4 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsInputGrid select option {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsFormCard > header h2,
+  html body .app.theme-light.activePage-settings .themeChoice > strong {
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-settings .settingsFormCard > header small,
+  html body .app.theme-light.activePage-settings .settingsFormCard footer > small,
+  html body .app.theme-light.activePage-settings .themeChoice > small {
+    color: #7b8999 !important;
+  }
+
+  /* Appearance cards: same geometry, only palette changes. */
+  html body .app.theme-light.activePage-settings .themeChoice {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html body .app.theme-light.activePage-settings .themeChoice.active {
+    border-color: #2e9be8 !important;
+    box-shadow: 0 0 0 2px rgba(46, 155, 232, .12) !important;
+  }
+
+  /* ---------------- DARK PALETTE CONSISTENCY ---------------- */
+  html body .app.theme-dark.activePage-settings .professionalSettingsHero .settingsBackV238 {
+    background: #071523 !important;
+    color: #f4f8fc !important;
+    border: 1px solid #24425f !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-dark.activePage-settings .settingsSectionNav > button span strong {
+    color: #eef4fb !important;
+  }
+
+  html body .app.theme-dark.activePage-settings .settingsSectionNav > button:not(.active) span strong {
+    color: #d6e0eb !important;
+  }
+}
