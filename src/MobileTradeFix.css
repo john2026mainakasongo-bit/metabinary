@@ -4655,3 +4655,150 @@
     font-size: 9.5px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V325 — FINAL CONTRACT TABS
+   Fixes only:
+   1) visible spacing between Even/Odd, Matches/Differs, Over/Under, Rise/Fall
+   2) dark theme selector bar stays dark (never inherits light surface)
+   3) Matches/Differs fits without clipping on narrow phones
+   IMPORTANT: theme source of truth is .app.theme-light / .app.theme-dark only.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    display: grid !important;
+    grid-template-columns:
+      minmax(0, .98fr)
+      minmax(0, 1.22fr)
+      minmax(0, 1fr)
+      minmax(0, .92fr) !important;
+
+    gap: 6px !important;
+
+    width: calc(100% - 24px) !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+
+    margin: 0 12px 6px !important;
+    padding: 5px !important;
+
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 3px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 11px !important;
+    border: 1px solid transparent !important;
+
+    font-size: clamp(9px, 2.55vw, 11px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.25px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  /* LIGHT — geometry above stays identical */
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    background: #f5f6f8 !important;
+    background-color: #f5f6f8 !important;
+    background-image: none !important;
+    border: 1px solid #e6ebf0 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    background: transparent !important;
+    background-image: none !important;
+    color: #7f8a97 !important;
+  }
+
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dce3ea !important;
+    box-shadow: 0 2px 7px rgba(20, 38, 60, .08) !important;
+  }
+
+  /* DARK — NO WHITE SURFACE ANYWHERE IN THIS SELECTOR */
+  body .app.theme-dark.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    background: #020a12 !important;
+    background-color: #020a12 !important;
+    background-image: none !important;
+    border: 1px solid #183047 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-dark.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    background: #06121d !important;
+    background-color: #06121d !important;
+    background-image: none !important;
+    color: #8f9dad !important;
+    border-color: #102235 !important;
+    box-shadow: none !important;
+  }
+
+  body .app.theme-dark.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    background: #0b1b29 !important;
+    background-color: #0b1b29 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border-color: #38536b !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .34) !important;
+  }
+}
+
+/* Extra narrow phones: preserve the four separate tabs and full labels. */
+@media screen and (max-width: 380px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    grid-template-columns:
+      minmax(0, .95fr)
+      minmax(0, 1.26fr)
+      minmax(0, 1fr)
+      minmax(0, .90fr) !important;
+    gap: 4px !important;
+    width: calc(100% - 16px) !important;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    padding: 4px !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    padding: 0 1px !important;
+    font-size: 8.7px !important;
+    letter-spacing: -0.35px !important;
+  }
+}
