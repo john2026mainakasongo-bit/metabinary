@@ -10434,3 +10434,345 @@
     gap: 4px !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V344 — RISE/FALL TRUE WHITE THEME
+   Scope: mobile Rise/Fall only (<=760px)
+
+   Fix from latest large-phone screenshots:
+   - White theme must NOT keep the dark volatility bar / chart / controls.
+   - Same Rise/Fall geometry in Light and Dark; only colors change.
+   - Dark theme is left unchanged.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* -----------------------------------------------------------------------
+     PAGE / WORKSPACE
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 > .mainScreen,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 > .mainScreen,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 > .mainScreen,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalBinaryTradePage.priceContractPage {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     VOLATILITY MARKET BAR
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+
+    border-color: #dfe6ed !important;
+    box-shadow: 0 3px 10px rgba(20, 38, 60, .05) !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar strong,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar strong,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar strong,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton strong,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton strong,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar small,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar small,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchBar small,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton small,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton small,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton small {
+    color: #748395 !important;
+    -webkit-text-fill-color: #748395 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton > span,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton > span,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .volatilitySwitchButton > span {
+    background: #effaf6 !important;
+    color: #0ca976 !important;
+    border-color: #bfe9d8 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     CHART CARD / PRICE SCALE / TIME ROW
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalBinaryChartCard.priceOnlyCard,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalBinaryChartCard.priceOnlyCard,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalBinaryChartCard.priceOnlyCard,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalBinaryChartArea,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalBinaryChartArea,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalBinaryChartArea,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .proChartArea,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .proChartArea,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .proChartArea,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .proChartCanvas,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .proChartCanvas,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .proChartCanvas,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .lineChart,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .lineChart,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .lineChart {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalBinaryChartCard.priceOnlyCard,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalBinaryChartCard.priceOnlyCard,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalBinaryChartCard.priceOnlyCard {
+    border: 1px solid #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .04) !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .priceScale,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .priceScale,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .priceScale,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .priceScale span,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .priceScale span,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .priceScale span,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalChartTimeRow,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalChartTimeRow,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalChartTimeRow,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalChartTimeRow span,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalChartTimeRow span,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalChartTimeRow span {
+    color: #7f8b99 !important;
+    -webkit-text-fill-color: #7f8b99 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalChartTimeRow,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalChartTimeRow,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalChartTimeRow {
+    background: #ffffff !important;
+    border-top-color: #edf1f4 !important;
+  }
+
+  /* Remove the dark ambient chart glow in White mode. */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .worldMapGlow,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .worldMapGlow,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .worldMapGlow {
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     LINE CHART — green line on a white surface
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseLineChartV183 .linePath,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseLineChartV183 .linePath,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseLineChartV183 .linePath {
+    fill: none !important;
+    stroke: #12b978 !important;
+    stroke-width: .52 !important;
+    filter: none !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseLineChartV183 .areaPath,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseLineChartV183 .areaPath,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseLineChartV183 .areaPath {
+    fill: rgba(18, 185, 120, .10) !important;
+    stroke: none !important;
+    filter: none !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     CANDLE CHART
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleGridV183 line,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleGridV183 line,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleGridV183 line {
+    stroke: #e4eaf0 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleUpV183 .riseCandleWickV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleUpV183 .riseCandleWickV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleUpV183 .riseCandleWickV183 {
+    stroke: #10b878 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleUpV183 .riseCandleBodyV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleUpV183 .riseCandleBodyV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleUpV183 .riseCandleBodyV183 {
+    fill: #10b878 !important;
+    stroke: #10b878 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleDownV183 .riseCandleWickV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleDownV183 .riseCandleWickV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleDownV183 .riseCandleWickV183 {
+    stroke: #ef4056 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleDownV183 .riseCandleBodyV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleDownV183 .riseCandleBodyV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleDownV183 .riseCandleBodyV183 {
+    fill: #ef4056 !important;
+    stroke: #ef4056 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     LINE / CANDLE / ZOOM CONTROLS
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseChartZoomV183,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseChartZoomV183,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseChartZoomV183 {
+    background: #f6f8fa !important;
+    background-image: none !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183 button,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183 button,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183 button,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183 button,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183 button,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183 button,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseChartZoomV183 button,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseChartZoomV183 button,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseChartZoomV183 button {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #445264 !important;
+    -webkit-text-fill-color: #445264 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183 button.active,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183 button.active,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseChartTypeToggleV183 button.active,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183 button.active,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183 button.active,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseCandleTimeframesV183 button.active {
+    background: #e9f4ff !important;
+    color: #1179cf !important;
+    -webkit-text-fill-color: #1179cf !important;
+    border-color: #79bcec !important;
+    box-shadow: none !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     DURATION / STAKE CARDS — force the same White palette as other contracts
+     ----------------------------------------------------------------------- */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalBinaryOrderCard,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalBinaryOrderCard,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalBinaryOrderCard,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalTicksControl,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalTicksControl,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalTicksControl,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalStakeControl,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalStakeControl,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalStakeControl,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalTicksBox,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalTicksBox,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalTicksBox,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalStakeBox,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalStakeBox,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalStakeBox,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationInputWrapV159,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationInputWrapV159,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationInputWrapV159 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationLabelRowV159 > span,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationLabelRowV159 > span,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationLabelRowV159 > span,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalStakeControl > span,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalStakeControl > span,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalStakeControl > span {
+    color: #7f8c9b !important;
+    -webkit-text-fill-color: #7f8c9b !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationInputWrapV159 input,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationInputWrapV159 input,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationInputWrapV159 input,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .finalStakeBox input,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .finalStakeBox input,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .finalStakeBox input {
+    background: transparent !important;
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    caret-color: #111923 !important;
+  }
+
+  /* Seconds / Minutes toggle */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 {
+    background: #f4f6f8 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 > button,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 > button,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 > button {
+    background: transparent !important;
+    color: #778596 !important;
+    -webkit-text-fill-color: #778596 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 > button.active,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 > button.active,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationUnitToggleV159 > button.active {
+    background: #e9f4ff !important;
+    color: #1179cf !important;
+    -webkit-text-fill-color: #1179cf !important;
+    box-shadow: inset 0 0 0 1px #79bcec !important;
+  }
+
+  /* Quick duration / stake buttons */
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationQuickRowV159 > button,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationQuickRowV159 > button,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationQuickRowV159 > button,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .quickStakeRow > button,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .quickStakeRow > button,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .quickStakeRow > button {
+    background: #ffffff !important;
+    color: #263443 !important;
+    -webkit-text-fill-color: #263443 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .riseDurationQuickRowV159 > button.active,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .riseDurationQuickRowV159 > button.active,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .riseDurationQuickRowV159 > button.active,
+  html[data-theme="light"] body .app.activePage-trade.riseFallActivePageV183 .quickStakeRow > button.active,
+  body[data-theme="light"] .app.activePage-trade.riseFallActivePageV183 .quickStakeRow > button.active,
+  html body .app.theme-light.activePage-trade.riseFallActivePageV183 .quickStakeRow > button.active {
+    background: #edf7ff !important;
+    color: #147fd2 !important;
+    -webkit-text-fill-color: #147fd2 !important;
+    border-color: #248fe8 !important;
+  }
+}
