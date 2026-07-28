@@ -5323,3 +5323,556 @@
     letter-spacing: -0.4px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V329 — CLEAN MOBILE SETTINGS / PROFILE-SETTINGS FLOW
+   Scope: SETTINGS PAGE ONLY (<= 760px)
+   Fixes:
+   - page scrolls normally above the fixed bottom navigation
+   - removes the huge empty/clipped areas
+   - hides the floating AI orb on Settings
+   - keeps Back button inside the Settings card instead of floating over fields
+   - keeps all 4 settings tabs visible in one compact row
+   - makes Personal details / Appearance fit naturally in both themes
+   - light and dark use the SAME geometry; only colors differ
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  /* Settings should be a normal full-viewport shell with one scrolling main area. */
+  html body .app.activePage-settings {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  html body .app.activePage-settings > .mobile-header {
+    flex: 0 0 42px !important;
+  }
+
+  html body .app.activePage-settings > .mainScreen {
+    box-sizing: border-box !important;
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding:
+      8px
+      10px
+      calc(82px + env(safe-area-inset-bottom, 0px))
+      !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Do not let the generic page/bottom-nav reservation create a second blank area. */
+  html body .app.activePage-settings > .mainScreen > .page,
+  html body .app.activePage-settings .settingsPage,
+  html body .app.activePage-settings .professionalSettingsPage {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body .app.activePage-settings .professionalSettingsPage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* AI belongs on trading/bot screens, not on Settings. */
+  html body .app.activePage-settings .floatingAiButton.aiPage-settings {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* ---------------- HERO ---------------- */
+  html body .app.activePage-settings .professionalSettingsHero {
+    position: relative !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 10px !important;
+    row-gap: 8px !important;
+    align-items: center !important;
+
+    margin: 0 !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-settings .settingsBackV238 {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+
+    margin: 0 !important;
+    padding: 0 11px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 10px !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    transform: none !important;
+    z-index: 1 !important;
+  }
+
+  html body .app.activePage-settings .settingsHeroIcon {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+
+    border-radius: 12px !important;
+    font-size: 20px !important;
+  }
+
+  html body .app.activePage-settings .settingsHeroIcon + div {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+  }
+
+  html body .app.activePage-settings .professionalSettingsHero small {
+    font-size: 8px !important;
+    letter-spacing: .9px !important;
+  }
+
+  html body .app.activePage-settings .professionalSettingsHero h1 {
+    margin: 2px 0 0 !important;
+    font-size: 23px !important;
+    line-height: 1.05 !important;
+  }
+
+  html body .app.activePage-settings .professionalSettingsHero p {
+    margin: 5px 0 0 !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+  }
+
+  html body .app.activePage-settings .settingsAccountBadge {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 9px 11px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+
+    border-radius: 11px !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-settings .settingsAccountBadge span {
+    flex: 0 1 auto !important;
+    margin: 0 !important;
+    font-size: 9px !important;
+    white-space: nowrap !important;
+  }
+
+  html body .app.activePage-settings .settingsAccountBadge strong {
+    min-width: 0 !important;
+    margin: 0 !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* ---------------- SETTINGS BODY ---------------- */
+  html body .app.activePage-settings .professionalSettingsLayout {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  /* All four settings sections remain visible; no huge empty nav card. */
+  html body .app.activePage-settings .settingsSectionNav {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+
+    margin: 0 !important;
+    padding: 5px !important;
+
+    border-radius: 14px !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+
+    margin: 0 !important;
+    padding: 6px 3px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+
+    border-radius: 10px !important;
+    text-align: center !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button b {
+    display: block !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button span {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button span strong {
+    display: block !important;
+    width: 100% !important;
+    font-size: clamp(7px, 2.1vw, 9px) !important;
+    line-height: 1.1 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button span small {
+    display: none !important;
+  }
+
+  html body .app.activePage-settings .settingsContentPanel {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  html body .app.activePage-settings .settingsFormCard {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 13px !important;
+
+    border-radius: 14px !important;
+    overflow: visible !important;
+  }
+
+  html body .app.activePage-settings .settingsFormCard > header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  html body .app.activePage-settings .settingsFormCard > header h2 {
+    margin-top: 3px !important;
+    font-size: 17px !important;
+    line-height: 1.12 !important;
+  }
+
+  html body .app.activePage-settings .settingsSecurePill {
+    flex: 0 0 auto !important;
+    max-width: 46% !important;
+    padding: 6px 9px !important;
+    font-size: 8px !important;
+    white-space: nowrap !important;
+  }
+
+  html body .app.activePage-settings :is(
+    .settingsReadOnlyGrid,
+    .settingsInputGrid,
+    .settingsPasswordGrid
+  ) {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  html body .app.activePage-settings :is(
+    .settingsReadOnlyGrid,
+    .settingsInputGrid,
+    .settingsPasswordGrid
+  ) > label {
+    min-width: 0 !important;
+  }
+
+  html body .app.activePage-settings :is(
+    .settingsReadOnlyGrid,
+    .settingsInputGrid,
+    .settingsPasswordGrid
+  ) > label > span {
+    display: block !important;
+    margin-bottom: 6px !important;
+    font-size: 10px !important;
+  }
+
+  html body .app.activePage-settings .settingsReadOnlyGrid label {
+    padding: 11px !important;
+    border-radius: 11px !important;
+  }
+
+  html body .app.activePage-settings .settingsReadOnlyGrid strong {
+    display: block !important;
+    max-width: 100% !important;
+    font-size: clamp(13px, 4.2vw, 17px) !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  html body .app.activePage-settings .settingsReadOnlyGrid small {
+    display: block !important;
+    margin-top: 4px !important;
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  html body .app.activePage-settings .settingsInputGrid :is(input, select),
+  html body .app.activePage-settings .settingsPasswordGrid input {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding-inline: 12px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+  }
+
+  html body .app.activePage-settings .settingsVerification {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    padding: 0 12px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    border-radius: 11px !important;
+    font-size: 11px !important;
+  }
+
+  html body .app.activePage-settings .settingsFormCard footer {
+    width: 100% !important;
+    margin-top: 11px !important;
+    padding-top: 11px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+  }
+
+  html body .app.activePage-settings .settingsFormCard footer > small {
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  html body .app.activePage-settings .settingsSaveButton {
+    width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+  }
+
+  /* ---------------- APPEARANCE ---------------- */
+  html body .app.activePage-settings .appearanceSettingsCard {
+    overflow: visible !important;
+  }
+
+  html body .app.activePage-settings .themeChoiceGrid {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body .app.activePage-settings .themeChoice {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 10px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    border-radius: 14px !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-settings .themePreview {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 92px !important;
+    min-height: 92px !important;
+    max-height: 92px !important;
+    margin: 0 0 9px !important;
+    border-radius: 11px !important;
+  }
+
+  html body .app.activePage-settings .themeChoice > strong {
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+
+  html body .app.activePage-settings .themeChoice > small {
+    min-height: 32px !important;
+    margin-top: 6px !important;
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  html body .app.activePage-settings .themeChoice > b {
+    margin-top: 8px !important;
+    font-size: 10px !important;
+  }
+
+  /* Bottom navigation stays fixed; the mainScreen padding above reserves space. */
+  html body .app.activePage-settings > .bottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 50000 !important;
+  }
+}
+
+/* Extra-small phones: keep Appearance cards readable without horizontal clipping. */
+@media screen and (max-width: 360px) {
+  html body .app.activePage-settings .settingsSectionNav {
+    gap: 3px !important;
+    padding-inline: 3px !important;
+  }
+
+  html body .app.activePage-settings .settingsSectionNav > button {
+    padding-inline: 2px !important;
+  }
+
+  html body .app.activePage-settings .themeChoiceGrid {
+    gap: 7px !important;
+  }
+
+  html body .app.activePage-settings .themeChoice {
+    padding: 8px !important;
+  }
+
+  html body .app.activePage-settings .themePreview {
+    height: 80px !important;
+    min-height: 80px !important;
+    max-height: 80px !important;
+  }
+}
