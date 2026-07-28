@@ -8995,3 +8995,274 @@
     -webkit-text-fill-color: #ffffff !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V339 — REFERRAL + HISTORY + WITHDRAW LIGHT POLISH
+   Scope: mobile only (<=760px)
+
+   Fixes visible in the latest screenshots:
+   - Referral page no longer keeps dark cards/text in White mode
+   - Referral heading/stat values become readable
+   - Withdraw available balance amount becomes visible in White mode
+   - History search box becomes truly light instead of black
+   - History Export button remains readable
+   - Same geometry in White/Black; colors only change
+   - Deposit modal is left untouched because V338 already fixed it correctly
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* =======================================================================
+     REFERRAL PAGE — LIGHT THEME
+     ======================================================================= */
+
+  html body .app.theme-light.activePage-referrals,
+  html body .app.theme-light.activePage-referrals > .mainScreen,
+  html body .app.theme-light.activePage-referrals .referralPage {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  /* Hero */
+  html body .app.theme-light.activePage-referrals :is(
+    .referralHero,
+    .referralHeroCard,
+    .partnerHero,
+    .referralTopCard
+  ) {
+    background:
+      radial-gradient(circle at 88% 12%, rgba(122, 70, 255, .10), transparent 34%),
+      #ffffff !important;
+    background-color: #ffffff !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 6px 18px rgba(20, 38, 60, .05) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals :is(
+    .referralHero,
+    .referralHeroCard,
+    .partnerHero,
+    .referralTopCard
+  ) h1,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralHero,
+    .referralHeroCard,
+    .partnerHero,
+    .referralTopCard
+  ) h2,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralHero,
+    .referralHeroCard,
+    .partnerHero,
+    .referralTopCard
+  ) strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals :is(
+    .referralHero,
+    .referralHeroCard,
+    .partnerHero,
+    .referralTopCard
+  ) p,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralHero,
+    .referralHeroCard,
+    .partnerHero,
+    .referralTopCard
+  ) small {
+    color: #6f7d8d !important;
+    -webkit-text-fill-color: #6f7d8d !important;
+  }
+
+  /* Referral link card */
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 5px 16px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) h2,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) strong,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) b {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) p,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) small,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralLinkCard,
+    .personalReferralCard,
+    .referralShareCard
+  ) span {
+    color: #6f7d8d !important;
+    -webkit-text-fill-color: #6f7d8d !important;
+  }
+
+  /* Stats cards */
+  html body .app.theme-light.activePage-referrals :is(
+    .referralStats,
+    .referralStatsGrid,
+    .partnerStats
+  ) > *,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralStatCard,
+    .partnerStatCard
+  ) {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: 0 4px 14px rgba(20, 38, 60, .04) !important;
+  }
+
+  html body .app.theme-light.activePage-referrals :is(
+    .referralStats,
+    .referralStatsGrid,
+    .partnerStats,
+    .referralStatCard,
+    .partnerStatCard
+  ) strong,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralStats,
+    .referralStatsGrid,
+    .partnerStats,
+    .referralStatCard,
+    .partnerStatCard
+  ) b {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-referrals :is(
+    .referralStats,
+    .referralStatsGrid,
+    .partnerStats,
+    .referralStatCard,
+    .partnerStatCard
+  ) span,
+  html body .app.theme-light.activePage-referrals :is(
+    .referralStats,
+    .referralStatsGrid,
+    .partnerStats,
+    .referralStatCard,
+    .partnerStatCard
+  ) small {
+    color: #7f8d9d !important;
+    -webkit-text-fill-color: #7f8d9d !important;
+  }
+
+
+  /* =======================================================================
+     WITHDRAW — AVAILABLE BALANCE TEXT
+     ======================================================================= */
+
+  html body .app.theme-light .withdrawBalanceCard {
+    background:
+      linear-gradient(135deg, #f7fbff, #ffffff) !important;
+    background-color: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light .withdrawBalanceCard > strong,
+  html body .app.theme-light .withdrawBalanceCard .withdrawBalanceAmount,
+  html body .app.theme-light .withdrawBalanceCard h2,
+  html body .app.theme-light .withdrawBalanceCard h3 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: none !important;
+  }
+
+  html body .app.theme-light .withdrawBalanceCard > span,
+  html body .app.theme-light .withdrawBalanceCard > small,
+  html body .app.theme-light .withdrawBalanceCard p {
+    color: #728091 !important;
+    -webkit-text-fill-color: #728091 !important;
+  }
+
+
+  /* =======================================================================
+     HISTORY — SEARCH / EXPORT FINAL LIGHT FIX
+     ======================================================================= */
+
+  html body .app.theme-light.activePage-history .historyFiltersV226 label,
+  html body .app.theme-light.activePage-history .historyFiltersV226 .historySearchV226 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyFiltersV226 input,
+  html body .app.theme-light.activePage-history .historyFiltersV226 .historySearchV226 input {
+    background: transparent !important;
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    caret-color: #111923 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyFiltersV226 input::placeholder,
+  html body .app.theme-light.activePage-history .historyFiltersV226 .historySearchV226 input::placeholder {
+    color: #8b98a7 !important;
+    -webkit-text-fill-color: #8b98a7 !important;
+    opacity: 1 !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyFiltersV226 svg,
+  html body .app.theme-light.activePage-history .historySearchV226 svg {
+    color: #6e7d8d !important;
+    stroke: #6e7d8d !important;
+  }
+
+  html body .app.theme-light.activePage-history .historyHeroV226 .historyExportV226,
+  html body .app.theme-light.activePage-history .historyHeroV226 button {
+    background: #eaf5ff !important;
+    color: #147fd2 !important;
+    -webkit-text-fill-color: #147fd2 !important;
+    border-color: #80c1ef !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Preserve dark theme appearance. */
+  html body .app.theme-dark.activePage-history .historyFiltersV226 input {
+    -webkit-text-fill-color: #f4f8fc !important;
+  }
+}
