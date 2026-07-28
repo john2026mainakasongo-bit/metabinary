@@ -7175,3 +7175,739 @@
     max-height: 38px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V334 — MOBILE BOT LIVE FULL-HEIGHT + THEME PARITY
+   Scope: botLive page ONLY (<= 760px)
+
+   Fixes:
+   - removes the large empty area BELOW the bottom navigation
+   - Bot Live fills the real mobile viewport
+   - Black and White use the EXACT SAME geometry
+   - only palette changes between themes
+   - transaction list uses all remaining space
+   - bottom totals stay directly above bottom navigation
+   - hides the floating AI orb on the live monitoring screen
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* -----------------------------------------------------------------------
+     ONE SHARED FULL-SCREEN STRUCTURE
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-botLive > .mobile-header {
+    flex: 0 0 42px !important;
+    width: 100% !important;
+  }
+
+  /* Main area consumes ALL space between header and bottom nav. */
+  html body .app.activePage-botLive > .mainScreen,
+  html body .app.activePage-botLive .mainScreen:has(.botLiveV236) {
+    box-sizing: border-box !important;
+
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 6px 8px 6px !important;
+
+    overflow: hidden !important;
+  }
+
+  /* Kill any inherited generic page/bottom-nav reservation. */
+  html body .app.activePage-botLive,
+  html body .app.activePage-botLive > .mainScreen,
+  html body .app.activePage-botLive .botLiveV236 {
+    padding-bottom: 0 !important;
+  }
+
+  html body .app.activePage-botLive .floatingAiButton.aiPage-botLive {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* The monitoring workspace itself. */
+  html body .app.activePage-botLive .botLiveV236 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: grid !important;
+    grid-template-rows:
+      72px
+      62px
+      38px
+      minmax(0, 1fr)
+      60px !important;
+
+    gap: 6px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     TOP: STOP BOT + RUNNING STATUS
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive .botLiveTopV236 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+
+    display: grid !important;
+    grid-template-columns: 31% minmax(0, 69%) !important;
+    gap: 6px !important;
+
+    margin: 0 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRunV236,
+  html body .app.activePage-botLive .botLiveStatusV236 {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+
+    margin: 0 !important;
+    border-radius: 13px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRunV236 {
+    padding: 8px 9px !important;
+    gap: 6px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRunIconV236 {
+    font-size: 23px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRunV236 strong {
+    font-size: 12px !important;
+    line-height: 1.05 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRunV236 small {
+    margin-top: 3px !important;
+    font-size: 8px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusV236 {
+    padding: 7px 8px 6px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusRowV236 {
+    width: 100% !important;
+    height: 47px !important;
+
+    grid-template-columns: 17px minmax(0, 1fr) 87px !important;
+    gap: 5px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusIconV236 {
+    font-size: 19px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusCopyV236 {
+    min-width: 0 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusCopyV236 strong {
+    display: block !important;
+    font-size: 11px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusCopyV236 small {
+    display: block !important;
+    margin-top: 3px !important;
+    max-width: 100% !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+
+    font-size: 7px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveSettingsV236 {
+    width: 87px !important;
+    min-width: 87px !important;
+    max-width: 87px !important;
+
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+
+    padding: 0 5px !important;
+
+    border-radius: 9px !important;
+
+    font-size: 7.5px !important;
+    white-space: nowrap !important;
+  }
+
+  html body .app.activePage-botLive .botLiveProgressV236 {
+    height: 6px !important;
+    margin-top: 5px !important;
+    border-radius: 999px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveProgressV236 > span {
+    height: 100% !important;
+    border-radius: inherit !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     SESSION METRICS
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive .botLiveMetricsV236 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: 62px !important;
+    min-height: 62px !important;
+    max-height: 62px !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+
+    margin: 0 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveMetricsV236 > div {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+
+    height: 62px !important;
+    min-height: 62px !important;
+    max-height: 62px !important;
+
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+
+    padding: 6px 4px !important;
+    border-radius: 11px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveMetricsV236 span {
+    margin: 0 0 4px !important;
+
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+
+    font-size: 7.5px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  html body .app.activePage-botLive .botLiveMetricsV236 strong {
+    max-width: 100% !important;
+
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+
+    font-size: 11px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     TRANSACTIONS / SUMMARY / JOURNAL TABS
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive .botLiveTabsV236 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 60px !important;
+
+    margin: 0 !important;
+
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-botLive .botLiveTabsV236 button {
+    min-width: 0 !important;
+
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+
+    padding: 0 2px !important;
+
+    font-size: 8px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     BODY — THIS IS THE ONLY FLEXIBLE AREA
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive .botLiveBodyV236 {
+    position: relative !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    border-radius: 11px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveScrollV236,
+  html body .app.activePage-botLive .botLiveSummaryV236 {
+    position: absolute !important;
+    inset: 0 !important;
+
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    border-radius: 11px !important;
+
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRowV236 {
+    box-sizing: border-box !important;
+
+    height: 47px !important;
+    min-height: 47px !important;
+    max-height: 47px !important;
+
+    padding: 6px 10px !important;
+    gap: 6px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRowInfoV236 {
+    min-width: 0 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRowInfoV236 b {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRowInfoV236 small,
+  html body .app.activePage-botLive .botLiveRowValueV236 small {
+    margin-top: 3px !important;
+    font-size: 7px !important;
+    line-height: 1.1 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRowValueV236 {
+    flex: 0 0 68px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveRowValueV236 b {
+    margin-top: 3px !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+
+  /* Summary tab also fills the same body region. */
+  html body .app.activePage-botLive .botLiveSummaryV236 {
+    padding: 8px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveResultV236 {
+    min-height: 92px !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveSummaryGridV236 {
+    margin-top: 7px !important;
+    gap: 6px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveSummaryGridV236 p {
+    min-height: 56px !important;
+    padding: 9px !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     BOTTOM SESSION TOTALS
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive .botLiveStatsV236 {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+
+    margin: 0 !important;
+    padding: 4px !important;
+
+    border-radius: 11px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatsV236 .statCard {
+    box-sizing: border-box !important;
+
+    min-width: 0 !important;
+
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    place-items: center !important;
+    align-content: center !important;
+    gap: 2px !important;
+
+    padding: 4px 2px !important;
+
+    border-radius: 9px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatsV236 .statCard > b,
+  html body .app.activePage-botLive .botLiveStatsV236 .statCard > svg {
+    display: none !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatsV236 .statCard strong {
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatsV236 .statCard span {
+    margin: 2px 0 0 !important;
+    font-size: 7px !important;
+    line-height: 1 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     BOTTOM NAV — IN FLOW AT THE TRUE END OF THE VIEWPORT
+     This is what removes the blank area beneath it.
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-botLive > .bottomNav,
+  html body .app.activePage-botLive > nav.bottomNav {
+    position: relative !important;
+
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+
+    flex: 0 0 72px !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+
+    align-self: stretch !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    border-radius: 0 !important;
+
+    transform: none !important;
+
+    z-index: 50000 !important;
+  }
+
+  html body .app.activePage-botLive > .bottomNav button {
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+
+    padding: 6px 4px !important;
+
+    transform: none !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     DARK PALETTE — GEOMETRY ABOVE IS SHARED
+     ----------------------------------------------------------------------- */
+  html body .app.theme-dark.activePage-botLive {
+    background: #02070d !important;
+    color: #f5f8fc !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive > .mainScreen,
+  html body .app.theme-dark.activePage-botLive .botLiveV236 {
+    background: #02070d !important;
+    color: #f5f8fc !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveStatusV236,
+  html body .app.theme-dark.activePage-botLive .botLiveMetricsV236 > div,
+  html body .app.theme-dark.activePage-botLive .botLiveTabsV236,
+  html body .app.theme-dark.activePage-botLive .botLiveBodyV236,
+  html body .app.theme-dark.activePage-botLive .botLiveScrollV236,
+  html body .app.theme-dark.activePage-botLive .botLiveSummaryV236,
+  html body .app.theme-dark.activePage-botLive .botLiveStatsV236,
+  html body .app.theme-dark.activePage-botLive .botLiveStatsV236 .statCard {
+    background: #04111e !important;
+    background-image: none !important;
+    color: #f5f8fc !important;
+    border-color: #193047 !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveRunV236 {
+    background:
+      linear-gradient(135deg, rgba(177, 17, 51, .90), rgba(88, 9, 29, .82))
+      !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 63, 94, .70) !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveRunV236:not(.running) {
+    background: #071624 !important;
+    border-color: #1c344a !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveStatusCopyV236 strong,
+  html body .app.theme-dark.activePage-botLive .botLiveMetricsV236 strong,
+  html body .app.theme-dark.activePage-botLive .botLiveRowInfoV236 b,
+  html body .app.theme-dark.activePage-botLive .botLiveStatsV236 strong {
+    color: #f5f8fc !important;
+    -webkit-text-fill-color: #f5f8fc !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveStatusCopyV236 small,
+  html body .app.theme-dark.activePage-botLive .botLiveMetricsV236 span,
+  html body .app.theme-dark.activePage-botLive .botLiveRowInfoV236 small,
+  html body .app.theme-dark.activePage-botLive .botLiveRowValueV236 small,
+  html body .app.theme-dark.activePage-botLive .botLiveStatsV236 span {
+    color: #8998aa !important;
+    -webkit-text-fill-color: #8998aa !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveTabsV236 button {
+    background: transparent !important;
+    color: #94a3b5 !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveTabsV236 button.active {
+    color: #36d2b5 !important;
+    border-bottom-color: #36d2b5 !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive .botLiveRowV236 {
+    border-bottom-color: #172a3d !important;
+  }
+
+  html body .app.theme-dark.activePage-botLive > .bottomNav {
+    background: #04111e !important;
+    color: #eaf1f9 !important;
+    border-top: 1px solid #183047 !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     LIGHT PALETTE — SAME SHAPE, COLORS ONLY
+     ----------------------------------------------------------------------- */
+  html body .app.theme-light.activePage-botLive {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive > .mainScreen,
+  html body .app.theme-light.activePage-botLive .botLiveV236 {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveStatusV236,
+  html body .app.theme-light.activePage-botLive .botLiveMetricsV236 > div,
+  html body .app.theme-light.activePage-botLive .botLiveTabsV236,
+  html body .app.theme-light.activePage-botLive .botLiveBodyV236,
+  html body .app.theme-light.activePage-botLive .botLiveScrollV236,
+  html body .app.theme-light.activePage-botLive .botLiveSummaryV236,
+  html body .app.theme-light.activePage-botLive .botLiveStatsV236,
+  html body .app.theme-light.activePage-botLive .botLiveStatsV236 .statCard {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #111923 !important;
+
+    border-color: #dfe6ed !important;
+
+    box-shadow: none !important;
+  }
+
+  /* Keep Stop as a semantic red action in light mode, but with same geometry. */
+  html body .app.theme-light.activePage-botLive .botLiveRunV236 {
+    background: #fff2f4 !important;
+    background-image: none !important;
+
+    color: #d82346 !important;
+
+    border-color: #f0b8c3 !important;
+
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveRunV236:not(.running) {
+    background: #f7fafc !important;
+    color: #111923 !important;
+    border-color: #dfe6ed !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveRunV236 strong {
+    color: inherit !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveRunV236 small {
+    color: #8b98a7 !important;
+    -webkit-text-fill-color: #8b98a7 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveStatusCopyV236 strong,
+  html body .app.theme-light.activePage-botLive .botLiveMetricsV236 strong,
+  html body .app.theme-light.activePage-botLive .botLiveRowInfoV236 b,
+  html body .app.theme-light.activePage-botLive .botLiveStatsV236 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveStatusCopyV236 small,
+  html body .app.theme-light.activePage-botLive .botLiveMetricsV236 span,
+  html body .app.theme-light.activePage-botLive .botLiveRowInfoV236 small,
+  html body .app.theme-light.activePage-botLive .botLiveRowValueV236 small,
+  html body .app.theme-light.activePage-botLive .botLiveStatsV236 span {
+    color: #8996a5 !important;
+    -webkit-text-fill-color: #8996a5 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveSettingsV236 {
+    background: #ffffff !important;
+    color: #278ddd !important;
+    border-color: #278ddd !important;
+    box-shadow: none !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveTabsV236 button {
+    background: transparent !important;
+    color: #8996a5 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveTabsV236 button.active {
+    color: #12b99a !important;
+    border-bottom-color: #12b99a !important;
+  }
+
+  html body .app.theme-light.activePage-botLive .botLiveRowV236 {
+    border-bottom-color: #e7ecf1 !important;
+  }
+
+  html body .app.theme-light.activePage-botLive > .bottomNav {
+    background: #ffffff !important;
+    color: #4e5a68 !important;
+    border-top: 1px solid #dfe6ed !important;
+  }
+}
+
+/* Narrow phones: protect labels without changing the structure. */
+@media screen and (max-width: 380px) {
+  html body .app.activePage-botLive .botLiveTopV236 {
+    grid-template-columns: 30% minmax(0, 70%) !important;
+  }
+
+  html body .app.activePage-botLive .botLiveStatusRowV236 {
+    grid-template-columns: 15px minmax(0, 1fr) 78px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveSettingsV236 {
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+    font-size: 7px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveTabsV236 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 54px !important;
+  }
+
+  html body .app.activePage-botLive .botLiveTabsV236 button {
+    font-size: 7.4px !important;
+  }
+}
