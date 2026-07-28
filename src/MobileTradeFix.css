@@ -10058,3 +10058,379 @@
     min-height: 260px !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V343 — RISE/FALL TOP TAB PARITY + TRADE NAV TRUE BOTTOM
+   Scope: mobile Trade page only (all manual contract tabs)
+
+   Fixes from latest screenshots:
+   1) Rise/Fall no longer changes the top contract selector height/position.
+      It now uses the EXACT same 48px shell + 40px active button as
+      Even/Odd, Matches/Differs and Over/Under.
+   2) Rise/Fall keeps the same 4-tab spacing and full-width distribution.
+   3) Bottom navigation is pinned to the actual viewport bottom for EVERY
+      contract on the Trade page.
+   4) Content reserves the navigation height so buttons are never hidden.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* -----------------------------------------------------------------------
+     ONE TRADE-PAGE VIEWPORT FOR EVERY CONTRACT TYPE
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-trade {
+    box-sizing: border-box !important;
+    width: 100% !important;
+
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     BOTTOM NAV — SAME PLACE FOR EVEN/ODD, MATCHES, OVER/UNDER, RISE/FALL
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-trade > .bottomNav,
+  html body .app.activePage-trade > nav.bottomNav {
+    position: fixed !important;
+
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    inset: auto 0 0 0 !important;
+
+    box-sizing: border-box !important;
+
+    width: 100vw !important;
+    max-width: 100vw !important;
+
+    height: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
+
+    margin: 0 !important;
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+
+    border-radius: 0 !important;
+    transform: none !important;
+
+    z-index: 2147483000 !important;
+  }
+
+  html body .app.activePage-trade > .bottomNav button,
+  html body .app.activePage-trade > nav.bottomNav button {
+    box-sizing: border-box !important;
+
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
+
+    margin: 0 !important;
+    padding: 6px 4px 7px !important;
+  }
+
+  html body .app.theme-light.activePage-trade > .bottomNav,
+  html body .app.theme-light.activePage-trade > nav.bottomNav {
+    background: #ffffff !important;
+    border-top: 1px solid #dfe6ed !important;
+  }
+
+  html body .app.theme-dark.activePage-trade > .bottomNav,
+  html body .app.theme-dark.activePage-trade > nav.bottomNav {
+    background: #04111e !important;
+    border-top: 1px solid #183047 !important;
+  }
+
+  /* Manual digit contracts may scroll internally only when a very short
+     viewport needs it. The reserved bottom padding keeps action buttons clear. */
+  html body .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    padding-bottom:
+      calc(80px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     RISE/FALL — SAME TOP CONTRACT TABS AS THE DIGIT PAGES
+     ----------------------------------------------------------------------- */
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    position: relative !important;
+    inset: auto !important;
+
+    grid-row: 1 !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+
+    gap: 7px !important;
+
+    margin: 0 !important;
+    padding: 4px !important;
+
+    overflow: hidden !important;
+
+    border-radius: 15px !important;
+    transform: none !important;
+  }
+
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > span {
+    display: none !important;
+  }
+
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button,
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button:disabled {
+    position: relative !important;
+    inset: auto !important;
+
+    flex: 1 1 0 !important;
+
+    box-sizing: border-box !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+
+    margin: 0 !important;
+    padding: 0 3px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 11px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+
+    font-size: clamp(9px, 2.5vw, 11px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.28px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+
+    overflow: hidden !important;
+    text-overflow: clip !important;
+
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  /* Matches/Differs needs a little more text room, exactly like digit mode. */
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button:nth-of-type(2) {
+    flex-grow: 1.18 !important;
+  }
+
+  /* LIGHT tabs */
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    background: #f5f6f8 !important;
+    background-image: none !important;
+    border: 1px solid #e5eaf0 !important;
+    box-shadow: none !important;
+  }
+
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button {
+    background: #f5f6f8 !important;
+    color: #7b8795 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html body
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button.active {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border-color: #dce3ea !important;
+    box-shadow: 0 2px 7px rgba(20, 38, 60, .08) !important;
+  }
+
+  /* DARK tabs */
+  html body
+  .app.theme-dark.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    background: #02070d !important;
+    background-image: none !important;
+    border: 1px solid #173047 !important;
+    box-shadow: none !important;
+  }
+
+  html body
+  .app.theme-dark.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button {
+    background: #06121d !important;
+    color: #8f9dad !important;
+    border-color: #14283b !important;
+    box-shadow: none !important;
+  }
+
+  html body
+  .app.theme-dark.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button.active {
+    background: #0c1d2b !important;
+    color: #ffffff !important;
+    border-color: #38536b !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .34) !important;
+  }
+
+  /* -----------------------------------------------------------------------
+     RISE/FALL VIEWPORT — reserve nav once, then chart consumes spare space.
+     ----------------------------------------------------------------------- */
+  html body .app.activePage-trade.riseFallActivePageV183 > .mainScreen {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    margin: 0 !important;
+    padding:
+      6px
+      8px
+      calc(80px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow: hidden !important;
+  }
+
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows:
+      48px
+      52px
+      minmax(0, 1fr)
+      183px
+      !important;
+
+    gap: 5px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  /* Release old 38px Rise/Fall tab-row rule. */
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalContractTabs {
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+  }
+}
+
+/* Narrow phones keep all labels but DO NOT change tab height/position. */
+@media screen and (max-width: 390px) {
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    gap: 4px !important;
+    padding-inline: 3px !important;
+  }
+
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305
+  > button {
+    padding-inline: 1px !important;
+    font-size: 8.4px !important;
+    letter-spacing: -0.4px !important;
+  }
+}
+
+/* Short phones: order area gets slightly shorter; top tabs remain identical. */
+@media screen and (max-width: 480px) and (max-height: 760px) {
+  html body
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage {
+    grid-template-rows:
+      48px
+      48px
+      minmax(0, 1fr)
+      165px
+      !important;
+    gap: 4px !important;
+  }
+}
