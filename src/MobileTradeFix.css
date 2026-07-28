@@ -9714,3 +9714,165 @@
     -webkit-text-fill-color: #7b8999 !important;
   }
 }
+/* ==========================================================================
+   METABINARY V341 — MANUAL DIGIT RESPONSE + CONSISTENT PHONE CHART + SMOOTH RESULT
+   Final override only. It intentionally does NOT redesign other pages.
+
+   - Phone chart height is based on phone WIDTH, not phone HEIGHT, so a tall
+     phone and a short phone no longer get different chart proportions.
+   - Cursor moves continuously using left + top only.
+   - Current digit lands softly.
+   - WIN flashes the entire circle bright green.
+   - LOSS flashes the entire circle bright red.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  body .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-v341-chart-h: clamp(210px, 61vw, 235px);
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    flex: 0 0 calc(var(--mb-v341-chart-h) + var(--mb-v321-board-h) + 6px) !important;
+    height: calc(var(--mb-v341-chart-h) + var(--mb-v321-board-h) + 6px) !important;
+    min-height: calc(var(--mb-v341-chart-h) + var(--mb-v321-board-h) + 6px) !important;
+    max-height: calc(var(--mb-v341-chart-h) + var(--mb-v321-board-h) + 6px) !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex: 0 0 var(--mb-v341-chart-h) !important;
+    height: var(--mb-v341-chart-h) !important;
+    min-height: var(--mb-v341-chart-h) !important;
+    max-height: var(--mb-v341-chart-h) !important;
+  }
+
+  /* Smooth one-cursor movement. Both rows use TOP coordinates so crossing
+     from 0-4 to 5-9 animates instead of snapping between top/bottom:auto. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    bottom: auto !important;
+    transition:
+      left 340ms cubic-bezier(.22,.78,.24,1),
+      top 340ms cubic-bezier(.22,.78,.24,1),
+      transform 220ms ease !important;
+    will-change: left, top !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorTopV318 {
+    top: calc(var(--mb-v321-digit-row) + 2px) !important;
+    bottom: auto !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorBottomV318 {
+    top: calc(
+      var(--mb-v321-digit-row)
+      + var(--mb-v321-digit-row)
+      + var(--mb-v321-digit-gap)
+      + 2px
+    ) !important;
+    bottom: auto !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCellV310.mbCleanCurrentV310:not(.mbCleanWinV310):not(.mbCleanLossV310) {
+    animation: mbV341DigitLand 340ms cubic-bezier(.22,.78,.24,1) both !important;
+  }
+
+  /* WIN = FULL bright-green circle, including the outside ring. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCellV310.mbCleanWinV310 {
+    border-radius: 50% !important;
+    background: #00f07f !important;
+    box-shadow:
+      0 0 0 2px #78ffc0,
+      0 0 20px rgba(0, 240, 127, .92),
+      0 0 38px rgba(0, 240, 127, .50) !important;
+    animation: mbV341WinCircle 900ms ease-out both !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanWinV310 .mbCleanDigitRingV310,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanWinV310 .mbCleanDigitCoreV310 {
+    background: #00f07f !important;
+    border-color: #78ffc0 !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanWinV310 .mbCleanPredictionRingV310,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanWinV310 .mbCleanCandidateRingV310 {
+    display: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanWinV310 .mbCleanDigitCoreV310 strong,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanWinV310 .mbCleanDigitCoreV310 small {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  /* LOSS = FULL bright-red circle, including the outside ring. */
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCellV310.mbCleanLossV310 {
+    border-radius: 50% !important;
+    background: #ff173b !important;
+    box-shadow:
+      0 0 0 2px #ff8295,
+      0 0 20px rgba(255, 23, 59, .92),
+      0 0 38px rgba(255, 23, 59, .50) !important;
+    animation: mbV341LossCircle 900ms ease-out both !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanLossV310 .mbCleanDigitRingV310,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanLossV310 .mbCleanDigitCoreV310 {
+    background: #ff173b !important;
+    border-color: #ff8295 !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanLossV310 .mbCleanPredictionRingV310,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanLossV310 .mbCleanCandidateRingV310 {
+    display: none !important;
+  }
+
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanLossV310 .mbCleanDigitCoreV310 strong,
+  body .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanLossV310 .mbCleanDigitCoreV310 small {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}
+
+@keyframes mbV341DigitLand {
+  0%   { transform: scale(.94); }
+  58%  { transform: scale(1.055); }
+  100% { transform: scale(1); }
+}
+
+@keyframes mbV341WinCircle {
+  0%   { transform: scale(.90); filter: brightness(1.25); opacity: .90; }
+  28%  { transform: scale(1.12); filter: brightness(1.38); opacity: 1; }
+  62%  { transform: scale(1.04); filter: brightness(1.16); opacity: 1; }
+  100% { transform: scale(1); filter: brightness(1); opacity: 1; }
+}
+
+@keyframes mbV341LossCircle {
+  0%   { transform: scale(.90); filter: brightness(1.22); opacity: .90; }
+  28%  { transform: scale(1.12); filter: brightness(1.34); opacity: 1; }
+  62%  { transform: scale(1.04); filter: brightness(1.14); opacity: 1; }
+  100% { transform: scale(1); filter: brightness(1); opacity: 1; }
+}

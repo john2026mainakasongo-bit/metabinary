@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-daraja-stk-v23-detailed-status-2026-07-20";
+const BACKEND_BUILD = "metabinary-daraja-stk-v25-local-cors-regex-fix-2026-07-25";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -140,15 +140,39 @@ const marketQuoteCache = new Map();
 
 const app = express();
 app.disable("x-powered-by");
+
+const LOCAL_DEVELOPMENT_ORIGIN = /^https?:\/\/(?:localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):5173$/i;
+
+function corsOriginAllowed(origin) {
+  if (!origin) return true;
+
+  const normalizedOrigin = String(origin).trim().replace(/\/$/, "");
+
+  return (
+    FRONTEND_URLS.includes(normalizedOrigin) ||
+    LOCAL_DEVELOPMENT_ORIGIN.test(normalizedOrigin)
+  );
+}
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || FRONTEND_URLS.includes(origin)) return callback(null, true);
-      return callback(new Error("Origin is not allowed by CORS."));
+      if (corsOriginAllowed(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      console.warn("CORS blocked request", { origin });
+      callback(new Error(`Origin is not allowed by CORS: ${origin}`));
     },
     credentials: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    exposedHeaders: ["Content-Length"],
+    optionsSuccessStatus: 204,
   })
 );
+
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: false }));
 

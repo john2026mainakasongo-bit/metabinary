@@ -57,7 +57,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v274-exact-reference-header-2026-07-25";
+const FRONTEND_BUILD = "metabinary-v341-manual-digit-instant-smooth-2026-07-28";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -1775,11 +1775,14 @@ function TradingApp() {
       1,
       Number(openTrade.totalTicks || openTrade.remainingTicks || 1)
     );
-    // Only a 1-tick Over/Under trade fires immediately. Other contracts keep
-    // their normal market-tick cadence instead of being globally accelerated.
-    const instantOneTickOverUnder =
-      openTrade.type === "Over/Under" && totalTradeTicks === 1;
-    const initialTickDelay = instantOneTickOverUnder ? 0 : tradeTickDelay;
+    // V341: every MANUAL 1-tick digit contract consumes its one result tick
+    // immediately after the trade-open response. Multi-tick contracts and
+    // automated sessions keep their normal market cadence.
+    const instantOneTickManualDigit =
+      openTrade.source !== "ai" &&
+      isDigitContract(openTrade.type) &&
+      totalTradeTicks === 1;
+    const initialTickDelay = instantOneTickManualDigit ? 0 : tradeTickDelay;
     let localRemainingTicks = Math.max(
       1,
       Number(openTrade.remainingTicks || openTrade.totalTicks || 1)
@@ -1914,6 +1917,10 @@ function TradingApp() {
         showTick(tickDigit, remainingTicks, result);
 
         if (result.settled || result.trade?.status === "SETTLED") {
+          // V341: showTick() has already moved the live digit/cursor to the
+          // authoritative server result. Give that movement one short paint
+          // window, then flash the final win/loss circle.
+          await new Promise((resolve) => window.setTimeout(resolve, 220));
           activeBinaryTradeRef.current = null;
           setActiveBinaryTrade(null);
           await applyBinaryTradeSettlement(openTrade, result);
@@ -3062,6 +3069,7 @@ function TradingApp() {
         durationValue: isRiseFallTrade ? selectedDurationValue : usedTicks,
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
         status: "RUNNING",
+        source: opened.source || "manual",
       };
 
       if (result.user) {
@@ -6552,8 +6560,10 @@ function TradePage({
     });
   };
 
-  const placeContract = async (action) => {
+  const placeContract = (action) => {
     if (digitMode) {
+      // V341: paint the selected contract immediately on tap. The network
+      // request runs in parallel; the UI does not wait before responding.
       setPendingDigitVisualTrade({
         type: tradeType,
         action,
@@ -6571,7 +6581,7 @@ function TradePage({
       }, 8500);
     }
 
-    await runBinaryTrade(
+    void runBinaryTrade(
       tradeType,
       action,
       riseMode
