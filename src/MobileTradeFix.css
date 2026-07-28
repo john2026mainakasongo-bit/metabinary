@@ -10778,98 +10778,395 @@
 }
 
 /* ==========================================================================
-   METABINARY V345 — RISE/FALL WHITE PRICE AXIS
-   Scope: mobile Rise/Fall light theme only.
+   METABINARY V346 — NAV BACKGROUND REACHES THE TRUE PHONE BOTTOM
+   Scope: mobile Trade page only.
 
-   V344 already turns the chart white, but RiseFallChartV183.css still gives
-   .priceScale its original dark gradient. This final override removes that
-   last black strip on the right side of the chart.
+   Android Chrome can return safe-area-inset-bottom: 0 even when the phone
+   still shows a gesture/navigation strip. A normal bottom:0 nav can therefore
+   look like it stops a few pixels above the physical bottom.
+
+   V346 keeps the visible nav buttons at the same height, but extends the nav
+   background 24px below the viewport. That removes the white/black strip on
+   tall phones without moving the Trade/Bots/Profile buttons upward/downward.
    ========================================================================== */
 
 @media screen and (max-width: 760px) {
-  html[data-theme="light"] body
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceScale,
 
-  body[data-theme="light"]
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceScale,
+  html body .app.activePage-trade .bottomNav,
+  html body .app.activePage-trade > .bottomNav,
+  html body .app.activePage-trade nav.bottomNav,
+  html body .app.activePage-trade > nav.bottomNav {
+    position: fixed !important;
 
-  html body
-  .app.theme-light.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceScale {
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+
+    /* 24px is intentionally outside the viewport. */
+    bottom: -24px !important;
+    inset: auto 0 -24px 0 !important;
+
+    box-sizing: border-box !important;
+
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+
+    /* Visible area remains 74px + safe area:
+       (98 + safe) - 24px below-screen extension. */
+    height: calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+
+    margin: 0 !important;
+    padding: 0 0 calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+
+    border-radius: 0 !important;
+    transform: none !important;
+    translate: none !important;
+
+    overflow: hidden !important;
+    z-index: 2147483000 !important;
+  }
+
+  /* Keep buttons exactly where they already were. */
+  html body .app.activePage-trade .bottomNav > button,
+  html body .app.activePage-trade nav.bottomNav > button {
+    box-sizing: border-box !important;
+
+    align-self: start !important;
+
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
+
+    margin: 0 !important;
+    padding: 6px 4px 7px !important;
+  }
+
+  /* Light and dark extend with their own nav background all the way down. */
+  html body .app.theme-light.activePage-trade .bottomNav,
+  html[data-theme="light"] body .app.activePage-trade .bottomNav,
+  body[data-theme="light"] .app.activePage-trade .bottomNav {
     background: #ffffff !important;
     background-color: #ffffff !important;
     background-image: none !important;
-
-    color: #7f8b99 !important;
-    -webkit-text-fill-color: #7f8b99 !important;
-
-    border-left: 1px solid #e5eaf0 !important;
-    border-right: 0 !important;
-
-    box-shadow: none !important;
-    filter: none !important;
-    backdrop-filter: none !important;
-    opacity: 1 !important;
+    border-top: 1px solid #dfe6ed !important;
   }
 
-  html[data-theme="light"] body
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceScale span,
-
-  body[data-theme="light"]
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceScale span,
-
-  html body
-  .app.theme-light.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceScale span {
-    background: transparent !important;
+  html body .app.theme-dark.activePage-trade .bottomNav,
+  html[data-theme="dark"] body .app.activePage-trade .bottomNav,
+  body[data-theme="dark"] .app.activePage-trade .bottomNav {
+    background: #04111e !important;
+    background-color: #04111e !important;
     background-image: none !important;
-    color: #7f8b99 !important;
-    -webkit-text-fill-color: #7f8b99 !important;
-    text-shadow: none !important;
-    opacity: 1 !important;
+    border-top: 1px solid #183047 !important;
   }
 
-  /* Keep the chart/axis seam clean in White mode. */
-  html[data-theme="light"] body
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .finalBinaryChartArea,
+  /* Reserve only the visible nav area in content. */
+  html body .app.activePage-trade:not(.riseFallActivePageV183) > .mainScreen {
+    padding-bottom:
+      calc(80px + env(safe-area-inset-bottom, 0px))
+      !important;
+  }
 
-  body[data-theme="light"]
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .finalBinaryChartArea,
+  html body .app.activePage-trade.riseFallActivePageV183 > .mainScreen {
+    padding-bottom:
+      calc(80px + env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+}
 
-  html body
-  .app.theme-light.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .finalBinaryChartArea,
+/* ==========================================================================
+   METABINARY V347 — TALL PHONE FILL + TRUE EDGE-TO-EDGE BOTTOM NAV
+   Scope: mobile Trade page only.
 
-  html[data-theme="light"] body
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceOnlyCard .proChartArea,
+   Fixes the latest tall-phone screenshot:
+   - removes the large empty gap between ODD/EVEN and bottom navigation
+   - extra vertical space goes into the LIVE CHART only
+   - digit board / stake / duration / action buttons keep their approved sizes
+   - bottom navigation is a true full-width edge-to-edge bar
+   - no rounded bottom card / no visible strip under the nav
+   - works for digit contracts and Rise/Fall
+   ========================================================================== */
 
-  body[data-theme="light"]
-  .app.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceOnlyCard .proChartArea,
+@media screen and (max-width: 760px) {
 
-  html body
-  .app.theme-light.activePage-trade.riseFallActivePageV183
-  .finalBinaryTradePage.priceContractPage
-  .priceOnlyCard .proChartArea {
+  /* -----------------------------------------------------------------------
+     TRUE BOTTOM NAV
+     ----------------------------------------------------------------------- */
+  html body #root .app.activePage-trade > .bottomNav,
+  html body #root .app.activePage-trade > nav.bottomNav {
+    position: fixed !important;
+
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    inset: auto 0 0 0 !important;
+
+    box-sizing: border-box !important;
+
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+
+    height: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+
+    margin: 0 !important;
+    padding: 0 0 env(safe-area-inset-bottom, 0px) !important;
+
+    border-radius: 0 !important;
+    transform: none !important;
+    translate: none !important;
+
+    overflow: visible !important;
+    z-index: 2147483000 !important;
+  }
+
+  /* Paint an extra strip below the nav so Android gesture-area rendering
+     can never reveal the page background underneath it. */
+  html body #root .app.activePage-trade > .bottomNav::after,
+  html body #root .app.activePage-trade > nav.bottomNav::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 100% !important;
+    height: 48px !important;
+    pointer-events: none !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade > .bottomNav,
+  html body #root .app.theme-light.activePage-trade > nav.bottomNav,
+  html[data-theme="light"] body #root .app.activePage-trade > .bottomNav,
+  body[data-theme="light"] #root .app.activePage-trade > .bottomNav {
     background: #ffffff !important;
+    background-color: #ffffff !important;
     background-image: none !important;
+    border-top: 1px solid #dfe6ed !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade > .bottomNav::after,
+  html body #root .app.theme-light.activePage-trade > nav.bottomNav::after,
+  html[data-theme="light"] body #root .app.activePage-trade > .bottomNav::after,
+  body[data-theme="light"] #root .app.activePage-trade > .bottomNav::after {
+    background: #ffffff !important;
+  }
+
+  html body #root .app.theme-dark.activePage-trade > .bottomNav,
+  html body #root .app.theme-dark.activePage-trade > nav.bottomNav,
+  html[data-theme="dark"] body #root .app.activePage-trade > .bottomNav,
+  body[data-theme="dark"] #root .app.activePage-trade > .bottomNav {
+    background: #04111e !important;
+    background-color: #04111e !important;
+    background-image: none !important;
+    border-top: 1px solid #183047 !important;
+  }
+
+  html body #root .app.theme-dark.activePage-trade > .bottomNav::after,
+  html body #root .app.theme-dark.activePage-trade > nav.bottomNav::after,
+  html[data-theme="dark"] body #root .app.activePage-trade > .bottomNav::after,
+  body[data-theme="dark"] #root .app.activePage-trade > .bottomNav::after {
+    background: #04111e !important;
+  }
+
+  html body #root .app.activePage-trade > .bottomNav > button,
+  html body #root .app.activePage-trade > nav.bottomNav > button {
+    box-sizing: border-box !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    margin: 0 !important;
+    padding: 6px 4px 8px !important;
+  }
+
+
+  /* -----------------------------------------------------------------------
+     ALL TRADE PAGES — reserve the fixed nav exactly once
+     ----------------------------------------------------------------------- */
+  html body #root .app.activePage-trade {
+    height: var(--mb-viewport-height, 100dvh) !important;
+    min-height: var(--mb-viewport-height, 100dvh) !important;
+    max-height: var(--mb-viewport-height, 100dvh) !important;
+    overflow: hidden !important;
+  }
+
+  html body #root .app.activePage-trade > .mainScreen {
+    box-sizing: border-box !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding-bottom:
+      calc(84px + env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+}
+
+
+/* ==========================================================================
+   TALL PHONES — use spare height instead of leaving a blank block
+   ========================================================================== */
+
+@media screen and (max-width: 760px) and (min-height: 780px) {
+
+  /* -----------------------------------------------------------------------
+     DIGIT CONTRACTS
+     ----------------------------------------------------------------------- */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  > .mainScreen {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    padding:
+      6px
+      8px
+      calc(84px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow: hidden !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Tabs stay exactly the approved size. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalContractTabs {
+    flex: 0 0 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+  }
+
+  /* Combined chart+digits card consumes every spare pixel. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    box-sizing: border-box !important;
+
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* ONLY the live chart grows on tall phones. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  .mobileDigitLiveChartV115 {
+    flex: 1 1 0 !important;
+
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 250px !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+  }
+
+  /* Digit board keeps approved fixed geometry. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310 {
+    flex: 0 0 var(--mb-v321-board-h) !important;
+    height: var(--mb-v321-board-h) !important;
+    min-height: var(--mb-v321-board-h) !important;
+    max-height: var(--mb-v321-board-h) !important;
+  }
+
+  /* Order area stays content-sized. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proBinaryOrderCard.finalBinaryOrderCard {
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+
+  /* -----------------------------------------------------------------------
+     RISE / FALL
+     ----------------------------------------------------------------------- */
+  html body #root
+  .app.activePage-trade.riseFallActivePageV183
+  > .mainScreen {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    padding:
+      6px
+      8px
+      calc(84px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    overflow: hidden !important;
+  }
+
+  html body #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage {
+    box-sizing: border-box !important;
+
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+
+    grid-template-rows:
+      48px
+      52px
+      minmax(0, 1fr)
+      183px
+      !important;
+
+    gap: 5px !important;
+    overflow: hidden !important;
   }
 }
