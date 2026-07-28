@@ -4504,3 +4504,154 @@
     box-shadow: none !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V324 — CONTRACT TAB SPACING + TRUE DARK TAB BAR
+   Only changes the selector row:
+   Even/Odd | Matches/Differs | Over/Under | Rise/Fall
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  /* SAME GEOMETRY IN BOTH THEMES */
+  html body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+
+    width: calc(100% - 24px) !important;
+    max-width: none !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    max-height: 54px !important;
+
+    margin: 0 12px 6px !important;
+    padding: 5px !important;
+
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  html body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 4px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 12px !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+
+    font-size: clamp(10px, 2.7vw, 13px) !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+  }
+
+  /* LIGHT: same structure, light colors */
+  html[data-theme="light"] body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305,
+  body[data-theme="light"] .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    background: #f5f6f8 !important;
+    background-image: none !important;
+    border: 1px solid #e7ebf0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button,
+  body[data-theme="light"] .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    background: transparent !important;
+    color: #7b8795 !important;
+  }
+
+  html[data-theme="light"] body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active,
+  body[data-theme="light"] .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active,
+  body .app.theme-light.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border-color: #dfe5ec !important;
+    box-shadow: 0 2px 7px rgba(19, 37, 59, .08) !important;
+  }
+
+  /* DARK: absolutely no white surface */
+  html[data-theme="dark"] body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305,
+  body[data-theme="dark"] .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305,
+  body .app.theme-dark.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    background: #020b13 !important;
+    background-color: #020b13 !important;
+    background-image: none !important;
+    border: 1px solid #1a2b3c !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="dark"] body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button,
+  body[data-theme="dark"] .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button,
+  body .app.theme-dark.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: #8d9cac !important;
+  }
+
+  html[data-theme="dark"] body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active,
+  body[data-theme="dark"] .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active,
+  body .app.theme-dark.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    background: #0a1825 !important;
+    background-color: #0a1825 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border-color: #31475b !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .30) !important;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  html body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 {
+    gap: 5px !important;
+    width: calc(100% - 16px) !important;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    padding: 4px !important;
+  }
+
+  html body .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    padding: 0 2px !important;
+    font-size: 9.5px !important;
+  }
+}
