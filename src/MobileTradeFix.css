@@ -13264,3 +13264,144 @@
     transition: none !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V365 — QUICK DARK/LIGHT SWITCH IN HAMBURGER DRAWER
+   Same theme state used by Settings; no separate setting or duplicate state.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body .app .drawerAccount .drawerThemeToggleV365 {
+    width: 100% !important;
+    min-height: 62px !important;
+
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) 58px !important;
+    align-items: center !important;
+    gap: 11px !important;
+
+    margin: 12px 0 0 !important;
+    padding: 9px 10px !important;
+
+    border-radius: 16px !important;
+    border: 1px solid #dce4ec !important;
+
+    background: #ffffff !important;
+    color: #17212c !important;
+
+    text-align: left !important;
+    box-shadow: none !important;
+
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  html body .app .drawerThemeIconV365 {
+    width: 42px !important;
+    height: 42px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    border-radius: 12px !important;
+    background: #f1f5f9 !important;
+
+    color: #657383 !important;
+    -webkit-text-fill-color: #657383 !important;
+
+    font-size: 26px !important;
+    line-height: 1 !important;
+    font-weight: 500 !important;
+  }
+
+  html body .app .drawerThemeCopyV365 {
+    min-width: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 2px !important;
+  }
+
+  html body .app .drawerThemeCopyV365 strong {
+    color: #17212c !important;
+    -webkit-text-fill-color: #17212c !important;
+
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+    font-weight: 800 !important;
+  }
+
+  html body .app .drawerThemeCopyV365 small {
+    color: #8a97a5 !important;
+    -webkit-text-fill-color: #8a97a5 !important;
+
+    font-size: 11px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+  }
+
+  html body .app .drawerThemeSwitchV365 {
+    position: relative !important;
+
+    width: 54px !important;
+    height: 31px !important;
+
+    justify-self: end !important;
+
+    border-radius: 999px !important;
+    background: #cfd6df !important;
+
+    transition: background .18s ease !important;
+  }
+
+  html body .app .drawerThemeSwitchV365 i {
+    position: absolute !important;
+    top: 4px !important;
+    left: 4px !important;
+
+    width: 23px !important;
+    height: 23px !important;
+
+    border-radius: 50% !important;
+    background: #ffffff !important;
+
+    box-shadow: 0 1px 4px rgba(20, 35, 50, .18) !important;
+
+    transform: translateX(0) !important;
+    transition: transform .18s ease !important;
+  }
+
+  /* Dark ON state */
+  html body .app .drawerThemeToggleV365.isDarkV365 .drawerThemeSwitchV365 {
+    background: #168ee8 !important;
+  }
+
+  html body .app .drawerThemeToggleV365.isDarkV365 .drawerThemeSwitchV365 i {
+    transform: translateX(23px) !important;
+  }
+
+  /* Drawer itself is already theme-aware; make this row match dark drawer. */
+  html body .app.theme-dark .drawerAccount .drawerThemeToggleV365 {
+    background: #0b1b2a !important;
+    border-color: #233a4f !important;
+    color: #f4f8fc !important;
+  }
+
+  html body .app.theme-dark .drawerThemeIconV365 {
+    background: #10263a !important;
+    color: #d6e6f5 !important;
+    -webkit-text-fill-color: #d6e6f5 !important;
+  }
+
+  html body .app.theme-dark .drawerThemeCopyV365 strong {
+    color: #f4f8fc !important;
+    -webkit-text-fill-color: #f4f8fc !important;
+  }
+
+  html body .app.theme-dark .drawerThemeCopyV365 small {
+    color: #91a4b7 !important;
+    -webkit-text-fill-color: #91a4b7 !important;
+  }
+}
