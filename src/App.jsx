@@ -105,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v367-theme-only-in-drawer-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v368-profile-cashier-fix-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4464,6 +4464,8 @@ function TradingApp() {
             applyReferralProgram={applyReferralProgram}
             logout={logout}
             setActivePage={setActivePage}
+            openDeposit={() => setDepositOpen(true)}
+            openWithdraw={() => setWithdrawOpen(true)}
           />
         )}
 
@@ -8277,7 +8279,7 @@ function BotLivePage({
   );
 }
 
-function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage }) {
+function ProfilePage({ user, account, balances, transactions, referral, applyReferralProgram, logout, setActivePage, openDeposit, openWithdraw }) {
   const realBalance = Number(balances?.real || 0);
   const demoBalance = Number(balances?.demo || 10000);
   const accountId = user?.brokerId || "MB168844";
@@ -8309,8 +8311,8 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
   }
 
   const quickActions = [
-    { icon: "＋", label: "Deposit", sub: "Fund real account", tone: "blue", action: () => setActivePage("deposit") },
-    { icon: "↗", label: "Withdraw", sub: "Send funds out", tone: "green", action: () => setActivePage("withdraw") },
+    { icon: "＋", label: "Deposit", sub: "Fund real account", tone: "blue", action: openDeposit },
+    { icon: "↗", label: "Withdraw", sub: "Send funds out", tone: "green", action: openWithdraw },
     { icon: "↺", label: "History", sub: "All transactions", tone: "purple", action: () => setActivePage("history") },
     { icon: "⚙", label: "Settings", sub: "Account preferences", tone: "orange", action: () => openSettings("profile") },
   ];
@@ -8328,7 +8330,7 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
       icon: "💳",
       title: "Payment methods",
       text: "Manage deposit and withdrawal channels",
-      action: () => setActivePage("deposit"),
+      action: openDeposit,
     },
     {
       icon: "🔒",
@@ -8960,24 +8962,6 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
           </DrawerBlock>
 
           <DrawerBlock title="FUNDS">
-            <DrawerButton
-              icon="▱"
-              label="Cashier / Deposit"
-              onClick={() => {
-                openDeposit();
-                close();
-              }}
-            />
-
-            <DrawerButton
-              icon="⇧"
-              label="Withdraw"
-              onClick={() => {
-                openWithdraw();
-                close();
-              }}
-            />
-
             <DrawerButton icon="↺" label="History" onClick={() => go("history")} />
           </DrawerBlock>
 
