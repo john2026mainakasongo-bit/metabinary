@@ -57,7 +57,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v353-ai-scanner-mockup-design-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v355-ai-scanner-clean-session-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8867,9 +8867,9 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
             </div>
           )}
 
-          {autoSession?.id && (
-            <div className={`aiAutoRunCard ${autoSession.running ? "running" : "finished"}`}>
-              <div className="aiAutoRunHead"><span><i></i><strong>{autoSession.running ? "AI AUTO-TRADE RUNNING" : "AI AUTO-TRADE SESSION"}</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
+          {autoSession?.running && (
+            <div className="aiAutoRunCard running">
+              <div className="aiAutoRunHead"><span><i></i><strong>AI AUTO-TRADE RUNNING</strong></span><b>{Number(autoSession.pnl || 0) >= 0 ? "+" : ""}{money(autoSession.pnl || 0)} USD</b></div>
               <p>{autoSession.status}</p>
               <div className="aiAutoMetrics"><span><small>Trades</small><strong>{autoSession.trades || 0}</strong></span><span><small>Wins</small><strong>{autoSession.wins || 0}</strong></span><span><small>Losses</small><strong>{autoSession.losses || 0}</strong></span><span><small>Target</small><strong>+{money(autoSession.targetProfit || 0)}</strong></span><span><small>Stop</small><strong>-{money(autoSession.stopLoss || 0)}</strong></span></div>
               {autoSession.running && <button type="button" className="aiStopAuto" onClick={() => onStopAutoTrade("Stopped manually by the trader")}>Stop AI Auto-Trade</button>}

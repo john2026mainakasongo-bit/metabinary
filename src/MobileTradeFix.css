@@ -12651,3 +12651,240 @@
     grid-column: 1 !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V355 — CLEAN AI SCANNER AFTER AUTO SESSION
+   A finished/stopped Auto-Trade session no longer sits between the
+   recommendation card and the Manual/Auto choices. The session card is shown
+   only while Auto-Trade is actively running.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body .app .aiScannerPanelV353 .aiAutoRunCard.running {
+    position: relative !important;
+    z-index: 1 !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 0 16px !important;
+    padding: 14px 16px !important;
+
+    border-radius: 18px !important;
+    overflow: visible !important;
+  }
+
+  /* Choice cards always follow the recommendation cleanly when no session runs. */
+  html body .app .aiScannerPanelV353 .aiSignalResultV353 + .aiScannerFooterV352 {
+    margin-top: 0 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiTradeChoiceV352 {
+    clear: both !important;
+    position: relative !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   METABINARY V356 — AI SCANNER OPENS COMPACT
+   Scope: mobile AI scanner only.
+
+   Goal:
+   - scanner should not open almost full-screen
+   - initial/result view should feel like a compact bottom sheet
+   - content still scrolls internally if needed
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body .app .aiScannerPanel.aiScannerPanelV353 {
+    width: calc(100% - 18px) !important;
+    max-width: 700px !important;
+
+    left: 9px !important;
+    right: 9px !important;
+    bottom: 8px !important;
+
+    max-height: 68dvh !important;
+    min-height: 0 !important;
+    height: auto !important;
+
+    padding:
+      16px
+      14px
+      calc(14px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    border-radius: 24px !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSheetHandleV353 {
+    width: 48px !important;
+    height: 5px !important;
+    margin: -5px auto 10px !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header {
+    margin-bottom: 12px !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header h2 {
+    font-size: 24px !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header > div > small {
+    font-size: 11px !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header > button {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 28px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiContextPillV353 {
+    min-height: 52px !important;
+    margin-bottom: 12px !important;
+    padding: 9px 11px !important;
+    font-size: 14px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiContextIconV353 {
+    width: 36px !important;
+    height: 36px !important;
+    flex-basis: 36px !important;
+    font-size: 22px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalResultV353 {
+    grid-template-columns: 82px minmax(0, 1fr) !important;
+    gap: 12px !important;
+
+    margin-bottom: 12px !important;
+    padding: 13px !important;
+
+    border-radius: 18px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing {
+    width: 78px !important;
+    height: 78px !important;
+    min-width: 78px !important;
+    min-height: 78px !important;
+    border-width: 6px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing strong {
+    font-size: 25px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing small {
+    font-size: 9px !important;
+    max-width: 58px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy > small {
+    font-size: 10px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy h3 {
+    font-size: clamp(18px, 5vw, 22px) !important;
+    margin-bottom: 4px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy p {
+    font-size: clamp(13px, 3.7vw, 15px) !important;
+    margin-bottom: 5px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy em {
+    font-size: 9px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiTradeChoiceV352 {
+    gap: 8px !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352,
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiAutoChoiceV352 {
+    min-height: 138px !important;
+    padding: 12px 12px 28px !important;
+    border-radius: 16px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiChoiceIconV353 {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 18px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > span,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > span {
+    margin-top: 7px !important;
+    font-size: 9px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > strong,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > strong {
+    margin-top: 3px !important;
+    font-size: clamp(17px, 4.8vw, 20px) !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > small,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > small {
+    margin-top: 7px !important;
+    font-size: 10px !important;
+    line-height: 1.24 !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiRescanV352 {
+    min-height: 46px !important;
+    font-size: 15px !important;
+    border-radius: 13px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSafetyNoteV353 {
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    gap: 9px !important;
+    margin-top: 10px !important;
+    font-size: 9px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSafetyIconV353 {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 15px !important;
+  }
+}
+
+/* Very short screens: compact further instead of covering everything. */
+@media screen and (max-width: 760px) and (max-height: 760px) {
+  html body .app .aiScannerPanel.aiScannerPanelV353 {
+    max-height: 62dvh !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalResultV353 {
+    grid-template-columns: 68px minmax(0, 1fr) !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    min-height: 64px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing strong {
+    font-size: 21px !important;
+  }
+}
