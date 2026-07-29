@@ -24,6 +24,54 @@ function ensureResponsiveViewportMeta() {
 
 ensureResponsiveViewportMeta();
 
+
+function useDisableMobilePinchZoom() {
+  useEffect(() => {
+    // V358: keep MetaBinary at a fixed visual scale on mobile.
+    // Chrome/Android pinch zoom uses 2+ touches; block only those gestures.
+    const blockMultiTouch = (event) => {
+      if (event.touches && event.touches.length > 1) {
+        event.preventDefault();
+      }
+    };
+
+    const blockGesture = (event) => {
+      event.preventDefault();
+    };
+
+    document.addEventListener("touchstart", blockMultiTouch, {
+      passive: false,
+      capture: true,
+    });
+    document.addEventListener("touchmove", blockMultiTouch, {
+      passive: false,
+      capture: true,
+    });
+
+    // Safari/WebKit gesture events; harmless on browsers that do not emit them.
+    document.addEventListener("gesturestart", blockGesture, {
+      passive: false,
+      capture: true,
+    });
+    document.addEventListener("gesturechange", blockGesture, {
+      passive: false,
+      capture: true,
+    });
+    document.addEventListener("gestureend", blockGesture, {
+      passive: false,
+      capture: true,
+    });
+
+    return () => {
+      document.removeEventListener("touchstart", blockMultiTouch, true);
+      document.removeEventListener("touchmove", blockMultiTouch, true);
+      document.removeEventListener("gesturestart", blockGesture, true);
+      document.removeEventListener("gesturechange", blockGesture, true);
+      document.removeEventListener("gestureend", blockGesture, true);
+    };
+  }, []);
+}
+
 function useResponsiveViewportSize() {
   useEffect(() => {
     const root = document.documentElement;
@@ -57,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v357-ai-no-screen-zoom-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v358-disable-pinch-zoom-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4344,6 +4392,7 @@ function TradingApp() {
 }
 
 export default function App() {
+  useDisableMobilePinchZoom();
   const params = new URLSearchParams(window.location.search);
   const adminMode = window.location.pathname.startsWith("/admin") || params.get("admin") === "1";
   return adminMode ? <AdminPortal /> : <TradingApp />;

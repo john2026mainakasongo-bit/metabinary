@@ -12948,3 +12948,34 @@
     user-select: none !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V358 — FIXED MOBILE VISUAL SCALE
+   JS blocks 2-finger pinch gestures globally. These CSS rules ensure no
+   component opts back into browser pinch gesture handling.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html,
+  body,
+  #root,
+  .app {
+    touch-action: pan-x pan-y !important;
+    -ms-touch-action: pan-x pan-y !important;
+  }
+
+  /* Interactive controls remain tappable and vertically scrollable,
+     but pinch zoom is not delegated back to the browser. */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation !important;
+  }
+
+  .floatingAiButton {
+    touch-action: none !important;
+  }
+}
