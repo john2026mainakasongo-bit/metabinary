@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-v363-real-candle-history-depth-2026-07-29";
+const BACKEND_BUILD = "metabinary-v364-natural-market-candles-clean-chart-2026-07-29";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -176,16 +176,39 @@ function syntheticNoise(slot, seed) {
   return (value >>> 0) / 4294967295;
 }
 
+function syntheticSmoothStep(value) {
+  const t = Math.max(0, Math.min(1, Number(value) || 0));
+  return t * t * (3 - 2 * t);
+}
+
+function syntheticValueNoise(slot, seed, span) {
+  const safeSpan = Math.max(2, Math.floor(Number(span) || 2));
+  const leftIndex = Math.floor(Number(slot) / safeSpan);
+  const rightIndex = leftIndex + 1;
+  const progress = (Number(slot) - leftIndex * safeSpan) / safeSpan;
+  const eased = syntheticSmoothStep(progress);
+
+  const left = syntheticNoise(leftIndex, seed) * 2 - 1;
+  const right = syntheticNoise(rightIndex, seed) * 2 - 1;
+
+  return left + (right - left) * eased;
+}
+
 function syntheticPriceAt(market, slot) {
   const seed = syntheticSeed(market.id);
-  const phase = (seed % 10000) / 1379;
-  const slow = Math.sin(slot / 173 + phase) * market.step * 52;
-  const medium = Math.sin(slot / 41 + phase * 1.7) * market.step * 21;
-  const fast = Math.sin(slot / 11 + phase * 2.3) * market.step * 7;
-  const drift = Math.sin(slot / 613 + phase * 0.7) * market.step * 86;
-  const noise = (syntheticNoise(slot, seed) - 0.5) * market.step * 5.5;
 
-  return Number((market.start + slow + medium + fast + drift + noise).toFixed(6));
+  // V364: deterministic multi-scale value noise instead of obvious sine waves.
+  // This keeps every device on the same feed while avoiding the repeated
+  // "up -> down -> up" rhythm that long 5m / 15m candles were exposing.
+  const macro = syntheticValueNoise(slot, seed ^ 0x91e10da5, 1800) * market.step * 92;
+  const swing = syntheticValueNoise(slot, seed ^ 0x7f4a7c15, 420) * market.step * 38;
+  const trend = syntheticValueNoise(slot, seed ^ 0x5bd1e995, 105) * market.step * 17;
+  const shortMove = syntheticValueNoise(slot, seed ^ 0x27d4eb2f, 27) * market.step * 7;
+  const micro = (syntheticNoise(slot, seed ^ 0x165667b1) - 0.5) * market.step * 2.2;
+
+  return Number(
+    (market.start + macro + swing + trend + shortMove + micro).toFixed(6)
+  );
 }
 
 function syntheticDigitAt(market, slot) {

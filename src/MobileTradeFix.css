@@ -13215,3 +13215,52 @@
     color: #aab9c7 !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V364 — CLEAN RISE/FALL CHART + NATURAL LONG-TF PRESENTATION
+   - removes the instructional history sentence from inside the chart
+   - keeps Return LIVE compact instead of a large banner
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* Remove "History · drag to browse · tap LIVE to return" completely. */
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseInteractiveChartV360.pannedV360::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* If user browses history, keep LIVE as a tiny control instead of a big bar. */
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseReturnLiveV360 {
+    width: auto !important;
+    min-width: 42px !important;
+    max-width: 48px !important;
+
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+
+    padding: 0 7px !important;
+    margin: 0 !important;
+
+    border-radius: 8px !important;
+
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* Candles stay crisp and visually independent after closing. */
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseCandleChartV183 .closedV360,
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseCandleChartV183 .closedV360 * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
