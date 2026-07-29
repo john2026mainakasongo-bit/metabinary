@@ -57,7 +57,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v355-ai-scanner-clean-session-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v357-ai-no-screen-zoom-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8738,6 +8738,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   function pointerMove(event) {
     if (!dragRef.current.dragging) return;
 
+    // V357: the AI orb owns this gesture. Prevent Chrome from interpreting
+    // the same movement as page pan / double-tap / pinch zoom.
+    event.preventDefault();
+
     const viewport = window.visualViewport;
     const viewportWidth = Number(viewport?.width || window.innerWidth || 360);
     const viewportHeight = Number(viewport?.height || window.innerHeight || 720);
@@ -8812,6 +8816,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const buttonStyle = {
     "--ai-x": `${Math.round(position.x)}px`,
     "--ai-y": `${Math.round(position.y)}px`,
+    touchAction: "none",
   };
   const panelStyle = mobileViewport ? undefined : {
     left: Math.min(position.x, Math.max(8, window.innerWidth - 390)),
@@ -8829,6 +8834,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           onPointerUp={pointerUp}
           onPointerCancel={pointerCancel}
           onLostPointerCapture={pointerCancel}
+          onDoubleClick={(event) => event.preventDefault()}
           draggable={false}
           aria-label="Open MetaBinary AI assistant"
         >

@@ -12888,3 +12888,63 @@
     font-size: 21px !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V357 — AI TOUCH MUST NOT ZOOM THE PAGE
+   Fixes Android Chrome treating AI orb / scanner gestures like browser zoom.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* Draggable AI orb owns its touch gesture completely. */
+  html body .app .floatingAiButton {
+    touch-action: none !important;
+    -ms-touch-action: none !important;
+
+    -webkit-user-select: none !important;
+    user-select: none !important;
+
+    -webkit-touch-callout: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+
+    overscroll-behavior: none !important;
+  }
+
+  html body .app .floatingAiButton *,
+  html body .app .floatingAiButton::before,
+  html body .app .floatingAiButton::after {
+    pointer-events: none !important;
+    touch-action: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+
+  /* Scanner can scroll vertically, but it must never trigger pinch/double-tap
+     page zoom while the user taps its cards/buttons. */
+  html body .app .aiScannerPanel,
+  html body .app .aiScannerPanel.aiScannerPanelV353 {
+    touch-action: pan-y !important;
+    -ms-touch-action: pan-y !important;
+
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  html body .app .aiScannerPanel button,
+  html body .app .aiScannerPanel a,
+  html body .app .aiScannerPanel [role="button"] {
+    touch-action: manipulation !important;
+    -ms-touch-action: manipulation !important;
+
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* Avoid text-selection magnification while interacting with the sheet. */
+  html body .app .aiScannerPanel header,
+  html body .app .aiScannerPanel .aiContextPillV353,
+  html body .app .aiScannerPanel .aiSignalResultV353,
+  html body .app .aiScannerPanel .aiTradeChoiceV352 {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+}
