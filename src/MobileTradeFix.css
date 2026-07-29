@@ -11410,3 +11410,316 @@
       !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V350 — RESTORE RISE/FALL WHITE PRICE AXIS AFTER NAV FIXES
+   Scope: mobile Rise/Fall light theme only.
+
+   Later navigation builds were based on a CSS copy that did not include the
+   V345 axis override, so the dark right-side strip returned. This final block
+   restores the white price scale without touching layout or navigation.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body #root
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale,
+
+  html[data-theme="light"] body #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale,
+
+  body[data-theme="light"] #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #7f8b99 !important;
+    -webkit-text-fill-color: #7f8b99 !important;
+
+    border-left: 1px solid #e5eaf0 !important;
+    border-right: 0 !important;
+
+    box-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Remove any gradient painted by pseudo-elements. */
+  html body #root
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale::before,
+
+  html body #root
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale::after,
+
+  html[data-theme="light"] body #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale::before,
+
+  html[data-theme="light"] body #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale::after,
+
+  body[data-theme="light"] #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale::before,
+
+  body[data-theme="light"] #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale::after {
+    content: none !important;
+    display: none !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  html body #root
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale span,
+
+  html[data-theme="light"] body #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale span,
+
+  body[data-theme="light"] #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .priceScale span {
+    background: transparent !important;
+    background-image: none !important;
+
+    color: #7f8b99 !important;
+    -webkit-text-fill-color: #7f8b99 !important;
+
+    text-shadow: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Keep the chart-to-axis seam white. */
+  html body #root
+  .app.theme-light.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea,
+
+  html[data-theme="light"] body #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea,
+
+  body[data-theme="light"] #root
+  .app.activePage-trade.riseFallActivePageV183
+  .finalBinaryTradePage.priceContractPage
+  .finalBinaryChartArea {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+  }
+}
+
+/* ==========================================================================
+   METABINARY V351 — TRUE PHONE-BOTTOM NAV ON ALL MAIN MOBILE PAGES
+   Goal:
+   - Every page with the bottom navigation must sit exactly like the Bots page.
+   - Navigation is fixed to the real phone bottom on Trade, Bots, Profile,
+     Settings, History, Reports, Referrals and Bot Setup.
+   - Main page content scrolls above the navigation and reserves its height.
+   - Keeps V350 Rise/Fall white price-axis fix intact.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* Pages that should behave like the working Bots page. */
+  html body .app.activePage-trade,
+  html body .app.activePage-bots,
+  html body .app.activePage-profile,
+  html body .app.activePage-settings,
+  html body .app.activePage-history,
+  html body .app.activePage-referrals,
+  html body .app.activePage-reports,
+  html body .app.activePage-botSetup {
+    transform: none !important;
+    translate: none !important;
+    scale: none !important;
+    rotate: none !important;
+    filter: none !important;
+    perspective: none !important;
+    contain: none !important;
+    will-change: auto !important;
+
+    position: relative !important;
+    width: 100% !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Pin the bottom nav to the real phone edge on every main page. */
+  html body .app.activePage-trade > .bottomNav,
+  html body .app.activePage-trade > nav.bottomNav,
+  html body .app.activePage-bots > .bottomNav,
+  html body .app.activePage-bots > nav.bottomNav,
+  html body .app.activePage-profile > .bottomNav,
+  html body .app.activePage-profile > nav.bottomNav,
+  html body .app.activePage-settings > .bottomNav,
+  html body .app.activePage-settings > nav.bottomNav,
+  html body .app.activePage-history > .bottomNav,
+  html body .app.activePage-history > nav.bottomNav,
+  html body .app.activePage-referrals > .bottomNav,
+  html body .app.activePage-referrals > nav.bottomNav,
+  html body .app.activePage-reports > .bottomNav,
+  html body .app.activePage-reports > nav.bottomNav,
+  html body .app.activePage-botSetup > .bottomNav,
+  html body .app.activePage-botSetup > nav.bottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    inset: auto 0 0 0 !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    flex: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+    transform: none !important;
+    translate: none !important;
+    border-radius: 0 !important;
+
+    z-index: 2147483000 !important;
+  }
+
+  html body .app.activePage-trade > .bottomNav button,
+  html body .app.activePage-trade > nav.bottomNav button,
+  html body .app.activePage-bots > .bottomNav button,
+  html body .app.activePage-bots > nav.bottomNav button,
+  html body .app.activePage-profile > .bottomNav button,
+  html body .app.activePage-profile > nav.bottomNav button,
+  html body .app.activePage-settings > .bottomNav button,
+  html body .app.activePage-settings > nav.bottomNav button,
+  html body .app.activePage-history > .bottomNav button,
+  html body .app.activePage-history > nav.bottomNav button,
+  html body .app.activePage-referrals > .bottomNav button,
+  html body .app.activePage-referrals > nav.bottomNav button,
+  html body .app.activePage-reports > .bottomNav button,
+  html body .app.activePage-reports > nav.bottomNav button,
+  html body .app.activePage-botSetup > .bottomNav button,
+  html body .app.activePage-botSetup > nav.bottomNav button {
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    padding: 6px 4px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* The content area must finish above the fixed nav and scroll normally. */
+  html body .app.activePage-trade > .mainScreen,
+  html body .app.activePage-bots > .mainScreen,
+  html body .app.activePage-profile > .mainScreen,
+  html body .app.activePage-settings > .mainScreen,
+  html body .app.activePage-history > .mainScreen,
+  html body .app.activePage-referrals > .mainScreen,
+  html body .app.activePage-reports > .mainScreen,
+  html body .app.activePage-botSetup > .mainScreen {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 6px 8px 84px !important;
+
+    box-sizing: border-box !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  /* Keep light-theme nav white like the Bots page. */
+  html body .app.theme-light.activePage-trade > .bottomNav,
+  html body .app.theme-light.activePage-bots > .bottomNav,
+  html body .app.theme-light.activePage-profile > .bottomNav,
+  html body .app.theme-light.activePage-settings > .bottomNav,
+  html body .app.theme-light.activePage-history > .bottomNav,
+  html body .app.theme-light.activePage-referrals > .bottomNav,
+  html body .app.theme-light.activePage-reports > .bottomNav,
+  html body .app.theme-light.activePage-botSetup > .bottomNav,
+  html body .app.theme-light.activePage-trade > nav.bottomNav,
+  html body .app.theme-light.activePage-bots > nav.bottomNav,
+  html body .app.theme-light.activePage-profile > nav.bottomNav,
+  html body .app.theme-light.activePage-settings > nav.bottomNav,
+  html body .app.theme-light.activePage-history > nav.bottomNav,
+  html body .app.theme-light.activePage-referrals > nav.bottomNav,
+  html body .app.theme-light.activePage-reports > nav.bottomNav,
+  html body .app.theme-light.activePage-botSetup > nav.bottomNav {
+    background: #ffffff !important;
+    border-top: 1px solid #dfe6ed !important;
+  }
+
+  /* Dark theme parity. */
+  html body .app.theme-dark.activePage-trade > .bottomNav,
+  html body .app.theme-dark.activePage-bots > .bottomNav,
+  html body .app.theme-dark.activePage-profile > .bottomNav,
+  html body .app.theme-dark.activePage-settings > .bottomNav,
+  html body .app.theme-dark.activePage-history > .bottomNav,
+  html body .app.theme-dark.activePage-referrals > .bottomNav,
+  html body .app.theme-dark.activePage-reports > .bottomNav,
+  html body .app.theme-dark.activePage-botSetup > .bottomNav,
+  html body .app.theme-dark.activePage-trade > nav.bottomNav,
+  html body .app.theme-dark.activePage-bots > nav.bottomNav,
+  html body .app.theme-dark.activePage-profile > nav.bottomNav,
+  html body .app.theme-dark.activePage-settings > nav.bottomNav,
+  html body .app.theme-dark.activePage-history > nav.bottomNav,
+  html body .app.theme-dark.activePage-referrals > nav.bottomNav,
+  html body .app.theme-dark.activePage-reports > nav.bottomNav,
+  html body .app.theme-dark.activePage-botSetup > nav.bottomNav {
+    background: #04111e !important;
+    border-top: 1px solid #183047 !important;
+  }
+
+  /* Make sure top-level pages don't keep an extra fake bottom reservation. */
+  html body .app.activePage-trade .page,
+  html body .app.activePage-bots .page,
+  html body .app.activePage-profile .page,
+  html body .app.activePage-settings .page,
+  html body .app.activePage-history .page,
+  html body .app.activePage-referrals .page,
+  html body .app.activePage-reports .page,
+  html body .app.activePage-botSetup .page {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
