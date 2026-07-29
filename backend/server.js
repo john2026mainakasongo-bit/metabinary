@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-daraja-stk-v25-local-cors-regex-fix-2026-07-25";
+const BACKEND_BUILD = "metabinary-v360-tradingview-candles-multi-risefall-2026-07-29";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -135,6 +135,97 @@ const FOREX_MARKETS = {
     alwaysOpen: false,
   },
 };
+
+
+const SYNTHETIC_MARKETS = Object.freeze([
+  { id: "vol10", label: "Volatility 10 Index", start: 1.205, step: 0.00016, wave: 0.000025 },
+  { id: "vol10-1s", label: "Volatility 10 (1s) Index", start: 1.236, step: 0.0002, wave: 0.00003 },
+  { id: "vol25", label: "Volatility 25 Index", start: 1.112, step: 0.00027, wave: 0.000045 },
+  { id: "vol25-1s", label: "Volatility 25 (1s) Index", start: 1.148, step: 0.00033, wave: 0.000055 },
+  { id: "vol50", label: "Volatility 50 Index", start: 1.31, step: 0.0004, wave: 0.000065 },
+  { id: "vol50-1s", label: "Volatility 50 (1s) Index", start: 1.348, step: 0.00048, wave: 0.000075 },
+  { id: "vol75", label: "Volatility 75 Index", start: 1.42, step: 0.00055, wave: 0.00009 },
+  { id: "vol75-1s", label: "Volatility 75 (1s) Index", start: 1.46, step: 0.00064, wave: 0.000105 },
+  { id: "vol100", label: "Volatility 100 Index", start: 1.018, step: 0.00072, wave: 0.00012 },
+  { id: "vol100-1s", label: "Volatility 100 (1s) Index", start: 1.086, step: 0.00082, wave: 0.000135 },
+]);
+
+const SYNTHETIC_MARKET_BY_ID = new Map(
+  SYNTHETIC_MARKETS.map((market) => [market.id, market])
+);
+
+const SYNTHETIC_MARKET_BY_LABEL = new Map(
+  SYNTHETIC_MARKETS.map((market) => [market.label.toLowerCase(), market])
+);
+
+function syntheticSeed(value = "") {
+  let hash = 2166136261;
+  const text = String(value);
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function syntheticNoise(slot, seed) {
+  let value = (Number(slot) ^ Number(seed)) >>> 0;
+  value = Math.imul(value ^ (value >>> 16), 2246822507) >>> 0;
+  value = Math.imul(value ^ (value >>> 13), 3266489909) >>> 0;
+  value ^= value >>> 16;
+  return (value >>> 0) / 4294967295;
+}
+
+function syntheticPriceAt(market, slot) {
+  const seed = syntheticSeed(market.id);
+  const phase = (seed % 10000) / 1379;
+  const slow = Math.sin(slot / 173 + phase) * market.step * 52;
+  const medium = Math.sin(slot / 41 + phase * 1.7) * market.step * 21;
+  const fast = Math.sin(slot / 11 + phase * 2.3) * market.step * 7;
+  const drift = Math.sin(slot / 613 + phase * 0.7) * market.step * 86;
+  const noise = (syntheticNoise(slot, seed) - 0.5) * market.step * 5.5;
+
+  return Number((market.start + slow + medium + fast + drift + noise).toFixed(6));
+}
+
+function syntheticDigitAt(market, slot) {
+  const seed = syntheticSeed(`${market.id}:digit`);
+  return Math.floor(syntheticNoise(slot, seed) * 10) % 10;
+}
+
+function syntheticMarketAt(market, slot, history = 360) {
+  const safeHistory = Math.max(60, Math.min(600, Math.floor(Number(history || 360))));
+  const prices = [];
+  const digitHistory = [];
+
+  for (let current = slot - safeHistory + 1; current <= slot; current += 1) {
+    prices.push(syntheticPriceAt(market, current));
+  }
+
+  for (let current = slot - 99; current <= slot; current += 1) {
+    digitHistory.push(syntheticDigitAt(market, current));
+  }
+
+  return {
+    id: market.id,
+    label: market.label,
+    prices,
+    digitHistory,
+    lastDigit: digitHistory[digitHistory.length - 1],
+    currentPrice: prices[prices.length - 1],
+    updatedAt: slot * 1000,
+  };
+}
+
+function resolveSyntheticMarket(marketId, marketLabel) {
+  const byId = SYNTHETIC_MARKET_BY_ID.get(String(marketId || "").trim());
+  if (byId) return byId;
+
+  return (
+    SYNTHETIC_MARKET_BY_LABEL.get(String(marketLabel || "").trim().toLowerCase()) ||
+    SYNTHETIC_MARKET_BY_ID.get("vol100-1s")
+  );
+}
 
 const marketQuoteCache = new Map();
 
@@ -624,6 +715,7 @@ function publicTrade(trade) {
     barrier: Number(trade.barrier || 0),
     barrierDistance: Number(trade.barrierDistance || 0),
     touched: Boolean(trade.touched),
+    marketId: trade.marketId || "",
     market: trade.market || "Volatility 100 (1s) Index",
     source: trade.source || "manual",
     strategy: trade.strategy || "",
@@ -1570,6 +1662,28 @@ app.get("/", async (_req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+
+app.get("/api/synthetic/markets", (req, res) => {
+  const history = Math.max(60, Math.min(600, Math.floor(Number(req.query?.history || 360))));
+  const serverTime = Date.now();
+  const slot = Math.floor(serverTime / 1000);
+  const markets = Object.fromEntries(
+    SYNTHETIC_MARKETS.map((market) => [
+      market.id,
+      syntheticMarketAt(market, slot, history),
+    ])
+  );
+
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.json({
+    ok: true,
+    serverTime,
+    tickMs: 1000,
+    slot,
+    markets,
+  });
 });
 
 app.get("/api/health", async (_req, res) => {
@@ -3052,6 +3166,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     const barrierDistance = Math.max(0, Number(req.body?.barrierDistance || 0));
     const marketStep = Math.max(0.000001, Number(req.body?.marketStep || 0.0002));
     const market = cleanText(req.body?.market || "Volatility 100 (1s) Index", 100);
+    const syntheticMarket = resolveSyntheticMarket(req.body?.marketId, market);
+    const marketId = syntheticMarket.id;
     const requestedSource = String(req.body?.source || "manual").trim().toLowerCase();
     const source = ["bot", "ai"].includes(requestedSource) ? requestedSource : "manual";
     const strategy = cleanText(req.body?.strategy || "", 100);
@@ -3114,7 +3230,8 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       barrierDistance,
       marketStep,
       touched: false,
-      market,
+      marketId,
+      market: syntheticMarket.label,
       source,
       strategy,
       status: "RUNNING",
@@ -3202,10 +3319,10 @@ async function handleTradeTick(req, res, next) {
     }
 
     const previousPrice = Number(trade.currentPrice || trade.entryPrice || 1);
-    const movementUnit = Math.max(0.000001, Number(trade.marketStep || 0.0002));
-    const randomFactor = crypto.randomInt(-1000, 1001) / 1000;
-    const nextPrice = Number((previousPrice + randomFactor * movementUnit * 3).toFixed(6));
-    const digit = crypto.randomInt(0, 10);
+    const syntheticMarket = resolveSyntheticMarket(trade.marketId, trade.market);
+    const sharedSlot = Math.floor(Date.now() / 1000);
+    const nextPrice = syntheticPriceAt(syntheticMarket, sharedSlot);
+    const digit = syntheticDigitAt(syntheticMarket, sharedSlot);
     const barrier = Number(trade.barrier || 0);
     const crossedBarrier = barrier > 0 && ((previousPrice <= barrier && nextPrice >= barrier) || (previousPrice >= barrier && nextPrice <= barrier));
     const touched = Boolean(trade.touched || crossedBarrier);
@@ -3263,16 +3380,29 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
     }
 
     if (trade.status !== "SETTLED" && Number(trade.ticksConsumed || 0) === 0 && !["Even/Odd", "Matches/Differs", "Over/Under"].includes(trade.type)) {
-      const step = Math.max(0.000001, Number(trade.marketStep || 0.0002));
-      const movement = (crypto.randomInt(-1000, 1001) / 1000) * step * Math.max(2, Number(trade.ticks || 1));
-      const simulatedPrice = Number((Number(trade.entryPrice || 1) + movement).toFixed(6));
-      const touchProbability = estimatedTouchProbability(trade.ticks, trade.barrierDistance);
-      const simulatedTouched = trade.type === "Touch/No Touch"
-        ? crypto.randomInt(0, 10000) < Math.round(touchProbability * 10000)
-        : false;
-      await db.collection("trades").updateOne({ _id: trade._id }, { $set: { currentPrice: simulatedPrice, touched: simulatedTouched, updatedAt: nowIso() } });
-      trade.currentPrice = simulatedPrice;
-      trade.touched = simulatedTouched;
+      const syntheticMarket = resolveSyntheticMarket(trade.marketId, trade.market);
+      const sharedSlot = Math.floor(Date.now() / 1000);
+      const sharedPrice = syntheticPriceAt(syntheticMarket, sharedSlot);
+      const previousPrice = Number(trade.currentPrice || trade.entryPrice || sharedPrice);
+      const barrier = Number(trade.barrier || 0);
+      const sharedTouched =
+        trade.type === "Touch/No Touch" &&
+        barrier > 0 &&
+        ((previousPrice <= barrier && sharedPrice >= barrier) ||
+          (previousPrice >= barrier && sharedPrice <= barrier));
+
+      await db.collection("trades").updateOne(
+        { _id: trade._id },
+        {
+          $set: {
+            currentPrice: sharedPrice,
+            touched: Boolean(trade.touched || sharedTouched),
+            updatedAt: nowIso(),
+          },
+        }
+      );
+      trade.currentPrice = sharedPrice;
+      trade.touched = Boolean(trade.touched || sharedTouched);
     }
     const resultDigit = Number.isInteger(trade.lastTickDigit)
       ? trade.lastTickDigit

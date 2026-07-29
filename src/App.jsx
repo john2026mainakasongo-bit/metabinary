@@ -105,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v358-disable-pinch-zoom-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v360-tradingview-candles-multi-risefall-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -1271,8 +1271,10 @@ function TradingApp() {
     return Number.isFinite(value) ? value : 10;
   });
   const [activeBinaryTrade, setActiveBinaryTrade] = useState(null);
+  const [riseFallTrades, setRiseFallTrades] = useState([]);
   const [binaryResultFlash, setBinaryResultFlash] = useState(null);
   const activeBinaryTradeRef = useRef(null);
+  const riseFallTradesRef = useRef([]);
   const lastDigitRef = useRef(0);
   const toastTimerRef = useRef(null);
   const resultFlashTimerRef = useRef(null);
@@ -1316,6 +1318,7 @@ function TradingApp() {
   const positionsRef = useRef(positions);
 
   activeBinaryTradeRef.current = activeBinaryTrade;
+  riseFallTradesRef.current = riseFallTrades;
   lastDigitRef.current = lastDigit;
   aiAutoSessionRef.current = aiAutoSession;
   binaryMarketStatesRef.current = binaryMarketStates;
@@ -1761,51 +1764,100 @@ function TradingApp() {
   }, [activePage]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      const openTrade = activeBinaryTradeRef.current;
-      const now = Date.now();
+    // V359: every phone reads the SAME backend-generated synthetic market feed.
+    // Do not generate volatility prices with Math.random() in the browser.
+    let disposed = false;
+    let timer = 0;
+    let controller = null;
 
-      setBinaryMarketStates((currentStates) => {
-        const nextStates = { ...currentStates };
+    const syncSharedVolatilityFeed = async () => {
+      if (disposed) return;
 
-        VOLATILITY_OPTIONS.forEach((market, index) => {
-          const current = currentStates[market.id] || createBinaryMarketState(market, index);
-          const oldPrices = Array.isArray(current.prices) && current.prices.length
-            ? current.prices
-            : makePrices(market.start);
-          const lastPrice = oldPrices[oldPrices.length - 1] || market.start;
-          const phase = now / (7600 + index * 310) + index * 0.87;
-          const directionBias = index % 2 === 0 ? 0.015 : -0.015;
-          const nextPrice = Number(
-            (
-              lastPrice +
-              (Math.random() - 0.5 + directionBias) * market.step +
-              Math.sin(phase) * market.wave
-            ).toFixed(6)
-          );
-          const serverControlsThisMarket = Boolean(
-            openTrade && (openTrade.marketId || binaryMarketId) === market.id
-          );
-          const nextDigit = serverControlsThisMarket
-            ? Number(current.lastDigit || 0)
-            : Math.floor(Math.random() * 10);
-          const digitUpdate = serverControlsThisMarket
-            ? {}
-            : nextDigitState(current, nextDigit, index);
+      controller?.abort();
+      controller = new AbortController();
 
-          nextStates[market.id] = {
-            ...current,
-            ...digitUpdate,
-            prices: [...oldPrices.slice(-(BINARY_PRICE_HISTORY_LIMIT - 1)), nextPrice],
-            updatedAt: now,
-          };
-        });
+      try {
+        const response = await fetch(
+          `${API_URL}/api/synthetic/markets?history=360`,
+          {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal,
+            headers: { Accept: "application/json" },
+          }
+        );
 
-        return nextStates;
-      });
-    }, DIGIT_TICK_MS);
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.ok === false || !result.markets) {
+          throw new Error(result.message || "Shared volatility feed is unavailable.");
+        }
 
-    return () => window.clearInterval(timer);
+        if (!disposed) {
+          setBinaryMarketStates((currentStates) => {
+            const nextStates = { ...currentStates };
+
+            VOLATILITY_OPTIONS.forEach((market, index) => {
+              const shared = result.markets?.[market.id];
+              if (!shared) return;
+
+              const current =
+                currentStates[market.id] || createBinaryMarketState(market, index);
+              const digitHistory = Array.isArray(shared.digitHistory)
+                ? shared.digitHistory.slice(-DIGIT_HISTORY_LIMIT)
+                : current.digitHistory;
+              const digitStats = calculateDigitStats(
+                digitHistory,
+                current.digitStats
+              );
+
+              nextStates[market.id] = {
+                ...current,
+                prices: Array.isArray(shared.prices)
+                  ? shared.prices.slice(-BINARY_PRICE_HISTORY_LIMIT)
+                  : current.prices,
+                digitHistory,
+                digitStats,
+                lastDigit: Number.isInteger(Number(shared.lastDigit))
+                  ? Number(shared.lastDigit)
+                  : current.lastDigit,
+                updatedAt: Number(shared.updatedAt || result.serverTime || Date.now()),
+                sharedSlot: Number(result.slot || Math.floor(Number(shared.updatedAt || result.serverTime || Date.now()) / 1000)),
+                sharedFeed: true,
+              };
+            });
+
+            return nextStates;
+          });
+        }
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          console.warn("Shared volatility feed sync failed:", error);
+        }
+      } finally {
+        if (!disposed) {
+          // Poll just after every second. The server timestamp is authoritative,
+          // so devices that opened at different times still receive the same curve.
+          timer = window.setTimeout(syncSharedVolatilityFeed, 1000);
+        }
+      }
+    };
+
+    void syncSharedVolatilityFeed();
+
+    const resyncWhenVisible = () => {
+      if (document.visibilityState !== "visible" || disposed) return;
+      window.clearTimeout(timer);
+      void syncSharedVolatilityFeed();
+    };
+
+    document.addEventListener("visibilitychange", resyncWhenVisible);
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(timer);
+      controller?.abort();
+      document.removeEventListener("visibilitychange", resyncWhenVisible);
+    };
   }, []);
 
   useEffect(() => {
@@ -2032,6 +2084,113 @@ function TradingApp() {
       window.clearTimeout(timer);
     };
   }, [activeBinaryTrade?.id, authToken]);
+
+
+  useEffect(() => {
+    if (!authToken) return undefined;
+
+    let disposed = false;
+    let timer = 0;
+    const busyTradeIds = new Set();
+
+    const updateRiseTrade = (id, updater) => {
+      setRiseFallTrades((current) =>
+        current.map((trade) =>
+          trade.id === id
+            ? (typeof updater === "function" ? updater(trade) : { ...trade, ...updater })
+            : trade
+        )
+      );
+    };
+
+    const removeRiseTrade = (id) => {
+      setRiseFallTrades((current) => current.filter((trade) => trade.id !== id));
+    };
+
+    const tickOne = async (openTrade) => {
+      if (!openTrade?.id || busyTradeIds.has(openTrade.id)) return;
+      busyTradeIds.add(openTrade.id);
+
+      try {
+        const requestId = `rise-${openTrade.id}-${Math.floor(Date.now() / 1000)}`;
+        const { response, result } = await requestJsonWithRetry(
+          `${API_URL}/api/trades/${encodeURIComponent(openTrade.id)}/tick`,
+          {
+            method: "POST",
+            headers: apiHeaders({ "Content-Type": "application/json" }, authToken),
+            cache: "no-store",
+            body: JSON.stringify({ requestId }),
+          },
+          { timeoutMs: 5000, retries: 1 }
+        );
+
+        if (disposed) return;
+
+        if (response.status === 409) {
+          return;
+        }
+
+        if (!response.ok || result.ok === false) {
+          throw makeApiError(response, result, "Rise/Fall trade tick could not be loaded.");
+        }
+
+        const nextPrice = Number(
+          result.currentPrice ??
+          result.trade?.currentPrice ??
+          openTrade.currentPrice ??
+          openTrade.entryPrice
+        );
+        const remainingTicks = Math.max(
+          0,
+          Number(result.remainingTicks ?? result.trade?.remainingTicks ?? 0)
+        );
+
+        updateRiseTrade(openTrade.id, (current) => ({
+          ...current,
+          currentPrice: Number.isFinite(nextPrice) ? nextPrice : current.currentPrice,
+          remainingTicks,
+          touched: Boolean(result.touched ?? result.trade?.touched ?? current.touched),
+          connectionState: "connected",
+        }));
+
+        if (result.settled || result.trade?.status === "SETTLED") {
+          removeRiseTrade(openTrade.id);
+          await applyBinaryTradeSettlement(openTrade, result);
+        }
+      } catch (error) {
+        if (disposed) return;
+        console.error("Rise/Fall trade tick interrupted:", error);
+        updateRiseTrade(openTrade.id, (current) => ({
+          ...current,
+          connectionState: "reconnecting",
+        }));
+      } finally {
+        busyTradeIds.delete(openTrade.id);
+      }
+    };
+
+    const tickAll = async () => {
+      if (disposed) return;
+      const trades = riseFallTradesRef.current.filter(
+        (trade) => trade?.type === "Rise/Fall" && trade?.status !== "SETTLED"
+      );
+
+      if (trades.length) {
+        await Promise.all(trades.map((trade) => tickOne(trade)));
+      }
+
+      if (!disposed) {
+        timer = window.setTimeout(tickAll, 1000);
+      }
+    };
+
+    void tickAll();
+
+    return () => {
+      disposed = true;
+      window.clearTimeout(timer);
+    };
+  }, [authToken]);
 
   useEffect(() => {
     // Custom pull-to-refresh is enabled on Chrome/Android as well.
@@ -3033,7 +3192,9 @@ function TradingApp() {
       barrierDistance: Number(options.barrierDistance || 2),
     });
 
-    if (activeBinaryTrade) {
+    // V360: digit contracts keep one-at-a-time behavior, while Rise/Fall
+    // supports multiple simultaneous positions on the same or different markets.
+    if (activeBinaryTrade && !isRiseFallTrade) {
       notify(
         "open",
         "Trade already open",
@@ -3085,6 +3246,7 @@ function TradingApp() {
             barrier: Number(options.barrier || 0),
             barrierDistance: Number(options.barrierDistance || 0),
             marketStep: Number(activeBinaryMarket.step || 0.0002),
+            marketId: activeBinaryMarket.id,
             market: activeBinaryMarket.label,
           }),
         },
@@ -3117,7 +3279,9 @@ function TradingApp() {
         durationValue: isRiseFallTrade ? selectedDurationValue : usedTicks,
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
         status: "RUNNING",
+        tickMs: Math.max(250, Number(opened.tickMs || 1000)),
         source: opened.source || "manual",
+        marketId: opened.marketId || activeBinaryMarket.id,
       };
 
       if (result.user) {
@@ -3132,7 +3296,11 @@ function TradingApp() {
       }
 
       setBinaryResultFlash(null);
-      setActiveBinaryTrade(openTrade);
+      if (isRiseFallTrade) {
+        setRiseFallTrades((current) => [...current, openTrade]);
+      } else {
+        setActiveBinaryTrade(openTrade);
+      }
       notify(
         "open",
         "Open trade",
@@ -3300,6 +3468,7 @@ function TradingApp() {
             barrier: Number(signal.barrier || 0),
             barrierDistance: Number(signal.barrierDistance || 0),
             marketStep: Number(market.step || 0.0002),
+            marketId: market.id,
             market: market.label,
             source: "ai",
             strategy: "MetaBinary AI Auto-Trade",
@@ -4235,6 +4404,8 @@ function TradingApp() {
             lastDigit={lastDigit}
             digitStats={digitStats}
             activeBinaryTrade={activeBinaryTrade}
+            riseFallTrades={riseFallTrades}
+            sharedMarketSlot={Number(activeBinaryState.sharedSlot || Math.floor(Date.now() / 1000))}
             binaryResultFlash={binaryResultFlash}
             actionsFor={actionsFor}
             payoutRate={payoutRate}
@@ -6167,14 +6338,25 @@ function CandleChart({ symbol, prices, livePrice, positions, showLines }) {
 }
 
 
-function LineChart({ data = [], anchorValue = null, livePointX = 94, zoom = 1 }) {
+function LineChart({
+  data = [],
+  anchorValue = null,
+  livePointX = 94,
+  zoom = 1,
+  panOffset = 0,
+  entryTrades = [],
+}) {
   const allValues = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
 
   const safeZoom = Math.max(0.75, Math.min(3, Number(zoom) || 1));
   const visibleLimit = Math.max(28, Math.round(180 / safeZoom));
-  const values = allValues.slice(-visibleLimit);
+  const maxPan = Math.max(0, allValues.length - Math.min(visibleLimit, allValues.length));
+  const safePan = Math.max(0, Math.min(maxPan, Math.floor(Number(panOffset) || 0)));
+  const endIndex = Math.max(0, allValues.length - safePan);
+  const startIndex = Math.max(0, endIndex - visibleLimit);
+  const values = allValues.slice(startIndex, endIndex);
 
   const safeValues =
     values.length >= 2
@@ -6183,8 +6365,12 @@ function LineChart({ data = [], anchorValue = null, livePointX = 94, zoom = 1 })
       ? [values[0], values[0]]
       : [0, 0];
 
-  const rawMin = Math.min(...safeValues);
-  const rawMax = Math.max(...safeValues);
+  const entryValues = Array.isArray(entryTrades)
+    ? entryTrades.map((trade) => Number(trade.entryValue)).filter(Number.isFinite)
+    : [];
+
+  const rawMin = Math.min(...safeValues, ...(entryValues.length ? entryValues : [Infinity]));
+  const rawMax = Math.max(...safeValues, ...(entryValues.length ? entryValues : [-Infinity]));
   const numericAnchor = Number(anchorValue);
   const hasAnchor =
     anchorValue !== null &&
@@ -6198,6 +6384,7 @@ function LineChart({ data = [], anchorValue = null, livePointX = 94, zoom = 1 })
   if (hasAnchor) {
     const largestDistance = Math.max(
       ...safeValues.map((value) => Math.abs(value - numericAnchor)),
+      ...entryValues.map((value) => Math.abs(value - numericAnchor)),
       Math.abs(rawMax - rawMin) / 2,
       Math.abs(numericAnchor || 1) * 0.00015,
       0.000001
@@ -6222,16 +6409,20 @@ function LineChart({ data = [], anchorValue = null, livePointX = 94, zoom = 1 })
   const chartLeft = 3;
   const chartRight = Math.max(70, Math.min(97, Number(livePointX) || 94));
 
+  const y = (value) => {
+    const point = chartBottom - ((Number(value) - min) / range) * (chartBottom - chartTop);
+    return Math.max(chartTop, Math.min(chartBottom, point));
+  };
+
   const points = safeValues.map((value, index) => {
     const progress = index / Math.max(1, safeValues.length - 1);
     const x = chartLeft + progress * (chartRight - chartLeft);
-    const y = chartBottom - ((value - min) / range) * (chartBottom - chartTop);
-    return [x, Math.max(chartTop, Math.min(chartBottom, y))];
+    return [x, y(value)];
   });
 
   const linePath = points
-    .map(([x, y], index) =>
-      `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`
+    .map(([x, pointY], index) =>
+      `${index === 0 ? "M" : "L"}${x.toFixed(2)},${pointY.toFixed(2)}`
     )
     .join(" ");
 
@@ -6248,6 +6439,18 @@ function LineChart({ data = [], anchorValue = null, livePointX = 94, zoom = 1 })
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+
+        <g className="riseEntryLinesV360">
+          {entryTrades.map((trade) => {
+            const entryY = y(trade.entryValue);
+            return (
+              <g key={trade.id} className={trade.action === "Rise" ? "riseEntryRiseV360" : "riseEntryFallV360"}>
+                <line x1={chartLeft} x2={chartRight} y1={entryY} y2={entryY} />
+                <circle cx={chartRight} cy={entryY} r="1.05" />
+              </g>
+            );
+          })}
+        </g>
       </svg>
     </div>
   );
@@ -6259,45 +6462,94 @@ function RiseFallCandleChart({
   timeframeSeconds = 30,
   livePointX = 94,
   zoom = 1,
+  endSlot = null,
+  panOffset = 0,
+  entryTrades = [],
 }) {
   const values = Array.isArray(data)
     ? data.map(Number).filter(Number.isFinite)
     : [];
 
   if (values.length < 2) {
-    return <LineChart data={values} anchorValue={anchorValue} livePointX={livePointX} zoom={zoom} />;
+    return (
+      <LineChart
+        data={values}
+        anchorValue={anchorValue}
+        livePointX={livePointX}
+        zoom={zoom}
+        panOffset={panOffset}
+        entryTrades={entryTrades}
+      />
+    );
   }
 
   const secondsPerCandle = Math.max(1, Math.floor(Number(timeframeSeconds) || 30));
-  const candles = [];
+  const lastSlot = Number.isFinite(Number(endSlot))
+    ? Math.floor(Number(endSlot))
+    : Math.floor(Date.now() / 1000);
+  const firstSlot = lastSlot - values.length + 1;
+  const bucketMap = new Map();
 
-  for (let endIndex = values.length; endIndex > 0; endIndex -= secondsPerCandle) {
-    const startIndex = Math.max(0, endIndex - secondsPerCandle);
-    const segment = values.slice(startIndex, endIndex);
-    if (!segment.length) continue;
+  values.forEach((value, index) => {
+    const slot = firstSlot + index;
+    const bucketStart = Math.floor(slot / secondsPerCandle) * secondsPerCandle;
+    const existing = bucketMap.get(bucketStart);
 
-    const open = Number(segment[0]);
-    const close = Number(segment[segment.length - 1]);
-    candles.unshift({
-      open,
-      close,
-      high: Math.max(...segment),
-      low: Math.min(...segment),
-    });
-  }
+    if (!existing) {
+      bucketMap.set(bucketStart, {
+        bucketStart,
+        open: value,
+        close: value,
+        high: value,
+        low: value,
+        firstSlot: slot,
+        lastSlot: slot,
+      });
+      return;
+    }
+
+    existing.close = value;
+    existing.high = Math.max(existing.high, value);
+    existing.low = Math.min(existing.low, value);
+    existing.lastSlot = slot;
+  });
+
+  const candles = [...bucketMap.values()]
+    .sort((a, b) => a.bucketStart - b.bucketStart)
+    .map((candle) => ({
+      ...candle,
+      closed: candle.bucketStart + secondsPerCandle <= lastSlot,
+    }));
 
   const safeZoom = Math.max(0.75, Math.min(3, Number(zoom) || 1));
   const visibleCount = Math.max(4, Math.round(48 / safeZoom));
-  const visibleCandles = candles.slice(-visibleCount);
+  const maxPan = Math.max(0, candles.length - Math.min(visibleCount, candles.length));
+  const safePan = Math.max(0, Math.min(maxPan, Math.floor(Number(panOffset) || 0)));
+  const endIndex = Math.max(0, candles.length - safePan);
+  const startIndex = Math.max(0, endIndex - visibleCount);
+  const visibleCandles = candles.slice(startIndex, endIndex);
 
   if (!visibleCandles.length) {
-    return <LineChart data={values} anchorValue={anchorValue} livePointX={livePointX} zoom={zoom} />;
+    return (
+      <LineChart
+        data={values}
+        anchorValue={anchorValue}
+        livePointX={livePointX}
+        zoom={zoom}
+        panOffset={panOffset}
+        entryTrades={entryTrades}
+      />
+    );
   }
+
+  const entryValues = Array.isArray(entryTrades)
+    ? entryTrades.map((trade) => Number(trade.entryValue)).filter(Number.isFinite)
+    : [];
 
   const candleLows = visibleCandles.map((candle) => candle.low);
   const candleHighs = visibleCandles.map((candle) => candle.high);
-  const rawMin = Math.min(...candleLows);
-  const rawMax = Math.max(...candleHighs);
+  const rawMin = Math.min(...candleLows, ...(entryValues.length ? entryValues : [Infinity]));
+  const rawMax = Math.max(...candleHighs, ...(entryValues.length ? entryValues : [-Infinity]));
   const numericAnchor = Number(anchorValue);
   const hasAnchor =
     anchorValue !== null &&
@@ -6312,6 +6564,7 @@ function RiseFallCandleChart({
     const largestDistance = Math.max(
       Math.abs(rawMax - numericAnchor),
       Math.abs(rawMin - numericAnchor),
+      ...entryValues.map((value) => Math.abs(value - numericAnchor)),
       Math.abs(rawMax - rawMin) / 2,
       Math.abs(numericAnchor || 1) * 0.00015,
       0.000001
@@ -6321,7 +6574,11 @@ function RiseFallCandleChart({
     max = numericAnchor + halfRange;
   } else {
     const rawRange = rawMax - rawMin;
-    const padding = Math.max(rawRange * 0.18, Math.abs((rawMin + rawMax) / 2) * 0.00003, 0.000001);
+    const padding = Math.max(
+      rawRange * 0.18,
+      Math.abs((rawMin + rawMax) / 2) * 0.00003,
+      0.000001
+    );
     min = rawMin - padding;
     max = rawMax + padding;
   }
@@ -6359,8 +6616,19 @@ function RiseFallCandleChart({
           const bodyHeight = Math.max(0.9, bottom - top);
 
           return (
-            <g key={`${index}-${candle.open}-${candle.close}`} className={up ? "riseCandleUpV183" : "riseCandleDownV183"}>
-              <line className="riseCandleWickV183" x1={x} x2={x} y1={y(candle.high)} y2={y(candle.low)} />
+            <g
+              key={candle.bucketStart}
+              className={`${up ? "riseCandleUpV183" : "riseCandleDownV183"} ${
+                candle.closed ? "closedV360" : "liveV360"
+              }`}
+            >
+              <line
+                className="riseCandleWickV183"
+                x1={x}
+                x2={x}
+                y1={y(candle.high)}
+                y2={y(candle.low)}
+              />
               <rect
                 className="riseCandleBodyV183"
                 x={x - bodyWidth / 2}
@@ -6372,6 +6640,18 @@ function RiseFallCandleChart({
             </g>
           );
         })}
+
+        <g className="riseEntryLinesV360">
+          {entryTrades.map((trade) => {
+            const entryY = y(trade.entryValue);
+            return (
+              <g key={trade.id} className={trade.action === "Rise" ? "riseEntryRiseV360" : "riseEntryFallV360"}>
+                <line x1={chartLeft} x2={chartRight} y1={entryY} y2={entryY} />
+                <circle cx={chartRight} cy={entryY} r="1.05" />
+              </g>
+            );
+          })}
+        </g>
       </svg>
     </div>
   );
@@ -6391,6 +6671,8 @@ function TradePage({
   lastDigit,
   digitStats,
   activeBinaryTrade,
+  riseFallTrades = [],
+  sharedMarketSlot = null,
   binaryResultFlash,
   actionsFor,
   payoutRate,
@@ -6419,8 +6701,14 @@ function TradePage({
   const [riseChartType, setRiseChartType] = useState("line");
   const [riseCandleTimeframe, setRiseCandleTimeframe] = useState("30s");
   const [riseChartZoom, setRiseChartZoom] = useState(1);
+  const [riseChartPan, setRiseChartPan] = useState(0);
+  const riseChartDragRef = useRef({ dragging: false, pointerId: null, startX: 0, startPan: 0 });
   const [pendingDigitVisualTrade, setPendingDigitVisualTrade] = useState(null);
   const pendingDigitVisualTimerRef = useRef(null);
+
+  useEffect(() => {
+    setRiseChartPan(0);
+  }, [binaryMarketId, riseCandleTimeframe, riseChartType]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -6520,18 +6808,32 @@ function TradePage({
   const rateTwo = payoutRate(tradeType, actions[1], prediction, payoutOptions);
   const payoutOne = rateOne > 0 ? money(safeStake * rateOne) : "—";
   const payoutTwo = rateTwo > 0 ? money(safeStake * rateTwo) : "—";
-  const activeTradeEntry = Number(activeBinaryTrade?.entryPrice || livePrice || 0);
-  const activeTradeCurrent = Number(activeBinaryTrade?.currentPrice || livePrice || activeTradeEntry);
-  const activePriceWinning = riseMode && activeBinaryTrade
-    ? activeBinaryTrade.action === "Rise"
-      ? activeTradeCurrent > activeTradeEntry
-      : activeTradeCurrent < activeTradeEntry
+  const currentRiseFallTrades = riseMode
+    ? riseFallTrades.filter(
+        (trade) =>
+          trade?.type === "Rise/Fall" &&
+          (trade.marketId || binaryMarketId) === binaryMarketId
+      )
+    : [];
+  const primaryRiseFallTrade =
+    currentRiseFallTrades[currentRiseFallTrades.length - 1] || null;
+  const displayTrade = riseMode ? primaryRiseFallTrade : activeBinaryTrade;
+  const activeTradeEntry = Number(displayTrade?.entryPrice || livePrice || 0);
+  const activeTradeCurrent = Number(displayTrade?.currentPrice || livePrice || activeTradeEntry);
+  const activePriceWinning = riseMode && displayTrade
+    ? displayTrade.action === "Rise"
+      ? livePrice > activeTradeEntry
+      : livePrice < activeTradeEntry
     : false;
-  const activePotentialPayout = Number(activeBinaryTrade?.payout || 0);
-  const activeStake = Number(activeBinaryTrade?.stake || safeStake || 0);
+  const activePotentialPayout = Number(displayTrade?.payout || 0);
+  const activeStake = Number(displayTrade?.stake || safeStake || 0);
   const activePreviewNet = activePriceWinning
     ? Number((activePotentialPayout - activeStake).toFixed(2))
     : -activeStake;
+  const riseEntryTrades = currentRiseFallTrades.map((trade) => ({
+    ...trade,
+    entryValue: Number(trade.entryPrice || 0) * Number(binaryMarket?.scale || 800),
+  }));
   const digitVisualTrade = activeBinaryTrade || pendingDigitVisualTrade;
   const digitVisualType = digitVisualTrade?.type || tradeType;
   const digitVisualPrediction = Number(digitVisualTrade?.prediction ?? prediction);
@@ -6551,8 +6853,14 @@ function TradePage({
     riseChartType === "candles"
       ? riseCandleTimeframeConfig.seconds * Math.max(4, Math.round(48 / riseChartZoom))
       : Math.max(28, Math.round(180 / riseChartZoom));
+  const riseChartPanSeconds =
+    riseChartType === "candles"
+      ? riseChartPan * riseCandleTimeframeConfig.seconds
+      : riseChartPan;
   const riseChartTimeLabels = [1, 0.75, 0.5, 0.25, 0].map((fraction) => {
-    const time = new Date(Date.now() - riseVisibleSpanSeconds * fraction * 1000);
+    const time = new Date(
+      Date.now() - (riseChartPanSeconds + riseVisibleSpanSeconds * fraction) * 1000
+    );
     return time.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -6563,6 +6871,46 @@ function TradePage({
   const riseDurationMax = riseDurationUnit === "minutes" ? 5 : 60;
   const riseDurationUnitLabel = riseDurationUnit === "minutes" ? "min" : "sec";
   const quickStakeValues = [10, 25, 50, 100, 250];
+
+  const riseChartPointerDown = (event) => {
+    if (!riseMode || event.target?.closest?.("button")) return;
+    riseChartDragRef.current = {
+      dragging: true,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startPan: riseChartPan,
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const riseChartPointerMove = (event) => {
+    const drag = riseChartDragRef.current;
+    if (!drag.dragging || drag.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - drag.startX;
+    const stepPx = riseChartType === "candles" ? 18 : 5;
+    const nextPan = Math.max(0, Math.round(drag.startPan + deltaX / stepPx));
+
+    if (nextPan !== riseChartPan) {
+      setRiseChartPan(nextPan);
+    }
+  };
+
+  const riseChartPointerEnd = (event) => {
+    const drag = riseChartDragRef.current;
+    if (!drag.dragging) return;
+    try {
+      event.currentTarget.releasePointerCapture?.(drag.pointerId);
+    } catch {
+      // Pointer capture may already be released by the browser.
+    }
+    riseChartDragRef.current = {
+      dragging: false,
+      pointerId: null,
+      startX: 0,
+      startPan: riseChartPan,
+    };
+  };
 
   const actionMeta = Object.fromEntries(
     actions.map((action) => {
@@ -6774,7 +7122,13 @@ function TradePage({
 
         <div className="proChartArea finalBinaryChartArea">
           <div className="priceScale"><span>{(indexValue + priceStep * 2).toFixed(2)}</span><span>{(indexValue + priceStep).toFixed(2)}</span><span>{indexValue.toFixed(2)}</span><span>{(indexValue - priceStep).toFixed(2)}</span><span>{(indexValue - priceStep * 2).toFixed(2)}</span></div>
-          <div className="proChartCanvas">
+          <div
+            className={`proChartCanvas ${riseMode ? "riseInteractiveChartV360" : ""} ${riseChartPan > 0 ? "pannedV360" : ""}`}
+            onPointerDown={riseMode ? riseChartPointerDown : undefined}
+            onPointerMove={riseMode ? riseChartPointerMove : undefined}
+            onPointerUp={riseMode ? riseChartPointerEnd : undefined}
+            onPointerCancel={riseMode ? riseChartPointerEnd : undefined}
+          >
             {riseMode && (
               <div className="riseChartControlsV183" role="toolbar" aria-label="Rise and Fall chart controls">
                 <div className="riseChartTypeToggleV183" role="group" aria-label="Chart type">
@@ -6820,6 +7174,16 @@ function TradePage({
                   </button>
                   <button type="button" onClick={() => changeRiseChartZoom(1)} aria-label="Zoom in">+</button>
                 </div>
+
+                {riseChartPan > 0 && (
+                  <button
+                    type="button"
+                    className="riseReturnLiveV360"
+                    onClick={() => setRiseChartPan(0)}
+                  >
+                    LIVE
+                  </button>
+                )}
               </div>
             )}
 
@@ -6827,30 +7191,64 @@ function TradePage({
               <RiseFallCandleChart
                 data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
                 anchorValue={
-                  activeBinaryTrade
+                  primaryRiseFallTrade
                     ? activeTradeEntry * Number(binaryMarket?.scale || 800)
                     : null
                 }
                 timeframeSeconds={riseCandleTimeframeConfig.seconds}
                 zoom={riseChartZoom}
                 livePointX={94}
+                endSlot={sharedMarketSlot}
+                panOffset={riseChartPan}
+                entryTrades={riseEntryTrades}
               />
             ) : (
               <LineChart
                 data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
                 anchorValue={
-                  riseMode && activeBinaryTrade
+                  riseMode && primaryRiseFallTrade
                     ? activeTradeEntry * Number(binaryMarket?.scale || 800)
                     : null
                 }
                 zoom={riseMode ? riseChartZoom : 1}
                 livePointX={riseMode ? 94 : 92}
+                panOffset={riseMode ? riseChartPan : 0}
+                entryTrades={riseMode ? riseEntryTrades : []}
               />
             )}
             <div className="worldMapGlow"></div>
             <div className="chartLivePrice">● {indexValue.toFixed(2)}</div>
-            {riseMode && activeBinaryTrade && <div className="entryPriceLine"><span>Entry {(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</span></div>}
-            {activeBinaryTrade && <div className="binaryTradeStatus" role="status"><span className="binaryTradePulse"></span><strong>{activeBinaryTrade.action}</strong><small>{formatTradeRemaining(activeBinaryTrade)}</small></div>}
+            {riseMode && currentRiseFallTrades.length > 0 && (
+              <div className="riseOpenTradesV360" role="status" aria-label="Open Rise and Fall trades">
+                {currentRiseFallTrades.slice(-3).map((trade) => {
+                  const entry = Number(trade.entryPrice || 0);
+                  const winning =
+                    trade.action === "Rise"
+                      ? livePrice > entry
+                      : livePrice < entry;
+                  return (
+                    <div
+                      key={trade.id}
+                      className={`${trade.action === "Rise" ? "riseV360" : "fallV360"} ${winning ? "winningV360" : "losingV360"}`}
+                    >
+                      <b>{trade.action}</b>
+                      <span>Entry {(entry * Number(binaryMarket?.scale || 800)).toFixed(2)}</span>
+                      <small>{formatTradeRemaining(trade)}</small>
+                    </div>
+                  );
+                })}
+                {currentRiseFallTrades.length > 3 && (
+                  <div className="moreV360">+{currentRiseFallTrades.length - 3}</div>
+                )}
+              </div>
+            )}
+            {!riseMode && activeBinaryTrade && (
+              <div className="binaryTradeStatus" role="status">
+                <span className="binaryTradePulse"></span>
+                <strong>{activeBinaryTrade.action}</strong>
+                <small>{formatTradeRemaining(activeBinaryTrade)}</small>
+              </div>
+            )}
           </div>
         </div>
 
@@ -6862,13 +7260,21 @@ function TradePage({
           </>
         )}
 
-        {!digitMode && activeBinaryTrade && (
+        {riseMode && currentRiseFallTrades.length > 0 && (
+          <div className="riseMultiTradeSummaryV360" role="status">
+            <strong>{currentRiseFallTrades.length} open {currentRiseFallTrades.length === 1 ? "trade" : "trades"}</strong>
+            <span>{binaryMarket?.short || "Volatility"}</span>
+            <small>You can place another Rise or Fall while these positions are running.</small>
+          </div>
+        )}
+
+        {!riseMode && !digitMode && activeBinaryTrade && (
           <div className={`priceContractLiveLine ${activePriceWinning ? "winning" : "losing"}`} role="status">
             <span><strong>{activeBinaryTrade.action}</strong><small>{binaryMarket?.short || "Volatility"}</small></span>
             <span><small>Entry</small><b>{(activeTradeEntry * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Current</small><b>{(activeTradeCurrent * Number(binaryMarket?.scale || 800)).toFixed(2)}</b></span>
             <span><small>Live position</small><b>{activePriceWinning ? "Winning" : "Losing"} {activePreviewNet >= 0 ? "+" : ""}{money(activePreviewNet)} USD</b></span>
-            <span><small>Time</small><b>{activeBinaryTrade.type === "Rise/Fall" ? formatRiseFallTime(activeBinaryTrade.remainingTicks) : `${activeBinaryTrade.remainingTicks} tick${activeBinaryTrade.remainingTicks === 1 ? "" : "s"}`}</b></span>
+            <span><small>Time</small><b>{`${activeBinaryTrade.remainingTicks} tick${activeBinaryTrade.remainingTicks === 1 ? "" : "s"}`}</b></span>
           </div>
         )}
 

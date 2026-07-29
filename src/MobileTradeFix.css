@@ -12979,3 +12979,183 @@
     touch-action: none !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V360 — TRADINGVIEW-LIKE RISE/FALL CHART INTERACTION
+   - closed candles stay visually stable
+   - only the current rightmost candle updates
+   - drag chart horizontally to inspect history
+   - entry lines for every open Rise/Fall trade
+   - multiple open trade chips
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body .app.activePage-trade.riseFallActivePageV183 .riseInteractiveChartV360 {
+    touch-action: pan-y !important;
+    cursor: grab !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseInteractiveChartV360:active {
+    cursor: grabbing !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseCandleChartV183,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseLineChartV183 {
+    pointer-events: none !important;
+  }
+
+  /* Closed candles do not animate or transition after their bucket closes. */
+  html body .app.activePage-trade.riseFallActivePageV183 .riseCandleChartV183 .closedV360,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseCandleChartV183 .closedV360 * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Only the live rightmost candle may visually update. */
+  html body .app.activePage-trade.riseFallActivePageV183 .riseCandleChartV183 .liveV360 .riseCandleBodyV183,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseCandleChartV183 .liveV360 .riseCandleWickV183 {
+    transition:
+      y 140ms linear,
+      height 140ms linear !important;
+  }
+
+  /* Entry lines */
+  html body .app.activePage-trade.riseFallActivePageV183 .riseEntryLinesV360 line {
+    stroke-width: .36 !important;
+    stroke-dasharray: 1.7 1.1 !important;
+    opacity: .95 !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseEntryLinesV360 circle {
+    stroke: #ffffff !important;
+    stroke-width: .22 !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseEntryRiseV360 line,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseEntryRiseV360 circle {
+    stroke: #0a8de8 !important;
+    fill: #0a8de8 !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseEntryFallV360 line,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseEntryFallV360 circle {
+    stroke: #f13d58 !important;
+    fill: #f13d58 !important;
+  }
+
+  /* Return-to-live control after the user drags into history. */
+  html body .app.activePage-trade.riseFallActivePageV183 .riseReturnLiveV360 {
+    min-width: 48px !important;
+    height: 32px !important;
+    padding: 0 10px !important;
+    border-radius: 9px !important;
+    border: 1px solid #24a475 !important;
+    background: #eafaf4 !important;
+    color: #0b9369 !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: .5px !important;
+    touch-action: manipulation !important;
+  }
+
+  html body .app.theme-dark.activePage-trade.riseFallActivePageV183 .riseReturnLiveV360 {
+    background: #0b2a24 !important;
+    color: #39d9aa !important;
+    border-color: #176e58 !important;
+  }
+
+  /* Open positions floating inside chart */
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 {
+    position: absolute !important;
+    left: 10px !important;
+    bottom: 10px !important;
+    z-index: 24 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+
+    max-width: 190px !important;
+    pointer-events: none !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 > div {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 6px !important;
+
+    min-height: 30px !important;
+    padding: 5px 8px !important;
+
+    border-radius: 9px !important;
+    border: 1px solid #d8e2eb !important;
+    background: rgba(255,255,255,.90) !important;
+    backdrop-filter: blur(8px) !important;
+    box-shadow: 0 3px 12px rgba(24,42,62,.08) !important;
+
+    color: #223140 !important;
+    font-size: 9px !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 b {
+    font-size: 10px !important;
+    font-weight: 900 !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 span,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 small {
+    white-space: nowrap !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 .riseV360 b {
+    color: #0b9369 !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 .fallV360 b {
+    color: #e33e56 !important;
+  }
+
+  html body .app.theme-dark.activePage-trade.riseFallActivePageV183 .riseOpenTradesV360 > div {
+    background: rgba(6,20,33,.90) !important;
+    border-color: #294057 !important;
+    color: #dce8f4 !important;
+  }
+
+  /* Compact multi-trade summary below chart; it must not block placing more. */
+  html body .app.activePage-trade.riseFallActivePageV183 .riseMultiTradeSummaryV360 {
+    display: grid !important;
+    grid-template-columns: auto auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 8px !important;
+
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    margin: 0 !important;
+
+    border: 1px solid #dce6ef !important;
+    border-radius: 10px !important;
+    background: #f7fafc !important;
+    color: #344252 !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseMultiTradeSummaryV360 strong {
+    color: #0b9369 !important;
+    font-size: 10px !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183 .riseMultiTradeSummaryV360 span,
+  html body .app.activePage-trade.riseFallActivePageV183 .riseMultiTradeSummaryV360 small {
+    font-size: 9px !important;
+    color: #7a8897 !important;
+  }
+
+  html body .app.theme-dark.activePage-trade.riseFallActivePageV183 .riseMultiTradeSummaryV360 {
+    background: #071522 !important;
+    border-color: #24394d !important;
+    color: #d9e5f1 !important;
+  }
+}
