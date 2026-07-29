@@ -57,7 +57,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v341-manual-digit-instant-smooth-2026-07-28";
+const FRONTEND_BUILD = "metabinary-v352-ai-manual-or-auto-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8634,10 +8634,6 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     addCandidate("Matches/Differs", "Matches", strongestDigit, digitProbability(strongestDigit), 0.01);
     addCandidate("Matches/Differs", "Differs", weakestDigit, 1 - digitProbability(weakestDigit), 0.025);
 
-    const trendScale = Math.max(Number(market.step || 0.0002) * 8, 0.000001);
-    const trendStrength = Math.min(0.22, Math.abs(recentTrend) / trendScale * 0.12);
-    addCandidate("Rise/Fall", recentTrend >= 0 ? "Rise" : "Fall", 0, 0.5 + trendStrength, trendStrength * 0.4);
-
     const best = candidates.sort((a, b) => b.score - a.score)[0] || {
       type: "Over/Under",
       action: recentTrend >= 0 ? "Over" : "Under",
@@ -8660,7 +8656,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
     };
   }
 
-  function scan(autoStart = true) {
+  function scan(autoStart = false) {
     if (scanActiveRef.current || scanning || autoSession?.running) return;
     scanActiveRef.current = true;
     window.clearInterval(scanTimerRef.current);
@@ -8690,7 +8686,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
         window.clearInterval(scanTimerRef.current);
         const nextResult = buildResult();
         setProgress(100);
-        setScanMessage("Best setup found · launching Auto-Trade");
+        setScanMessage("Best setup found · choose Manual Trade or Auto Trade");
         setResult(nextResult);
         setScanning(false);
         scanActiveRef.current = false;
@@ -8842,7 +8838,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 
       {open && (
         <section className="aiScannerPanel" style={panelStyle}>
-          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Auto-Trade Scanner</h2></div><button onClick={closeScanner}>×</button></header>
+          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={closeScanner}>×</button></header>
           <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
 
           {scanning && (
@@ -8880,13 +8876,56 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           )}
 
           {!autoSession?.running && (
-            <footer>
-              <button className="aiScanAgain" onClick={() => scan(true)} disabled={scanning || Boolean(result)}>
-                {scanning ? "AI is searching…" : result ? "Launching Auto-Trade…" : "Analyze Market & Start AI Trade"}
-              </button>
+            <footer className="aiScannerFooterV352">
+              {!result ? (
+                <button
+                  className="aiScanAgain"
+                  onClick={() => scan(false)}
+                  disabled={scanning}
+                >
+                  {scanning ? "AI is searching…" : "Analyze Market"}
+                </button>
+              ) : (
+                <div className="aiTradeChoiceV352">
+                  <button
+                    type="button"
+                    className="aiManualChoiceV352"
+                    onClick={() => {
+                      onApply(result);
+                      setOpen(false);
+                    }}
+                  >
+                    <span>MANUAL</span>
+                    <strong>Trade Manually</strong>
+                    <small>Load this market + contract, then you choose when to enter.</small>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="aiAutoChoiceV352"
+                    onClick={async () => {
+                      const started = await onAutoTrade(result);
+                      if (started !== false) setOpen(false);
+                    }}
+                  >
+                    <span>AUTO</span>
+                    <strong>Start Auto Trade</strong>
+                    <small>Use the recommended setup for the automated session.</small>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="aiRescanV352"
+                    onClick={() => scan(false)}
+                    disabled={scanning}
+                  >
+                    Scan another setup
+                  </button>
+                </div>
+              )}
             </footer>
           )}
-          <small className="aiSafetyNote">AI automatically ranks the current markets and contract types, then starts the strongest available setup. Results are not guaranteed.</small>
+          <small className="aiSafetyNote">AI ranks current volatility markets and compares Even/Odd, Over/Under and Matches/Differs. You choose Manual Trade or Auto Trade after the scan. Results are not guaranteed.</small>
         </section>
       )}
     </>

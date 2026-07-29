@@ -11723,3 +11723,129 @@
     margin-bottom: 0 !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V352 — AI SCAN RESULT: MANUAL OR AUTO
+   Scope: AI scanner only.
+   ========================================================================== */
+
+.aiScannerFooterV352 {
+  display: block !important;
+}
+
+.aiTradeChoiceV352 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.aiTradeChoiceV352 > button {
+  min-width: 0 !important;
+}
+
+.aiManualChoiceV352,
+.aiAutoChoiceV352 {
+  min-height: 108px !important;
+  border-radius: 16px !important;
+  padding: 14px 12px !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+.aiManualChoiceV352 span,
+.aiAutoChoiceV352 span {
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: 1.3px !important;
+}
+
+.aiManualChoiceV352 strong,
+.aiAutoChoiceV352 strong {
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+}
+
+.aiManualChoiceV352 small,
+.aiAutoChoiceV352 small {
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  opacity: .82 !important;
+}
+
+.aiManualChoiceV352 {
+  background: #f4f8fc !important;
+  color: #142130 !important;
+  border: 1px solid #d9e3ed !important;
+}
+
+.aiManualChoiceV352 span {
+  color: #1689dd !important;
+}
+
+.aiAutoChoiceV352 {
+  background: linear-gradient(135deg, #168ee8, #075bd8) !important;
+  color: #ffffff !important;
+  border: 1px solid #238ee6 !important;
+  box-shadow: 0 8px 22px rgba(12, 100, 210, .24) !important;
+}
+
+.aiAutoChoiceV352 * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.aiRescanV352 {
+  grid-column: 1 / -1 !important;
+  min-height: 42px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: #678 !important;
+  border: 1px solid #d9e3ed !important;
+  font-weight: 800 !important;
+}
+
+.app.theme-dark .aiManualChoiceV352 {
+  background: #0a1927 !important;
+  color: #eef6ff !important;
+  border-color: #22384d !important;
+}
+
+.app.theme-dark .aiManualChoiceV352 strong,
+.app.theme-dark .aiManualChoiceV352 small {
+  color: #eef6ff !important;
+  -webkit-text-fill-color: #eef6ff !important;
+}
+
+.app.theme-dark .aiRescanV352 {
+  color: #9fb0c2 !important;
+  border-color: #22384d !important;
+}
+
+@media screen and (max-width: 760px) {
+  .aiTradeChoiceV352 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .aiManualChoiceV352,
+  .aiAutoChoiceV352 {
+    min-height: 102px !important;
+    padding: 12px 10px !important;
+  }
+
+  .aiManualChoiceV352 strong,
+  .aiAutoChoiceV352 strong {
+    font-size: 15px !important;
+  }
+
+  .aiManualChoiceV352 small,
+  .aiAutoChoiceV352 small {
+    font-size: 10px !important;
+  }
+}
