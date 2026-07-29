@@ -12504,3 +12504,150 @@
     -webkit-text-fill-color: #5bb7ff !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V354 — AI SCANNER NO-OVERLAP / COMPACT MOBILE RESULT CARD
+   Fixes narrow-phone screenshots where the recommendation text grows beyond
+   its card and gets covered by Manual / Auto choices.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body .app .aiScannerPanel.aiScannerPanelV353 {
+    max-height: 82dvh !important;
+    padding:
+      20px
+      16px
+      calc(18px + env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalResultV353 {
+    grid-template-columns: 96px minmax(0, 1fr) !important;
+    gap: 14px !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing {
+    width: 92px !important;
+    height: 92px !important;
+    min-width: 92px !important;
+    min-height: 92px !important;
+    border-width: 7px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing strong {
+    font-size: 30px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing small {
+    max-width: 66px !important;
+    font-size: 10px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy > small {
+    margin-bottom: 4px !important;
+    font-size: 11px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy h3 {
+    margin: 0 0 5px !important;
+
+    font-size: clamp(19px, 5.3vw, 24px) !important;
+    line-height: 1.02 !important;
+
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy p {
+    margin: 0 0 7px !important;
+
+    font-size: clamp(14px, 4vw, 17px) !important;
+    line-height: 1.18 !important;
+
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy em {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiTradeChoiceV352 {
+    position: relative !important;
+    z-index: 1 !important;
+    margin-top: 0 !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352,
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiAutoChoiceV352 {
+    min-height: 158px !important;
+    padding: 15px 14px 32px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiChoiceIconV353 {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 21px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > strong,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > strong {
+    font-size: clamp(18px, 5vw, 22px) !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > small,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > small {
+    font-size: 11px !important;
+    line-height: 1.28 !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiRescanV352 {
+    min-height: 54px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSafetyNoteV353 {
+    margin-top: 14px !important;
+  }
+}
+
+/* Extra-narrow phones: stack Manual and Auto instead of squeezing text. */
+@media screen and (max-width: 350px) {
+  html body .app .aiScannerPanelV353 .aiTradeChoiceV352 {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352,
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiAutoChoiceV352 {
+    min-height: 132px !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiRescanV352 {
+    grid-column: 1 !important;
+  }
+}
