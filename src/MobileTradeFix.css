@@ -11849,3 +11849,658 @@
     font-size: 10px !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V353 — AI MARKET SCANNER MOCKUP DESIGN
+   Matches the approved visual mockup while preserving V352 behavior.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body .app .aiScannerPanel.aiScannerPanelV353 {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(78dvh, 720px) !important;
+
+    margin: 0 !important;
+    padding:
+      22px
+      18px
+      calc(18px + env(safe-area-inset-bottom, 0px))
+      !important;
+
+    border-radius: 28px 28px 0 0 !important;
+    border: 1px solid #dce6f0 !important;
+
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111923 !important;
+
+    box-shadow: 0 -14px 36px rgba(12, 28, 48, .15) !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+
+    z-index: 2147483501 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSheetHandleV353 {
+    display: block !important;
+    width: 58px !important;
+    height: 6px !important;
+    margin: -10px auto 14px !important;
+    border-radius: 999px !important;
+    background: #cbd4df !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+
+    margin: 0 0 18px !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header > div > small {
+    display: block !important;
+    margin: 0 0 4px !important;
+
+    color: #1788e2 !important;
+    -webkit-text-fill-color: #1788e2 !important;
+
+    font-size: 12px !important;
+    line-height: 1.15 !important;
+    font-weight: 900 !important;
+    letter-spacing: .8px !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header h2 {
+    margin: 0 !important;
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+
+    font-size: 28px !important;
+    line-height: 1.06 !important;
+    font-weight: 900 !important;
+    letter-spacing: -.7px !important;
+  }
+
+  html body .app .aiScannerPanelV353 > header > button {
+    flex: 0 0 58px !important;
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    min-height: 58px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    margin: -2px 0 0 12px !important;
+    padding: 0 !important;
+
+    border-radius: 50% !important;
+    border: 1px solid #dce6ef !important;
+
+    background: #f4f7fa !important;
+    color: #263543 !important;
+    -webkit-text-fill-color: #263543 !important;
+
+    font-size: 34px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  /* Scanning mode pill */
+  html body .app .aiScannerPanelV353 .aiContextPillV353 {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    width: 100% !important;
+    min-height: 64px !important;
+
+    margin: 0 0 18px !important;
+    padding: 12px 14px !important;
+
+    border: 1px solid #d9e8f6 !important;
+    border-radius: 15px !important;
+
+    background: #f8fbff !important;
+    color: #263543 !important;
+    -webkit-text-fill-color: #263543 !important;
+
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    box-shadow: none !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiContextPillV353 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    font-weight: 900 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiContextIconV353 {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    border-radius: 12px !important;
+    background: #edf6ff !important;
+    color: #167fd2 !important;
+    -webkit-text-fill-color: #167fd2 !important;
+
+    font-size: 26px !important;
+    font-weight: 900 !important;
+  }
+
+  /* Recommendation card */
+  html body .app .aiScannerPanelV353 .aiSignalResultV353 {
+    display: grid !important;
+    grid-template-columns: 120px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 16px !important;
+
+    width: 100% !important;
+    min-height: 180px !important;
+
+    margin: 0 0 20px !important;
+    padding: 18px !important;
+
+    border-radius: 22px !important;
+    border: 1px solid #d5e5f5 !important;
+
+    background: linear-gradient(135deg, #fbfdff 0%, #f1f7fd 100%) !important;
+    color: #111923 !important;
+
+    box-shadow: 0 5px 14px rgba(30, 70, 110, .04) !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing {
+    width: 112px !important;
+    height: 112px !important;
+    min-width: 112px !important;
+    min-height: 112px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 50% !important;
+    border: 9px solid #1d83dc !important;
+    border-top-color: #a9cef4 !important;
+    border-left-color: #a9cef4 !important;
+
+    background: #ffffff !important;
+    box-shadow: inset 0 0 0 1px #e3edf7 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing strong {
+    color: #086dc5 !important;
+    -webkit-text-fill-color: #086dc5 !important;
+
+    font-size: 34px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing small {
+    max-width: 78px !important;
+    margin-top: 3px !important;
+
+    color: #7c8a99 !important;
+    -webkit-text-fill-color: #7c8a99 !important;
+
+    text-align: center !important;
+    font-size: 11px !important;
+    line-height: 1.12 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy {
+    min-width: 0 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy > small {
+    display: block !important;
+    margin-bottom: 5px !important;
+
+    color: #1a83dc !important;
+    -webkit-text-fill-color: #1a83dc !important;
+
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    letter-spacing: .4px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy h3 {
+    margin: 0 0 7px !important;
+
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+
+    font-size: 25px !important;
+    line-height: 1.05 !important;
+    font-weight: 900 !important;
+    letter-spacing: -.6px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy p {
+    margin: 0 0 10px !important;
+
+    color: #18222e !important;
+    -webkit-text-fill-color: #18222e !important;
+
+    font-size: 18px !important;
+    line-height: 1.22 !important;
+    font-weight: 500 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy em {
+    display: block !important;
+
+    color: #8693a2 !important;
+    -webkit-text-fill-color: #8693a2 !important;
+
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Footer resets base footer styling. */
+  html body .app .aiScannerPanelV353 > footer.aiScannerFooterV352 {
+    display: block !important;
+    width: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiTradeChoiceV352 {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px !important;
+
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352,
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiAutoChoiceV352 {
+    position: relative !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 176px !important;
+    height: auto !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+
+    margin: 0 !important;
+    padding: 18px 18px 36px !important;
+
+    border-radius: 20px !important;
+
+    text-align: left !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+  }
+
+  /* MANUAL card */
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352 {
+    background: #ffffff !important;
+    background-image: none !important;
+
+    border: 1px solid #d8e1eb !important;
+    box-shadow: 0 5px 16px rgba(20, 45, 75, .04) !important;
+
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 * {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 .aiChoiceIconV353 {
+    background: #ffffff !important;
+    border: 2px solid #1689df !important;
+    color: #1689df !important;
+    -webkit-text-fill-color: #1689df !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > span {
+    margin-top: 10px !important;
+    color: #1689df !important;
+    -webkit-text-fill-color: #1689df !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > strong {
+    margin-top: 5px !important;
+
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+
+    font-size: 22px !important;
+    line-height: 1.02 !important;
+    font-weight: 900 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > small {
+    margin-top: 10px !important;
+
+    color: #758495 !important;
+    -webkit-text-fill-color: #758495 !important;
+
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    font-weight: 500 !important;
+  }
+
+  /* AUTO card */
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiAutoChoiceV352 {
+    background: linear-gradient(145deg, #198fe8 0%, #0864dc 65%, #0759d1 100%) !important;
+
+    border: 1px solid #1787e2 !important;
+    box-shadow: 0 10px 24px rgba(14, 97, 208, .22) !important;
+
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 .aiChoiceIconV353 {
+    background: rgba(255,255,255,.08) !important;
+    border: 2px solid rgba(255,255,255,.9) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > span {
+    margin-top: 10px !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > strong {
+    margin-top: 5px !important;
+
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+
+    font-size: 22px !important;
+    line-height: 1.02 !important;
+    font-weight: 900 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > small {
+    margin-top: 10px !important;
+
+    color: rgba(255,255,255,.88) !important;
+    -webkit-text-fill-color: rgba(255,255,255,.88) !important;
+
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    font-weight: 500 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiChoiceIconV353 {
+    width: 46px !important;
+    height: 46px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    border-radius: 50% !important;
+
+    font-size: 24px !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+  }
+
+  /* Small arrow in bottom-right of both cards. */
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352::after,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352::after {
+    content: "›" !important;
+
+    position: absolute !important;
+    right: 16px !important;
+    bottom: 12px !important;
+
+    font-size: 34px !important;
+    line-height: 1 !important;
+    font-weight: 300 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352::after {
+    color: #1689df !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352::after {
+    color: #ffffff !important;
+  }
+
+  /* Rescan */
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiRescanV352 {
+    grid-column: 1 / -1 !important;
+
+    width: 100% !important;
+    min-height: 58px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+
+    margin: 0 !important;
+    padding: 10px 16px !important;
+
+    border-radius: 15px !important;
+    border: 2px solid #0873dc !important;
+
+    background: #ffffff !important;
+    color: #0873dc !important;
+    -webkit-text-fill-color: #0873dc !important;
+
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiRescanIconV353 {
+    color: #0873dc !important;
+    -webkit-text-fill-color: #0873dc !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+  }
+
+  /* Footer note */
+  html body .app .aiScannerPanelV353 .aiSafetyNoteV353 {
+    display: grid !important;
+    grid-template-columns: 46px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 12px !important;
+
+    width: 100% !important;
+
+    margin: 18px 0 0 !important;
+    padding: 0 2px !important;
+
+    color: #758495 !important;
+    -webkit-text-fill-color: #758495 !important;
+
+    font-size: 11px !important;
+    line-height: 1.42 !important;
+    font-weight: 500 !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSafetyIconV353 {
+    width: 46px !important;
+    height: 46px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    border: 1px solid #dce5ed !important;
+    border-radius: 13px !important;
+
+    background: #ffffff !important;
+    color: #253646 !important;
+    -webkit-text-fill-color: #253646 !important;
+
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+
+  /* Analyze button before a result exists */
+  html body .app .aiScannerPanelV353 .aiScanAgain {
+    width: 100% !important;
+    min-height: 58px !important;
+
+    margin: 0 !important;
+    padding: 12px 18px !important;
+
+    border: 0 !important;
+    border-radius: 15px !important;
+
+    background: linear-gradient(135deg, #178fe9, #0861d9) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    line-height: 1.1 !important;
+  }
+}
+
+/* Compact phones: preserve the same visual hierarchy without cropping. */
+@media screen and (max-width: 390px) {
+  html body .app .aiScannerPanelV353 .aiSignalResultV353 {
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing {
+    width: 88px !important;
+    height: 88px !important;
+    min-width: 88px !important;
+    min-height: 88px !important;
+    border-width: 7px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiConfidenceRing strong {
+    font-size: 27px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy h3 {
+    font-size: 20px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiSignalCopy p {
+    font-size: 15px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiTradeChoiceV352 {
+    gap: 8px !important;
+  }
+
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352,
+  html body .app .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiAutoChoiceV352 {
+    min-height: 164px !important;
+    padding: 14px 12px 34px !important;
+  }
+
+  html body .app .aiScannerPanelV353 .aiManualChoiceV352 > strong,
+  html body .app .aiScannerPanelV353 .aiAutoChoiceV352 > strong {
+    font-size: 18px !important;
+  }
+}
+
+/* Dark-theme counterpart: same geometry, dark surfaces only. */
+@media screen and (max-width: 760px) {
+  html body .app.theme-dark .aiScannerPanel.aiScannerPanelV353 {
+    background: #071421 !important;
+    color: #f4f8fc !important;
+    border-color: #1b3145 !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 > header h2,
+  html body .app.theme-dark .aiScannerPanelV353 .aiSignalCopy h3,
+  html body .app.theme-dark .aiScannerPanelV353 .aiSignalCopy p {
+    color: #f4f8fc !important;
+    -webkit-text-fill-color: #f4f8fc !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 .aiContextPillV353,
+  html body .app.theme-dark .aiScannerPanelV353 .aiSignalResultV353 {
+    background: #0b1b2a !important;
+    border-color: #20384d !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 .aiContextPillV353 {
+    color: #cbd6e1 !important;
+    -webkit-text-fill-color: #cbd6e1 !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 .aiContextPillV353 strong {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiManualChoiceV352 {
+    background: #0b1b2a !important;
+    border-color: #294056 !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 .aiManualChoiceV352 > strong {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 .aiManualChoiceV352 > small {
+    color: #9eafbf !important;
+    -webkit-text-fill-color: #9eafbf !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353
+  .aiTradeChoiceV352 > button.aiRescanV352 {
+    background: #071421 !important;
+    color: #5bb7ff !important;
+    -webkit-text-fill-color: #5bb7ff !important;
+    border-color: #258ee8 !important;
+  }
+
+  html body .app.theme-dark .aiScannerPanelV353 .aiRescanIconV353 {
+    color: #5bb7ff !important;
+    -webkit-text-fill-color: #5bb7ff !important;
+  }
+}

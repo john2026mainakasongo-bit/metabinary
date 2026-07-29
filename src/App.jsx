@@ -57,7 +57,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v352-ai-manual-or-auto-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v353-ai-scanner-mockup-design-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8837,9 +8837,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       )}
 
       {open && (
-        <section className="aiScannerPanel" style={panelStyle}>
+        <section className="aiScannerPanel aiScannerPanelV353" style={panelStyle}>
+          <span className="aiSheetHandleV353" aria-hidden="true"></span>
           <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={closeScanner}>×</button></header>
-          <div className="aiContextPill">Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></div>
+          <div className="aiContextPill aiContextPillV353"><span className="aiContextIconV353" aria-hidden="true">⌖</span><span>Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></span></div>
 
           {scanning && (
             <div className="aiScanningState" aria-live="polite">
@@ -8855,7 +8856,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
           )}
 
           {result && (
-            <div className="aiSignalResult">
+            <div className="aiSignalResult aiSignalResultV353">
               <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div>
               <div className="aiSignalCopy">
                 <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
@@ -8895,6 +8896,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
                       setOpen(false);
                     }}
                   >
+                    <i className="aiChoiceIconV353 aiChoiceManualIconV353" aria-hidden="true">♙</i>
                     <span>MANUAL</span>
                     <strong>Trade Manually</strong>
                     <small>Load this market + contract, then you choose when to enter.</small>
@@ -8908,6 +8910,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
                       if (started !== false) setOpen(false);
                     }}
                   >
+                    <i className="aiChoiceIconV353 aiChoiceAutoIconV353" aria-hidden="true">↗</i>
                     <span>AUTO</span>
                     <strong>Start Auto Trade</strong>
                     <small>Use the recommended setup for the automated session.</small>
@@ -8919,13 +8922,14 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
                     onClick={() => scan(false)}
                     disabled={scanning}
                   >
+                    <span className="aiRescanIconV353" aria-hidden="true">↻</span>
                     Scan another setup
                   </button>
                 </div>
               )}
             </footer>
           )}
-          <small className="aiSafetyNote">AI ranks current volatility markets and compares Even/Odd, Over/Under and Matches/Differs. You choose Manual Trade or Auto Trade after the scan. Results are not guaranteed.</small>
+          <small className="aiSafetyNote aiSafetyNoteV353"><span className="aiSafetyIconV353" aria-hidden="true">✓</span><span>AI compares current volatility markets across Even/Odd, Over/Under and Matches/Differs to recommend the best setup. Results are not guaranteed.</span></small>
         </section>
       )}
     </>
