@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-v361-dense-candles-scroll-history-2026-07-29";
+const BACKEND_BUILD = "metabinary-v363-real-candle-history-depth-2026-07-29";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -194,7 +194,7 @@ function syntheticDigitAt(market, slot) {
 }
 
 function syntheticMarketAt(market, slot, history = 360) {
-  const safeHistory = Math.max(60, Math.min(600, Math.floor(Number(history || 360))));
+  const safeHistory = Math.max(60, Math.min(43200, Math.floor(Number(history || 360))));
   const prices = [];
   const digitHistory = [];
 
