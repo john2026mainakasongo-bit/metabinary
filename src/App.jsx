@@ -105,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v366-visible-drawer-theme-toggle-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v367-theme-only-in-drawer-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8511,13 +8511,13 @@ function ToggleSetting({ label, description, checked, onChange }) {
   );
 }
 
-function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword, theme, setTheme }) {
+function SettingsPage({ user, busy, saveProfile, saveNotifications, changePassword }) {
   const defaultNotifications = { push: true, security: true, wallet: true, referrals: true, botSounds: true, takeProfitSound: true, stopLossSound: true, soundVolume: 70 };
   const [section, setSection] = useState(() => {
     try {
       const requested = window.sessionStorage.getItem("mb-settings-section");
       window.sessionStorage.removeItem("mb-settings-section");
-      return ["profile", "security", "notifications", "appearance"].includes(requested) ? requested : "profile";
+      return ["profile", "security", "notifications"].includes(requested) ? requested : "profile";
     } catch {
       return "profile";
     }
@@ -8540,53 +8540,11 @@ function SettingsPage({ user, busy, saveProfile, saveNotifications, changePasswo
     <div className="page settingsPage professionalSettingsPage">
       <section className="professionalSettingsHero"><button type="button" className="settingsBackV238" onClick={() => { window.location.hash = "#profile"; }}>‹ Profile</button><div className="settingsHeroIcon">⚙</div><div><small>ACCOUNT CONTROL CENTER</small><h1>Settings</h1><p>Manage identity, security and important alerts. Trading values are kept on trading screens.</p></div><div className="settingsAccountBadge"><span>{user?.verified ? "Verified account" : "Verification pending"}</span><strong>{user?.accountId || user?.brokerId || "MetaBinary"}</strong></div></section>
       <section className="professionalSettingsLayout">
-        <nav className="settingsSectionNav"><button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}><b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span></button><button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}><b>◆</b><span><strong>Security</strong><small>Change your password</small></span></button><button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}><b>🔔</b><span><strong>Notifications & sounds</strong><small>Important alerts only</small></span></button><button className={section === "appearance" ? "active" : ""} onClick={() => setSection("appearance")}><b>◐</b><span><strong>Appearance</strong><small>Black or white theme</small></span></button></nav>
+        <nav className="settingsSectionNav"><button className={section === "profile" ? "active" : ""} onClick={() => setSection("profile")}><b>♙</b><span><strong>Personal details</strong><small>Name, phone and country</small></span></button><button className={section === "security" ? "active" : ""} onClick={() => setSection("security")}><b>◆</b><span><strong>Security</strong><small>Change your password</small></span></button><button className={section === "notifications" ? "active" : ""} onClick={() => setSection("notifications")}><b>🔔</b><span><strong>Notifications & sounds</strong><small>Important alerts only</small></span></button></nav>
         <div className="settingsContentPanel">
           {section === "profile" && <form className="settingsFormCard" onSubmit={submitProfile}><header><div><small>PERSONAL DETAILS</small><h2>Profile information</h2></div><span className="settingsSecurePill">Protected</span></header><div className="settingsReadOnlyGrid"><label><span>Email address</span><strong>{user?.email || "—"}</strong><small>Email changes require support verification.</small></label><label><span>Broker account ID</span><strong>{user?.accountId || user?.brokerId || "—"}</strong><small>Your permanent account number.</small></label></div><div className="settingsInputGrid"><label><span>Full legal name</span><input value={profile.fullName} onChange={(event) => setProfile((old) => ({ ...old, fullName: event.target.value }))} required /></label><label><span>Phone number</span><input value={profile.phone} onChange={(event) => setProfile((old) => ({ ...old, phone: event.target.value }))} placeholder="07XXXXXXXX" inputMode="tel" required /></label><label><span>Country</span><select value={profile.country} onChange={(event) => setProfile((old) => ({ ...old, country: event.target.value }))}><option>Kenya</option></select></label><label><span>Verification</span><div className={user?.verified ? "settingsVerification verified" : "settingsVerification"}>{user?.verified ? "✓ Identity verified" : "Verification pending"}</div></label></div><footer><small>Used for ownership and payment verification.</small><button className="settingsSaveButton" disabled={busy === "profile"}>{busy === "profile" ? "Saving…" : "Save profile"}</button></footer></form>}
           {section === "security" && <form className="settingsFormCard" onSubmit={submitPassword}><header><div><small>ACCOUNT SECURITY</small><h2>Change password</h2></div><span className="settingsSecurePill">Encrypted</span></header><div className="settingsSecurityNotice"><b>Security recommendation</b><span>Use at least 8 characters. Password fields include show/hide controls.</span></div><div className="settingsPasswordGrid"><label><span>Current password</span><PasswordField value={passwords.currentPassword} onChange={(event) => setPasswords((old) => ({ ...old, currentPassword: event.target.value }))} autoComplete="current-password" /></label><label><span>New password</span><PasswordField value={passwords.newPassword} onChange={(event) => setPasswords((old) => ({ ...old, newPassword: event.target.value }))} autoComplete="new-password" minLength="8" /></label><label><span>Confirm new password</span><PasswordField value={passwords.confirmPassword} onChange={(event) => setPasswords((old) => ({ ...old, confirmPassword: event.target.value }))} autoComplete="new-password" minLength="8" />{passwordMismatch && <small className="settingsFieldError">Passwords do not match.</small>}</label></div><footer><small>Forgotten passwords can be reset from the Login page by email.</small><button className="settingsSaveButton" disabled={busy === "password" || passwordMismatch}>{busy === "password" ? "Changing…" : "Change password"}</button></footer></form>}
           {section === "notifications" && <section className="settingsFormCard notificationSettingsCard"><header><div><small>COMMUNICATIONS</small><h2>Notifications and bot sounds</h2></div><span className="settingsSecurePill">Account alerts</span></header><div className="settingsToggleList"><ToggleSetting label="In-app notifications" description="Show account updates in the notification center." checked={notificationPrefs.push} onChange={(value) => setNotificationPrefs((old) => ({ ...old, push: value }))} /><ToggleSetting label="Security alerts" description="Login and password events." checked={notificationPrefs.security} onChange={(value) => setNotificationPrefs((old) => ({ ...old, security: value }))} /><ToggleSetting label="Wallet updates" description="Deposits, withdrawals and reversals." checked={notificationPrefs.wallet} onChange={(value) => setNotificationPrefs((old) => ({ ...old, wallet: value }))} /><ToggleSetting label="Referral updates" description="New traders and earned 5% commissions." checked={notificationPrefs.referrals} onChange={(value) => setNotificationPrefs((old) => ({ ...old, referrals: value }))} /><ToggleSetting label="Bot sounds" description="Allow bot target and stop-loss sounds." checked={notificationPrefs.botSounds} onChange={(value) => setNotificationPrefs((old) => ({ ...old, botSounds: value }))} /><ToggleSetting label="Take-profit sound" description="Positive sound when the target is reached." checked={notificationPrefs.takeProfitSound} onChange={(value) => setNotificationPrefs((old) => ({ ...old, takeProfitSound: value }))} /><ToggleSetting label="Stop-loss warning" description="Warning alarm when stop loss is reached." checked={notificationPrefs.stopLossSound} onChange={(value) => setNotificationPrefs((old) => ({ ...old, stopLossSound: value }))} /><label className="soundVolumeSetting"><span><strong>Sound volume</strong><small>{Number(notificationPrefs.soundVolume || 0)}%</small></span><input type="range" min="0" max="100" value={notificationPrefs.soundVolume} onChange={(event) => setNotificationPrefs((old) => ({ ...old, soundVolume: Number(event.target.value) }))} /></label></div><footer><small>Browser sound begins after your first interaction.</small><button type="button" className="settingsSaveButton" onClick={submitNotifications} disabled={busy === "notifications"}>{busy === "notifications" ? "Saving…" : "Save preferences"}</button></footer></section>}
-          {section === "appearance" && (
-            <section className="settingsFormCard appearanceSettingsCard">
-              <header>
-                <div>
-                  <small>APPEARANCE</small>
-                  <h2>Choose your preferred theme</h2>
-                </div>
-                <span className="settingsSecurePill">Saved automatically</span>
-              </header>
-              <div className="themeChoiceGrid">
-                <button
-                  type="button"
-                  className={theme === "dark" ? "themeChoice active" : "themeChoice"}
-                  onClick={() => setTheme("dark")}
-                  aria-pressed={theme === "dark"}
-                >
-                  <span className="themePreview themePreviewDark">
-                    <i></i><i></i><i></i>
-                  </span>
-                  <strong>Black</strong>
-                  <small>Classic MetaBinary dark mode</small>
-                  <b>{theme === "dark" ? "✓ Selected" : "Select"}</b>
-                </button>
-                <button
-                  type="button"
-                  className={theme === "light" ? "themeChoice active" : "themeChoice"}
-                  onClick={() => setTheme("light")}
-                  aria-pressed={theme === "light"}
-                >
-                  <span className="themePreview themePreviewLight">
-                    <i></i><i></i><i></i>
-                  </span>
-                  <strong>White</strong>
-                  <small>Bright and clean light mode</small>
-                  <b>{theme === "light" ? "✓ Selected" : "Select"}</b>
-                </button>
-              </div>
-              <footer>
-                <small>Your selection stays saved on this device.</small>
-              </footer>
-            </section>
-          )}
         </div>
       </section>
     </div>

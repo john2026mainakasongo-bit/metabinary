@@ -13520,3 +13520,18 @@
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V367 — THEME CONTROL LIVES IN DRAWER ONLY
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body .app .settingsSectionNav button:has(strong:nth-child(1)) {
+    /* no-op compatibility rule */
+  }
+
+  html body .app .appearanceSettingsCard,
+  html body .app .themeChoiceGrid {
+    display: none !important;
+  }
+}
