@@ -1279,6 +1279,12 @@ function TradingApp() {
   );
 
   const [activePage, setActivePage] = useState(initialTradingPage);
+  useKeepTradingScreenAwake(
+    activePage === "trade" ||
+      activePage === "bots" ||
+      activePage === "botSetup" ||
+      activePage === "botLive"
+  );
   const [account, setAccount] = useState(() => readStore(STORE.account, "demo"));
   const [theme, setTheme] = useState(() => {
     const storedTheme = readStore(STORE.theme, "dark");
@@ -4626,12 +4632,6 @@ function TradingApp() {
 
 export default function App() {
   useDisableMobilePinchZoom();
-  useKeepTradingScreenAwake(
-    activePage === "trade" ||
-      activePage === "bots" ||
-      activePage === "botSetup" ||
-      activePage === "botLive"
-  );
   const params = new URLSearchParams(window.location.search);
   const adminMode = window.location.pathname.startsWith("/admin") || params.get("admin") === "1";
   return adminMode ? <AdminPortal /> : <TradingApp />;
