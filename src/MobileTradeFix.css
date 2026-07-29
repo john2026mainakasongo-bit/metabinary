@@ -13405,3 +13405,118 @@
     -webkit-text-fill-color: #91a4b7 !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V366 — ALWAYS-VISIBLE THEME SWITCH BETWEEN ACCOUNT AND TRADING
+   Dedicated row outside drawerAccount so no account-card sizing can clip it.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body .app .sideDrawer .drawerQuickThemeV366 {
+    flex: none !important;
+    width: 100% !important;
+    min-height: 62px !important;
+    height: 62px !important;
+    max-height: 62px !important;
+
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) 58px !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    margin: 0 !important;
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+
+    border: 1px solid #dfe6ee !important;
+    border-radius: 15px !important;
+
+    background: #f8fafc !important;
+    color: #17212c !important;
+
+    text-align: left !important;
+    box-shadow: none !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 3 !important;
+
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  html body .app .sideDrawer .drawerQuickThemeIconV366 {
+    width: 40px !important;
+    height: 40px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 12px !important;
+    background: #eef3f8 !important;
+    color: #667587 !important;
+    -webkit-text-fill-color: #667587 !important;
+    font-size: 25px !important;
+    line-height: 1 !important;
+    font-weight: 600 !important;
+  }
+
+  html body .app .sideDrawer .drawerQuickThemeLabelV366 {
+    color: #17212c !important;
+    -webkit-text-fill-color: #17212c !important;
+    font-size: 17px !important;
+    line-height: 1.1 !important;
+    font-weight: 800 !important;
+  }
+
+  html body .app .sideDrawer .drawerQuickThemeSwitchV366 {
+    position: relative !important;
+    width: 54px !important;
+    height: 32px !important;
+    justify-self: end !important;
+    border-radius: 999px !important;
+    background: #cfd6df !important;
+    transition: background .18s ease !important;
+  }
+
+  html body .app .sideDrawer .drawerQuickThemeSwitchV366 i {
+    position: absolute !important;
+    top: 4px !important;
+    left: 4px !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(16, 30, 45, .18) !important;
+    transform: translateX(0) !important;
+    transition: transform .18s ease !important;
+  }
+
+  html body .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeSwitchV366 {
+    background: #168ee8 !important;
+  }
+
+  html body .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeSwitchV366 i {
+    transform: translateX(22px) !important;
+  }
+
+  html body .app.theme-dark .sideDrawer .drawerQuickThemeV366 {
+    background: #0b1b2a !important;
+    border-color: #233a4f !important;
+    color: #f4f8fc !important;
+  }
+
+  html body .app.theme-dark .sideDrawer .drawerQuickThemeIconV366 {
+    background: #10263a !important;
+    color: #d6e6f5 !important;
+    -webkit-text-fill-color: #d6e6f5 !important;
+  }
+
+  html body .app.theme-dark .sideDrawer .drawerQuickThemeLabelV366 {
+    color: #f4f8fc !important;
+    -webkit-text-fill-color: #f4f8fc !important;
+  }
+
+  html body .app .sideDrawer .drawerThemeToggleV365 {
+    display: none !important;
+  }
+}

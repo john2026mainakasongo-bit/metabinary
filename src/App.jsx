@@ -105,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v364-natural-market-candles-clean-chart-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v366-visible-drawer-theme-toggle-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4542,6 +4542,8 @@ function TradingApp() {
           setActivePage={setActivePage}
           openDeposit={() => setDepositOpen(true)}
           openWithdraw={() => setWithdrawOpen(true)}
+          theme={theme}
+          setTheme={setTheme}
           logout={logout}
         />
       )}
@@ -8939,7 +8941,7 @@ function BottomNav({ activePage, setActivePage }) {
   );
 }
 
-function SideMenu({ user, account, setAccount, balance, close, setActivePage, openDeposit, openWithdraw, logout }) {
+function SideMenu({ user, account, setAccount, balance, close, setActivePage, openDeposit, openWithdraw, theme, setTheme, logout }) {
   function go(page) {
     setActivePage(page);
     close();
@@ -8975,7 +8977,23 @@ function SideMenu({ user, account, setAccount, balance, close, setActivePage, op
               Real
             </button>
           </div>
+
         </section>
+
+        <button
+          type="button"
+          className={`drawerQuickThemeV366 ${theme === "dark" ? "isDarkV366" : "isLightV366"}`}
+          role="switch"
+          aria-checked={theme === "dark"}
+          aria-label="Toggle dark theme"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          <span className="drawerQuickThemeIconV366" aria-hidden="true">☾</span>
+          <span className="drawerQuickThemeLabelV366">Dark theme</span>
+          <span className="drawerQuickThemeSwitchV366" aria-hidden="true">
+            <i></i>
+          </span>
+        </button>
 
         <div className="drawerGrid">
           <DrawerBlock title="TRADING">
