@@ -25,6 +25,64 @@ function ensureResponsiveViewportMeta() {
 ensureResponsiveViewportMeta();
 
 
+
+function useKeepTradingScreenAwake(active) {
+  useEffect(() => {
+    if (
+      !active ||
+      typeof navigator === "undefined" ||
+      !("wakeLock" in navigator)
+    ) {
+      return undefined;
+    }
+
+    let disposed = false;
+    let wakeLock = null;
+
+    const requestWakeLock = async () => {
+      if (disposed || document.visibilityState !== "visible") return;
+
+      try {
+        if (wakeLock && !wakeLock.released) return;
+
+        wakeLock = await navigator.wakeLock.request("screen");
+
+        wakeLock.addEventListener?.("release", () => {
+          wakeLock = null;
+        });
+      } catch (error) {
+        console.warn("MetaBinary screen wake lock unavailable:", error);
+      }
+    };
+
+    const restoreWakeLock = () => {
+      if (!disposed && document.visibilityState === "visible") {
+        void requestWakeLock();
+      }
+    };
+
+    void requestWakeLock();
+
+    document.addEventListener("visibilitychange", restoreWakeLock);
+    window.addEventListener("focus", restoreWakeLock);
+    window.addEventListener("pageshow", restoreWakeLock);
+
+    return () => {
+      disposed = true;
+
+      document.removeEventListener("visibilitychange", restoreWakeLock);
+      window.removeEventListener("focus", restoreWakeLock);
+      window.removeEventListener("pageshow", restoreWakeLock);
+
+      if (wakeLock && !wakeLock.released) {
+        wakeLock.release().catch(() => {});
+      }
+
+      wakeLock = null;
+    };
+  }, [active]);
+}
+
 function useDisableMobilePinchZoom() {
   useEffect(() => {
     // V358: keep MetaBinary at a fixed visual scale on mobile.
@@ -4568,6 +4626,12 @@ function TradingApp() {
 
 export default function App() {
   useDisableMobilePinchZoom();
+  useKeepTradingScreenAwake(
+    activePage === "trade" ||
+      activePage === "bots" ||
+      activePage === "botSetup" ||
+      activePage === "botLive"
+  );
   const params = new URLSearchParams(window.location.search);
   const adminMode = window.location.pathname.startsWith("/admin") || params.get("admin") === "1";
   return adminMode ? <AdminPortal /> : <TradingApp />;
