@@ -105,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v360-tradingview-candles-multi-risefall-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v361-dense-candles-scroll-history-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -6522,7 +6522,7 @@ function RiseFallCandleChart({
     }));
 
   const safeZoom = Math.max(0.75, Math.min(3, Number(zoom) || 1));
-  const visibleCount = Math.max(4, Math.round(48 / safeZoom));
+  const visibleCount = Math.max(18, Math.round(72 / safeZoom));
   const maxPan = Math.max(0, candles.length - Math.min(visibleCount, candles.length));
   const safePan = Math.max(0, Math.min(maxPan, Math.floor(Number(panOffset) || 0)));
   const endIndex = Math.max(0, candles.length - safePan);
@@ -6590,7 +6590,7 @@ function RiseFallCandleChart({
   const chartRight = Math.max(70, Math.min(97, Number(livePointX) || 94));
   const chartWidth = chartRight - chartLeft;
   const step = chartWidth / Math.max(1, visibleCandles.length);
-  const bodyWidth = Math.max(0.8, Math.min(4.6, step * 0.62));
+  const bodyWidth = Math.max(0.65, Math.min(3.2, step * 0.84));
 
   const y = (value) => {
     const point = chartBottom - ((Number(value) - min) / range) * (chartBottom - chartTop);
@@ -6702,6 +6702,12 @@ function TradePage({
   const [riseCandleTimeframe, setRiseCandleTimeframe] = useState("30s");
   const [riseChartZoom, setRiseChartZoom] = useState(1);
   const [riseChartPan, setRiseChartPan] = useState(0);
+  const [riseLongHistory, setRiseLongHistory] = useState({
+    marketId: "",
+    prices: [],
+    endSlot: null,
+    loading: false,
+  });
   const riseChartDragRef = useRef({ dragging: false, pointerId: null, startX: 0, startPan: 0 });
   const [pendingDigitVisualTrade, setPendingDigitVisualTrade] = useState(null);
   const pendingDigitVisualTimerRef = useRef(null);
@@ -6709,6 +6715,107 @@ function TradePage({
   useEffect(() => {
     setRiseChartPan(0);
   }, [binaryMarketId, riseCandleTimeframe, riseChartType]);
+
+  useEffect(() => {
+    if (!riseMode || !binaryMarketId) return undefined;
+
+    let disposed = false;
+    const controller = new AbortController();
+
+    setRiseLongHistory((current) => ({
+      ...current,
+      marketId: binaryMarketId,
+      loading: true,
+    }));
+
+    const loadRiseHistory = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/synthetic/market/${encodeURIComponent(binaryMarketId)}?history=43200`,
+          {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal,
+            headers: { Accept: "application/json" },
+          }
+        );
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || result.ok === false || !Array.isArray(result.market?.prices)) {
+          throw new Error(result.message || "Long chart history is unavailable.");
+        }
+
+        if (disposed) return;
+
+        setRiseLongHistory({
+          marketId: binaryMarketId,
+          prices: result.market.prices,
+          endSlot: Number(result.slot || result.market.endSlot || 0) || null,
+          loading: false,
+        });
+      } catch (error) {
+        if (disposed || error?.name === "AbortError") return;
+        console.warn("Rise/Fall long history could not be loaded:", error);
+        setRiseLongHistory((current) => ({
+          ...current,
+          marketId: binaryMarketId,
+          loading: false,
+        }));
+      }
+    };
+
+    void loadRiseHistory();
+
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
+  }, [riseMode, binaryMarketId]);
+
+  useEffect(() => {
+    if (!riseMode || !binaryMarketId) return;
+
+    const liveSlot = Number(sharedMarketSlot);
+    const livePrice = Number(prices?.[prices.length - 1]);
+
+    if (!Number.isFinite(liveSlot) || !Number.isFinite(livePrice)) return;
+
+    setRiseLongHistory((current) => {
+      if (current.marketId !== binaryMarketId || !Array.isArray(current.prices) || !current.prices.length) {
+        return current;
+      }
+
+      const currentEnd = Number(current.endSlot);
+      if (!Number.isFinite(currentEnd)) {
+        return {
+          ...current,
+          endSlot: liveSlot,
+          prices: [...current.prices.slice(-43199), livePrice],
+        };
+      }
+
+      if (liveSlot < currentEnd) return current;
+
+      if (liveSlot === currentEnd) {
+        const nextPrices = [...current.prices];
+        nextPrices[nextPrices.length - 1] = livePrice;
+        return { ...current, prices: nextPrices };
+      }
+
+      const missingSlots = Math.min(10, Math.max(0, liveSlot - currentEnd - 1));
+      const previous = Number(current.prices[current.prices.length - 1] ?? livePrice);
+      const bridge = Array.from({ length: missingSlots }, (_, index) => {
+        const progress = (index + 1) / (missingSlots + 1);
+        return previous + (livePrice - previous) * progress;
+      });
+
+      return {
+        ...current,
+        endSlot: liveSlot,
+        prices: [...current.prices, ...bridge, livePrice].slice(-43200),
+      };
+    });
+  }, [riseMode, binaryMarketId, sharedMarketSlot, prices]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -6853,6 +6960,21 @@ function TradePage({
     riseChartType === "candles"
       ? riseCandleTimeframeConfig.seconds * Math.max(4, Math.round(48 / riseChartZoom))
       : Math.max(28, Math.round(180 / riseChartZoom));
+  const riseHistoryReady =
+    riseMode &&
+    riseLongHistory.marketId === binaryMarketId &&
+    Array.isArray(riseLongHistory.prices) &&
+    riseLongHistory.prices.length > 10;
+
+  const riseChartPrices = riseHistoryReady
+    ? riseLongHistory.prices
+    : prices;
+
+  const riseChartEndSlot =
+    riseHistoryReady && Number.isFinite(Number(riseLongHistory.endSlot))
+      ? Number(riseLongHistory.endSlot)
+      : sharedMarketSlot;
+
   const riseChartPanSeconds =
     riseChartType === "candles"
       ? riseChartPan * riseCandleTimeframeConfig.seconds
@@ -6888,7 +7010,7 @@ function TradePage({
     if (!drag.dragging || drag.pointerId !== event.pointerId) return;
 
     const deltaX = event.clientX - drag.startX;
-    const stepPx = riseChartType === "candles" ? 18 : 5;
+    const stepPx = riseChartType === "candles" ? 8 : 4;
     const nextPan = Math.max(0, Math.round(drag.startPan + deltaX / stepPx));
 
     if (nextPan !== riseChartPan) {
@@ -7189,7 +7311,7 @@ function TradePage({
 
             {riseMode && riseChartType === "candles" ? (
               <RiseFallCandleChart
-                data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+                data={riseChartPrices.map((value) => value * Number(binaryMarket?.scale || 800))}
                 anchorValue={
                   primaryRiseFallTrade
                     ? activeTradeEntry * Number(binaryMarket?.scale || 800)
@@ -7198,13 +7320,13 @@ function TradePage({
                 timeframeSeconds={riseCandleTimeframeConfig.seconds}
                 zoom={riseChartZoom}
                 livePointX={94}
-                endSlot={sharedMarketSlot}
+                endSlot={riseChartEndSlot}
                 panOffset={riseChartPan}
                 entryTrades={riseEntryTrades}
               />
             ) : (
               <LineChart
-                data={prices.map((value) => value * Number(binaryMarket?.scale || 800))}
+                data={(riseMode ? riseChartPrices : prices).map((value) => value * Number(binaryMarket?.scale || 800))}
                 anchorValue={
                   riseMode && primaryRiseFallTrade
                     ? activeTradeEntry * Number(binaryMarket?.scale || 800)

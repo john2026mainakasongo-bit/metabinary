@@ -13159,3 +13159,59 @@
     color: #d9e5f1 !important;
   }
 }
+
+/* ==========================================================================
+   METABINARY V361 — DENSE CONTINUOUS CANDLES + DEEP HISTORY
+   - many candles visible at once
+   - candle bodies sit close together
+   - finished candles stay unchanged
+   - drag left/right to browse completed candles
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  html body .app.activePage-trade.riseFallActivePageV183 .riseCandleChartV183 {
+    overflow: hidden !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseCandleChartV183 .riseCandleBodyV183 {
+    shape-rendering: geometricPrecision !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseCandleChartV183 .closedV360,
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseCandleChartV183 .closedV360 * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  html body .app.activePage-trade.riseFallActivePageV183
+  .riseInteractiveChartV360.pannedV360::after {
+    content: "History · drag to browse · tap LIVE to return" !important;
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 8px !important;
+    transform: translateX(-50%) !important;
+    z-index: 18 !important;
+
+    padding: 5px 9px !important;
+    border-radius: 999px !important;
+
+    background: rgba(255,255,255,.88) !important;
+    border: 1px solid #dce6ef !important;
+    color: #637282 !important;
+
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    pointer-events: none !important;
+  }
+
+  html body .app.theme-dark.activePage-trade.riseFallActivePageV183
+  .riseInteractiveChartV360.pannedV360::after {
+    background: rgba(5,18,30,.9) !important;
+    border-color: #263d52 !important;
+    color: #aab9c7 !important;
+  }
+}

@@ -15,7 +15,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-v360-tradingview-candles-multi-risefall-2026-07-29";
+const BACKEND_BUILD = "metabinary-v361-dense-candles-scroll-history-2026-07-29";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -213,6 +213,8 @@ function syntheticMarketAt(market, slot, history = 360) {
     digitHistory,
     lastDigit: digitHistory[digitHistory.length - 1],
     currentPrice: prices[prices.length - 1],
+    startSlot: slot - safeHistory + 1,
+    endSlot: slot,
     updatedAt: slot * 1000,
   };
 }
@@ -1683,6 +1685,26 @@ app.get("/api/synthetic/markets", (req, res) => {
     tickMs: 1000,
     slot,
     markets,
+  });
+});
+
+app.get("/api/synthetic/market/:marketId", (req, res) => {
+  const market = resolveSyntheticMarket(req.params.marketId, req.params.marketId);
+  const history = Math.max(
+    600,
+    Math.min(43200, Math.floor(Number(req.query?.history || 43200)))
+  );
+  const serverTime = Date.now();
+  const slot = Math.floor(serverTime / 1000);
+  const snapshot = syntheticMarketAt(market, slot, history);
+
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.json({
+    ok: true,
+    serverTime,
+    tickMs: 1000,
+    slot,
+    market: snapshot,
   });
 });
 
