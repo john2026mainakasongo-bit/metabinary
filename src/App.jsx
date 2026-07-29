@@ -105,7 +105,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v361-dense-candles-scroll-history-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v362-fix-blank-screen-2026-07-29";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -6717,7 +6717,7 @@ function TradePage({
   }, [binaryMarketId, riseCandleTimeframe, riseChartType]);
 
   useEffect(() => {
-    if (!riseMode || !binaryMarketId) return undefined;
+    if (tradeType !== "Rise/Fall" || !binaryMarketId) return undefined;
 
     let disposed = false;
     const controller = new AbortController();
@@ -6770,10 +6770,10 @@ function TradePage({
       disposed = true;
       controller.abort();
     };
-  }, [riseMode, binaryMarketId]);
+  }, [tradeType, binaryMarketId]);
 
   useEffect(() => {
-    if (!riseMode || !binaryMarketId) return;
+    if (tradeType !== "Rise/Fall" || !binaryMarketId) return;
 
     const liveSlot = Number(sharedMarketSlot);
     const livePrice = Number(prices?.[prices.length - 1]);
@@ -6815,7 +6815,7 @@ function TradePage({
         prices: [...current.prices, ...bridge, livePrice].slice(-43200),
       };
     });
-  }, [riseMode, binaryMarketId, sharedMarketSlot, prices]);
+  }, [tradeType, binaryMarketId, sharedMarketSlot, prices]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
