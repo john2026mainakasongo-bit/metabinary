@@ -13905,3 +13905,157 @@
     margin-bottom: 0 !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V376 — REMOVE MOBILE TRADE BOTTOM GAP
+   Fixes Android/Chrome phones that still show a large empty black area
+   between ODD/EVEN and the fixed bottom navigation.
+
+   Strategy:
+   - make the Trade app shell use the full dynamic viewport height
+   - make mainScreen consume all space between app header and bottom nav
+   - make the digit trade page fill mainScreen
+   - let ONLY the chart card grow into any spare space
+   - keep tabs, digit board, stake controls and ODD/EVEN sizes stable
+   - no desktop/laptop changes
+   - no color/theme changes
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  html body #root .app.activePage-trade {
+    box-sizing: border-box !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  /* Keep the existing app header at its natural size. */
+  html body #root .app.activePage-trade > header,
+  html body #root .app.activePage-trade > .mobileHeader,
+  html body #root .app.activePage-trade > .mobileHeaderWrap {
+    flex: 0 0 auto !important;
+  }
+
+  /* Everything between the app header and bottom navigation must fill. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  > .mainScreen {
+    box-sizing: border-box !important;
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Fixed-size rows */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalContractTabs {
+    flex: 0 0 auto !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310 {
+    flex: 0 0 auto !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .proBinaryOrderCard.finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalTradeButtons,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .proTradeButtons.finalTradeButtons {
+    flex: 0 0 auto !important;
+  }
+
+  /* This is the only section allowed to consume extra vertical room. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 150px !important;
+    max-height: none !important;
+  }
+
+  /* Bottom navigation stays pinned and does not create a second blank row. */
+  html body #root .app.activePage-trade > .bottomNav,
+  html body #root .app.activePage-trade > nav.bottomNav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Medium-height phones: keep enough room for controls while still stretching
+   the chart to remove the blank gap. */
+@media screen and (max-width: 760px) and (min-height: 720px) and (max-height: 899px) {
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    min-height: 180px !important;
+  }
+}
+
+/* Extra-short phones: preserve visibility first. */
+@media screen and (max-width: 760px) and (max-height: 719px) {
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mobileDigitLiveChartV115 {
+    min-height: 132px !important;
+  }
+}
