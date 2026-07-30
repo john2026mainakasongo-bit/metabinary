@@ -7181,7 +7181,7 @@ function TradePage({
     );
   };
 
-  if (desktopTradeMode && !riseMode) {
+  if (desktopTradeMode) {
     return (
       <DesktopTradePage
         prices={prices}
@@ -7193,7 +7193,11 @@ function TradePage({
         setStake={setStake}
         duration={duration}
         setDuration={setDuration}
-        prediction={prediction}
+        
+        riseDurationValue={riseDurationValue}
+        setRiseDurationValue={setRiseDurationValue}
+        riseDurationUnit={riseDurationUnit}
+        setRiseDurationUnit={setRiseDurationUnit}prediction={prediction}
         setPrediction={setPrediction}
         lastDigit={lastDigit}
         digitStats={digitStats}
