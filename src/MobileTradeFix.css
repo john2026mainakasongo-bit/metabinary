@@ -16729,3 +16729,81 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V405 — USE BOTTOM SPACE FOR CHART ONLY
+
+   V404 fixed the cross-phone cursor/layout consistency.
+   The remaining issue is only unused vertical space below ODD/EVEN.
+
+   This patch keeps ALL V404 geometry/cursor rules and only gives that spare
+   visible height to the live chart, which naturally pushes:
+   digits -> controls -> ODD/EVEN downward toward the bottom nav.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body #root .app.activePage-trade:not(.riseFallActivePageV183) {
+    /* Increase chart by using more of the actual visible viewport.
+       clamp protects short phones from overflow. */
+    --mb-v404-chart-h:
+      clamp(
+        230px,
+        calc(100dvh - 405px - env(safe-area-inset-bottom, 0px)),
+        500px
+      ) !important;
+  }
+
+  /* Keep the lower stack tight so all spare room stays in the chart. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310 {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proBinaryOrderCard.finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalTradeButtons,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeButtons.finalTradeButtons {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Short viewport protection */
+@media screen and (max-width: 760px) and (max-height: 700px) {
+  html body #root .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-v404-chart-h:
+      clamp(
+        135px,
+        calc(100dvh - 395px - env(safe-area-inset-bottom, 0px)),
+        265px
+      ) !important;
+  }
+}
+
+/* Tall phones get more chart, never a bottom blank zone. */
+@media screen and (max-width: 760px) and (min-height: 900px) {
+  html body #root .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-v404-chart-h:
+      clamp(
+        300px,
+        calc(100dvh - 405px - env(safe-area-inset-bottom, 0px)),
+        540px
+      ) !important;
+  }
+}
+
