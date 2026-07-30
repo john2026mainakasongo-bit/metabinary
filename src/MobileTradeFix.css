@@ -14622,3 +14622,261 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V385 — LAPTOP WALLET THEME MATCH
+   Desktop/laptop account pill now mirrors the mobile wallet:
+   real = round USD flag + balance + chevron
+   demo = compact DEMO badge + balance + chevron
+   geometry is identical in light/dark; only palette changes.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+  html body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    all: unset !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 176px !important;
+    min-width: 176px !important;
+    max-width: 176px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    display: block !important;
+    overflow: hidden !important;
+    border-radius: 14px !important;
+    cursor: pointer !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .brokerWallet > .usdWalletSelectorV12,
+  html body #root .app .cleanBrokerHeader .brokerWallet > .demoWalletSelectorV12 {
+    all: unset !important;
+    box-sizing: border-box !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 0 28px 0 9px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .usdFlagCircleV12 {
+    all: unset !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 27px !important;
+    width: 27px !important;
+    height: 27px !important;
+    min-width: 27px !important;
+    display: block !important;
+    overflow: hidden !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(255,255,255,.45) !important;
+    background: repeating-linear-gradient(
+      to bottom,
+      #c62036 0 2.05px,
+      #ffffff 2.05px 4.1px
+    ) !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.12) !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .usdFlagStarsV12 {
+    all: unset !important;
+    box-sizing: border-box !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 54% !important;
+    height: 53% !important;
+    display: block !important;
+    background:
+      radial-gradient(circle, #fff 0 .55px, transparent .75px) 1px 1px / 3.2px 3.2px,
+      #253d82 !important;
+    border-radius: 50% 0 2px 0 !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .usdWalletInlineV12,
+  html body #root .app .cleanBrokerHeader .demoWalletInlineV12 {
+    all: unset !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    display: block !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 14px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    letter-spacing: -.2px !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .demoWalletBadgeV12 {
+    all: unset !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    height: 24px !important;
+    padding: 0 7px !important;
+    border-radius: 999px !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    letter-spacing: .55px !important;
+  }
+
+  /* Chevron, whether it is a direct child or legacy final span/b tag. */
+  html body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton::after {
+    content: "⌄" !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-54%) !important;
+    z-index: 4 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    pointer-events: none !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton:hover {
+    transform: translateY(-1px) !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton:active {
+    transform: translateY(0) !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton:focus-visible {
+    outline: 2px solid #168cff !important;
+    outline-offset: 2px !important;
+  }
+
+  /* ================= DARK ================= */
+  html[data-theme="dark"] body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  body[data-theme="dark"] #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  body #root .app.theme-dark .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    background: #081827 !important;
+    background-image: none !important;
+    border: 1px solid #28445e !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 4px 12px rgba(0,0,0,.13) !important;
+  }
+
+  html[data-theme="dark"] body #root .app .cleanBrokerHeader .usdWalletInlineV12,
+  html[data-theme="dark"] body #root .app .cleanBrokerHeader .demoWalletInlineV12,
+  body[data-theme="dark"] #root .app .cleanBrokerHeader .usdWalletInlineV12,
+  body[data-theme="dark"] #root .app .cleanBrokerHeader .demoWalletInlineV12,
+  body #root .app.theme-dark .cleanBrokerHeader .usdWalletInlineV12,
+  body #root .app.theme-dark .cleanBrokerHeader .demoWalletInlineV12 {
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+  }
+
+  html[data-theme="dark"] body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton::after,
+  body[data-theme="dark"] #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton::after,
+  body #root .app.theme-dark .cleanBrokerHeader .brokerWallet.accountSelectorButton::after {
+    color: #8196aa !important;
+  }
+
+  html[data-theme="dark"] body #root .app .cleanBrokerHeader .demoWalletBadgeV12,
+  body[data-theme="dark"] #root .app .cleanBrokerHeader .demoWalletBadgeV12,
+  body #root .app.theme-dark .cleanBrokerHeader .demoWalletBadgeV12 {
+    color: #78beff !important;
+    background: rgba(20,120,220,.13) !important;
+    border: 1px solid rgba(75,157,235,.32) !important;
+  }
+
+  /* ================= LIGHT ================= */
+  html[data-theme="light"] body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  body[data-theme="light"] #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton,
+  body #root .app.theme-light .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    background: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #d8e0e9 !important;
+    box-shadow: 0 3px 10px rgba(31,52,76,.07) !important;
+  }
+
+  html[data-theme="light"] body #root .app .cleanBrokerHeader .usdWalletInlineV12,
+  html[data-theme="light"] body #root .app .cleanBrokerHeader .demoWalletInlineV12,
+  body[data-theme="light"] #root .app .cleanBrokerHeader .usdWalletInlineV12,
+  body[data-theme="light"] #root .app .cleanBrokerHeader .demoWalletInlineV12,
+  body #root .app.theme-light .cleanBrokerHeader .usdWalletInlineV12,
+  body #root .app.theme-light .cleanBrokerHeader .demoWalletInlineV12 {
+    color: #101a27 !important;
+    -webkit-text-fill-color: #101a27 !important;
+  }
+
+  html[data-theme="light"] body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton::after,
+  body[data-theme="light"] #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton::after,
+  body #root .app.theme-light .cleanBrokerHeader .brokerWallet.accountSelectorButton::after {
+    color: #647487 !important;
+  }
+
+  html[data-theme="light"] body #root .app .cleanBrokerHeader .demoWalletBadgeV12,
+  body[data-theme="light"] #root .app .cleanBrokerHeader .demoWalletBadgeV12,
+  body #root .app.theme-light .cleanBrokerHeader .demoWalletBadgeV12 {
+    color: #0876d5 !important;
+    background: #eef7ff !important;
+    border: 1px solid #c9e4fb !important;
+  }
+
+  /* Theme-aware dropdown/picker, same geometry in both themes. */
+  html[data-theme="dark"] body #root .app .accountPickerPanel,
+  body[data-theme="dark"] #root .app .accountPickerPanel,
+  body #root .app.theme-dark .accountPickerPanel {
+    background: #071522 !important;
+    border-color: #28445e !important;
+    color: #f8fbff !important;
+  }
+
+  html[data-theme="light"] body #root .app .accountPickerPanel,
+  body[data-theme="light"] #root .app .accountPickerPanel,
+  body #root .app.theme-light .accountPickerPanel {
+    background: #ffffff !important;
+    border-color: #dbe3eb !important;
+    color: #101a27 !important;
+    box-shadow: 0 18px 45px rgba(21,42,65,.14) !important;
+  }
+
+  html[data-theme="light"] body #root .app .accountPickerPanel button,
+  html[data-theme="light"] body #root .app .accountPickerPanel strong,
+  body[data-theme="light"] #root .app .accountPickerPanel button,
+  body[data-theme="light"] #root .app .accountPickerPanel strong,
+  body #root .app.theme-light .accountPickerPanel button,
+  body #root .app.theme-light .accountPickerPanel strong {
+    color: #101a27 !important;
+  }
+
+  html[data-theme="light"] body #root .app .accountPickerPanel small,
+  body[data-theme="light"] #root .app .accountPickerPanel small,
+  body #root .app.theme-light .accountPickerPanel small {
+    color: #6d7d8f !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1280px) {
+  html body #root .app .cleanBrokerHeader .brokerWallet.accountSelectorButton {
+    width: 158px !important;
+    min-width: 158px !important;
+    max-width: 158px !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .usdWalletInlineV12,
+  html body #root .app .cleanBrokerHeader .demoWalletInlineV12 {
+    font-size: 13px !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .usdFlagCircleV12 {
+    flex-basis: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+  }
+}
+
