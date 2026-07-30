@@ -1599,3 +1599,167 @@
     font-size: 15px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V381 — LAPTOP FULL FUNCTION PASS
+   Desktop/laptop only. Mobile/tablet below 1024px is untouched.
+   ========================================================================== */
+@media screen and (min-width: 1024px) {
+  /* Keep the workspace above old overlays and make every desktop control clickable. */
+  .app.activePage-trade .mbDesktopTradeV81 {
+    position: relative !important;
+    z-index: 2 !important;
+    pointer-events: auto !important;
+  }
+
+  .app.activePage-trade .mbDeskActivityV81,
+  .app.activePage-trade .mbDeskCenterV81,
+  .app.activePage-trade .mbDeskChartPanelV81,
+  .app.activePage-trade .mbDeskChartToolbarV81,
+  .app.activePage-trade .mbDeskTradePanelV81,
+  .app.activePage-trade .mbDeskFooterV81 {
+    pointer-events: auto !important;
+  }
+
+  .app.activePage-trade .mbDeskChartToolbarV81 button,
+  .app.activePage-trade .mbDeskChartToolbarV81 select,
+  .app.activePage-trade .mbDeskTradeTabsV81 button,
+  .app.activePage-trade .mbDeskStakeControlV81 button,
+  .app.activePage-trade .mbDeskStakeControlV81 input,
+  .app.activePage-trade .mbDeskQuickStakeV81 button,
+  .app.activePage-trade .mbDeskDurationV81 button,
+  .app.activePage-trade .mbDeskActionV81,
+  .app.activePage-trade .mbDeskAiCardV81,
+  .app.activePage-trade .mbDeskHistoryBtnV81,
+  .app.activePage-trade .mbDeskFooterV81 button {
+    position: relative !important;
+    z-index: 5 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+
+  .app.activePage-trade button:disabled,
+  .app.activePage-trade input:disabled,
+  .app.activePage-trade select:disabled {
+    cursor: not-allowed !important;
+  }
+
+  /* Full-card market selector stays clickable without covering anything outside its card. */
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+  }
+
+  .app.activePage-trade .mbDeskWholeCardMarketSelectV89 {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 20 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0.001 !important;
+    pointer-events: auto !important;
+  }
+
+  .app.activePage-trade .mbDeskFloatingMarketNameV90,
+  .app.activePage-trade .mbDeskFloatingMarketIconV88,
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 small,
+  .app.activePage-trade .mbDeskFloatingMarketSelectorV88 > b {
+    pointer-events: none !important;
+  }
+
+  /* Real Rise/Fall duration controls for desktop. */
+  .app.activePage-trade .mbDeskDurationV81.riseFallDuration {
+    grid-template-columns: auto minmax(180px, 1fr) !important;
+    row-gap: 7px !important;
+  }
+
+  .app.activePage-trade .mbDeskRiseDurationUnitsV381 {
+    grid-column: 2 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    height: 30px !important;
+    gap: 6px !important;
+    background: transparent !important;
+    border: 0 !important;
+    overflow: visible !important;
+  }
+
+  .app.activePage-trade .mbDeskRiseDurationUnitsV381 button {
+    height: 30px !important;
+    min-height: 30px !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    border-radius: 7px !important;
+    background: #07111f !important;
+    color: #91a0b4 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+  }
+
+  .app.activePage-trade .mbDeskRiseDurationUnitsV381 button.active {
+    border-color: #168cff !important;
+    background: rgba(22,140,255,.12) !important;
+    color: #5db2ff !important;
+  }
+
+  /* Keep right-side trade controls visible on ordinary 1366x768 laptops. */
+  .app.activePage-trade .mbDeskTradePanelV81 {
+    overscroll-behavior: contain !important;
+    scrollbar-gutter: stable !important;
+  }
+
+  .app.activePage-trade .mbDeskActionV81 {
+    flex: 0 0 auto !important;
+  }
+
+  /* Native menus must remain readable. */
+  .app.activePage-trade .mbDeskChartToolbarV81 select option,
+  .app.activePage-trade .mbDeskWholeCardMarketSelectV89 option {
+    color: #f4f8ff !important;
+    background: #07111f !important;
+  }
+
+  /* Toolbar and trade buttons visibly respond to interaction. */
+  .app.activePage-trade .mbDeskChartToolbarV81 button:hover,
+  .app.activePage-trade .mbDeskTradeTabsV81 button:hover:not(:disabled),
+  .app.activePage-trade .mbDeskQuickStakeV81 button:hover:not(:disabled),
+  .app.activePage-trade .mbDeskDurationV81 button:hover:not(:disabled) {
+    border-color: rgba(31,140,255,.55) !important;
+    color: #fff !important;
+  }
+
+  .app.activePage-trade .mbDeskActionV81:not(:disabled):hover {
+    filter: brightness(1.06) !important;
+  }
+
+  .app.activePage-trade .mbDeskAiCardV81:hover {
+    border-color: rgba(124,110,255,.9) !important;
+  }
+}
+
+/* Short laptop screens: scroll only the right control column, never the whole page. */
+@media screen and (min-width: 1024px) and (max-height: 820px) {
+  .app.activePage-trade .mbDeskTradePanelV81 {
+    overflow-y: auto !important;
+    padding-bottom: 10px !important;
+  }
+
+  .app.activePage-trade .mbDeskActionV81 {
+    min-height: 72px !important;
+  }
+
+  .app.activePage-trade .mbDeskAiCardV81 {
+    min-height: 54px !important;
+  }
+
+  .app.activePage-trade .mbDeskDurationV81.riseFallDuration {
+    row-gap: 5px !important;
+  }
+
+  .app.activePage-trade .mbDeskRiseDurationUnitsV381,
+  .app.activePage-trade .mbDeskRiseDurationUnitsV381 button {
+    height: 27px !important;
+    min-height: 27px !important;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Desktop-only MetaBinary trade workspace.
@@ -19,6 +19,10 @@ export default function DesktopTradePage({
   setStake,
   duration,
   setDuration,
+  riseDurationValue,
+  setRiseDurationValue,
+  riseDurationUnit,
+  setRiseDurationUnit,
   prediction,
   setPrediction,
   lastDigit,
@@ -55,7 +59,13 @@ export default function DesktopTradePage({
   const [timeframe, setTimeframe] = useState("1S");
   const [showIndicators, setShowIndicators] = useState(false);
   const [chartMode, setChartMode] = useState("area");
+  const [serverTime, setServerTime] = useState(() => new Date());
   const chartPanelRef = useRef(null);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setServerTime(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const recentTrades = (Array.isArray(closedPositions) ? closedPositions : [])
     .filter((item) => !item?.account || item.account === account)
     .slice(-7)
@@ -68,17 +78,8 @@ export default function DesktopTradePage({
   };
 
   const openAiScanner = () => {
-    const launcher = document.querySelector(".floatingAiButton.aiPage-trade");
-    if (!launcher) {
-      window.location.hash = "ai";
-      return;
-    }
-
-    try {
-      launcher.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 1 }));
-    } catch {
-      launcher.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    }
+    // Desktop should not depend on the hidden floating mobile AI launcher.
+    window.location.hash = "ai";
   };
 
   const toggleFullscreen = async () => {
@@ -95,10 +96,56 @@ export default function DesktopTradePage({
   const openTrades = useMemo(() => activeBinaryTrade ? [activeBinaryTrade] : [], [activeBinaryTrade]);
 
   const scale = Number(binaryMarket?.scale || 800);
-  const chartData = prices.map((value) => value * scale);
+  const timeframeStep = timeframe === "10S" ? 10 : timeframe === "5S" ? 5 : 1;
+  const sampledPrices = useMemo(() => {
+    const source = Array.isArray(prices) ? prices : [];
+    if (timeframeStep <= 1) return source;
+    const sampled = source.filter((_, index) => index % timeframeStep === 0);
+    if (source.length && sampled[sampled.length - 1] !== source[source.length - 1]) {
+      sampled.push(source[source.length - 1]);
+    }
+    return sampled;
+  }, [prices, timeframeStep]);
+  const chartData = sampledPrices.map((value) => Number(value || 0) * scale);
   const chartAnchor = activeBinaryTrade && tradeType === "Rise/Fall"
     ? activeTradeEntry * scale
     : null;
+
+  const chartTimeLabels = useMemo(() => {
+    const secondsBack = timeframeStep * 15;
+    return Array.from({ length: 8 }, (_, index) => {
+      const time = new Date(serverTime.getTime() - (7 - index) * secondsBack * 1000);
+      return time.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: timeframe === "1S" ? "2-digit" : undefined,
+        hour12: false,
+      });
+    });
+  }, [serverTime, timeframe, timeframeStep]);
+
+  const isRiseFall = tradeType === "Rise/Fall";
+  const desktopDurationValue = isRiseFall
+    ? Math.max(1, Number(riseDurationValue) || 1)
+    : Math.max(1, Number(duration) || 1);
+  const desktopDurationUnit = isRiseFall ? (riseDurationUnit || "seconds") : "ticks";
+
+  const decrementDuration = () => {
+    if (isRiseFall && typeof setRiseDurationValue === "function") {
+      setRiseDurationValue(Math.max(1, desktopDurationValue - 1));
+      return;
+    }
+    setDuration(Math.max(1, Number(duration) - 1));
+  };
+
+  const incrementDuration = () => {
+    if (isRiseFall && typeof setRiseDurationValue === "function") {
+      const max = desktopDurationUnit === "minutes" ? 5 : 60;
+      setRiseDurationValue(Math.min(max, desktopDurationValue + 1));
+      return;
+    }
+    setDuration(Math.min(10, Number(duration) + 1));
+  };
 
   return (
     <div className="page mbDesktopTradeV81 mbDesktopTradeSplitV83">
@@ -267,8 +314,9 @@ export default function DesktopTradePage({
           </div>
 
           <div className="mbDeskTimeAxisV81">
-            <span>18:38:05</span><span>18:38:20</span><span>18:38:35</span><span>18:38:50</span>
-            <span>18:39:05</span><span>18:39:20</span><span>18:39:35</span><span>18:39:50</span>
+            {chartTimeLabels.map((label, index) => (
+              <span key={`${label}-${index}`}>{label}</span>
+            ))}
           </div>
 
           <div className={`mbDeskDigitsV81 ${activeBinaryTrade ? "tradeRunning" : ""}`}>
@@ -347,13 +395,50 @@ export default function DesktopTradePage({
           ))}
         </div>
 
-        <div className="mbDeskDurationV81">
+        <div className={`mbDeskDurationV81 ${isRiseFall ? "riseFallDuration" : ""}`}>
           <span>Duration</span>
           <div>
-            <button type="button" onClick={() => setDuration(Math.max(1, Number(duration) - 1))} disabled={Boolean(activeBinaryTrade)}>−</button>
-            <strong>{duration} tick{Number(duration) === 1 ? "" : "s"}</strong>
-            <button type="button" onClick={() => setDuration(Math.min(10, Number(duration) + 1))} disabled={Boolean(activeBinaryTrade)}>+</button>
+            <button type="button" onClick={decrementDuration} disabled={Boolean(activeBinaryTrade)}>−</button>
+            <strong>
+              {desktopDurationValue}{" "}
+              {desktopDurationUnit === "ticks"
+                ? `tick${desktopDurationValue === 1 ? "" : "s"}`
+                : desktopDurationUnit === "minutes"
+                  ? `min${desktopDurationValue === 1 ? "" : "s"}`
+                  : `sec${desktopDurationValue === 1 ? "" : "s"}`}
+            </strong>
+            <button type="button" onClick={incrementDuration} disabled={Boolean(activeBinaryTrade)}>+</button>
           </div>
+          {isRiseFall && typeof setRiseDurationUnit === "function" ? (
+            <div className="mbDeskRiseDurationUnitsV381">
+              <button
+                type="button"
+                className={desktopDurationUnit === "seconds" ? "active" : ""}
+                onClick={() => {
+                  setRiseDurationUnit("seconds");
+                  if (typeof setRiseDurationValue === "function") {
+                    setRiseDurationValue(Math.min(60, desktopDurationValue));
+                  }
+                }}
+                disabled={Boolean(activeBinaryTrade)}
+              >
+                Seconds
+              </button>
+              <button
+                type="button"
+                className={desktopDurationUnit === "minutes" ? "active" : ""}
+                onClick={() => {
+                  setRiseDurationUnit("minutes");
+                  if (typeof setRiseDurationValue === "function") {
+                    setRiseDurationValue(Math.min(5, desktopDurationValue));
+                  }
+                }}
+                disabled={Boolean(activeBinaryTrade)}
+              >
+                Minutes
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className="mbDeskPayoutLineV81">
@@ -382,7 +467,7 @@ export default function DesktopTradePage({
 
       <footer className="mbDeskFooterV81">
         <span><i></i> Connected</span>
-        <small>Server Time: {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })} (UTC+3)</small>
+        <small>Server Time: {serverTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })} (UTC+3)</small>
         <strong>◈ Secured by MetaBinary</strong>
         <button type="button" onClick={() => { window.location.hash = "settings"; }}>⚙</button>
       </footer>
