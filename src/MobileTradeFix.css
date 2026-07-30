@@ -16135,3 +16135,487 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V396 — COMPACT VOLATILITY SELECTOR
+   Mobile/tablet only.
+   - keeps ALL existing volatility markets and names unchanged
+   - selected-market control becomes a compact card instead of full width
+   - selector opens near the upper part of the screen
+   - popup never stretches to the bottom; list scrolls inside
+   - light/dark palettes preserved
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+
+  /* ------------------------------------------------------------
+     DIGIT CONTRACT selected-market card
+     Reference: compact floating market card at upper-left of chart.
+     ------------------------------------------------------------ */
+  html body #root .app .mobileDigitLiveChartV115 {
+    position: relative !important;
+    padding-top: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body #root .app .mobileDigitMarketHeadV115 {
+    box-sizing: border-box !important;
+    width: min(74%, 330px) !important;
+    min-width: 245px !important;
+    max-width: 330px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    margin: 0 0 6px 0 !important;
+    padding: 8px 11px !important;
+
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) 18px !important;
+    align-items: center !important;
+    gap: 9px !important;
+
+    border-radius: 15px !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+  }
+
+  html body #root .app .mobileDigitMarketBadgeV115 {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 11px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  html body #root .app .mobileDigitMarketCopyV115 {
+    min-width: 0 !important;
+    display: grid !important;
+    align-content: center !important;
+    gap: 3px !important;
+  }
+
+  html body #root .app .mobileDigitMarketCopyV115 strong {
+    display: block !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+    line-height: 1.05 !important;
+    font-weight: 900 !important;
+  }
+
+  html body #root .app .mobileDigitMarketCopyV115 small {
+    display: block !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 750 !important;
+  }
+
+  /* LIVE stays on the main chart, so don't let it make the compact card wide. */
+  html body #root .app .mobileDigitMarketLiveV115 {
+    display: none !important;
+  }
+
+  html body #root .app .mobileDigitMarketChevronV115 {
+    position: static !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+  }
+
+  /* Dark compact selected market */
+  html body #root .app.theme-dark .mobileDigitMarketHeadV115 {
+    color: #f7fbff !important;
+    background: #171d2a !important;
+    background-image: none !important;
+    border: 1px solid #32384a !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18) !important;
+  }
+
+  html body #root .app.theme-dark .mobileDigitMarketBadgeV115 {
+    color: #67b8ff !important;
+    background: #20283a !important;
+  }
+
+  html body #root .app.theme-dark .mobileDigitMarketCopyV115 strong {
+    color: #f7fbff !important;
+    -webkit-text-fill-color: #f7fbff !important;
+  }
+
+  html body #root .app.theme-dark .mobileDigitMarketCopyV115 small {
+    color: #a1adbd !important;
+  }
+
+  html body #root .app.theme-dark .mobileDigitMarketChevronV115 {
+    color: #95a3b3 !important;
+  }
+
+  /* Light compact selected market */
+  html body #root .app.theme-light .mobileDigitMarketHeadV115 {
+    color: #111923 !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #d9e2eb !important;
+    box-shadow: 0 7px 20px rgba(27,48,71,.09) !important;
+  }
+
+  html body #root .app.theme-light .mobileDigitMarketBadgeV115 {
+    color: #087cf0 !important;
+    background: #edf6ff !important;
+  }
+
+  html body #root .app.theme-light .mobileDigitMarketCopyV115 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .mobileDigitMarketCopyV115 small {
+    color: #6a7b8e !important;
+  }
+
+  html body #root .app.theme-light .mobileDigitMarketChevronV115 {
+    color: #66798d !important;
+  }
+
+  /* ------------------------------------------------------------
+     RISE/FALL + price contracts market selector.
+     Keep it compact too instead of spanning the entire phone.
+     ------------------------------------------------------------ */
+  html body #root .app .volatilitySwitchBar {
+    box-sizing: border-box !important;
+    width: min(74%, 330px) !important;
+    min-width: 245px !important;
+    max-width: 330px !important;
+    min-height: 0 !important;
+    height: 64px !important;
+    margin: 5px 0 5px 12px !important;
+    padding: 0 !important;
+    justify-self: start !important;
+    align-self: start !important;
+    overflow: visible !important;
+  }
+
+  html body #root .app .volatilitySwitchButton {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    padding: 8px 11px !important;
+
+    display: grid !important;
+    grid-template-columns: 42px minmax(0,1fr) 18px !important;
+    align-items: center !important;
+    gap: 9px !important;
+
+    border-radius: 15px !important;
+    overflow: hidden !important;
+  }
+
+  html body #root .app .volatilitySwitchBadge {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 11px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+  }
+
+  html body #root .app .volatilitySwitchCopy {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 3px !important;
+  }
+
+  html body #root .app .volatilitySwitchCopy small {
+    font-size: 7px !important;
+    line-height: 1 !important;
+    letter-spacing: .45px !important;
+  }
+
+  html body #root .app .volatilitySwitchCopy strong {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+    line-height: 1.05 !important;
+  }
+
+  html body #root .app .volatilitySwitchLive {
+    display: none !important;
+  }
+
+  html body #root .app .volatilitySwitchChevron {
+    position: static !important;
+    width: 18px !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 16px !important;
+  }
+
+  /* ------------------------------------------------------------
+     OPEN MARKET PANEL
+     Compact top sheet: enough space for all current volatility names,
+     but panel itself doesn't continue to bottom of screen.
+     ------------------------------------------------------------ */
+  html body .marketOverlayRootV222 {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
+    display: block !important;
+    padding: 0 !important;
+    pointer-events: auto !important;
+  }
+
+  html body .marketMenuBackdropV222 {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(3,10,18,.56) !important;
+    backdrop-filter: blur(2px) !important;
+  }
+
+  html body .marketSelectorPanelV222 {
+    box-sizing: border-box !important;
+    position: absolute !important;
+    top: max(82px, calc(env(safe-area-inset-top, 0px) + 68px)) !important;
+    left: 50% !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+
+    width: min(92vw, 410px) !important;
+    max-width: 410px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(68dvh, 570px) !important;
+
+    display: grid !important;
+    grid-template-rows: auto minmax(0,1fr) !important;
+    overflow: hidden !important;
+
+    border-radius: 19px !important;
+    box-shadow: 0 22px 64px rgba(0,0,0,.34) !important;
+  }
+
+  html body .marketSelectorHeaderV222 {
+    box-sizing: border-box !important;
+    min-height: 72px !important;
+    padding: 13px 14px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 40px !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  html body .marketSelectorHeaderV222 > div {
+    min-width: 0 !important;
+  }
+
+  html body .marketSelectorHeaderV222 strong {
+    display: block !important;
+    font-size: 17px !important;
+    line-height: 1.1 !important;
+    font-weight: 950 !important;
+  }
+
+  html body .marketSelectorHeaderV222 small {
+    display: block !important;
+    margin-top: 4px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  html body .marketSelectorHeaderV222 > button {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+    font-size: 25px !important;
+    line-height: 1 !important;
+  }
+
+  html body .marketSelectorListV222 {
+    box-sizing: border-box !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 6px 10px 11px !important;
+    scrollbar-width: thin !important;
+  }
+
+  html body .marketSelectorListV222 > button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 58px !important;
+    height: 58px !important;
+    margin: 0 0 5px !important;
+    padding: 7px 10px !important;
+
+    display: grid !important;
+    grid-template-columns: 76px minmax(0,1fr) 24px !important;
+    align-items: center !important;
+    gap: 8px !important;
+
+    border-radius: 13px !important;
+    text-align: left !important;
+  }
+
+  html body .marketSelectorBadgeV222 {
+    min-width: 0 !important;
+    width: auto !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    white-space: nowrap !important;
+  }
+
+  html body .marketSelectorCopyV222 {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 3px !important;
+  }
+
+  html body .marketSelectorCopyV222 strong {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+    line-height: 1.05 !important;
+    font-weight: 900 !important;
+  }
+
+  html body .marketSelectorCopyV222 small {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 9px !important;
+    line-height: 1.05 !important;
+  }
+
+  html body .marketSelectorListV222 > button > i {
+    justify-self: end !important;
+    width: 24px !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    font-style: normal !important;
+  }
+
+  /* Dark popup */
+  html body #root .app.theme-dark ~ .marketOverlayRootV222 .marketSelectorPanelV222,
+  html body .marketOverlayRootV222 .marketSelectorPanelV222 {
+    background: #041827 !important;
+    color: #f7fbff !important;
+    border: 1px solid #17415e !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorHeaderV222 {
+    border-bottom: 1px solid rgba(255,255,255,.10) !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorHeaderV222 small {
+    color: #94a5b7 !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorHeaderV222 > button {
+    color: #ffffff !important;
+    background: #10283d !important;
+    border: 1px solid #294860 !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorListV222 > button {
+    color: #f7fbff !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorListV222 > button.active {
+    background: #0b3455 !important;
+    border-color: #2584cf !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorBadgeV222 {
+    color: #26d7a0 !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorCopyV222 strong {
+    color: #f7fbff !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorCopyV222 small {
+    color: #8799ad !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorListV222 > button > i {
+    color: #e8f4ff !important;
+  }
+
+  html body .marketOverlayRootV222 .marketSelectorListV222 {
+    scrollbar-color: #345870 #071a29 !important;
+  }
+}
+
+/* Short phones: leave even more room below the popup for context/buttons. */
+@media screen and (max-width: 1023px) and (max-height: 760px) {
+  html body .marketSelectorPanelV222 {
+    top: max(72px, calc(env(safe-area-inset-top, 0px) + 58px)) !important;
+    max-height: 61dvh !important;
+  }
+
+  html body .marketSelectorListV222 > button {
+    min-height: 54px !important;
+    height: 54px !important;
+  }
+}
+
+/* Very narrow phones: selected card remains compact but does not overflow. */
+@media screen and (max-width: 380px) {
+  html body #root .app .mobileDigitMarketHeadV115,
+  html body #root .app .volatilitySwitchBar {
+    width: 78% !important;
+    min-width: 0 !important;
+    max-width: 285px !important;
+  }
+
+  html body .marketSelectorPanelV222 {
+    width: calc(100vw - 20px) !important;
+    border-radius: 17px !important;
+  }
+
+  html body .marketSelectorListV222 > button {
+    grid-template-columns: 66px minmax(0,1fr) 22px !important;
+  }
+
+  html body .marketSelectorBadgeV222 {
+    font-size: 16px !important;
+  }
+}
+
