@@ -14496,3 +14496,129 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V384 — LAPTOP WALLET FINAL FIX
+   Fixes the remaining native white USD control visible in the desktop header.
+   Desktop/laptop only.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  /* The account/wallet shell */
+  html body #root .app .brokerWallet,
+  html body #root .app .walletBox,
+  html body #root .app .accountSelectorButton,
+  html body #root .app .brokerWallet.accountSelectorButton,
+  html body #root .app .walletBox.accountSelectorButton {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+    background: #0a1a2a !important;
+    background-image: none !important;
+    border: 1px solid #24425f !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+
+  /* Kill native browser white form styling inside the wallet. */
+  html body #root .app .brokerWallet select,
+  html body #root .app .brokerWallet input,
+  html body #root .app .brokerWallet button,
+  html body #root .app .walletBox select,
+  html body #root .app .walletBox input,
+  html body #root .app .walletBox button,
+  html body #root .app .accountSelectorButton select,
+  html body #root .app .accountSelectorButton input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+    font: inherit !important;
+    font-size: 15px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    opacity: 1 !important;
+  }
+
+  html body #root .app .brokerWallet select::-ms-expand,
+  html body #root .app .walletBox select::-ms-expand,
+  html body #root .app .accountSelectorButton select::-ms-expand {
+    display: none !important;
+  }
+
+  html body #root .app .brokerWallet option,
+  html body #root .app .walletBox option,
+  html body #root .app .accountSelectorButton option {
+    color: #f8fbff !important;
+    background: #071522 !important;
+  }
+
+  /* All balance text variants */
+  html body #root .app .brokerWallet strong,
+  html body #root .app .brokerWallet span,
+  html body #root .app .brokerWallet b,
+  html body #root .app .walletBox strong,
+  html body #root .app .walletBox span,
+  html body #root .app .walletBox b,
+  html body #root .app .usdWalletInlineV12,
+  html body #root .app .demoWalletInlineV12,
+  html body #root .app .usdWalletSelectorV12,
+  html body #root .app .demoWalletSelectorV12 {
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+  }
+
+  /* If the current wallet is implemented as a raw select/input in the right group. */
+  html body #root .app .desktopHeaderRightGroupV94 > select,
+  html body #root .app .desktopHeaderRightGroupV94 > input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 170px !important;
+    min-width: 170px !important;
+    height: 40px !important;
+    padding: 0 30px 0 12px !important;
+    border: 1px solid #24425f !important;
+    border-radius: 12px !important;
+    outline: 0 !important;
+    background: #0a1a2a !important;
+    background-image: none !important;
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+    font-size: 15px !important;
+    font-weight: 850 !important;
+    box-shadow: none !important;
+  }
+
+  /* Make clickable controls on laptop clearly accessible. */
+  html body #root .app.activePage-trade button:not(:disabled),
+  html body #root .app.activePage-trade select:not(:disabled) {
+    cursor: pointer !important;
+  }
+
+  html body #root .app.activePage-trade button:focus-visible,
+  html body #root .app.activePage-trade select:focus-visible,
+  html body #root .app.activePage-trade input:focus-visible {
+    outline: 2px solid #168cff !important;
+    outline-offset: 2px !important;
+  }
+}
+
