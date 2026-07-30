@@ -58172,3 +58172,580 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V393 — LAPTOP LIGHT EVERYWHERE
+   Desktop/laptop only.
+   Completes light mode outside the Trade page:
+   - Profile
+   - Bots
+   - History
+   - Deposit
+   - Withdraw
+   - Notifications
+   Also compresses oversized profile/menu sections.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  /* =========================
+     GLOBAL LIGHT PAGE SURFACES
+     ========================= */
+  html body #root .app.theme-light {
+    background: #f3f6f9 !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light > .mainScreen {
+    background: #f3f6f9 !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .page {
+    color: #111923 !important;
+  }
+
+  /* Header stays light on every desktop page. */
+  html body #root .app.theme-light > .cleanBrokerHeader,
+  html body #root .app.theme-light > .brokerTopHeader,
+  html body #root .app.theme-light > .topHeader {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-bottom: 1px solid #dce5ed !important;
+    box-shadow: 0 1px 8px rgba(24,43,64,.06) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .desktopTradeHeaderActionsV89 button {
+    color: #56697d !important;
+  }
+
+  html body #root .app.theme-light .desktopTradeHeaderActionsV89 button:hover,
+  html body #root .app.theme-light .desktopTradeHeaderActionsV89 button.active {
+    color: #087cf0 !important;
+    background: #eef7ff !important;
+    border-color: #c8e2f8 !important;
+  }
+
+  /* =========================
+     PROFILE — COMPACT + VISIBLE
+     ========================= */
+  html body #root .app.theme-light.activePage-profile > .mainScreen {
+    padding: 8px 12px 12px !important;
+    background: #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .proProfilePage {
+    grid-template-rows: 138px 74px minmax(0,1fr) 42px !important;
+    gap: 8px !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .proProfileHero {
+    min-height: 138px !important;
+    height: 138px !important;
+    grid-template-columns: 94px minmax(0,1fr) 250px !important;
+    gap: 16px !important;
+    padding: 14px 20px !important;
+    border-radius: 15px !important;
+    background:
+      radial-gradient(circle at 92% 18%, rgba(58,137,231,.13), transparent 22%),
+      #ffffff !important;
+    border: 1px solid #dce5ed !important;
+    box-shadow: 0 4px 16px rgba(24,43,64,.06) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileAvatarLarge,
+  html body #root .app.theme-light.activePage-profile .proProfileAvatar,
+  html body #root .app.theme-light.activePage-profile .profileHeroAvatar {
+    width: 82px !important;
+    height: 82px !important;
+    min-width: 82px !important;
+    min-height: 82px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .proProfileHero h1,
+  html body #root .app.theme-light.activePage-profile .profileHeroInfo h1,
+  html body #root .app.theme-light.activePage-profile .proProfileIdentity h1 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    font-size: 24px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .proProfileHero p,
+  html body #root .app.theme-light.activePage-profile .profileHeroInfo p,
+  html body #root .app.theme-light.activePage-profile .proProfileIdentity p,
+  html body #root .app.theme-light.activePage-profile .profileMetaRow span,
+  html body #root .app.theme-light.activePage-profile .profileAccountMeta span {
+    color: #6c7d8f !important;
+    -webkit-text-fill-color: #6c7d8f !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile :is(
+    .profileBalanceCard,
+    .profileStats > *,
+    .profileStatsGrid > *,
+    .proProfileStats > *
+  ) {
+    background: #ffffff !important;
+    border: 1px solid #dce5ed !important;
+    box-shadow: 0 3px 12px rgba(24,43,64,.05) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile :is(
+    .profileBalanceCard,
+    .profileStats,
+    .profileStatsGrid,
+    .proProfileStats
+  ) strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile :is(
+    .profileBalanceCard,
+    .profileStats,
+    .profileStatsGrid,
+    .proProfileStats
+  ) span,
+  html body #root .app.theme-light.activePage-profile :is(
+    .profileBalanceCard,
+    .profileStats,
+    .profileStatsGrid,
+    .proProfileStats
+  ) small {
+    color: #68798b !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileStats,
+  html body #root .app.theme-light.activePage-profile .profileStatsGrid,
+  html body #root .app.theme-light.activePage-profile .proProfileStats {
+    min-height: 74px !important;
+    height: 74px !important;
+    gap: 8px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileStats > *,
+  html body #root .app.theme-light.activePage-profile .profileStatsGrid > *,
+  html body #root .app.theme-light.activePage-profile .proProfileStats > * {
+    height: 74px !important;
+    padding: 9px 12px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileActionsGrid,
+  html body #root .app.theme-light.activePage-profile .proProfileActions,
+  html body #root .app.theme-light.activePage-profile .profileQuickGrid {
+    grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+    gap: 8px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile :is(
+    .profileActionsGrid,
+    .proProfileActions,
+    .profileQuickGrid
+  ) > *,
+  html body #root .app.theme-light.activePage-profile .profileActionCard,
+  html body #root .app.theme-light.activePage-profile .supportWideCard {
+    background: #ffffff !important;
+    border: 1px solid #dce5ed !important;
+    box-shadow: 0 3px 12px rgba(24,43,64,.045) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileActionCard {
+    min-height: 90px !important;
+    height: 90px !important;
+    grid-template-columns: 38px minmax(0,1fr) !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileActionIcon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    font-size: 15px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileActionCard h3,
+  html body #root .app.theme-light.activePage-profile .supportWideCard h3 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+    font-size: 13px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileActionCard p,
+  html body #root .app.theme-light.activePage-profile .supportWideCard p {
+    color: #68798b !important;
+    font-size: 9px !important;
+  }
+
+  /* =========================
+     BOTS — REMOVE BLACK/GRAY BLOCKS
+     ========================= */
+  html body #root .app.theme-light.activePage-bots > .mainScreen,
+  html body #root .app.theme-light.activePage-botSetup > .mainScreen,
+  html body #root .app.theme-light.activePage-botLive > .mainScreen {
+    background: #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light :is(
+    .botsPage,
+    .finalBotsPage,
+    .botSetupPage,
+    .finalBotSetupPage,
+    .botLivePage,
+    .finalBotLivePage
+  ) {
+    color: #111923 !important;
+    background: #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light :is(
+    .botsTopBar,
+    .botStats,
+    .botFilters,
+    .botCard,
+    .botCardV2,
+    .botStudioCard,
+    .botSetupCard,
+    .botLiveCard
+  ) {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-color: #dce5ed !important;
+    box-shadow: 0 3px 12px rgba(24,43,64,.045) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .botsPage :is(h1,h2,h3,strong),
+  html body #root .app.theme-light .finalBotsPage :is(h1,h2,h3,strong) {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .botsPage :is(p,small,span),
+  html body #root .app.theme-light .finalBotsPage :is(p,small,span) {
+    color: #68798b !important;
+  }
+
+  html body #root .app.theme-light .botsPage .botMetrics,
+  html body #root .app.theme-light .finalBotsPage .botMetrics {
+    background: #f5f8fb !important;
+    border-color: #e0e7ee !important;
+  }
+
+  /* =========================
+     HISTORY — FULL LIGHT
+     ========================= */
+  html body #root .app.theme-light.activePage-history > .mainScreen {
+    background: #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light .historyHeroV226,
+  html body #root .app.theme-light .historySummaryV226 article,
+  html body #root .app.theme-light .historyWorkspaceV226,
+  html body #root .app.theme-light .listPanel {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-color: #dce5ed !important;
+    box-shadow: 0 3px 12px rgba(24,43,64,.045) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .historyHeroV226 h1,
+  html body #root .app.theme-light .historySummaryV226 strong,
+  html body #root .app.theme-light .historyTabsV226 button.active {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .historyHeroV226 p,
+  html body #root .app.theme-light .historySummaryV226 span,
+  html body #root .app.theme-light .historyTabsV226 button {
+    color: #68798b !important;
+  }
+
+  html body #root .app.theme-light .historyTabsV226 {
+    border-bottom-color: #e0e7ee !important;
+  }
+
+  html body #root .app.theme-light .historyTabsV226 b {
+    background: #edf2f6 !important;
+    color: #586b7d !important;
+  }
+
+  html body #root .app.theme-light :is(
+    .historySearchV226,
+    .historySearchV226 input,
+    .historyFilterV226,
+    .historyFilterV226 select
+  ) {
+    background: #f7fafc !important;
+    color: #111923 !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light .historyListV226,
+  html body #root .app.theme-light .historyRowsV226 {
+    background: #ffffff !important;
+  }
+
+  html body #root .app.theme-light .historyRowV226,
+  html body #root .app.theme-light .historyItemV226 {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border-color: #e3e9ef !important;
+  }
+
+  html body #root .app.theme-light .historyRowV226 :is(strong,b),
+  html body #root .app.theme-light .historyItemV226 :is(strong,b) {
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .historyRowV226 :is(span,small,em),
+  html body #root .app.theme-light .historyItemV226 :is(span,small,em) {
+    color: #6d7e90 !important;
+  }
+
+  /* =========================
+     NOTIFICATIONS — LIGHT PANEL
+     ========================= */
+  html body #root .app.theme-light .notificationPanel {
+    background: rgba(255,255,255,.99) !important;
+    border-color: #d8e3ec !important;
+    box-shadow: 0 22px 55px rgba(24,43,64,.18) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .notificationPanel > header,
+  html body #root .app.theme-light .notificationPanel > footer,
+  html body #root .app.theme-light .notificationItem {
+    border-color: #e1e8ee !important;
+  }
+
+  html body #root .app.theme-light .notificationPanel > header strong,
+  html body #root .app.theme-light .notificationCopy strong,
+  html body #root .app.theme-light .notificationEmpty strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .notificationPanel > header small,
+  html body #root .app.theme-light .notificationCopy small,
+  html body #root .app.theme-light .notificationCopy em,
+  html body #root .app.theme-light .notificationEmpty small {
+    color: #6a7b8e !important;
+  }
+
+  html body #root .app.theme-light .notificationItem {
+    background: #ffffff !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .notificationItem.unread {
+    background: linear-gradient(90deg,#edf7ff,#ffffff 80%) !important;
+  }
+
+  html body #root .app.theme-light .notificationItem:hover {
+    background: #f5f9fc !important;
+  }
+
+  html body #root .app.theme-light .notificationPanel > footer .clearNotifications {
+    background: #fff1f4 !important;
+    color: #d7294b !important;
+  }
+
+  /* =========================
+     DEPOSIT — LIGHT MODAL
+     ========================= */
+  html body #root .app.theme-light .mbDepositLayerV223 {
+    background: rgba(21,32,44,.42) !important;
+  }
+
+  html body #root .app.theme-light :is(.mbDepositModalV223,.mbDepositResultV223) {
+    background:
+      radial-gradient(circle at 85% 0,rgba(44,135,232,.08),transparent 34%),
+      #ffffff !important;
+    border-color: #d7e2eb !important;
+    box-shadow: 0 28px 80px rgba(24,43,64,.22) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .mbDepositHeaderV223 h2,
+  html body #root .app.theme-light .mbDepositStepV223,
+  html body #root .app.theme-light :is(.mbDepositModalV223,.mbDepositResultV223) :is(h2,h3,strong) {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .mbDepositHeaderV223 p,
+  html body #root .app.theme-light :is(.mbDepositModalV223,.mbDepositResultV223) :is(p,small,span) {
+    color: #6b7d90 !important;
+  }
+
+  html body #root .app.theme-light .mbDepositCloseV223 {
+    color: #576a7d !important;
+    background: #f3f7fa !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light .mbDepositMethodV223,
+  html body #root .app.theme-light .mbDepositOptionV223,
+  html body #root .app.theme-light .mbDepositSelectedV223 {
+    background: #f8fafc !important;
+    color: #111923 !important;
+    border-color: #dce5ed !important;
+  }
+
+  /* =========================
+     WITHDRAW — LIGHT MODAL
+     ========================= */
+  html body #root .app.theme-light .withdrawalFlowLayer {
+    background: rgba(21,32,44,.42) !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawFlowModal {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-color: #d8e3ec !important;
+    box-shadow: 0 28px 80px rgba(24,43,64,.22) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawFlowHeader h2,
+  html body #root .app.theme-light .withdrawalFlowLayer :is(h2,h3,strong) {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer :is(p,small,span),
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawFlowHeader span {
+    color: #6c7d90 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer :is(
+    .withdrawBalanceCard,
+    .withdrawMethodCard,
+    .withdrawSelectedMethod,
+    .withdrawInfoRow span
+  ) {
+    background: #f7fafc !important;
+    border-color: #dce5ed !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawMethodCard.disabled {
+    background: #f4f6f8 !important;
+    opacity: .65 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawAmountInput,
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawPhoneInput {
+    background: #ffffff !important;
+    border-color: #d5e0e9 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer :is(
+    .withdrawAmountInput input,
+    .withdrawPhoneInput input
+  ) {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .withdrawalFlowLayer .withdrawQuickAmounts button {
+    background: #f5f8fb !important;
+    color: #5e7184 !important;
+    border-color: #dce5ed !important;
+  }
+
+  /* =========================
+     COMPACT DESKTOP MENUS
+     ========================= */
+  html body #root .app .sideDrawer {
+    width: 356px !important;
+    max-width: 356px !important;
+    padding: 14px !important;
+    gap: 10px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerTop {
+    min-height: 46px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerAccount {
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerGrid {
+    gap: 8px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerBlock {
+    border-radius: 12px !important;
+    padding: 8px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerBlock h4 {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerButton {
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366 {
+    min-height: 46px !important;
+    height: 46px !important;
+    max-height: 46px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerLogout {
+    min-height: 38px !important;
+    height: 38px !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-height: 820px) {
+  html body #root .app .sideDrawer {
+    width: 338px !important;
+    max-width: 338px !important;
+    padding: 11px !important;
+    gap: 8px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerButton {
+    min-height: 33px !important;
+    height: 33px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .proProfilePage {
+    grid-template-rows: 124px 68px minmax(0,1fr) 38px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .proProfileHero {
+    min-height: 124px !important;
+    height: 124px !important;
+    grid-template-columns: 82px minmax(0,1fr) 220px !important;
+    padding: 11px 16px !important;
+  }
+
+  html body #root .app.theme-light.activePage-profile .profileAvatarLarge,
+  html body #root .app.theme-light.activePage-profile .proProfileAvatar,
+  html body #root .app.theme-light.activePage-profile .profileHeroAvatar {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    min-height: 72px !important;
+  }
+}
+
