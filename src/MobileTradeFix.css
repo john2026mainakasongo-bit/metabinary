@@ -16134,3 +16134,213 @@
     outline-offset: 2px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V409 — ALL PHONE CHART + CURSOR FINAL
+
+   Fixes the exact remaining difference between phones:
+   1) On tall phones the flexible space was landing BETWEEN chart and digits.
+   2) The lower-row live cursor could be clipped / hidden.
+
+   The chart+digits card is now a 2-row grid:
+     row 1 = chart (takes ALL spare height)
+     row 2 = digit board (fixed)
+   Therefore there is never a blank band between chart and digits.
+
+   No volatility styling, trade controls, Rise/Fall, theme colors or desktop
+   rules are changed.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  /* The outer trade page continues to fill the available mobile viewport. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* KEY FIX:
+     the flexible card itself is a grid, so spare height belongs ONLY to chart. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    align-content: stretch !important;
+    justify-content: stretch !important;
+
+    gap: 4px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+  }
+
+  /* Chart consumes every extra pixel on tall phones. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard
+  > .mobileDigitLiveChartV115 {
+    grid-row: 1 !important;
+
+    flex: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 190px !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+  }
+
+  /* Digit board is always the second row directly touching chart. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard
+  > .mbCleanDigitBoardV310 {
+    grid-row: 2 !important;
+
+    flex: none !important;
+    width: 100% !important;
+
+    margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+
+    overflow: visible !important;
+  }
+
+  /* Keep order card and action buttons attached below digit board. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proBinaryOrderCard.finalBinaryOrderCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalTradeButtons,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .proTradeButtons.finalTradeButtons {
+    flex: 0 0 auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* ---------------- LIVE DIGIT CURSOR ---------------- */
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310 {
+    overflow: visible !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310 {
+    position: relative !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    position: absolute !important;
+    z-index: 999 !important;
+
+    width: 0 !important;
+    height: 0 !important;
+
+    border-left: 6px solid transparent !important;
+    border-right: 6px solid transparent !important;
+    border-top: 0 !important;
+    border-bottom: 9px solid #ff4058 !important;
+
+    background: transparent !important;
+    pointer-events: none !important;
+
+    transform: translateX(-50%) !important;
+    bottom: auto !important;
+
+    transition:
+      left 260ms cubic-bezier(.22,.78,.24,1),
+      top 260ms cubic-bezier(.22,.78,.24,1) !important;
+  }
+
+  /* 0–4: triangle sits in the gap BELOW the first row. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorTopV318 {
+    top: calc(var(--mb-v321-digit-row, 58px) + 3px) !important;
+    bottom: auto !important;
+  }
+
+  /* 5–9: triangle sits just BELOW the second row and remains visible. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorBottomV318 {
+    top: calc(
+      var(--mb-v321-digit-row, 58px)
+      + var(--mb-v321-digit-row, 58px)
+      + var(--mb-v321-digit-gap, 18px)
+      + 3px
+    ) !important;
+    bottom: auto !important;
+  }
+
+  /* Old cursor implementations must never cover/replace V318. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV317,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCursorAttachedV313,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCursorV310 {
+    display: none !important;
+  }
+}
+
+/* Short phones: protect controls; only chart minimum changes. */
+@media screen and (max-width: 760px) and (max-height: 720px) {
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard
+  > .mobileDigitLiveChartV115 {
+    min-height: 135px !important;
+  }
+}
+
