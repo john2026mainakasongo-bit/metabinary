@@ -16439,115 +16439,61 @@
 
 
 /* ==========================================================================
-   METABINARY V403 — ALL PHONE GRID FIT
+   METABINARY V404 — PHONE LAYOUT + CURSOR LOCK
 
-   One geometry for Samsung / Tecno / Infinix / iPhone / Oppo / OnePlus etc.
+   Device-independent mobile layout:
+   - chart height comes from the REAL visible viewport (100dvh)
+   - no flex-grow space is allowed between chart/digits/controls
+   - digits always sit directly below chart
+   - controls always sit directly below digits
+   - ODD/EVEN always sit directly below controls
+   - bottom navigation stays at the visible bottom
+   - cursor is positioned from the actual two-row grid, not device pixels
 
-   Core rule:
-   tabs | [ chart expands + digits fixed ] | controls | ODD/EVEN
-
-   Spare height can ONLY go to the live chart.
-   It can never become a blank gap between digits and controls.
-
-   V400 volatility styling is untouched.
-   Digit rings/cursor logic is untouched.
+   V400 volatility selector is intentionally untouched.
    ========================================================================== */
 
 @media screen and (max-width: 760px) {
 
-  /* The phone shell uses the actual visible browser viewport. */
   html body #root .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-v404-chart-h:
+      clamp(
+        210px,
+        calc(100dvh - 520px - env(safe-area-inset-bottom, 0px)),
+        430px
+      );
+
     box-sizing: border-box !important;
-
-    height: 100dvh !important;
     min-height: 100dvh !important;
+    height: 100dvh !important;
     max-height: 100dvh !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-
-    padding-bottom: 0 !important;
     overflow: hidden !important;
   }
 
-  /* Header remains its natural height; mainScreen gets the rest. */
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   > .mainScreen {
     box-sizing: border-box !important;
-
-    flex: 1 1 0 !important;
+    height: calc(100dvh - var(--mobile-header-height, 56px)) !important;
     min-height: 0 !important;
-    height: auto !important;
     max-height: none !important;
-
-    margin: 0 !important;
-    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
-
     overflow: hidden !important;
+    padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
-  /* Exact vertical structure. No justify-content / auto margin can create gaps. */
+  /* Deterministic normal document flow. */
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   .finalBinaryTradePage.digitContractPage {
     box-sizing: border-box !important;
 
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows:
-      auto
-      minmax(0, 1fr)
-      auto
-      auto !important;
-
-    align-content: stretch !important;
-    justify-content: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
 
     width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: 100% !important;
-
-    gap: 4px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-
-    overflow: hidden !important;
-  }
-
-  /* Row 1: tabs */
-  html body #root
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  > .finalContractTabs {
-    grid-row: 1 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Row 2: chart + digits. This whole row fills the spare height. */
-  html body #root
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  > .finalBinaryChartCard.digitOnlyCard,
-  html body #root
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .finalBinaryTradePage.digitContractPage
-  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
-    box-sizing: border-box !important;
-
-    grid-row: 2 !important;
-
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) auto !important;
-
-    align-content: stretch !important;
-    justify-content: stretch !important;
-
-    width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
 
@@ -16558,42 +16504,75 @@
     overflow: visible !important;
   }
 
-  /* Chart gets ALL flexible space. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalContractTabs {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+
+  /* Chart + digits wrapper must NEVER flex-grow. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .finalBinaryTradePage.digitContractPage
+  > .finalBinaryChartCard.digitOnlyCard.mbLightDigitCardV308 {
+    box-sizing: border-box !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    gap: 4px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+  }
+
+  /* All spare phone height is expressed explicitly as chart height. */
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   .mobileDigitLiveChartV115 {
     box-sizing: border-box !important;
 
-    grid-row: 1 !important;
+    flex: 0 0 var(--mb-v404-chart-h) !important;
 
     width: 100% !important;
-    height: 100% !important;
-    min-height: 150px !important;
-    max-height: none !important;
+    height: var(--mb-v404-chart-h) !important;
+    min-height: var(--mb-v404-chart-h) !important;
+    max-height: var(--mb-v404-chart-h) !important;
 
     margin: 0 !important;
-
-    flex: none !important;
   }
 
-  /* Digits stay fixed directly below chart. */
+  /* Digits immediately follow chart; never pushed with auto margins. */
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   .mbCleanDigitBoardV310,
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   .digitBoardNumbersOnlyV23.mobileDigitBoardFinalV130 {
-    grid-row: 2 !important;
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
 
-    width: 100% !important;
-
-    margin: 0 !important;
-
-    flex-grow: 0 !important;
-    flex-shrink: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 
-  /* Row 3: Ticks / Amount. Force away all historical auto margins. */
+  /* Controls immediately follow digits. */
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   .finalBinaryTradePage.digitContractPage
@@ -16602,23 +16581,19 @@
   .app.activePage-trade:not(.riseFallActivePageV183)
   .finalBinaryTradePage.digitContractPage
   > .proBinaryOrderCard.finalBinaryOrderCard {
-    grid-row: 3 !important;
-
     position: relative !important;
     inset: auto !important;
 
-    width: 100% !important;
+    flex: 0 0 auto !important;
 
     margin: 0 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 
-    align-self: start !important;
-
-    flex: none !important;
+    transform: none !important;
   }
 
-  /* Row 4: ODD / EVEN immediately follows controls. */
+  /* ODD / EVEN immediately follow controls. */
   html body #root
   .app.activePage-trade:not(.riseFallActivePageV183)
   .finalBinaryTradePage.digitContractPage
@@ -16627,36 +16602,102 @@
   .app.activePage-trade:not(.riseFallActivePageV183)
   .finalBinaryTradePage.digitContractPage
   > .proTradeButtons.finalTradeButtons {
-    grid-row: 4 !important;
-
     position: relative !important;
     inset: auto !important;
 
-    width: 100% !important;
+    flex: 0 0 auto !important;
 
     margin: 0 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 
-    align-self: start !important;
-
-    flex: none !important;
+    transform: none !important;
   }
 
-  /* Navigation always uses the true visible bottom edge. */
+  /* ======================================================================
+     CURSOR:
+     percentage-based geometry relative to the actual two-row digit grid.
+     No Samsung/Tecno/iPhone-specific pixel coordinates.
+     ====================================================================== */
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310 {
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    position: absolute !important;
+    z-index: 120 !important;
+
+    width: 0 !important;
+    height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border-left: 5px solid transparent !important;
+    border-right: 5px solid transparent !important;
+    border-top: 0 !important;
+    border-bottom: 8px solid #ff4058 !important;
+
+    background: transparent !important;
+    pointer-events: none !important;
+
+    transform: translate(-50%, 0) !important;
+
+    transition:
+      left 220ms cubic-bezier(.22,.78,.24,1),
+      top 180ms ease !important;
+  }
+
+  /* digit 0-4: just under top-row circle, inside the row gap */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310
+  > .mbSingleGridCursorV318.mbSingleGridCursorTopV318 {
+    top: calc(50% - 7px) !important;
+    bottom: auto !important;
+  }
+
+  /* digit 5-9: just below bottom-row circle, not down in Amount controls */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310
+  > .mbSingleGridCursorV318.mbSingleGridCursorBottomV318 {
+    top: calc(100% - 1px) !important;
+    bottom: auto !important;
+  }
+
+  /* old alternate cursors stay hidden */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCursorAttachedV313,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCursorV310,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV317 {
+    display: none !important;
+  }
+
+  /* Bottom nav uses the actual visible viewport bottom. */
   html body #root .app.activePage-trade > .bottomNav,
   html body #root .app.activePage-trade > nav.bottomNav {
-    box-sizing: border-box !important;
-
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    inset-inline: 0 !important;
 
     width: 100% !important;
-    max-width: 100% !important;
-
     margin: 0 !important;
     transform: none !important;
 
@@ -16664,22 +16705,27 @@
   }
 }
 
-/* Very short landscape-ish / small Android viewports.
-   Reduce only the chart minimum; structure stays identical. */
+/* Short phone browser viewports: only chart shrinks. */
 @media screen and (max-width: 760px) and (max-height: 700px) {
-  html body #root
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  .mobileDigitLiveChartV115 {
-    min-height: 110px !important;
+  html body #root .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-v404-chart-h:
+      clamp(
+        125px,
+        calc(100dvh - 500px - env(safe-area-inset-bottom, 0px)),
+        235px
+      );
   }
 }
 
-/* Narrow iPhones and Androids: same geometry, no separate layout. */
+/* Narrow iPhones / Androids use same flow; chart calculation adapts. */
 @media screen and (max-width: 390px) {
-  html body #root
-  .app.activePage-trade:not(.riseFallActivePageV183)
-  > .mainScreen {
-    padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+  html body #root .app.activePage-trade:not(.riseFallActivePageV183) {
+    --mb-v404-chart-h:
+      clamp(
+        180px,
+        calc(100dvh - 505px - env(safe-area-inset-bottom, 0px)),
+        390px
+      );
   }
 }
 
