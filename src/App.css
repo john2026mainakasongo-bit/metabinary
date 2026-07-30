@@ -57861,3 +57861,314 @@ body[data-theme="light"] .finalBinaryTradePage .digitBoardNumbersOnlyV23 {
   }
 }
 
+
+
+/* ==========================================================================
+   METABINARY V380 — ADMIN RESPONSIVE ROBUST
+   Admin only. Trading pages untouched.
+   ========================================================================== */
+
+.adminShell {
+  width: 100% !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain;
+}
+
+.adminShell .adminMain {
+  height: auto !important;
+  min-height: calc(100dvh - 76px) !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.adminMobileBack {
+  display: none;
+  min-height: 38px;
+  margin: 0 0 10px;
+  padding: 0 14px;
+  border: 1px solid #29415c;
+  border-radius: 10px;
+  background: #0b1a2b;
+  color: #edf6ff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (max-width: 1100px) {
+  .adminWorkspace {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .adminUsersPanel {
+    position: static !important;
+    top: auto !important;
+    min-width: 0 !important;
+  }
+
+  .adminUserList {
+    max-height: min(46dvh, 430px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .adminUserDetail {
+    min-width: 0 !important;
+    scroll-margin-top: 76px !important;
+  }
+
+  .adminMobileBack {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 700px) {
+  .adminHeader {
+    min-height: 60px !important;
+    padding: 8px 9px !important;
+    gap: 7px !important;
+  }
+
+  .adminHeader .logo {
+    min-width: 0 !important;
+    gap: 7px !important;
+  }
+
+  .adminHeader .logo strong {
+    font-size: 20px !important;
+  }
+
+  .adminHeader > div:first-child > span {
+    display: none !important;
+  }
+
+  .adminHeaderActions {
+    gap: 5px !important;
+  }
+
+  .adminHeaderActions button {
+    min-height: 35px !important;
+    padding: 0 9px !important;
+    font-size: 10px !important;
+  }
+
+  .adminMain {
+    min-height: calc(100dvh - 60px) !important;
+    padding: 9px 7px 28px !important;
+  }
+
+  .adminStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    margin-bottom: 9px !important;
+  }
+
+  .adminStat {
+    min-width: 0 !important;
+    min-height: 72px !important;
+    padding: 9px !important;
+    border-radius: 12px !important;
+  }
+
+  .adminStat span {
+    font-size: 8px !important;
+    line-height: 1.15 !important;
+  }
+
+  .adminStat strong {
+    font-size: 17px !important;
+  }
+
+  .adminWorkspace {
+    gap: 9px !important;
+  }
+
+  .adminUsersPanel,
+  .adminUserDetail {
+    border-radius: 13px !important;
+  }
+
+  .adminPanelTitle {
+    min-height: 58px !important;
+    padding: 9px !important;
+    gap: 7px !important;
+  }
+
+  .adminPanelTitle h2 {
+    font-size: 17px !important;
+  }
+
+  .adminPanelTitle p {
+    display: none !important;
+  }
+
+  .adminPanelTitle button {
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 10px !important;
+  }
+
+  .adminSearch {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 5px !important;
+    padding: 7px !important;
+  }
+
+  .adminSearch input {
+    min-width: 0 !important;
+    min-height: 40px !important;
+    padding: 0 9px !important;
+    font-size: 12px !important;
+  }
+
+  .adminSearch button {
+    min-height: 40px !important;
+    padding: 0 10px !important;
+    font-size: 10px !important;
+  }
+
+  .adminUserList {
+    max-height: 40dvh !important;
+    padding: 4px !important;
+  }
+
+  .adminUserRow {
+    grid-template-columns: 34px minmax(0, 1fr) auto !important;
+    gap: 7px !important;
+    padding: 8px 6px !important;
+  }
+
+  .adminUserAvatar {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 10px !important;
+  }
+
+  .adminUserIdentity {
+    min-width: 0 !important;
+  }
+
+  .adminUserIdentity strong {
+    font-size: 11px !important;
+  }
+
+  .adminUserIdentity small,
+  .adminUserIdentity em {
+    font-size: 8px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .adminStatus {
+    min-width: 46px !important;
+    min-height: 22px !important;
+    padding: 0 5px !important;
+    font-size: 7px !important;
+  }
+
+  .adminUserDetail {
+    padding: 9px !important;
+    scroll-margin-top: 66px !important;
+  }
+
+  .adminMobileBack {
+    min-height: 34px !important;
+    margin-bottom: 7px !important;
+    padding: 0 10px !important;
+    font-size: 10px !important;
+  }
+
+  .adminDetailHeader {
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .adminDetailHeader .adminUserAvatar.large {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .adminDetailHeader h2 {
+    font-size: 17px !important;
+  }
+
+  .adminDetailHeader p,
+  .adminDetailHeader small {
+    font-size: 9px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .adminDetailHeader .adminStatus {
+    grid-column: 1 / -1 !important;
+    justify-self: start !important;
+  }
+
+  .adminBalanceCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .adminBalanceCards > div {
+    min-width: 0 !important;
+    padding: 9px !important;
+  }
+
+  .adminBalanceCards strong {
+    font-size: 17px !important;
+  }
+
+  .adminActionCard {
+    margin-top: 8px !important;
+    padding: 10px !important;
+    gap: 8px !important;
+    border-radius: 12px !important;
+  }
+
+  .adminActionCard h3 {
+    font-size: 15px !important;
+  }
+
+  .adminActionCard p {
+    font-size: 10px !important;
+  }
+
+  .adminFormGrid,
+  .adminStatusActions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .adminActionCard input,
+  .adminActionCard select,
+  .adminActionCard textarea,
+  .adminActionCard button {
+    max-width: 100% !important;
+  }
+
+  .adminTransactions {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .adminSearch {
+    grid-template-columns: 1fr !important;
+  }
+
+  .adminSearch button {
+    width: 100% !important;
+  }
+
+  .adminBalanceCards {
+    grid-template-columns: 1fr !important;
+  }
+}

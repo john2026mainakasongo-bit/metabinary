@@ -10158,6 +10158,16 @@ function AdminPortal() {
       setTransactions(result.transactions || []);
       setStatusReason("");
       setAdjustment({ account: "real", adjustment: "", reason: "" });
+
+      // V380_ADMIN_SCROLL_TO_DETAIL
+      if (typeof window !== "undefined" && window.innerWidth <= 1100) {
+        window.requestAnimationFrame(() => {
+          document.querySelector(".adminUserDetail")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to open user.");
     } finally {
@@ -10392,6 +10402,18 @@ function AdminPortal() {
               <div className="adminEmpty adminSelectPrompt">Select an account to manage balances and access.</div>
             ) : (
               <>
+                <button
+                  type="button"
+                  className="adminMobileBack"
+                  onClick={() =>
+                    document.querySelector(".adminUsersPanel")?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    })
+                  }
+                >
+                  ← Accounts
+                </button>
                 <div className="adminDetailHeader">
                   <span className="adminUserAvatar large">{initials(selected.fullName || selected.email)}</span>
                   <div>
