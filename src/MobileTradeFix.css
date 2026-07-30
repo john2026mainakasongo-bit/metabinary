@@ -15589,3 +15589,143 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V389 — EXACT DRAWER QUICK THEME
+   Current App.jsx markup:
+   .drawerQuickThemeV366
+   .drawerQuickThemeIconV366
+   .drawerQuickThemeLabelV366
+   .drawerQuickThemeSwitchV366
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366 {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    display: grid !important;
+    grid-template-columns: 22px minmax(0,1fr) 48px !important;
+    align-items: center !important;
+    gap: 9px !important;
+    border-radius: 14px !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    font: inherit !important;
+    text-align: left !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeIconV366 {
+    display: grid !important;
+    place-items: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeLabelV366 {
+    display: block !important;
+    min-width: 0 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+    white-space: nowrap !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeSwitchV366 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    justify-self: end !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    display: block !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+    box-shadow: inset 0 0 0 1px rgba(116,137,158,.26) !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeSwitchV366 > i {
+    position: absolute !important;
+    top: 3px !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.22) !important;
+    transition: left .18s ease !important;
+  }
+
+  /* Light / OFF */
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border: 1px solid #dce5ed !important;
+    box-shadow: 0 2px 8px rgba(24,43,64,.04) !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeIconV366,
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeLabelV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 .drawerQuickThemeIconV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 .drawerQuickThemeLabelV366 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeSwitchV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 .drawerQuickThemeSwitchV366 {
+    background: #dce4ec !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeSwitchV366 > i,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 .drawerQuickThemeSwitchV366 > i {
+    left: 3px !important;
+  }
+
+  /* Dark / ON */
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 {
+    background: #0a1a2a !important;
+    color: #f7fbff !important;
+    border: 1px solid #203b55 !important;
+    box-shadow: none !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeIconV366,
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeLabelV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeIconV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeLabelV366 {
+    color: #f7fbff !important;
+    -webkit-text-fill-color: #f7fbff !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeSwitchV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeSwitchV366 {
+    background: #0bc77a !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeSwitchV366 > i,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeSwitchV366 > i {
+    left: 25px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366:focus-visible {
+    outline: 2px solid #168cff !important;
+    outline-offset: 2px !important;
+  }
+}
+
