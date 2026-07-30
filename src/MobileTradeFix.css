@@ -15397,3 +15397,195 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V388 — LAPTOP DRAWER LIGHT DARK FINAL
+   - Restores visible "Dark theme" label beside the switch.
+   - Makes the entire laptop drawer actually follow light/dark theme.
+   - Keeps the compact switch geometry from V386.
+   - Mobile remains untouched.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  /* Give the actual theme row a reliable visual label without depending on
+     legacy child markup that previous patches hid. */
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  )::before {
+    content: "◐  Dark theme" !important;
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    color: inherit !important;
+    -webkit-text-fill-color: currentColor !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    opacity: 1 !important;
+  }
+
+  /* ---------- DARK DRAWER ---------- */
+  html body #root .app.theme-dark .sideDrawer {
+    background: #051321 !important;
+    background-image: none !important;
+    color: #f7fbff !important;
+    border-right-color: #203a53 !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerAccount,
+  html body #root .app.theme-dark .sideDrawer .drawerBlock,
+  html body #root .app.theme-dark .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) {
+    background: #0a1a2a !important;
+    border-color: #203b55 !important;
+    color: #f7fbff !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerTop,
+  html body #root .app.theme-dark .sideDrawer .drawerTop strong,
+  html body #root .app.theme-dark .sideDrawer .drawerButton,
+  html body #root .app.theme-dark .sideDrawer .drawerButton strong,
+  html body #root .app.theme-dark .sideDrawer .drawerUser strong,
+  html body #root .app.theme-dark .sideDrawer .drawerUser span {
+    color: #f7fbff !important;
+    -webkit-text-fill-color: #f7fbff !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerBlock h4 {
+    color: #9fb0c1 !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerButton:hover {
+    background: #10263a !important;
+  }
+
+  /* ---------- LIGHT DRAWER ---------- */
+  html body #root .app.theme-light .sideDrawer {
+    background: #f5f8fb !important;
+    background-image: none !important;
+    color: #111923 !important;
+    border-right-color: #d9e2ea !important;
+    box-shadow: 18px 0 55px rgba(24,43,64,.16) !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerTop,
+  html body #root .app.theme-light .sideDrawer .drawerTop strong,
+  html body #root .app.theme-light .sideDrawer .drawerTop button {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerAccount,
+  html body #root .app.theme-light .sideDrawer .drawerBlock,
+  html body #root .app.theme-light .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-color: #dce5ed !important;
+    color: #111923 !important;
+    box-shadow: 0 2px 8px rgba(24,43,64,.04) !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerUser strong,
+  html body #root .app.theme-light .sideDrawer .drawerUser span,
+  html body #root .app.theme-light .sideDrawer .drawerButton,
+  html body #root .app.theme-light .sideDrawer .drawerButton strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerUser small {
+    color: #00a86b !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerBlock h4 {
+    color: #617386 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerButton:hover,
+  html body #root .app.theme-light .sideDrawer .drawerButton:focus-visible {
+    background: #eef5fb !important;
+    outline-color: #79b6e9 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerSwitch {
+    background: #eef3f7 !important;
+    border-color: #d5e0e9 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerSwitch button {
+    color: #53677b !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerSwitch button.active {
+    color: #ffffff !important;
+    background: #00c878 !important;
+  }
+
+  /* Keep logout readable in both palettes. */
+  html body #root .app.theme-light .sideDrawer .drawerLogout {
+    color: #d91b47 !important;
+    background: #fff7f9 !important;
+    border-color: #df3159 !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerLogout {
+    color: #ff536d !important;
+    background: rgba(229,27,65,.06) !important;
+    border-color: #d81443 !important;
+  }
+
+  /* Toggle itself */
+  html body #root .app.theme-light .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button {
+    background: #dce4ec !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button {
+    background: #0bc77a !important;
+  }
+}
+
