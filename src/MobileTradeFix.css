@@ -15879,3 +15879,259 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V391 — DRAWER THEME ROOT FIX
+   Root cause:
+   V386 styled ANY button whose aria-label contains "theme" as the 48px switch.
+   The current .drawerQuickThemeV366 is itself that button, so the WHOLE row
+   was collapsed to 48px and only part of "Dark theme" could show.
+   This override restores the row and styles only its inner switch.
+   Desktop/laptop only.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  /* Restore the ACTUAL row button. High specificity intentionally beats the
+     older button[aria-label*="theme"] !important rule. */
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+
+    margin: 0 !important;
+    padding: 0 12px !important;
+
+    display: grid !important;
+    grid-template-columns: 22px minmax(0, 1fr) 48px !important;
+    align-items: center !important;
+    column-gap: 9px !important;
+
+    overflow: hidden !important;
+    border-radius: 14px !important;
+
+    font: inherit !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    text-align: left !important;
+
+    cursor: pointer !important;
+    transform: none !important;
+  }
+
+  /* Remove the fake V386 knob that was attached to the WHOLE button. */
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]::before,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Restore real icon + label children after older generic font-size:0 rules. */
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeIconV366 {
+    display: grid !important;
+    place-items: center !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+
+    font-family: inherit !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeLabelV366 {
+    all: unset !important;
+    box-sizing: border-box !important;
+
+    display: block !important;
+    min-width: 0 !important;
+    width: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+
+    font-family: inherit !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Style ONLY the actual child switch. */
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 {
+    box-sizing: border-box !important;
+    position: relative !important;
+
+    justify-self: end !important;
+
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: block !important;
+    overflow: hidden !important;
+
+    border: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 0 0 1px rgba(116,137,158,.28) !important;
+  }
+
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 > i {
+    box-sizing: border-box !important;
+    position: absolute !important;
+    top: 3px !important;
+
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.24) !important;
+    transition: left .18s ease !important;
+  }
+
+  /* LIGHT */
+  html body #root .app.theme-light .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i],
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isLightV366[aria-label*="theme" i] {
+    color: #111923 !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #dce5ed !important;
+    box-shadow: 0 2px 8px rgba(24,43,64,.04) !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeIconV366,
+  html body #root .app.theme-light .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeLabelV366,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isLightV366[aria-label*="theme" i]
+  > .drawerQuickThemeIconV366,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isLightV366[aria-label*="theme" i]
+  > .drawerQuickThemeLabelV366 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isLightV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 {
+    background: #dce4ec !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 > i,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isLightV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 > i {
+    left: 3px !important;
+  }
+
+  /* DARK */
+  html body #root .app.theme-dark .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i],
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isDarkV366[aria-label*="theme" i] {
+    color: #f7fbff !important;
+    background: #0a1a2a !important;
+    background-image: none !important;
+    border: 1px solid #203b55 !important;
+    box-shadow: none !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeIconV366,
+  html body #root .app.theme-dark .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeLabelV366,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isDarkV366[aria-label*="theme" i]
+  > .drawerQuickThemeIconV366,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isDarkV366[aria-label*="theme" i]
+  > .drawerQuickThemeLabelV366 {
+    color: #f7fbff !important;
+    -webkit-text-fill-color: #f7fbff !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isDarkV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 {
+    background: #0bc77a !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 > i,
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366.isDarkV366[aria-label*="theme" i]
+  > .drawerQuickThemeSwitchV366 > i {
+    left: 25px !important;
+  }
+
+  html body #root .app .sideDrawer
+  button.drawerQuickThemeV366[aria-label*="theme" i]:focus-visible {
+    outline: 2px solid #168cff !important;
+    outline-offset: 2px !important;
+  }
+}
+
