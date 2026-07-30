@@ -15140,3 +15140,260 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V387 — EXACT LAPTOP ACCOUNT PILL
+   Targets the ACTUAL desktop header markup:
+   .mbHeaderCenterV261 > .mbAccountV261
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  html body #root .app .cleanBrokerHeader .mbHeaderCenterV261 {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountV261 {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 182px !important;
+    min-width: 182px !important;
+    max-width: 182px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 30px 0 9px !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) 14px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    font: inherit !important;
+    text-align: left !important;
+    box-shadow: none !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountV261 strong {
+    display: block !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+    letter-spacing: -.15px !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountIconV261 {
+    box-sizing: border-box !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountIconV261.real {
+    border: 1px solid rgba(255,255,255,.32) !important;
+    background: #fff !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbUsFlagV261 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    background:
+      linear-gradient(to bottom,
+        #b22234 0 7.69%,
+        #fff 7.69% 15.38%,
+        #b22234 15.38% 23.07%,
+        #fff 23.07% 30.76%,
+        #b22234 30.76% 38.45%,
+        #fff 38.45% 46.14%,
+        #b22234 46.14% 53.83%,
+        #fff 53.83% 61.52%,
+        #b22234 61.52% 69.21%,
+        #fff 69.21% 76.9%,
+        #b22234 76.9% 84.59%,
+        #fff 84.59% 92.28%,
+        #b22234 92.28% 100%
+      ) !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbUsFlagV261::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 55% !important;
+    height: 54% !important;
+    background:
+      radial-gradient(circle, #fff 0 .55px, transparent .7px) 1px 1px / 3px 3px,
+      #3c3b6e !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountIconV261.demo {
+    color: #fff !important;
+    background: linear-gradient(135deg, #6259ad, #464081) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountArrowV261 {
+    display: block !important;
+    justify-self: end !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  /* Dark theme */
+  html body #root .app.theme-dark .cleanBrokerHeader .mbAccountV261 {
+    color: #f8fbff !important;
+    background: #0a1a2a !important;
+    border: 1px solid #29445e !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035) !important;
+  }
+
+  html body #root .app.theme-dark .cleanBrokerHeader .mbAccountV261 strong {
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+  }
+
+  html body #root .app.theme-dark .cleanBrokerHeader .mbAccountArrowV261 {
+    color: #7f94a8 !important;
+  }
+
+  html body #root .app.theme-dark .cleanBrokerHeader .mbAccountV261:hover,
+  html body #root .app.theme-dark .cleanBrokerHeader .mbAccountV261.open {
+    background: #0d2235 !important;
+    border-color: #3385ce !important;
+  }
+
+  /* Light theme */
+  html body #root .app.theme-light .cleanBrokerHeader .mbAccountV261 {
+    color: #111a25 !important;
+    background: #ffffff !important;
+    border: 1px solid #d7e0e8 !important;
+    box-shadow: 0 3px 10px rgba(29,51,75,.08) !important;
+  }
+
+  html body #root .app.theme-light .cleanBrokerHeader .mbAccountV261 strong {
+    color: #111a25 !important;
+    -webkit-text-fill-color: #111a25 !important;
+  }
+
+  html body #root .app.theme-light .cleanBrokerHeader .mbAccountArrowV261 {
+    color: #637487 !important;
+  }
+
+  html body #root .app.theme-light .cleanBrokerHeader .mbAccountV261:hover,
+  html body #root .app.theme-light .cleanBrokerHeader .mbAccountV261.open {
+    background: #f7fbff !important;
+    border-color: #2790e8 !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountV261:focus-visible {
+    outline: 2px solid #168cff !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Account popup: match theme and keep readable. */
+  html body #root .app .mbAccountMenuV250 {
+    z-index: 500000 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  html body #root .app.theme-dark .mbAccountMenuV250 {
+    background: #071522 !important;
+    border: 1px solid #28445e !important;
+    box-shadow: 0 18px 50px rgba(0,0,0,.40) !important;
+  }
+
+  html body #root .app.theme-light .mbAccountMenuV250 {
+    background: #ffffff !important;
+    border: 1px solid #dbe4ec !important;
+    box-shadow: 0 18px 45px rgba(24,43,64,.15) !important;
+  }
+
+  html body #root .app.theme-dark .mbAccountRowV250 {
+    color: #f8fbff !important;
+    background: #0a1a2a !important;
+    border-color: #213c56 !important;
+  }
+
+  html body #root .app.theme-light .mbAccountRowV250 {
+    color: #111a25 !important;
+    background: #ffffff !important;
+    border-color: #e0e7ee !important;
+  }
+
+  html body #root .app.theme-dark .mbAccountRowV250 strong,
+  html body #root .app.theme-dark .mbAccountRowNameV250 {
+    color: #f8fbff !important;
+    -webkit-text-fill-color: #f8fbff !important;
+  }
+
+  html body #root .app.theme-light .mbAccountRowV250 strong,
+  html body #root .app.theme-light .mbAccountRowNameV250 {
+    color: #111a25 !important;
+    -webkit-text-fill-color: #111a25 !important;
+  }
+
+  html body #root .app .mbAccountRowV250.selected {
+    border-color: #168cff !important;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1280px) {
+  html body #root .app .cleanBrokerHeader .mbAccountV261 {
+    width: 164px !important;
+    min-width: 164px !important;
+    max-width: 164px !important;
+    grid-template-columns: 25px minmax(0, 1fr) 12px !important;
+    gap: 7px !important;
+    padding-left: 8px !important;
+    padding-right: 25px !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountIconV261 {
+    width: 25px !important;
+    min-width: 25px !important;
+    height: 25px !important;
+    min-height: 25px !important;
+  }
+
+  html body #root .app .cleanBrokerHeader .mbAccountV261 strong {
+    font-size: 13px !important;
+  }
+}
+
