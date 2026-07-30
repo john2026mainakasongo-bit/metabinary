@@ -93,7 +93,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
     const vw = Math.max(320, Math.min(window.innerWidth || 390, 760));
     const minChart = vw <= 360 ? 175 : 195;
-    const maxChart = Math.min(560, visibleHeight * 0.52);
+    const maxChart = Math.min(680, visibleHeight * 0.72);
+    // METABINARY_V407_FILL_BOTTOM_GAP
 
     target = Math.max(minChart, Math.min(maxChart, target));
 
