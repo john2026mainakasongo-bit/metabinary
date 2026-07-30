@@ -16445,3 +16445,40 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V411 — CURSOR MOVEMENT FIX
+
+   Fix ONLY the movement animation.
+   When cursor changes from row 0–4 to row 5–9 (or back), top/bottom must NOT
+   animate. Otherwise the triangle travels diagonally through the digit rings.
+
+   New behavior:
+   - horizontal movement = smooth
+   - row change = instant
+   - cursor never sweeps through a digit
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    transition:
+      left 190ms cubic-bezier(.22,.78,.24,1),
+      opacity 90ms linear !important;
+
+    will-change: left !important;
+  }
+
+  /* Row positions are deliberately NOT animated. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorTopV318,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorBottomV318 {
+    transition-property: left, opacity !important;
+  }
+}
+
