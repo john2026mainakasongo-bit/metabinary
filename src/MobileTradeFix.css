@@ -14880,3 +14880,263 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V386 — LAPTOP DRAWER THEME TOGGLE
+   Desktop/laptop drawer only.
+   Makes the drawer appearance control match the compact phone toggle.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  /* Common wrappers used by the drawer theme control across recent versions. */
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 100% !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+    border-radius: 14px !important;
+    cursor: pointer !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) {
+    background: #0a1a2a !important;
+    border: 1px solid #203b55 !important;
+    color: #f5f9fd !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) {
+    background: #ffffff !important;
+    border: 1px solid #dfe6ed !important;
+    color: #111923 !important;
+  }
+
+  /* The actual clickable button should not look like the large full-width bar. */
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button,
+  html body #root .app .sideDrawer button[aria-label*="theme" i],
+  html body #root .app .sideDrawer button[title*="theme" i] {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    margin-left: auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 999px !important;
+    border: 0 !important;
+    outline: 0 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    cursor: pointer !important;
+    box-shadow: inset 0 0 0 1px rgba(127,146,165,.28) !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button,
+  html body #root .app.theme-dark .sideDrawer button[aria-label*="theme" i],
+  html body #root .app.theme-dark .sideDrawer button[title*="theme" i] {
+    background: #0bc77a !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button,
+  html body #root .app.theme-light .sideDrawer button[aria-label*="theme" i],
+  html body #root .app.theme-light .sideDrawer button[title*="theme" i] {
+    background: #dce4ec !important;
+  }
+
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button::after,
+  html body #root .app .sideDrawer button[aria-label*="theme" i]::after,
+  html body #root .app .sideDrawer button[title*="theme" i]::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 3px !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25) !important;
+    transition: left .18s ease !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button::after,
+  html body #root .app.theme-dark .sideDrawer button[aria-label*="theme" i]::after,
+  html body #root .app.theme-dark .sideDrawer button[title*="theme" i]::after {
+    left: 25px !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button::after,
+  html body #root .app.theme-light .sideDrawer button[aria-label*="theme" i]::after,
+  html body #root .app.theme-light .sideDrawer button[title*="theme" i]::after {
+    left: 3px !important;
+  }
+
+  /* Label/icon */
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  )::before {
+    content: "◐  Dark theme" !important;
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hide old centered text so only the clean label + switch remain. */
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > :not(button) {
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+
+  /* No ugly browser focus rectangle around the full row. */
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ):focus,
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ):focus-visible {
+    outline: none !important;
+  }
+
+  html body #root .app .sideDrawer :is(
+    .drawerThemeRow,
+    .drawerThemeControl,
+    .drawerThemeToggle,
+    .drawerThemeToggleV366,
+    .drawerAppearanceRow,
+    .themeDrawerControl,
+    .drawerThemeCard,
+    .drawerTheme
+  ) > button:focus-visible,
+  html body #root .app .sideDrawer button[aria-label*="theme" i]:focus-visible,
+  html body #root .app .sideDrawer button[title*="theme" i]:focus-visible {
+    outline: 2px solid #168cff !important;
+    outline-offset: 2px !important;
+  }
+}
+
