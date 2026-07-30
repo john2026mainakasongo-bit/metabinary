@@ -16344,3 +16344,104 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V410 — CURSOR ONLY DEVICE INDEPENDENT
+
+   IMPORTANT:
+   This patch changes ONLY the live red digit cursor position.
+
+   Problem:
+   Older cursor rules used fixed row-height variables. On some phones those
+   calculated heights do not match the real rendered digit grid, so the cursor
+   overlaps a digit or drops into the controls.
+
+   Fix:
+   - Top-row cursor is positioned from the REAL grid midpoint.
+   - Bottom-row cursor is anchored just below the REAL grid bottom.
+   - No chart/layout/digit/control/volatility changes.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitBoardV310,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310 {
+    overflow: visible !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitGridV310 {
+    position: relative !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    position: absolute !important;
+    z-index: 50 !important;
+
+    width: 0 !important;
+    height: 0 !important;
+
+    border-left: 6px solid transparent !important;
+    border-right: 6px solid transparent !important;
+    border-top: 0 !important;
+    border-bottom: 9px solid #ff4058 !important;
+
+    background: transparent !important;
+    pointer-events: none !important;
+
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+
+    transition:
+      left 240ms cubic-bezier(.22,.78,.24,1),
+      top 240ms cubic-bezier(.22,.78,.24,1),
+      bottom 240ms cubic-bezier(.22,.78,.24,1) !important;
+  }
+
+  /* Current digit 0–4:
+     Put triangle in the natural gap BETWEEN row 1 and row 2.
+     This uses the rendered grid itself, not guessed pixel row heights. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorTopV318 {
+    top: 50% !important;
+    bottom: auto !important;
+    margin-top: -4px !important;
+  }
+
+  /* Current digit 5–9:
+     Keep triangle just BELOW the second row, never inside the digit and
+     never down inside the Ticks / Amount controls. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorBottomV318 {
+    top: auto !important;
+    bottom: -7px !important;
+    margin-top: 0 !important;
+  }
+
+  /* Disable older cursor variants so only the correct V318 triangle appears. */
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV317,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCursorAttachedV313,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbCleanDigitCursorV310 {
+    display: none !important;
+  }
+}
+
