@@ -16482,3 +16482,37 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V412 — CURSOR DIRECT JUMP
+
+   Final cursor movement behavior:
+   - No interpolation across intermediate digits.
+   - If last digit changes 7 -> 2, cursor appears directly under 2.
+   - If last digit changes 1 -> 9, cursor appears directly under 9.
+   - It never sweeps across/touches another digit on the way.
+
+   Position/layout rules from V409/V410 remain unchanged.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318 {
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+  }
+
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorTopV318,
+  html body #root
+  .app.activePage-trade:not(.riseFallActivePageV183)
+  .mbSingleGridCursorV318.mbSingleGridCursorBottomV318 {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
