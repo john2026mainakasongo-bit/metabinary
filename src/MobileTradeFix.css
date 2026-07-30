@@ -15729,3 +15729,153 @@
   }
 }
 
+
+/* ==========================================================================
+   METABINARY V390 — EXACT THEME ROW ALIGNMENT
+   Fixes the remaining laptop drawer issue where only "D" from "Dark theme"
+   appears beside the switch in light mode.
+   Targets current V366 markup exactly.
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366 {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 9px !important;
+    overflow: visible !important;
+  }
+
+  /* Remove older pseudo labels from previous desktop patches. */
+  html body #root .app .sideDrawer .drawerQuickThemeV366::before,
+  html body #root .app .sideDrawer .drawerQuickThemeV366::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeIconV366 {
+    flex: 0 0 22px !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    display: grid !important;
+    place-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeLabelV366 {
+    all: unset !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    font-family: inherit !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Make sure old generic rules do not collapse the real label. */
+  html body #root .app .sideDrawer .drawerQuickThemeV366
+  > .drawerQuickThemeLabelV366 {
+    font-size: 13px !important;
+    line-height: 1 !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeSwitchV366 {
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 48px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    margin-left: auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 999px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeSwitchV366 > i {
+    position: absolute !important;
+    top: 3px !important;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+  }
+
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeLabelV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 .drawerQuickThemeLabelV366 {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeLabelV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeLabelV366 {
+    color: #f7fbff !important;
+    -webkit-text-fill-color: #f7fbff !important;
+  }
+
+  /* Keep exact light/dark switch position. */
+  html body #root .app.theme-light .sideDrawer .drawerQuickThemeSwitchV366 > i,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isLightV366 .drawerQuickThemeSwitchV366 > i {
+    left: 3px !important;
+  }
+
+  html body #root .app.theme-dark .sideDrawer .drawerQuickThemeSwitchV366 > i,
+  html body #root .app .sideDrawer .drawerQuickThemeV366.isDarkV366 .drawerQuickThemeSwitchV366 > i {
+    left: 25px !important;
+  }
+
+  /* If an old generic rule sets font-size:0 on non-button children, override it. */
+  html body #root .app .sideDrawer .drawerQuickThemeV366 > * {
+    visibility: visible !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366
+  > .drawerQuickThemeIconV366,
+  html body #root .app .sideDrawer .drawerQuickThemeV366
+  > .drawerQuickThemeLabelV366 {
+    font-size: initial !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366
+  > .drawerQuickThemeIconV366 {
+    font-size: 15px !important;
+  }
+
+  html body #root .app .sideDrawer .drawerQuickThemeV366
+  > .drawerQuickThemeLabelV366 {
+    font-size: 13px !important;
+  }
+}
+
