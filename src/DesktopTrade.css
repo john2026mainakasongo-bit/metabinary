@@ -1763,3 +1763,361 @@
     min-height: 27px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V392 — LAPTOP FULL LIGHT THEME
+   Root fix: DesktopTrade.css was built with hard-coded dark colors and had no
+   .theme-light palette. This adds a real laptop light theme matching the phone:
+   white/soft-gray surfaces, dark text, gray digit rings, white chart, same
+   geometry/behavior as dark mode.
+   Desktop/laptop only (1024px+).
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) {
+
+  /* ===== APP + HEADER ===== */
+  html body #root .app.theme-light.activePage-trade {
+    background: #f3f6f9 !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade > .mainScreen {
+    background: #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade > .cleanBrokerHeader,
+  html body #root .app.theme-light.activePage-trade > .brokerTopHeader,
+  html body #root .app.theme-light.activePage-trade > .topHeader {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-bottom: 1px solid #dce5ed !important;
+    box-shadow: 0 1px 8px rgba(24,43,64,.06) !important;
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .brokerLogo strong,
+  html body #root .app.theme-light.activePage-trade .logo strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .brokerMenuBtn,
+  html body #root .app.theme-light.activePage-trade .brokerBellBtn,
+  html body #root .app.theme-light.activePage-trade .brokerAvatarBtn {
+    color: #26384a !important;
+    background: #f7fafc !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .brokerMenuBtn span {
+    background: #26384a !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .desktopTradeHeaderActionsV89 button {
+    color: #56697d !important;
+    background: transparent !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .desktopTradeHeaderActionsV89 button.active,
+  html body #root .app.theme-light.activePage-trade .desktopTradeHeaderActionsV89 button:hover {
+    color: #0b74d8 !important;
+    background: #eef7ff !important;
+    border-color: #c8e2f8 !important;
+  }
+
+  /* ===== DESKTOP WORKSPACE ===== */
+  html body #root .app.theme-light.activePage-trade .mbDesktopTradeV81 {
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade :is(
+    .mbDeskActivityV81,
+    .mbDeskMarketHeaderV81,
+    .mbDeskChartPanelV81,
+    .mbDeskTradePanelV81,
+    .mbDeskFooterV81
+  ) {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-color: #d9e3ec !important;
+    box-shadow: 0 2px 10px rgba(24,43,64,.045) !important;
+    color: #111923 !important;
+  }
+
+  /* ===== LEFT ACTIVITY ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityTabsV81 {
+    border-bottom-color: #e2e9ef !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityTabsV81 button {
+    color: #68798b !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityTabsV81 button.active {
+    color: #111923 !important;
+    border-bottom-color: #1187ff !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityTitleV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskEmptyActivityV81 {
+    color: #6b7d90 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskEmptyActivityV81 strong {
+    color: #1a2734 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityListV81 article {
+    border-bottom-color: #e5ebf1 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityListV81 article div strong,
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityListV81 article > b {
+    color: #172331 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActivityListV81 article div small {
+    color: #728396 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskHistoryBtnV81 {
+    background: #f4f8fb !important;
+    color: #26384a !important;
+    border: 1px solid #dce5ed !important;
+  }
+
+  /* ===== CHART TOOLBAR ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskChartToolbarV81 {
+    background: #ffffff !important;
+    border-bottom-color: #e2e9ef !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskChartToolbarV81 button,
+  html body #root .app.theme-light.activePage-trade .mbDeskChartToolbarV81 select {
+    background: #f5f8fb !important;
+    color: #56697d !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskChartToolbarV81 button.active {
+    color: #087cf0 !important;
+    background: #edf6ff !important;
+    border-color: #8fc8f6 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskChartToolbarV81 select option {
+    color: #172331 !important;
+    background: #ffffff !important;
+  }
+
+  /* ===== CHART CANVAS — PHONE-LIKE WHITE ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskChartCanvasV81 {
+    background:
+      linear-gradient(rgba(75,97,119,.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(75,97,119,.10) 1px, transparent 1px),
+      #ffffff !important;
+    background-size: 80px 54px !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskChartCanvasV81 .areaPath {
+    fill: rgba(26,125,224,.10) !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskChartCanvasV81 .linePath {
+    stroke: #167cd8 !important;
+    filter: none !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskChartAxisV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskTimeAxisV81 {
+    color: #718396 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskTimeAxisV81 {
+    background: #ffffff !important;
+    border-top-color: #e5ebf1 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActiveTradeBadgeV81 {
+    background: rgba(255,255,255,.94) !important;
+    color: #172331 !important;
+    border-color: rgba(0,176,112,.28) !important;
+  }
+
+  /* Floating market card/select inside chart */
+  html body #root .app.theme-light.activePage-trade .mbDeskFloatingMarketSelectorV88,
+  html body #root .app.theme-light.activePage-trade .mbDeskFloatingMarketCardV88 {
+    background: #f7fafc !important;
+    border-color: #d9e3ec !important;
+    color: #172331 !important;
+    box-shadow: 0 8px 24px rgba(24,43,64,.10) !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskFloatingMarketSelectorV88 strong,
+  html body #root .app.theme-light.activePage-trade .mbDeskFloatingMarketNameV90 {
+    color: #172331 !important;
+    -webkit-text-fill-color: #172331 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskFloatingMarketSelectorV88 small {
+    color: #6c7d8f !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskWholeCardMarketSelectV89 option {
+    color: #172331 !important;
+    background: #ffffff !important;
+  }
+
+  /* ===== DIGITS — SAME PHONE LIGHT LANGUAGE ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskDigitsV81 {
+    background: #ffffff !important;
+    border-top-color: #e2e9ef !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskDigitsV81 button {
+    background: #ffffff !important;
+    color: #111923 !important;
+    border-color: #9aa8b7 !important;
+    box-shadow: none !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskDigitsV81 button strong {
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskDigitsV81 button small {
+    color: #66788a !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskDigitsV81 button.highest {
+    border-top-color: #00bf7b !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskDigitsV81 button.lowest {
+    border-bottom-color: #f03a55 !important;
+  }
+
+  /* ===== RIGHT TRADE PANEL ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskPanelHeadV81 strong {
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskPanelHeadV81 small,
+  html body #root .app.theme-light.activePage-trade .mbDeskStakeHeadV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskPayoutLineV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskDurationV81 {
+    color: #637588 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskPayoutLineV81 strong {
+    color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskTradeTabsV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskMarketSelectV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskStakeControlV81,
+  html body #root .app.theme-light.activePage-trade .mbDeskDurationV81 > div {
+    background: #f6f9fb !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskTradeTabsV81 button {
+    color: #617386 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskTradeTabsV81 button.active {
+    color: #ffffff !important;
+    background: #087cf0 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskMarketSelectV81 select,
+  html body #root .app.theme-light.activePage-trade .mbDeskStakeControlV81 input,
+  html body #root .app.theme-light.activePage-trade .mbDeskStakeControlV81 button,
+  html body #root .app.theme-light.activePage-trade .mbDeskDurationV81 button,
+  html body #root .app.theme-light.activePage-trade .mbDeskDurationV81 strong {
+    color: #111923 !important;
+    -webkit-text-fill-color: #111923 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskQuickStakeV81 button {
+    background: #f6f9fb !important;
+    color: #65778a !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskQuickStakeV81 button.active {
+    color: #087cf0 !important;
+    background: #edf6ff !important;
+    border-color: #168cff !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskRiseDurationUnitsV381 button {
+    background: #f6f9fb !important;
+    color: #65778a !important;
+    border-color: #dce5ed !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskRiseDurationUnitsV381 button.active {
+    background: #edf6ff !important;
+    color: #087cf0 !important;
+    border-color: #168cff !important;
+  }
+
+  /* Green/red action buttons intentionally retain broker colors like phone. */
+  html body #root .app.theme-light.activePage-trade .mbDeskActionV81.even {
+    background: linear-gradient(135deg,#09b67d,#079767) !important;
+    color: #ffffff !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskActionV81.odd {
+    background: linear-gradient(135deg,#f02042,#c90e31) !important;
+    color: #ffffff !important;
+  }
+
+  /* ===== AI CARD ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskAiCardV81 {
+    background: linear-gradient(135deg,#f4f8ff,#f7f4ff) !important;
+    border-color: #b9b1f5 !important;
+    color: #182333 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskAiCardV81 div strong {
+    color: #182333 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskAiCardV81 div small {
+    color: #718196 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskAiCardV81 > b {
+    color: #4d3eb0 !important;
+    background: #ffffff !important;
+  }
+
+  /* ===== FOOTER ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskFooterV81 {
+    background: #ffffff !important;
+    color: #617386 !important;
+    border-color: #d9e3ec !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskFooterV81 strong {
+    color: #26384a !important;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  html body #root .app.theme-light.activePage-trade .mbDeskTradePanelV81 {
+    scrollbar-color: #b8c5d1 #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskTradePanelV81::-webkit-scrollbar-track {
+    background: #f3f6f9 !important;
+  }
+
+  html body #root .app.theme-light.activePage-trade .mbDeskTradePanelV81::-webkit-scrollbar-thumb {
+    background: #b8c5d1 !important;
+    border-color: #f3f6f9 !important;
+  }
+}
+
