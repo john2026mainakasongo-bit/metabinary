@@ -400,10 +400,9 @@ return null;
             tone="direction"
           />
         </div>
-
-        <ValidatedSignalPanel data={validatedSignals} />
-  <EntryTimingPanel timing={entryTiming} validated={validatedSignals} />
-  <div className="ownerAnalysisGrid">
+      <ValidatedSignalPanel data={validatedSignals} />
+      <EntryTimingPanel timing={entryTiming} validated={validatedSignals} />
+<div className="ownerAnalysisGrid">
           <section className="ownerAnalysisCard">
             <div className="ownerAnalysisCardTitle">
               {snapshot?.label || marketId.toUpperCase()}
