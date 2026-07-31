@@ -8,6 +8,7 @@ import "./MobileTradeFix.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 import MobileHeader from "./MobileHeader.jsx";
 
+import OwnerAnalysisPage from "./owner-analysis/OwnerAnalysisPage";
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
   let viewport = document.querySelector('meta[name="viewport"]');
@@ -4633,7 +4634,14 @@ function TradingApp() {
 export default function App() {
   useDisableMobilePinchZoom();
   const params = new URLSearchParams(window.location.search);
-  const adminMode = window.location.pathname.startsWith("/admin") || params.get("admin") === "1";
+  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+  const adminMode = pathname.startsWith("/admin") || params.get("admin") === "1";
+  const ownerAnalysisMode = pathname === "/owner-analysis";
+
+  if (ownerAnalysisMode) {
+    return <OwnerAnalysisPage />;
+  }
+
   return adminMode ? <AdminPortal /> : <TradingApp />;
 }
 
