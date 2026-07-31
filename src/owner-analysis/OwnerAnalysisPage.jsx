@@ -78,38 +78,58 @@ function EntryTimingPanel({ timing }) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-");
 
+  const triggerDigits =
+    Array.isArray(timing.triggerDigits) && timing.triggerDigits.length
+      ? timing.triggerDigits.join(" / ")
+      : "—";
+
   return (
-    <section className={`entryTimingPanelV15 ${stateClass}`}>
-      <div className="entryTimingHeroV15">
-        <span>ENTRY STATUS</span>
-        <strong>{timing.state || "WAIT"}</strong>
+    <section className={`entryTimingPanelV17 ${stateClass}`}>
+      <div className="entryTimingHeroV17">
+        <div>
+          <span>ENTRY STATUS</span>
+          <strong>{timing.state || "WAIT"}</strong>
+        </div>
+
+        <div className="entryTimingValidityV17">
+          <span>SIGNAL WINDOW</span>
+          <strong>{timing.validityLabel || "15 sec"}</strong>
+        </div>
       </div>
 
-      <div className="entryTimingGridV15">
+      <div className="entryTimingGridV17">
         <div>
           <span>Setup</span>
           <strong>{timing.setup || "—"}</strong>
         </div>
+
         <div>
-          <span>Trigger</span>
-          <strong>{timing.trigger || "WAIT"}</strong>
+          <span>Exact trigger</span>
+          <strong>{timing.triggerText || "WAIT"}</strong>
         </div>
+
+        <div>
+          <span>Trigger digit(s)</span>
+          <strong>{triggerDigits}</strong>
+        </div>
+
         <div>
           <span>Current digit</span>
           <strong>{timing.currentDigit ?? "—"}</strong>
         </div>
+
         <div>
           <span>Trade duration</span>
           <strong>{timing.tradeDuration || "5 ticks"}</strong>
         </div>
       </div>
 
-      <div className="entryTimingInstructionV15">
+      <div className="entryTimingInstructionV17">
         {timing.instruction || "Wait for confirmation before entry."}
       </div>
 
       {timing.readyNow ? (
-        <div className="entryTimingNowV15">
+        <div className="entryTimingNowV17">
           ENTER ON NEXT TICK
         </div>
       ) : null}
@@ -218,7 +238,7 @@ export default function OwnerAnalysisPage() {
   const entryTiming = useMemo(
     () =>
       snapshot && validatedSignals
-        ? buildEntryTiming(validatedSignals, snapshot, { tradeTicks: 5 })
+        ? buildEntryTiming(validatedSignals, snapshot, { tradeTicks: 5, validitySeconds: 15 })
         : null,
     [snapshot, validatedSignals]
   );

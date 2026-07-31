@@ -1348,3 +1348,99 @@ body{
   .entryTimingHeroV15 strong{font-size:15px}
   .entryTimingInstructionV15{font-size:9px}
 }
+
+/* ENTRY TRIGGER TIMER V17 */
+.entryTimingPanelV17{
+  margin-top:8px;
+  padding:10px;
+  border:1px solid #214762;
+  border-radius:12px;
+  background:#071a29;
+}
+.entryTimingHeroV17{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding-bottom:8px;
+  border-bottom:1px solid #173a54;
+}
+.entryTimingHeroV17>div,
+.entryTimingValidityV17{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.entryTimingHeroV17 span,
+.entryTimingGridV17 span{
+  color:#7fa7c7;
+  font-size:9px;
+  font-weight:700;
+}
+.entryTimingHeroV17 strong{
+  color:#fff;
+  font-size:18px;
+  line-height:1;
+}
+.entryTimingValidityV17{
+  text-align:right;
+}
+.entryTimingValidityV17 strong{
+  color:#39d7ff;
+  font-size:14px;
+}
+.entryTimingPanelV17.enter-now{
+  border-color:#18b986;
+}
+.entryTimingPanelV17.enter-now .entryTimingHeroV17>div:first-child strong{
+  color:#43e9ad;
+}
+.entryTimingGridV17{
+  display:grid;
+  grid-template-columns:.8fr 1.5fr .8fr .6fr .7fr;
+  gap:7px;
+  margin-top:8px;
+}
+.entryTimingGridV17>div{
+  min-width:0;
+  padding:8px;
+  border:1px solid #173a54;
+  border-radius:9px;
+  background:#061624;
+}
+.entryTimingGridV17 strong{
+  display:block;
+  margin-top:3px;
+  color:#fff;
+  font-size:11px;
+  line-height:1.25;
+}
+.entryTimingInstructionV17{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:9px;
+  background:#0a2234;
+  color:#c7dced;
+  font-size:10px;
+  line-height:1.35;
+}
+.entryTimingNowV17{
+  margin-top:7px;
+  padding:8px 10px;
+  border:1px solid #18b986;
+  border-radius:9px;
+  background:rgba(24,185,134,.11);
+  color:#43e9ad;
+  font-size:11px;
+  font-weight:900;
+  text-align:center;
+  letter-spacing:.03em;
+}
+@media(max-width:720px){
+  .entryTimingPanelV17{padding:8px}
+  .entryTimingGridV17{grid-template-columns:1fr 1fr;gap:5px}
+  .entryTimingGridV17>div{padding:7px}
+  .entryTimingHeroV17 strong{font-size:15px}
+  .entryTimingValidityV17 strong{font-size:12px}
+  .entryTimingInstructionV17{font-size:9px}
+}

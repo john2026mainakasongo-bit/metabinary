@@ -3,7 +3,7 @@ function num(value, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function lastDigitFromSnapshot(snapshot) {
+function lastDigit(snapshot) {
   const history = Array.isArray(snapshot?.digitHistory) ? snapshot.digitHistory : [];
   if (history.length) {
     const d = Number(history[history.length - 1]);
@@ -12,25 +12,25 @@ function lastDigitFromSnapshot(snapshot) {
 
   const price = Number(snapshot?.currentPrice ?? snapshot?.price);
   if (Number.isFinite(price)) {
-    const text = String(price).replace(/[^0-9]/g, "");
-    if (text) return Number(text[text.length - 1]);
+    const digits = String(price).replace(/\D/g, "");
+    if (digits) return Number(digits[digits.length - 1]);
   }
 
   return null;
 }
 
-function normalizeAction(signal) {
+function actionOf(signal) {
   return String(signal?.action || signal?.candidate || "WAIT").trim().toUpperCase();
 }
 
-function findBest(validated) {
+function bestValidated(validated) {
   if (!validated) return null;
   if (validated.best?.approved) return validated.best;
 
   const signals = Array.isArray(validated.signals) ? validated.signals : [];
   return (
     signals
-      .filter((s) => s?.approved && String(s.action || "").toUpperCase() !== "WAIT")
+      .filter((s) => s?.approved && actionOf(s) !== "WAIT")
       .sort(
         (a, b) =>
           num(b.lowerBound) - num(a.lowerBound) ||
@@ -40,16 +40,39 @@ function findBest(validated) {
   );
 }
 
-function triggerForSignal(signal, snapshot) {
-  const action = normalizeAction(signal);
-  const currentDigit = lastDigitFromSnapshot(snapshot);
+function preferredOverTrigger(snapshot, barrier = 2) {
+  const history = Array.isArray(snapshot?.digitHistory) ? snapshot.digitHistory : [];
+  const recent = history.slice(-40).map(Number).filter((d) => Number.isInteger(d) && d >= 0 && d <= 9);
+
+  // Prefer a barrier touch. If 5 has been a common reset digit recently, allow 5 too.
+  const count = (digit) => recent.filter((d) => d === digit).length;
+  const triggers = [barrier];
+
+  if (count(5) >= 3) triggers.push(5);
+  return [...new Set(triggers)];
+}
+
+function preferredUnderTrigger(snapshot, barrier = 2) {
+  const history = Array.isArray(snapshot?.digitHistory) ? snapshot.digitHistory : [];
+  const recent = history.slice(-40).map(Number).filter((d) => Number.isInteger(d) && d >= 0 && d <= 9);
+
+  const count = (digit) => recent.filter((d) => d === digit).length;
+  const triggers = [7];
+
+  if (count(5) >= 3) triggers.push(5);
+  return [...new Set(triggers)];
+}
+
+function triggerState(signal, snapshot) {
+  const action = actionOf(signal);
+  const currentDigit = lastDigit(snapshot);
 
   if (!signal || !signal.approved || action === "WAIT") {
     return {
       state: "SKIP",
       setup: "—",
-      trigger: "No validated setup yet",
-      triggerDigit: null,
+      triggerDigits: [],
+      triggerText: "No validated setup yet",
       currentDigit,
       readyNow: false,
       instruction: "WAIT. Do not enter until a validated setup appears.",
@@ -57,119 +80,116 @@ function triggerForSignal(signal, snapshot) {
   }
 
   if (action === "OVER 2") {
-    // For an OVER 2 setup, use a reset/touch trigger near the barrier:
-    // enter only after a 0/1/2 print, with 2 being the preferred touch.
-    const triggerDigit = 2;
-    const readyNow = currentDigit === 2;
+    const triggerDigits = preferredOverTrigger(snapshot, 2);
+    const readyNow = triggerDigits.includes(currentDigit);
+
     return {
-      state: readyNow ? "ENTER NOW" : "WAIT FOR TOUCH",
+      state: readyNow ? "ENTER NOW" : "WAIT FOR TRIGGER",
       setup: "OVER 2",
-      trigger: "Wait for last digit to touch 2",
-      triggerDigit,
+      triggerDigits,
+      triggerText: `Enter only after last digit touches ${triggerDigits.join(" or ")}`,
       currentDigit,
       readyNow,
       instruction: readyNow
-        ? "Digit 2 touched. Enter OVER 2 on the next tick."
-        : "Do not chase. Wait until the last digit prints 2, then enter OVER 2 on the next tick.",
+        ? `Trigger digit ${currentDigit} touched. Enter OVER 2 on the next tick.`
+        : `Wait for ${triggerDigits.join(" or ")}. When one prints, enter OVER 2 on the next tick.`,
     };
   }
 
   if (action === "UNDER 2") {
-    // Under 2 wins only on 0/1; require a high reset before entry.
-    const triggerDigit = 7;
-    const readyNow = currentDigit === triggerDigit;
+    const triggerDigits = preferredUnderTrigger(snapshot, 2);
+    const readyNow = triggerDigits.includes(currentDigit);
+
     return {
-      state: readyNow ? "ENTER NOW" : "WAIT FOR TOUCH",
+      state: readyNow ? "ENTER NOW" : "WAIT FOR TRIGGER",
       setup: "UNDER 2",
-      trigger: "Wait for last digit to touch 7",
-      triggerDigit,
+      triggerDigits,
+      triggerText: `Enter only after last digit touches ${triggerDigits.join(" or ")}`,
       currentDigit,
       readyNow,
       instruction: readyNow
-        ? "Digit 7 touched. Enter UNDER 2 on the next tick."
-        : "Wait for a high reset at digit 7, then enter UNDER 2 on the next tick.",
+        ? `Trigger digit ${currentDigit} touched. Enter UNDER 2 on the next tick.`
+        : `Wait for ${triggerDigits.join(" or ")}. When one prints, enter UNDER 2 on the next tick.`,
     };
   }
 
   if (action.startsWith("MATCH ")) {
-    const target = Number(action.split(/s+/)[1]);
-    const readyNow = Number.isInteger(target) && currentDigit === target;
+    const target = Number(action.split(/\s+/)[1]);
+    const triggerDigits = Number.isInteger(target) ? [target] : [];
+    const readyNow = triggerDigits.includes(currentDigit);
+
     return {
-      state: readyNow ? "ENTER NOW" : "WAIT FOR TOUCH",
+      state: readyNow ? "ENTER NOW" : "WAIT FOR TRIGGER",
       setup: action,
-      trigger: Number.isInteger(target)
-        ? `Wait for last digit to touch ${target}`
-        : "Wait for target digit touch",
-      triggerDigit: Number.isInteger(target) ? target : null,
+      triggerDigits,
+      triggerText: triggerDigits.length
+        ? `Enter only after last digit touches ${target}`
+        : "Wait for the selected match digit",
       currentDigit,
       readyNow,
-      instruction: Number.isInteger(target)
-        ? readyNow
-          ? `Digit ${target} touched. Enter MATCH ${target} on the next tick.`
-          : `Wait until digit ${target} prints, then enter MATCH ${target} on the next tick.`
-        : "Wait for the selected match digit before entry.",
+      instruction: readyNow
+        ? `Digit ${target} touched. Enter MATCH ${target} on the next tick.`
+        : `Wait for digit ${target}, then enter MATCH ${target} on the next tick.`,
     };
   }
 
   if (action.startsWith("DIFFERS ")) {
-    const target = Number(action.split(/s+/)[1]);
-    const readyNow = Number.isInteger(target) && currentDigit === target;
+    const target = Number(action.split(/\s+/)[1]);
+    const triggerDigits = Number.isInteger(target) ? [target] : [];
+    const readyNow = triggerDigits.includes(currentDigit);
+
     return {
-      state: readyNow ? "ENTER NOW" : "WAIT FOR TOUCH",
+      state: readyNow ? "ENTER NOW" : "WAIT FOR TRIGGER",
       setup: action,
-      trigger: Number.isInteger(target)
-        ? `Wait for last digit to touch ${target}`
-        : "Wait for target digit touch",
-      triggerDigit: Number.isInteger(target) ? target : null,
+      triggerDigits,
+      triggerText: triggerDigits.length
+        ? `Enter only after last digit touches ${target}`
+        : "Wait for the selected differs digit",
       currentDigit,
       readyNow,
-      instruction: Number.isInteger(target)
-        ? readyNow
-          ? `Digit ${target} touched. Enter DIFFERS ${target} on the next tick.`
-          : `Wait until digit ${target} prints, then enter DIFFERS ${target} on the next tick.`
-        : "Wait for the selected differs digit before entry.",
+      instruction: readyNow
+        ? `Digit ${target} touched. Enter DIFFERS ${target} on the next tick.`
+        : `Wait for digit ${target}, then enter DIFFERS ${target} on the next tick.`,
     };
   }
 
   if (action === "EVEN" || action === "ODD") {
-    // Require opposite parity touch before entering the validated side.
     const wantsEven = action === "EVEN";
     const currentParity =
       currentDigit == null ? null : currentDigit % 2 === 0 ? "EVEN" : "ODD";
-    const opposite = wantsEven ? "ODD" : "EVEN";
-    const readyNow = currentParity === opposite;
+    const resetParity = wantsEven ? "ODD" : "EVEN";
+    const readyNow = currentParity === resetParity;
 
     return {
       state: readyNow ? "ENTER NOW" : "WAIT FOR RESET",
       setup: action,
-      trigger: `Wait for an ${opposite} digit first`,
-      triggerDigit: null,
+      triggerDigits: [],
+      triggerText: `Wait for one ${resetParity} digit first`,
       currentDigit,
       readyNow,
       instruction: readyNow
-        ? `${opposite} reset printed. Enter ${action} on the next tick.`
-        : `Wait for one ${opposite} digit, then enter ${action} on the next tick.`,
+        ? `${resetParity} reset printed. Enter ${action} on the next tick.`
+        : `Wait for one ${resetParity} digit, then enter ${action} on the next tick.`,
     };
   }
 
   if (action === "RISE" || action === "FALL") {
-    // Rise/Fall is price direction, so use timing instead of a digit barrier.
     return {
-      state: "ENTER ON NEXT TICK",
+      state: "ENTER NOW",
       setup: action,
-      trigger: "Enter on the next confirmed feed tick",
-      triggerDigit: null,
+      triggerDigits: [],
+      triggerText: "Enter on the next confirmed feed tick",
       currentDigit,
       readyNow: true,
-      instruction: `Validated ${action}. Enter on the next confirmed tick; duration follows the selected tick duration.`,
+      instruction: `Validated ${action}. Enter on the next confirmed tick.`,
     };
   }
 
   return {
     state: "WAIT",
     setup: action,
-    trigger: "Wait for the configured confirmation",
-    triggerDigit: null,
+    triggerDigits: [],
+    triggerText: "Wait for confirmation",
     currentDigit,
     readyNow: false,
     instruction: "Wait for confirmation before entry.",
@@ -178,16 +198,21 @@ function triggerForSignal(signal, snapshot) {
 
 export function buildEntryTiming(validatedSignals, snapshot, options = {}) {
   const tradeTicks = Math.max(1, Math.min(10, Math.floor(num(options.tradeTicks, 5))));
-  const best = findBest(validatedSignals);
-  const trigger = triggerForSignal(best, snapshot);
+  const best = bestValidated(validatedSignals);
+  const base = triggerState(best, snapshot);
+
+  // Signal validity window: visible and deterministic.
+  // This is NOT an estimate of when a trigger digit will appear.
+  const validitySeconds = Math.max(5, Math.min(60, Math.floor(num(options.validitySeconds, 15))));
 
   return {
-    ...trigger,
+    ...base,
     tradeTicks,
     tradeDuration: `${tradeTicks} tick${tradeTicks === 1 ? "" : "s"}`,
-    validForTicks: trigger.readyNow ? 1 : 0,
-    timingScore: trigger.readyNow ? 100 : 0,
-    // Deliberately no fake seconds countdown: synthetic ticks are event based.
-    countdownLabel: trigger.readyNow ? "NEXT TICK" : "WAIT",
+    validitySeconds,
+    validityLabel:
+      validitySeconds >= 60
+        ? `${Math.round(validitySeconds / 60)} min`
+        : `${validitySeconds} sec`,
   };
 }
