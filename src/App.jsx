@@ -3229,7 +3229,9 @@ function TradingApp() {
   }
 
   async function runBinaryTrade(type, action, options = {}) {
-    const usedStake = Number(stake);
+    const usedStake = Number(options.stake ?? stake);
+    const usedPrediction = Number(options.prediction ?? prediction);
+    const tradeSource = String(options.source || "manual");
     const isRiseFallTrade = type === "Rise/Fall";
     const requestedTicks = Number(options.durationTicks ?? duration ?? 5);
     const usedTicks = Math.min(
@@ -3252,7 +3254,7 @@ function TradingApp() {
           )
         )
       : usedTicks;
-    const multiplier = payoutRate(type, action, prediction, {
+    const multiplier = payoutRate(type, action, usedPrediction, {
       ticks: usedTicks,
       barrierDistance: Number(options.barrierDistance || 2),
     });
@@ -3289,7 +3291,7 @@ function TradingApp() {
     }
 
     try {
-      const requestId = `manual-${uid()}`;
+      const requestId = `${tradeSource}-${uid()}`;
       const { response, result } = await requestJsonWithRetry(
         `${API_URL}/api/trades/open`,
         {
@@ -3302,8 +3304,9 @@ function TradingApp() {
             type,
             action,
             stake: usedStake,
-            prediction,
+            prediction: usedPrediction,
             ticks: usedTicks,
+            source: tradeSource,
             durationUnit: selectedDurationUnit,
             durationValue: selectedDurationValue,
             entryPrice: livePrice,
@@ -3329,7 +3332,7 @@ function TradingApp() {
         type: opened.type || type,
         action: opened.action || action,
         stake: Number(opened.stake ?? usedStake),
-        prediction: Number(opened.prediction ?? prediction),
+        prediction: Number(opened.prediction ?? usedPrediction),
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
@@ -3345,7 +3348,7 @@ function TradingApp() {
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
         status: "RUNNING",
         tickMs: Math.max(250, Number(opened.tickMs || 1000)),
-        source: opened.source || "manual",
+        source: opened.source || tradeSource,
         marketId: opened.marketId || activeBinaryMarket.id,
       };
 
@@ -3372,6 +3375,7 @@ function TradingApp() {
         `${activeBinaryMarket.label} · ${type} · ${action} · ${formatTradeDuration(type, usedTicks)}`,
         1700
       );
+      return openTrade;
     } catch (error) {
       console.error("Trade open failed:", error);
       notify(

@@ -1,0 +1,140 @@
+
+.ownerBotPanel{
+  margin-top:18px;
+  padding:20px;
+  border:1px solid #173b55;
+  border-radius:22px;
+  background:#081c2d;
+  color:#fff;
+}
+.ownerBotPanelTop{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  margin-bottom:18px;
+}
+.ownerBotPanelTop small{
+  color:#38e6a5;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.ownerBotPanelTop h2{
+  margin:5px 0 3px;
+  font-size:24px;
+}
+.ownerBotPanelTop p{
+  margin:0;
+  color:#8fb3d3;
+  font-size:13px;
+}
+.ownerBotState{
+  padding:9px 13px;
+  border:1px solid #31516b;
+  border-radius:999px;
+  color:#9ab3c8;
+  font-weight:900;
+  font-size:12px;
+}
+.ownerBotState.running{
+  color:#32e4a3;
+  border-color:#188d68;
+  background:rgba(24,141,104,.12);
+}
+.ownerBotGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.ownerBotField,
+.ownerBotToggle{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  color:#8fb3d3;
+  font-size:12px;
+  font-weight:700;
+}
+.ownerBotField input,
+.ownerBotField select{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #1a405b;
+  border-radius:12px;
+  background:#061624;
+  color:#fff;
+  padding:12px 13px;
+  outline:none;
+}
+.ownerBotToggle{
+  justify-content:flex-end;
+  padding-bottom:4px;
+}
+.ownerBotToggle input{
+  width:22px;
+  height:22px;
+}
+.ownerBotRuntime{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:10px;
+  margin-top:16px;
+}
+.ownerBotRuntime>div{
+  padding:12px;
+  border:1px solid #173b55;
+  border-radius:14px;
+  background:#061624;
+}
+.ownerBotRuntime span{
+  display:block;
+  color:#789ab7;
+  font-size:11px;
+  margin-bottom:5px;
+}
+.ownerBotRuntime strong{
+  font-size:14px;
+}
+.ownerBotMessage{
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:13px;
+  background:#061624;
+  border:1px solid #173b55;
+  color:#9db8cf;
+  font-size:13px;
+}
+.ownerBotActions{
+  display:flex;
+  margin-top:14px;
+}
+.ownerBotActions button{
+  min-width:190px;
+  border:0;
+  border-radius:13px;
+  padding:13px 18px;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.ownerBotStart{
+  background:#087dff;
+}
+.ownerBotStop{
+  background:#d72d4d;
+}
+.ownerBotDisclaimer{
+  margin-top:12px;
+  color:#6f8ca5;
+  font-size:11px;
+}
+@media(max-width:900px){
+  .ownerBotGrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .ownerBotRuntime{grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:580px){
+  .ownerBotPanel{padding:14px;}
+  .ownerBotPanelTop{flex-direction:column;}
+  .ownerBotGrid{grid-template-columns:1fr 1fr;}
+  .ownerBotRuntime{grid-template-columns:1fr 1fr;}
+}
