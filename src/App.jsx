@@ -4661,7 +4661,7 @@ export default function App() {
   const ownerAnalysisMode = pathname === "/owner-analysis";
 
   if (ownerAnalysisMode) {
-    return <TradingApp initialPage="ownerAnalysis" />;
+    return <OwnerAnalysisPage />;
   }
 
   return adminMode ? <AdminPortal /> : <TradingApp />;
