@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import "./OwnerAnalysisPage.css";
+import OwnerAutoBotDock from "../owner-bot/OwnerAutoBotDock";
 import { analyzeMarket } from "./analysisEngine";
 
 const LIVE_BACKEND = "https://metabinary-backend.onrender.com";
@@ -465,9 +466,10 @@ export default function OwnerAnalysisPage() {
               High-confidence means the current statistics pass strict filters.
               It is not a guaranteed win and does not alter market outcomes.
             </div>
-          </section>
-        </div>
-      </div>
+      </section>
+      <OwnerAutoBotDock analysis={analysis} marketId={marketId} />
     </div>
-  );
+  </div>
+</div>
+);
 }

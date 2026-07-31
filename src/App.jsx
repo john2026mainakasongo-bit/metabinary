@@ -1268,7 +1268,7 @@ async function fetchMarketCandles(market, timeframe, signal) {
     );
 }
 
-function TradingApp() {
+function TradingApp({ initialPage = "" } = {}) {
   useResponsiveViewportSize();
   const [user, setUser] = useState(() => readStore(STORE.user, null));
   const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
@@ -1279,7 +1279,9 @@ function TradingApp() {
     new URLSearchParams(window.location.search).get("reset_token") ? "auth" : "landing"
   );
 
-  const [activePage, setActivePage] = useState(initialTradingPage);
+  const [activePage, setActivePage] = useState(
+    initialPage === "ownerAnalysis" ? "ownerAnalysis" : initialTradingPage
+  );
   useKeepTradingScreenAwake(
     activePage === "trade" ||
       activePage === "bots" ||
@@ -3388,7 +3390,17 @@ function TradingApp() {
     }
   }
 
-  function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
+  
+  useEffect(() => {
+    window.__metabinaryOwnerRunBinaryTrade = runBinaryTrade;
+    return () => {
+      if (window.__metabinaryOwnerRunBinaryTrade === runBinaryTrade) {
+        delete window.__metabinaryOwnerRunBinaryTrade;
+      }
+    };
+  }, [runBinaryTrade]);
+
+function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
     window.clearTimeout(aiAutoTimerRef.current);
     const current = aiAutoSessionRef.current;
 
@@ -4409,6 +4421,11 @@ function TradingApp() {
     );
   }
 
+
+  if (activePage === "ownerAnalysis") {
+    return <OwnerAnalysisPage embeddedOwnerMode />;
+  }
+
   return (
     <div className={`app theme-${theme} activePage-${activePage} ${activePage === "trade" && tradeType === "Rise/Fall" ? "riseFallActivePageV183" : ""}`}>
       <div
@@ -4643,7 +4660,7 @@ export default function App() {
   const ownerAnalysisMode = pathname === "/owner-analysis";
 
   if (ownerAnalysisMode) {
-    return <OwnerAnalysisPage />;
+    return <TradingApp initialPage="ownerAnalysis" />;
   }
 
   return adminMode ? <AdminPortal /> : <TradingApp />;
