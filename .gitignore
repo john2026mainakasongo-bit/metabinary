@@ -28,3 +28,9 @@ backend/dist/
 # Logs
 *.log
 npm-debug.log*
+# Local patch / backup files
+*.before-*
+*.bak
+PATCH-*.cjs
+*-block.txt
+v3-error.txt
