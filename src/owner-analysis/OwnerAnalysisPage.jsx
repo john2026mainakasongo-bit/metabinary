@@ -71,90 +71,48 @@ function SignalCard({ title, signal, confidence, detail, tone = "" }) {
 
 
 
-function EntryTimingPanel({ timing, validated }) {
+function EntryTimingPanel({ timing }) {
   if (!timing) return null;
 
-  const bestAction = validated?.best?.action || "—";
-  const isEnter = timing.state === "ENTER_NOW";
-  const isWait = timing.state === "WAIT";
+  const stateClass = String(timing.state || "WAIT")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
 
   return (
-    <section className={`entryTimingV9 ${timing.state.toLowerCase()}`}>
-      <div className="entryTimingV9Main">
-        <div>
-          <small>ENTRY TIMING</small>
-          <strong>{timing.label}</strong>
-        </div>
+    <section className={`entryTimingPanelV15 ${stateClass}`}>
+      <div className="entryTimingHeroV15">
+        <span>ENTRY STATUS</span>
+        <strong>{timing.state || "WAIT"}</strong>
+      </div>
 
-        <div className="entryTimingV9Setup">
+      <div className="entryTimingGridV15">
+        <div>
           <span>Setup</span>
-          <b>{bestAction}</b>
+          <strong>{timing.setup || "—"}</strong>
         </div>
-
-        <div className="entryTimingV9Setup">
-          <span>Trade duration</span>
-          <b>{timing.tradeTicks} ticks</b>
-        </div>
-
-        <div className="entryTimingV9Setup">
-          <span>Timing score</span>
-          <b>{Number(timing.timingScore || 0).toFixed(0)}%</b>
-        </div>
-      </div>
-
-      <div className="entryTimingV9Message">
-        {isEnter && (
-          <>
-            Enter on the current/next tick only. Re-check if one tick passes before entry.
-          </>
-        )}
-
-        {isWait && (
-          <>
-            Re-check after {timing.waitTicks} tick{timing.waitTicks === 1 ? "" : "s"}
-            {Number.isFinite(timing.approxSeconds)
-              ? ` (~${timing.approxSeconds.toFixed(1)}s at the current feed rate)`
-              : ""}.
-          </>
-        )}
-
-        {timing.state === "SKIP" && <>Do not enter this setup now.</>}
-      </div>
-    </section>
-  );
-}
-
-function ValidatedSignalPanel({ data }) {
-  if (!data) return null;
-  return (
-    <section className="validatedSignalsV8">
-      <div className="validatedSignalsV8Head">
         <div>
-          <strong>Validated Signals</strong>
-          <span>Walk-forward backtest · no look-ahead</span>
+          <span>Trigger</span>
+          <strong>{timing.trigger || "WAIT"}</strong>
         </div>
-        <div className="validatedSignalsV8Count">{data.approvedCount} validated</div>
+        <div>
+          <span>Current digit</span>
+          <strong>{timing.currentDigit ?? "—"}</strong>
+        </div>
+        <div>
+          <span>Trade duration</span>
+          <strong>{timing.tradeDuration || "5 ticks"}</strong>
+        </div>
       </div>
-      <div className="validatedSignalsV8Grid">
-        {data.signals.map((signal) => (
-          <div key={signal.name} className={`validatedSignalV8 ${signal.approved ? "approved" : "wait"}`}>
-            <div className="validatedSignalV8Top"><span>{signal.name}</span><b>{signal.approved ? "VALIDATED" : "WAIT"}</b></div>
-            <div className="validatedSignalV8Action">{signal.approved ? signal.action : "WAIT"}</div>
-            <div className="validatedSignalV8Stats">
-              <span>Hit rate <b>{signal.hitRate.toFixed(1)}%</b></span>
-              <span>Baseline <b>{signal.baseline.toFixed(1)}%</b></span>
-              <span>Edge <b>{signal.edge >= 0 ? "+" : ""}{signal.edge.toFixed(1)}%</b></span>
-              <span>Samples <b>{signal.samples}</b></span>
-            </div>
-            <div className="validatedSignalV8Reason">{signal.reason}</div>
-          </div>
-        ))}
+
+      <div className="entryTimingInstructionV15">
+        {timing.instruction || "Wait for confirmation before entry."}
       </div>
-      <div className="validatedSignalsV8Foot">
-        {data.best
-          ? `Best validated setup now: ${data.best.action} · historical hit rate ${data.best.hitRate.toFixed(1)}% · ${data.best.samples} samples.`
-          : "No setup has enough evidence right now. WAIT is the signal."}
-      </div>
+
+      {timing.readyNow ? (
+        <div className="entryTimingNowV15">
+          ENTER ON NEXT TICK
+        </div>
+      ) : null}
     </section>
   );
 }

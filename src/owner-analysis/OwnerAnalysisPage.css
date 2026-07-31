@@ -1264,3 +1264,87 @@ body{
     font-size:15px;
   }
 }
+
+/* ENTRY TRIGGER V15 */
+.entryTimingPanelV15{
+  margin-top:8px;
+  padding:10px;
+  border:1px solid #214762;
+  border-radius:12px;
+  background:#071a29;
+}
+.entryTimingHeroV15{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding-bottom:8px;
+  border-bottom:1px solid #173a54;
+}
+.entryTimingHeroV15 span,
+.entryTimingGridV15 span{
+  color:#7fa7c7;
+  font-size:9px;
+  font-weight:700;
+}
+.entryTimingHeroV15 strong{
+  font-size:18px;
+  line-height:1;
+}
+.entryTimingPanelV15.enter-now,
+.entryTimingPanelV15.enter-on-next-tick{
+  border-color:#18b986;
+  box-shadow:0 0 0 1px rgba(24,185,134,.12) inset;
+}
+.entryTimingPanelV15.enter-now .entryTimingHeroV15 strong,
+.entryTimingPanelV15.enter-on-next-tick .entryTimingHeroV15 strong{
+  color:#43e9ad;
+}
+.entryTimingGridV15{
+  display:grid;
+  grid-template-columns:1fr 1.4fr .7fr .8fr;
+  gap:7px;
+  margin-top:8px;
+}
+.entryTimingGridV15>div{
+  min-width:0;
+  padding:8px;
+  border:1px solid #173a54;
+  border-radius:9px;
+  background:#061624;
+}
+.entryTimingGridV15 strong{
+  display:block;
+  margin-top:3px;
+  color:#fff;
+  font-size:11px;
+  line-height:1.25;
+}
+.entryTimingInstructionV15{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:9px;
+  background:#0a2234;
+  color:#c7dced;
+  font-size:10px;
+  line-height:1.35;
+}
+.entryTimingNowV15{
+  margin-top:7px;
+  padding:8px 10px;
+  border:1px solid #18b986;
+  border-radius:9px;
+  background:rgba(24,185,134,.11);
+  color:#43e9ad;
+  font-size:11px;
+  font-weight:900;
+  text-align:center;
+  letter-spacing:.03em;
+}
+@media(max-width:720px){
+  .entryTimingPanelV15{padding:8px}
+  .entryTimingGridV15{grid-template-columns:1fr 1fr;gap:5px}
+  .entryTimingGridV15>div{padding:7px}
+  .entryTimingHeroV15 strong{font-size:15px}
+  .entryTimingInstructionV15{font-size:9px}
+}
