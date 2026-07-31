@@ -180,7 +180,10 @@ export default function OwnerAnalysisPage() {
       return analyzeMarket(snapshot);
     } catch (err) {
       console.error("Owner analysis error:", err);
-      
+      return null;
+    }
+  }, [snapshot]);
+
   const validatedSignals = useMemo(
     () => (snapshot ? buildValidatedSignals(snapshot) : null),
     [snapshot]
@@ -193,9 +196,6 @@ export default function OwnerAnalysisPage() {
         : null,
     [snapshot, validatedSignals]
   );
-return null;
-    }
-  }, [snapshot]);
 
   const loadMarket = useCallback(async () => {
     if (requestRef.current) {
