@@ -50,3 +50,298 @@
 @media (max-width:620px){
   .ownerAnalysisSignalGrid{grid-template-columns:1fr;}
 }
+
+
+/* OWNER ANALYSIS RESPONSIVE V5 */
+
+/* Desktop / laptop: use the available screen properly */
+.ownerAnalysisRoot{
+  width:100%;
+  min-height:100dvh;
+  box-sizing:border-box;
+  overflow-x:hidden;
+}
+
+.ownerAnalysisShell{
+  width:min(1320px,calc(100vw - 32px)) !important;
+  max-width:1320px !important;
+  margin:0 auto !important;
+  padding:24px 0 40px !important;
+  box-sizing:border-box;
+}
+
+.ownerAnalysisHeader{
+  width:100%;
+  box-sizing:border-box;
+}
+
+.ownerAnalysisMarkets{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:12px !important;
+  width:100%;
+}
+
+.ownerAnalysisMarketButton{
+  min-width:0 !important;
+  width:100% !important;
+  min-height:48px;
+}
+
+.ownerAnalysisGrid{
+  display:grid !important;
+  grid-template-columns:minmax(0,1.45fr) minmax(360px,.85fr) !important;
+  gap:18px !important;
+  align-items:stretch;
+  width:100%;
+}
+
+.ownerAnalysisCard{
+  min-width:0;
+  box-sizing:border-box;
+}
+
+.ownerAnalysisPriceRow{
+  gap:16px;
+}
+
+.ownerAnalysisPrice{
+  font-size:clamp(34px,4vw,64px) !important;
+  line-height:1;
+  overflow-wrap:anywhere;
+}
+
+.ownerAnalysisDigit{
+  flex:0 0 auto;
+}
+
+.ownerAnalysisDigits{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+
+.ownerAnalysisDigitCell{
+  min-width:0;
+}
+
+.ownerAnalysisStats{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:10px !important;
+}
+
+.ownerAnalysisStat{
+  min-width:0;
+}
+
+.ownerAnalysisStatValue{
+  overflow-wrap:anywhere;
+}
+
+.ownerAnalysisSignals,
+.ownerAnalysisSignalGrid{
+  width:100%;
+}
+
+/* Medium laptops / tablets */
+@media (max-width:1100px){
+  .ownerAnalysisShell{
+    width:min(100%,calc(100vw - 24px)) !important;
+    padding-top:16px !important;
+  }
+
+  .ownerAnalysisMarkets{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+
+  .ownerAnalysisGrid{
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+
+  .ownerAnalysisStats{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+}
+
+/* Phones */
+@media (max-width:700px){
+  .ownerAnalysisRoot{
+    min-height:100svh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .ownerAnalysisShell{
+    width:100% !important;
+    max-width:none !important;
+    padding:10px 10px 28px !important;
+  }
+
+  .ownerAnalysisHeader{
+    padding:14px !important;
+    border-radius:16px !important;
+    display:flex !important;
+    align-items:flex-start !important;
+    gap:12px !important;
+  }
+
+  .ownerAnalysisBrand{
+    min-width:0;
+    flex:1;
+  }
+
+  .ownerAnalysisLogo{
+    width:42px !important;
+    height:42px !important;
+    min-width:42px !important;
+  }
+
+  .ownerAnalysisTitle{
+    font-size:18px !important;
+    line-height:1.15 !important;
+    margin:0 !important;
+  }
+
+  .ownerAnalysisSub{
+    font-size:11px !important;
+    line-height:1.35;
+    margin-top:4px;
+  }
+
+  .ownerAnalysisLive{
+    font-size:11px !important;
+  }
+
+  .ownerAnalysisRefresh{
+    min-height:38px;
+    padding:8px 12px !important;
+    font-size:12px !important;
+  }
+
+  .ownerAnalysisMarkets{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+
+  .ownerAnalysisMarketButton{
+    min-height:42px !important;
+    padding:8px !important;
+    font-size:12px !important;
+    border-radius:12px !important;
+  }
+
+  .ownerAnalysisGrid{
+    display:block !important;
+  }
+
+  .ownerAnalysisCard{
+    margin-top:10px;
+    padding:14px !important;
+    border-radius:16px !important;
+  }
+
+  .ownerAnalysisCardTitle{
+    font-size:13px !important;
+  }
+
+  .ownerAnalysisPriceRow{
+    align-items:center !important;
+  }
+
+  .ownerAnalysisPrice{
+    font-size:34px !important;
+  }
+
+  .ownerAnalysisDigit{
+    width:58px !important;
+    height:58px !important;
+    min-width:58px !important;
+    font-size:24px !important;
+    border-radius:18px !important;
+  }
+
+  .ownerAnalysisDigits{
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:7px !important;
+  }
+
+  .ownerAnalysisDigitCell{
+    padding:10px 4px !important;
+    min-height:64px !important;
+    border-radius:12px !important;
+  }
+
+  .ownerAnalysisDigitNumber{
+    font-size:17px !important;
+  }
+
+  .ownerAnalysisDigitPercent{
+    font-size:10px !important;
+  }
+
+  .ownerAnalysisStats{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+
+  .ownerAnalysisStat{
+    padding:11px !important;
+    min-height:72px;
+  }
+
+  .ownerAnalysisStatLabel{
+    font-size:10px !important;
+  }
+
+  .ownerAnalysisStatValue{
+    font-size:15px !important;
+    line-height:1.15;
+  }
+
+  .ownerAnalysisSetup{
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+
+  .ownerAnalysisFootnote{
+    font-size:10px !important;
+    line-height:1.4;
+  }
+}
+
+/* Very small phones */
+@media (max-width:390px){
+  .ownerAnalysisShell{
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+
+  .ownerAnalysisHeader{
+    padding:12px !important;
+  }
+
+  .ownerAnalysisTitle{
+    font-size:16px !important;
+  }
+
+  .ownerAnalysisMarkets{
+    gap:6px !important;
+  }
+
+  .ownerAnalysisDigits{
+    gap:5px !important;
+  }
+
+  .ownerAnalysisDigitCell{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+
+  .ownerAnalysisStats{
+    grid-template-columns:1fr 1fr !important;
+  }
+}

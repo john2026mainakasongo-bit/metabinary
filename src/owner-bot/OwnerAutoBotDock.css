@@ -19,3 +19,60 @@
   .ownerAutoBotTop{align-items:flex-start;flex-direction:column}
   .ownerAutoBotToggle{width:100%}
 }
+
+/* OWNER BOT DOCK RESPONSIVE V5 */
+
+.ownerAutoBotDock{
+  width:100%;
+  box-sizing:border-box;
+}
+
+@media (max-width:1100px){
+  .ownerAutoBotGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+}
+
+@media (max-width:700px){
+  .ownerAutoBotDock{
+    margin-top:10px !important;
+    padding:14px !important;
+    border-radius:16px !important;
+  }
+
+  .ownerAutoBotTop{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:10px !important;
+  }
+
+  .ownerAutoBotTitle{
+    font-size:16px !important;
+  }
+
+  .ownerAutoBotSub{
+    font-size:10px !important;
+    line-height:1.4;
+  }
+
+  .ownerAutoBotToggle{
+    width:100% !important;
+    min-height:42px;
+  }
+
+  .ownerAutoBotGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+
+  .ownerAutoBotGrid input,
+  .ownerAutoBotGrid select{
+    min-height:42px;
+  }
+
+  .ownerAutoBotStatus{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+}
