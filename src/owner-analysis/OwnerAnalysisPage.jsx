@@ -41,11 +41,27 @@ function apiBase() {
   return LIVE_BACKEND;
 }
 
-function Stat({ label, value }) {
+function Stat({ label, value, accent = "" }) {
   return (
-    <div className="ownerAnalysisStat">
+    <div className={`ownerAnalysisStat ${accent ? `oa-${accent}` : ""}`}>
       <div className="ownerAnalysisStatLabel">{label}</div>
       <div className="ownerAnalysisStatValue">{value}</div>
+    </div>
+  );
+}
+
+function SignalCard({ title, signal, confidence, detail, tone = "" }) {
+  const safeSignal = signal || "WAIT";
+  const active = safeSignal !== "WAIT";
+
+  return (
+    <div className={`ownerAnalysisSignalCard ${active ? "active" : ""} ${tone}`}>
+      <div className="ownerAnalysisSignalTop">
+        <span>{title}</span>
+        <strong>{active ? `${Math.round(confidence || 0)}%` : "WAIT"}</strong>
+      </div>
+      <div className="ownerAnalysisSignalValue">{safeSignal}</div>
+      <div className="ownerAnalysisSignalDetail">{detail}</div>
     </div>
   );
 }
@@ -58,6 +74,11 @@ export default function OwnerAnalysisPage() {
   const [updatedAt, setUpdatedAt] = useState(0);
 
   const requestRef = useRef(null);
+  const snapshotRef = useRef(null);
+
+  useEffect(() => {
+    snapshotRef.current = snapshot;
+  }, [snapshot]);
 
   const analysis = useMemo(() => {
     if (!snapshot) return null;
@@ -81,7 +102,7 @@ export default function OwnerAnalysisPage() {
     try {
       setError("");
 
-      if (!snapshot) {
+      if (!snapshotRef.current) {
         setStatus("CONNECTING");
       }
 
@@ -136,17 +157,14 @@ export default function OwnerAnalysisPage() {
       }
 
       console.error("Owner market feed:", err);
-
-      setError(
-        err?.message || "Unable to connect to market feed"
-      );
-
+      setError(err?.message || "Unable to connect to market feed");
       setStatus("OFFLINE");
     }
-  }, [marketId, snapshot]);
+  }, [marketId]);
 
   useEffect(() => {
     setSnapshot(null);
+    snapshotRef.current = null;
     setUpdatedAt(0);
     setError("");
     setStatus("CONNECTING");
@@ -159,12 +177,11 @@ export default function OwnerAnalysisPage() {
 
     return () => {
       window.clearInterval(timer);
-
       if (requestRef.current) {
         requestRef.current.abort();
       }
     };
-  }, [marketId]); // deliberately reload only when market changes
+  }, [marketId, loadMarket]);
 
   const emptyDistribution = useMemo(
     () =>
@@ -198,7 +215,7 @@ export default function OwnerAnalysisPage() {
               </h1>
 
               <div className="ownerAnalysisSub">
-                Read-only market statistics and setup scoring
+                Read-only market statistics and high-confidence setup scoring
               </div>
             </div>
           </div>
@@ -243,6 +260,40 @@ export default function OwnerAnalysisPage() {
             {error}
           </div>
         )}
+
+        <div className="ownerAnalysisSignalGrid">
+          <SignalCard
+            title="Even / Odd"
+            signal={analysis?.signals?.parity?.signal}
+            confidence={analysis?.signals?.parity?.confidence}
+            detail={analysis?.signals?.parity?.detail || "Waiting for enough data"}
+            tone="parity"
+          />
+
+          <SignalCard
+            title="Over / Under 2"
+            signal={analysis?.signals?.threshold?.signal}
+            confidence={analysis?.signals?.threshold?.confidence}
+            detail={analysis?.signals?.threshold?.detail || "Waiting for enough data"}
+            tone="threshold"
+          />
+
+          <SignalCard
+            title="Matches / Differs"
+            signal={analysis?.signals?.matchDiff?.signal}
+            confidence={analysis?.signals?.matchDiff?.confidence}
+            detail={analysis?.signals?.matchDiff?.detail || "Waiting for enough data"}
+            tone="match"
+          />
+
+          <SignalCard
+            title="Rise / Fall"
+            signal={analysis?.signals?.riseFall?.signal}
+            confidence={analysis?.signals?.riseFall?.confidence}
+            detail={analysis?.signals?.riseFall?.detail || "Waiting for enough data"}
+            tone="direction"
+          />
+        </div>
 
         <div className="ownerAnalysisGrid">
           <section className="ownerAnalysisCard">
@@ -297,11 +348,7 @@ export default function OwnerAnalysisPage() {
                 label="Even / Odd"
                 value={
                   analysis
-                    ? `${analysis.parity.evenPercent.toFixed(
-                        1
-                      )}% / ${analysis.parity.oddPercent.toFixed(
-                        1
-                      )}%`
+                    ? `${analysis.parity.evenPercent.toFixed(1)}% / ${analysis.parity.oddPercent.toFixed(1)}%`
                     : "—"
                 }
               />
@@ -315,9 +362,7 @@ export default function OwnerAnalysisPage() {
                 label="Over 2"
                 value={
                   analysis
-                    ? `${analysis.threshold2.overPercent.toFixed(
-                        1
-                      )}%`
+                    ? `${analysis.threshold2.overPercent.toFixed(1)}%`
                     : "—"
                 }
               />
@@ -326,9 +371,7 @@ export default function OwnerAnalysisPage() {
                 label="Under 2"
                 value={
                   analysis
-                    ? `${analysis.threshold2.underPercent.toFixed(
-                        1
-                      )}%`
+                    ? `${analysis.threshold2.underPercent.toFixed(1)}%`
                     : "—"
                 }
               />
@@ -336,6 +379,11 @@ export default function OwnerAnalysisPage() {
               <Stat
                 label="Momentum"
                 value={analysis?.momentum?.direction || "—"}
+              />
+
+              <Stat
+                label="Trend strength"
+                value={analysis?.direction?.strengthLabel || "—"}
               />
 
               <Stat
@@ -347,9 +395,7 @@ export default function OwnerAnalysisPage() {
                 label="Highest digit"
                 value={
                   analysis?.bestDigit
-                    ? `${analysis.bestDigit.digit} (${analysis.bestDigit.percent.toFixed(
-                        1
-                      )}%)`
+                    ? `${analysis.bestDigit.digit} (${analysis.bestDigit.percent.toFixed(1)}%)`
                     : "—"
                 }
               />
@@ -358,9 +404,34 @@ export default function OwnerAnalysisPage() {
                 label="Lowest digit"
                 value={
                   analysis?.coldDigit
-                    ? `${analysis.coldDigit.digit} (${analysis.coldDigit.percent.toFixed(
-                        1
-                      )}%)`
+                    ? `${analysis.coldDigit.digit} (${analysis.coldDigit.percent.toFixed(1)}%)`
+                    : "—"
+                }
+              />
+
+              <Stat
+                label="Match candidate"
+                value={
+                  analysis?.matchDiff
+                    ? `${analysis.matchDiff.bestDigit} (${analysis.matchDiff.bestDigitPercent.toFixed(1)}%)`
+                    : "—"
+                }
+              />
+
+              <Stat
+                label="Differs estimate"
+                value={
+                  analysis?.matchDiff
+                    ? `${analysis.matchDiff.differsEstimate.toFixed(1)}%`
+                    : "—"
+                }
+              />
+
+              <Stat
+                label="Rise / Fall"
+                value={
+                  analysis?.direction
+                    ? `${analysis.direction.riseEstimate.toFixed(0)}% / ${analysis.direction.fallEstimate.toFixed(0)}%`
                     : "—"
                 }
               />
@@ -369,9 +440,7 @@ export default function OwnerAnalysisPage() {
                 label="Confidence"
                 value={
                   analysis
-                    ? `${analysis.confidence.toFixed(0)}% ${
-                        analysis.confidenceLabel
-                      }`
+                    ? `${analysis.confidence.toFixed(0)}% ${analysis.confidenceLabel}`
                     : "—"
                 }
               />
@@ -393,8 +462,8 @@ export default function OwnerAnalysisPage() {
             </div>
 
             <div className="ownerAnalysisFootnote">
-              Read-only statistical analysis. A setup is not
-              a guaranteed winning trade.
+              High-confidence means the current statistics pass strict filters.
+              It is not a guaranteed win and does not alter market outcomes.
             </div>
           </section>
         </div>
