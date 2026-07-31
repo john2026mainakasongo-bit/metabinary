@@ -118,3 +118,64 @@
     grid-template-columns:1fr 1fr !important;
   }
 }
+
+
+/* OWNER BOT DOCK COMPACT SCROLL V7 */
+
+.ownerAutoBotDock{
+  margin-top:8px !important;
+  padding:10px 12px !important;
+  border-radius:12px !important;
+}
+
+.ownerAutoBotTitle{
+  font-size:14px !important;
+}
+
+.ownerAutoBotSub{
+  font-size:9px !important;
+}
+
+.ownerAutoBotGrid{
+  margin-top:8px !important;
+  gap:5px !important;
+}
+
+.ownerAutoBotGrid input,
+.ownerAutoBotGrid select{
+  min-height:32px !important;
+  padding:6px 8px !important;
+  font-size:10px !important;
+}
+
+.ownerAutoBotToggle{
+  min-height:32px !important;
+  padding:6px 10px !important;
+  font-size:10px !important;
+}
+
+.ownerAutoBotStatus{
+  margin-top:7px !important;
+  gap:5px !important;
+}
+
+.ownerAutoBotStatus>div{
+  padding:7px !important;
+}
+
+.ownerAutoBotMessage{
+  margin-top:6px !important;
+  font-size:9px !important;
+}
+
+@media (max-width:640px){
+  .ownerAutoBotDock{
+    margin-top:6px !important;
+    padding:8px !important;
+  }
+
+  .ownerAutoBotGrid,
+  .ownerAutoBotStatus{
+    grid-template-columns:1fr 1fr !important;
+  }
+}
