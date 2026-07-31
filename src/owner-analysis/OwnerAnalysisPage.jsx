@@ -117,6 +117,74 @@ function EntryTimingPanel({ timing }) {
   );
 }
 
+function ValidatedSignalPanel({ data }) {
+  if (!data) return null;
+
+  return (
+    <section className="validatedSignalsV8">
+      <div className="validatedSignalsV8Head">
+        <div>
+          <strong>Validated Signals</strong>
+          <span>Walk-forward backtest · no look-ahead</span>
+        </div>
+
+        <div className="validatedSignalsV8Count">
+          {data.approvedCount} validated
+        </div>
+      </div>
+
+      <div className="validatedSignalsV8Grid">
+        {data.signals.map((signal) => (
+          <div
+            key={signal.name}
+            className={`validatedSignalV8 ${signal.approved ? "approved" : "wait"}`}
+          >
+            <div className="validatedSignalV8Top">
+              <span>{signal.name}</span>
+              <b>{signal.approved ? "VALIDATED" : "WAIT"}</b>
+            </div>
+
+            <div className="validatedSignalV8Action">
+              {signal.approved ? signal.action : "WAIT"}
+            </div>
+
+            <div className="validatedSignalV8Stats">
+              <span>
+                Hit rate <b>{Number(signal.hitRate || 0).toFixed(1)}%</b>
+              </span>
+              <span>
+                Baseline <b>{Number(signal.baseline || 0).toFixed(1)}%</b>
+              </span>
+              <span>
+                Edge{" "}
+                <b>
+                  {Number(signal.edge || 0) >= 0 ? "+" : ""}
+                  {Number(signal.edge || 0).toFixed(1)}%
+                </b>
+              </span>
+              <span>
+                Samples <b>{signal.samples || 0}</b>
+              </span>
+            </div>
+
+            <div className="validatedSignalV8Reason">
+              {signal.reason}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="validatedSignalsV8Foot">
+        {data.best
+          ? `Best validated setup now: ${data.best.action} · historical hit rate ${Number(
+              data.best.hitRate || 0
+            ).toFixed(1)}% · ${data.best.samples || 0} samples.`
+          : "No setup has enough evidence right now. WAIT is the signal."}
+      </div>
+    </section>
+  );
+}
+
 export default function OwnerAnalysisPage() {
   const [marketId, setMarketId] = useState("vol75");
   const [snapshot, setSnapshot] = useState(null);
