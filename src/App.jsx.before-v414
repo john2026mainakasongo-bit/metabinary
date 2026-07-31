@@ -8,8 +8,6 @@ import "./MobileTradeFix.css";
 import DesktopTradePage from "./DesktopTradePage.jsx";
 import MobileHeader from "./MobileHeader.jsx";
 
-import OwnerAnalysisPage from "./owner-analysis/OwnerAnalysisPage";
-import { analyzeMarket } from "./owner-analysis/analysisEngine";
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
   let viewport = document.querySelector('meta[name="viewport"]');
@@ -1269,143 +1267,7 @@ async function fetchMarketCandles(market, timeframe, signal) {
     );
 }
 
-
-function evaluateAnalysisAssistedBotV4C(bot, snapshot) {
-  const analysis = analyzeMarket(snapshot || {});
-  const minConfidence = Math.max(
-    60,
-    Math.min(95, Number(bot?.analysisMinConfidence ?? 80))
-  );
-
-  const type = String(bot?.type || "");
-  const action = String(bot?.action || "");
-  const prediction = Math.max(0, Math.min(9, Number(bot?.prediction ?? 0)));
-  const distribution = Array.isArray(analysis?.distribution)
-    ? analysis.distribution
-    : [];
-
-  const digitPercent = (digit) =>
-    Number(
-      distribution.find((item) => Number(item?.digit) === Number(digit))?.percent || 0
-    );
-
-  const sumDigits = (digits) =>
-    digits.reduce((sum, digit) => sum + digitPercent(digit), 0);
-
-  let approved = false;
-  let confidence = Number(analysis?.confidence || 0);
-  let reason = "WAIT";
-
-  if (type === "Even/Odd") {
-    const even = Number(analysis?.parity?.evenPercent || 0);
-    const odd = Number(analysis?.parity?.oddPercent || 0);
-    const preferred = even >= odd ? "Even" : "Odd";
-    const selected = action === "Odd" ? odd : even;
-
-    confidence = Math.max(
-      confidence,
-      Math.min(95, 50 + Math.abs(selected - 50) * 4)
-    );
-
-    approved =
-      action.toLowerCase() === preferred.toLowerCase() &&
-      selected >= 54 &&
-      confidence >= minConfidence;
-
-    reason = approved
-      ? `${preferred} ${selected.toFixed(1)}%`
-      : `WAIT · prefers ${preferred} ${Math.max(even, odd).toFixed(1)}%`;
-  } else if (type === "Over/Under") {
-    const overDigits = Array.from(
-      { length: Math.max(0, 9 - prediction) },
-      (_, index) => prediction + 1 + index
-    );
-    const underDigits = Array.from(
-      { length: Math.max(0, prediction) },
-      (_, index) => index
-    );
-
-    const over = sumDigits(overDigits);
-    const under = sumDigits(underDigits);
-    const preferred = over >= under ? "Over" : "Under";
-    const selected = action === "Under" ? under : over;
-    const baseline =
-      action === "Under" ? prediction * 10 : (9 - prediction) * 10;
-
-    confidence = Math.max(
-      confidence,
-      Math.min(95, 60 + Math.max(0, selected - baseline) * 3)
-    );
-
-    approved =
-      action === preferred &&
-      selected >= baseline + 3 &&
-      confidence >= minConfidence;
-
-    reason = approved
-      ? `${action} ${prediction} · ${selected.toFixed(1)}%`
-      : `WAIT · Over ${over.toFixed(1)}% / Under ${under.toFixed(1)}%`;
-  } else if (type === "Matches/Differs") {
-    const selectedPercent = digitPercent(prediction);
-
-    if (action === "Matches") {
-      const bestDigit = Number(analysis?.bestDigit?.digit);
-
-      confidence = Math.max(
-        confidence,
-        Math.min(95, 50 + Math.max(0, selectedPercent - 10) * 7)
-      );
-
-      approved =
-        prediction === bestDigit &&
-        selectedPercent >= 13.5 &&
-        confidence >= minConfidence;
-
-      reason = approved
-        ? `Match ${prediction} · ${selectedPercent.toFixed(1)}%`
-        : `WAIT · best digit ${Number.isFinite(bestDigit) ? bestDigit : "—"}`;
-    } else {
-      const coldDigit = Number(analysis?.coldDigit?.digit);
-
-      confidence = Math.max(
-        confidence,
-        Math.min(95, 50 + Math.max(0, 10 - selectedPercent) * 7)
-      );
-
-      approved =
-        prediction === coldDigit &&
-        selectedPercent <= 7.5 &&
-        confidence >= minConfidence;
-
-      reason = approved
-        ? `Differs ${prediction} · digit ${selectedPercent.toFixed(1)}%`
-        : `WAIT · coldest digit ${Number.isFinite(coldDigit) ? coldDigit : "—"}`;
-    }
-  } else if (type === "Rise/Fall") {
-    const direction = String(analysis?.momentum?.direction || "").toUpperCase();
-    const preferred =
-      direction === "UP" ? "Rise" : direction === "DOWN" ? "Fall" : "";
-
-    approved =
-      Boolean(preferred) &&
-      action === preferred &&
-      confidence >= minConfidence;
-
-    reason = approved
-      ? `${preferred} · momentum ${direction}`
-      : `WAIT · momentum ${direction || "NEUTRAL"}`;
-  }
-
-  return {
-    approved,
-    confidence: Math.max(0, Math.min(100, Number(confidence || 0))),
-    minConfidence,
-    reason,
-    analysis,
-  };
-}
-
-function TradingApp({ initialPage = "" } = {}) {
+function TradingApp() {
   useResponsiveViewportSize();
   const [user, setUser] = useState(() => readStore(STORE.user, null));
   const [authToken, setAuthToken] = useState(() => localStorage.getItem(STORE.token) || "");
@@ -1416,9 +1278,7 @@ function TradingApp({ initialPage = "" } = {}) {
     new URLSearchParams(window.location.search).get("reset_token") ? "auth" : "landing"
   );
 
-  const [activePage, setActivePage] = useState(
-    initialPage === "ownerAnalysis" ? "ownerAnalysis" : initialTradingPage
-  );
+  const [activePage, setActivePage] = useState(initialTradingPage);
   useKeepTradingScreenAwake(
     activePage === "trade" ||
       activePage === "bots" ||
@@ -3368,9 +3228,7 @@ function TradingApp({ initialPage = "" } = {}) {
   }
 
   async function runBinaryTrade(type, action, options = {}) {
-    const usedStake = Number(options.stake ?? stake);
-    const usedPrediction = Number(options.prediction ?? prediction);
-    const tradeSource = String(options.source || "manual");
+    const usedStake = Number(stake);
     const isRiseFallTrade = type === "Rise/Fall";
     const requestedTicks = Number(options.durationTicks ?? duration ?? 5);
     const usedTicks = Math.min(
@@ -3393,7 +3251,7 @@ function TradingApp({ initialPage = "" } = {}) {
           )
         )
       : usedTicks;
-    const multiplier = payoutRate(type, action, usedPrediction, {
+    const multiplier = payoutRate(type, action, prediction, {
       ticks: usedTicks,
       barrierDistance: Number(options.barrierDistance || 2),
     });
@@ -3430,7 +3288,7 @@ function TradingApp({ initialPage = "" } = {}) {
     }
 
     try {
-      const requestId = `${tradeSource}-${uid()}`;
+      const requestId = `manual-${uid()}`;
       const { response, result } = await requestJsonWithRetry(
         `${API_URL}/api/trades/open`,
         {
@@ -3443,9 +3301,8 @@ function TradingApp({ initialPage = "" } = {}) {
             type,
             action,
             stake: usedStake,
-            prediction: usedPrediction,
+            prediction,
             ticks: usedTicks,
-            source: tradeSource,
             durationUnit: selectedDurationUnit,
             durationValue: selectedDurationValue,
             entryPrice: livePrice,
@@ -3471,7 +3328,7 @@ function TradingApp({ initialPage = "" } = {}) {
         type: opened.type || type,
         action: opened.action || action,
         stake: Number(opened.stake ?? usedStake),
-        prediction: Number(opened.prediction ?? usedPrediction),
+        prediction: Number(opened.prediction ?? prediction),
         payout: Number(opened.payout ?? usedStake * multiplier),
         multiplier: Number(opened.multiplier ?? multiplier),
         entryPrice: Number(opened.entryPrice ?? livePrice),
@@ -3487,7 +3344,7 @@ function TradingApp({ initialPage = "" } = {}) {
         openedAt: opened.createdAt || new Date().toLocaleTimeString(),
         status: "RUNNING",
         tickMs: Math.max(250, Number(opened.tickMs || 1000)),
-        source: opened.source || tradeSource,
+        source: opened.source || "manual",
         marketId: opened.marketId || activeBinaryMarket.id,
       };
 
@@ -3514,7 +3371,6 @@ function TradingApp({ initialPage = "" } = {}) {
         `${activeBinaryMarket.label} · ${type} · ${action} · ${formatTradeDuration(type, usedTicks)}`,
         1700
       );
-      return openTrade;
     } catch (error) {
       console.error("Trade open failed:", error);
       notify(
@@ -3527,17 +3383,7 @@ function TradingApp({ initialPage = "" } = {}) {
     }
   }
 
-  
-  useEffect(() => {
-    window.__metabinaryOwnerRunBinaryTrade = runBinaryTrade;
-    return () => {
-      if (window.__metabinaryOwnerRunBinaryTrade === runBinaryTrade) {
-        delete window.__metabinaryOwnerRunBinaryTrade;
-      }
-    };
-  }, [runBinaryTrade]);
-
-function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
+  function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
     window.clearTimeout(aiAutoTimerRef.current);
     const current = aiAutoSessionRef.current;
 
@@ -3928,8 +3774,6 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
     const preparedConfig = {
       ...createBotConfig(template),
       ...result.config,
-        analysisAssisted: result.config?.analysisAssisted !== false,
-        analysisMinConfidence: Number(result.config?.analysisMinConfidence ?? 80),
       botId: template.id,
       name: template.name,
       takeProfit: targetProfit,
@@ -4014,39 +3858,6 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
       VOLATILITY_OPTIONS.find((item) => item.id === bot.marketId) ||
       VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
     const step = botMartingaleStepRef.current;
-
-    // analysis-assisted-v4c-gate
-    if (bot.analysisAssisted !== false) {
-      try {
-        const analysisResponse = await fetch(
-          `${API_URL}/api/synthetic/market/${encodeURIComponent(market.id)}?history=600`,
-          {
-            method: "GET",
-            headers: apiHeaders({}, authToken),
-            cache: "no-store",
-          }
-        );
-
-        const analysisPayload = await readApiResponse(analysisResponse);
-
-        if (!analysisResponse.ok || !analysisPayload?.ok || !analysisPayload?.market) {
-          await wait(800);
-          return null;
-        }
-
-        const gate = evaluateAnalysisAssistedBotV4C(bot, analysisPayload.market);
-
-        if (!gate.approved) {
-          await wait(800);
-          return null;
-        }
-      } catch (error) {
-        console.warn("Analysis-assisted bot scan failed:", error);
-        await wait(1000);
-        return null;
-      }
-    }
-
     const baseStake = Math.max(0.3, Number(bot.stake || 1));
     const multiplier = bot.martingaleEnabled
       ? Math.max(1, Math.min(3, Number(bot.martingaleMultiplier || 2)))
@@ -4078,9 +3889,6 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
             stake: usedStake,
             prediction: Number(bot.prediction || 0),
             ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
-            // analysis-assisted-v4c-ticks
-            durationUnit: "ticks",
-            durationValue: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
             entryPrice: livePriceRef.current,
             currentPrice: livePriceRef.current,
             barrier: 0,
@@ -4236,28 +4044,19 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
       notify("loss", "Bot cannot start", `Your ${currentAccount} balance must be at least 0.30 USD.`);
       return;
     }
-    // selected base stake is exact
+
+    const recoverySteps = config.martingaleEnabled
+      ? Math.max(0, Math.min(6, Number(config.martingaleSteps || 0)))
+      : 0;
+    const recoveryMultiplier = config.martingaleEnabled
+      ? Math.max(1, Math.min(3, Number(config.martingaleMultiplier || 2)))
+      : 1;
+    const recoveryReserve = Array.from({ length: recoverySteps + 1 }, (_, index) => Math.pow(recoveryMultiplier, index))
+      .reduce((sum, value) => sum + value, 0);
+    const maxSafeBaseStake = Math.max(0.3, Math.floor((availableBalance / Math.max(1, recoveryReserve)) * 100) / 100);
     const requestedStake = Math.max(0.3, Number(config.stake || 1));
-    const effectiveStake = Number(requestedStake.toFixed(2));
-
-    if (availableBalance < effectiveStake) {
-      notify(
-        "loss",
-        "Bot cannot start",
-        `Your ${currentAccount} balance is too low for the selected ${money(effectiveStake)} USD stake.`
-      );
-      return;
-    }
-
-    const preparedConfig = {
-      ...config,
-      stake: effectiveStake,
-      analysisAssisted: config.analysisAssisted !== false,
-      analysisMinConfidence: Math.max(
-        60,
-        Math.min(95, Number(config.analysisMinConfidence ?? 80))
-      ),
-    };
+    const effectiveStake = Number(Math.min(requestedStake, maxSafeBaseStake).toFixed(2));
+    const preparedConfig = { ...config, stake: effectiveStake };
 
     const market =
       VOLATILITY_OPTIONS.find((item) => item.id === preparedConfig.marketId) ||
@@ -4268,7 +4067,17 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
       market: market.label,
       configuredAt: Date.now(),
     };
-setSelectedBot(prepared);
+
+    if (effectiveStake < requestedStake) {
+      notify(
+        "open",
+        "Bot stake adjusted",
+        `${money(requestedStake)} USD was reduced to ${money(effectiveStake)} USD so recovery can run within your ${currentAccount} balance.`,
+        5200
+      );
+    }
+
+    setSelectedBot(prepared);
     setBotConfig(preparedConfig);
     botSessionVersionRef.current += 1;
     botSessionPnlRef.current = 0;
@@ -4595,11 +4404,6 @@ setSelectedBot(prepared);
     );
   }
 
-
-  if (activePage === "ownerAnalysis") {
-    return <OwnerAnalysisPage embeddedOwnerMode />;
-  }
-
   return (
     <div className={`app theme-${theme} activePage-${activePage} ${activePage === "trade" && tradeType === "Rise/Fall" ? "riseFallActivePageV183" : ""}`}>
       <div
@@ -4829,14 +4633,7 @@ setSelectedBot(prepared);
 export default function App() {
   useDisableMobilePinchZoom();
   const params = new URLSearchParams(window.location.search);
-  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
-  const adminMode = pathname.startsWith("/admin") || params.get("admin") === "1";
-  const ownerAnalysisMode = pathname === "/owner-analysis";
-
-  if (ownerAnalysisMode) {
-    return <TradingApp initialPage="ownerAnalysis" />;
-  }
-
+  const adminMode = window.location.pathname.startsWith("/admin") || params.get("admin") === "1";
   return adminMode ? <AdminPortal /> : <TradingApp />;
 }
 
@@ -8297,32 +8094,6 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
             </select>
           </label>
         )}
-        <label className="botToggleField">
-          <span>Analysis assisted</span>
-          <button
-            type="button"
-            className={config.analysisAssisted !== false ? "on" : ""}
-            onClick={() => update({ analysisAssisted: config.analysisAssisted === false })}
-          >
-            {config.analysisAssisted !== false ? "Enabled" : "Disabled"}
-          </button>
-        </label>
-
-        <label>
-          <span>Minimum confidence</span>
-          <select
-            disabled={config.analysisAssisted === false}
-            value={Number(config.analysisMinConfidence ?? 80)}
-            onChange={(event) =>
-              update({ analysisMinConfidence: Number(event.target.value) })
-            }
-          >
-            {[70, 75, 80, 85, 90].map((value) => (
-              <option key={value} value={value}>{value}%</option>
-            ))}
-          </select>
-        </label>
-
 
         <label className="botToggleField">
           <span>Martingale</span>
@@ -8358,7 +8129,6 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
 
       <section className="botRiskPreview">
         <div><span>First stake</span><strong>{money(config.stake)} USD</strong></div>
-        <div><span>Exact entry</span><strong>{money(config.stake)} USD · {Number(config.ticks || 5)} ticks</strong></div>
         <div><span>Maximum recovery</span><strong>{money(Number(config.stake || 0) * Math.pow(config.martingaleEnabled ? Number(config.martingaleMultiplier || 1) : 1, Number(config.martingaleSteps || 0)))} USD</strong></div>
         <div><span>Limits</span><strong>+{money(config.takeProfit)} / -{money(config.stopLoss)}</strong></div>
       </section>
