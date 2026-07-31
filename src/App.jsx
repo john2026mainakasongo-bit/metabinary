@@ -9,7 +9,6 @@ import DesktopTradePage from "./DesktopTradePage.jsx";
 import MobileHeader from "./MobileHeader.jsx";
 
 import OwnerAnalysisPage from "./owner-analysis/OwnerAnalysisPage";
-import { analyzeMarket } from "./owner-analysis/analysisEngine";
 function ensureResponsiveViewportMeta() {
   if (typeof document === "undefined") return;
   let viewport = document.querySelector('meta[name="viewport"]');
@@ -1270,140 +1269,6 @@ async function fetchMarketCandles(market, timeframe, signal) {
 }
 
 
-function evaluateAnalysisAssistedBotV4C(bot, snapshot) {
-  const analysis = analyzeMarket(snapshot || {});
-  const minConfidence = Math.max(
-    60,
-    Math.min(95, Number(bot?.analysisMinConfidence ?? 80))
-  );
-
-  const type = String(bot?.type || "");
-  const action = String(bot?.action || "");
-  const prediction = Math.max(0, Math.min(9, Number(bot?.prediction ?? 0)));
-  const distribution = Array.isArray(analysis?.distribution)
-    ? analysis.distribution
-    : [];
-
-  const digitPercent = (digit) =>
-    Number(
-      distribution.find((item) => Number(item?.digit) === Number(digit))?.percent || 0
-    );
-
-  const sumDigits = (digits) =>
-    digits.reduce((sum, digit) => sum + digitPercent(digit), 0);
-
-  let approved = false;
-  let confidence = Number(analysis?.confidence || 0);
-  let reason = "WAIT";
-
-  if (type === "Even/Odd") {
-    const even = Number(analysis?.parity?.evenPercent || 0);
-    const odd = Number(analysis?.parity?.oddPercent || 0);
-    const preferred = even >= odd ? "Even" : "Odd";
-    const selected = action === "Odd" ? odd : even;
-
-    confidence = Math.max(
-      confidence,
-      Math.min(95, 50 + Math.abs(selected - 50) * 4)
-    );
-
-    approved =
-      action.toLowerCase() === preferred.toLowerCase() &&
-      selected >= 54 &&
-      confidence >= minConfidence;
-
-    reason = approved
-      ? `${preferred} ${selected.toFixed(1)}%`
-      : `WAIT · prefers ${preferred} ${Math.max(even, odd).toFixed(1)}%`;
-  } else if (type === "Over/Under") {
-    const overDigits = Array.from(
-      { length: Math.max(0, 9 - prediction) },
-      (_, index) => prediction + 1 + index
-    );
-    const underDigits = Array.from(
-      { length: Math.max(0, prediction) },
-      (_, index) => index
-    );
-
-    const over = sumDigits(overDigits);
-    const under = sumDigits(underDigits);
-    const preferred = over >= under ? "Over" : "Under";
-    const selected = action === "Under" ? under : over;
-    const baseline =
-      action === "Under" ? prediction * 10 : (9 - prediction) * 10;
-
-    confidence = Math.max(
-      confidence,
-      Math.min(95, 60 + Math.max(0, selected - baseline) * 3)
-    );
-
-    approved =
-      action === preferred &&
-      selected >= baseline + 3 &&
-      confidence >= minConfidence;
-
-    reason = approved
-      ? `${action} ${prediction} · ${selected.toFixed(1)}%`
-      : `WAIT · Over ${over.toFixed(1)}% / Under ${under.toFixed(1)}%`;
-  } else if (type === "Matches/Differs") {
-    const selectedPercent = digitPercent(prediction);
-
-    if (action === "Matches") {
-      const bestDigit = Number(analysis?.bestDigit?.digit);
-
-      confidence = Math.max(
-        confidence,
-        Math.min(95, 50 + Math.max(0, selectedPercent - 10) * 7)
-      );
-
-      approved =
-        prediction === bestDigit &&
-        selectedPercent >= 13.5 &&
-        confidence >= minConfidence;
-
-      reason = approved
-        ? `Match ${prediction} · ${selectedPercent.toFixed(1)}%`
-        : `WAIT · best digit ${Number.isFinite(bestDigit) ? bestDigit : "—"}`;
-    } else {
-      const coldDigit = Number(analysis?.coldDigit?.digit);
-
-      confidence = Math.max(
-        confidence,
-        Math.min(95, 50 + Math.max(0, 10 - selectedPercent) * 7)
-      );
-
-      approved =
-        prediction === coldDigit &&
-        selectedPercent <= 7.5 &&
-        confidence >= minConfidence;
-
-      reason = approved
-        ? `Differs ${prediction} · digit ${selectedPercent.toFixed(1)}%`
-        : `WAIT · coldest digit ${Number.isFinite(coldDigit) ? coldDigit : "—"}`;
-    }
-  } else if (type === "Rise/Fall") {
-    const direction = String(analysis?.momentum?.direction || "").toUpperCase();
-    const preferred =
-      direction === "UP" ? "Rise" : direction === "DOWN" ? "Fall" : "";
-
-    approved =
-      Boolean(preferred) &&
-      action === preferred &&
-      confidence >= minConfidence;
-
-    reason = approved
-      ? `${preferred} · momentum ${direction}`
-      : `WAIT · momentum ${direction || "NEUTRAL"}`;
-  }
-
-  return {
-    approved,
-    confidence: Math.max(0, Math.min(100, Number(confidence || 0))),
-    minConfidence,
-    reason,
-    analysis,
-  };
-}
 
 function TradingApp({ initialPage = "" } = {}) {
   useResponsiveViewportSize();
@@ -3928,8 +3793,6 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
     const preparedConfig = {
       ...createBotConfig(template),
       ...result.config,
-        analysisAssisted: result.config?.analysisAssisted !== false,
-        analysisMinConfidence: Number(result.config?.analysisMinConfidence ?? 80),
       botId: template.id,
       name: template.name,
       takeProfit: targetProfit,
@@ -4005,6 +3868,7 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
     setBotTab("transactions");
     setActivePage("botSetup");
   }
+  // manual-analysis-v4d: bot executes only user-selected setup; owner analysis is manual only.
 
   async function runBotTrade(bot) {
     if (!bot || !authToken || !botRunningRef.current) return null;
@@ -4015,37 +3879,6 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
       VOLATILITY_OPTIONS[VOLATILITY_OPTIONS.length - 1];
     const step = botMartingaleStepRef.current;
 
-    // analysis-assisted-v4c-gate
-    if (bot.analysisAssisted !== false) {
-      try {
-        const analysisResponse = await fetch(
-          `${API_URL}/api/synthetic/market/${encodeURIComponent(market.id)}?history=600`,
-          {
-            method: "GET",
-            headers: apiHeaders({}, authToken),
-            cache: "no-store",
-          }
-        );
-
-        const analysisPayload = await readApiResponse(analysisResponse);
-
-        if (!analysisResponse.ok || !analysisPayload?.ok || !analysisPayload?.market) {
-          await wait(800);
-          return null;
-        }
-
-        const gate = evaluateAnalysisAssistedBotV4C(bot, analysisPayload.market);
-
-        if (!gate.approved) {
-          await wait(800);
-          return null;
-        }
-      } catch (error) {
-        console.warn("Analysis-assisted bot scan failed:", error);
-        await wait(1000);
-        return null;
-      }
-    }
 
     const baseStake = Math.max(0.3, Number(bot.stake || 1));
     const multiplier = bot.martingaleEnabled
@@ -4078,8 +3911,7 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
             stake: usedStake,
             prediction: Number(bot.prediction || 0),
             ticks: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
-            // analysis-assisted-v4c-ticks
-            durationUnit: "ticks",
+durationUnit: "ticks",
             durationValue: Math.min(10, Math.max(1, Number(bot.ticks || 5))),
             entryPrice: livePriceRef.current,
             currentPrice: livePriceRef.current,
@@ -4236,7 +4068,7 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
       notify("loss", "Bot cannot start", `Your ${currentAccount} balance must be at least 0.30 USD.`);
       return;
     }
-    // selected base stake is exact
+    // manual-analysis-v4d: selected base stake is exact
     const requestedStake = Math.max(0.3, Number(config.stake || 1));
     const effectiveStake = Number(requestedStake.toFixed(2));
 
@@ -4252,11 +4084,6 @@ function stopAiAutoTrade(reason = "AI Auto-Trade stopped", showMessage = true) {
     const preparedConfig = {
       ...config,
       stake: effectiveStake,
-      analysisAssisted: config.analysisAssisted !== false,
-      analysisMinConfidence: Math.max(
-        60,
-        Math.min(95, Number(config.analysisMinConfidence ?? 80))
-      ),
     };
 
     const market =
@@ -8297,33 +8124,6 @@ function BotSetupPage({ bot, config, setConfig, volatilityOptions, actionsFor, s
             </select>
           </label>
         )}
-        <label className="botToggleField">
-          <span>Analysis assisted</span>
-          <button
-            type="button"
-            className={config.analysisAssisted !== false ? "on" : ""}
-            onClick={() => update({ analysisAssisted: config.analysisAssisted === false })}
-          >
-            {config.analysisAssisted !== false ? "Enabled" : "Disabled"}
-          </button>
-        </label>
-
-        <label>
-          <span>Minimum confidence</span>
-          <select
-            disabled={config.analysisAssisted === false}
-            value={Number(config.analysisMinConfidence ?? 80)}
-            onChange={(event) =>
-              update({ analysisMinConfidence: Number(event.target.value) })
-            }
-          >
-            {[70, 75, 80, 85, 90].map((value) => (
-              <option key={value} value={value}>{value}%</option>
-            ))}
-          </select>
-        </label>
-
-
         <label className="botToggleField">
           <span>Martingale</span>
           <button type="button" className={config.martingaleEnabled ? "on" : ""} onClick={() => update({ martingaleEnabled: !config.martingaleEnabled })}>
