@@ -1640,3 +1640,64 @@ body.mbCashierOpenV370 [class*="supportChat"] {
   }
 }
 
+/* ==========================================================================
+   METABINARY V373 — PROFILE PRIVACY + LIGHT/DARK SUPPORT
+   ========================================================================== */
+
+.profileNamePrivateV373 > p {
+  margin: 7px 0 4px !important;
+  font-weight: 700 !important;
+  opacity: .78 !important;
+}
+
+.profileNamePrivateV373 > small {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  width: fit-content !important;
+  margin-top: 2px !important;
+  padding: 6px 9px !important;
+  border: 1px solid rgba(112, 146, 190, .24) !important;
+  border-radius: 9px !important;
+  background: rgba(8, 28, 49, .38) !important;
+  color: #91a3b8 !important;
+  letter-spacing: .02em !important;
+}
+
+.profileNamePrivateV373 > small b {
+  color: #d8e7f8 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: .96em !important;
+  letter-spacing: .06em !important;
+}
+
+html[data-theme="light"] .profileNamePrivateV373 > small,
+body.light .profileNamePrivateV373 > small,
+body.lightTheme .profileNamePrivateV373 > small,
+.app.light .profileNamePrivateV373 > small {
+  border-color: rgba(44, 91, 140, .18) !important;
+  background: rgba(235, 244, 252, .88) !important;
+  color: #60758a !important;
+}
+
+html[data-theme="light"] .profileNamePrivateV373 > small b,
+body.light .profileNamePrivateV373 > small b,
+body.lightTheme .profileNamePrivateV373 > small b,
+.app.light .profileNamePrivateV373 > small b {
+  color: #17324d !important;
+}
+
+@media screen and (max-width: 600px) {
+  .profileNamePrivateV373 h1 {
+    max-width: 210px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .profileNamePrivateV373 > small {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+  }
+}
+

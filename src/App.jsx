@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v372-compact-confirmation-2026-08-06";
+const FRONTEND_BUILD = "metabinary-v373-profile-privacy-theme-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8421,10 +8421,21 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
   const demoBalance = Number(balances?.demo || 10000);
   const accountId = user?.brokerId || "MB168844";
   const userName = user?.fullName || user?.name || user?.email?.split("@")[0] || "MetaBinary Trader";
-  const userEmail = user?.email || "trader@metabinaryfx.com";
   const userInitial = user?.initials || initials(userName);
   const verified = Boolean(user?.verified);
   const accountLabel = account === "real" ? "Real Account" : "Demo Account";
+
+  const profileNameParts = String(userName).trim().split(/\s+/).filter(Boolean);
+  const privateDisplayName =
+    profileNameParts.length > 1
+      ? `${profileNameParts[0]} ${profileNameParts[1][0]?.toUpperCase() || ""}.`
+      : profileNameParts[0] || "Trader";
+
+  const rawAccountId = String(accountId || "");
+  const privateAccountId =
+    rawAccountId.length > 6
+      ? `${rawAccountId.slice(0, 2)}${"*".repeat(Math.min(6, rawAccountId.length - 4))}${rawAccountId.slice(-2)}`
+      : "••••••";
 
   const tradeTransactions = (transactions || []).filter((tx) => {
     if (!["Manual", "Bot", "AI Auto-Trade"].includes(tx.method)) return false;
@@ -8502,15 +8513,17 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
             <i></i>
           </div>
 
-          <div className="profileNameV237">
+          <div className="profileNameV237 profileNamePrivateV373">
             <div>
-              <h1>{userName}</h1>
+              <h1>{privateDisplayName}</h1>
               <span className={verified ? "verified" : "pending"}>
                 {verified ? "✓ Verified" : "Verification pending"}
               </span>
             </div>
-            <p>{userEmail}</p>
-            <small>{accountId} · {accountLabel}</small>
+            <p>{accountLabel}</p>
+            <small>
+              Account ID <b>{privateAccountId}</b>
+            </small>
           </div>
         </div>
 
@@ -10733,7 +10746,7 @@ function WithdrawModal({ close, submit, availableBalance = 0, defaultPhone = "" 
       branch,
     });
 
-    const remaining = Math.max(0, 30000 - (Date.now() - startedAt));
+    const remaining = Math.max(0, 4500 - (Date.now() - startedAt));
     window.setTimeout(() => {
       if (!response) {
         setSubmitting(false);
