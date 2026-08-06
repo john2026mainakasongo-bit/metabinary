@@ -1096,3 +1096,70 @@
   .mbCashierProcessingV369 { min-height: 360px !important; }
 }
 
+/* ==========================================================================
+   METABINARY V370 — CASHIER OVERLAY LOCK
+   Prevents the fixed bottom navigation and page shell from appearing above
+   Deposit/Withdraw. Only active while a cashier modal is mounted.
+   ========================================================================== */
+
+html.mbCashierOpenV370,
+body.mbCashierOpenV370 {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none !important;
+}
+
+body.mbCashierOpenV370 .bottomNav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.mbCashierOpenV370 .floatingAiButton,
+body.mbCashierOpenV370 .supportChatButton,
+body.mbCashierOpenV370 .chatFloatingButton,
+body.mbCashierOpenV370 [class*="floatingAi"],
+body.mbCashierOpenV370 [class*="supportChat"] {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.mbCashierOverlayV369 {
+  z-index: 2147483000 !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
+  pointer-events: auto !important;
+}
+
+.mbCashierOverlayV369::before {
+  content: "" !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  background: rgba(3, 13, 28, .70) !important;
+}
+
+.mbCashierModalV369,
+.mbCashierResultV369 {
+  position: relative !important;
+  z-index: 2 !important;
+  pointer-events: auto !important;
+}
+
+@media screen and (max-width: 600px) {
+  .mbCashierOverlayV369 {
+    align-items: center !important;
+    padding:
+      max(8px, env(safe-area-inset-top, 0px))
+      8px
+      max(8px, env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+
+  .mbCashierModalV369,
+  .mbCashierResultV369 {
+    max-height: calc(100dvh - 16px) !important;
+    margin: 0 !important;
+  }
+}
+

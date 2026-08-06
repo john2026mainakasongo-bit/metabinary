@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v369-cashier-two-methods-2026-08-06";
+const FRONTEND_BUILD = "metabinary-v370-cashier-overlay-lock-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -9617,6 +9617,16 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
 }
 
 function DepositModal({ close, submit }) {
+  useEffect(() => {
+    document.body.classList.add("mbCashierOpenV370");
+    document.documentElement.classList.add("mbCashierOpenV370");
+
+    return () => {
+      document.body.classList.remove("mbCashierOpenV370");
+      document.documentElement.classList.remove("mbCashierOpenV370");
+    };
+  }, []);
+
   const [step, setStep] = useState("method");
   const [selectedMethod, setSelectedMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(10);
@@ -10666,6 +10676,16 @@ function AdminStat({ title, value }) {
 }
 
 function WithdrawModal({ close, submit, availableBalance = 0, defaultPhone = "" }) {
+  useEffect(() => {
+    document.body.classList.add("mbCashierOpenV370");
+    document.documentElement.classList.add("mbCashierOpenV370");
+
+    return () => {
+      document.body.classList.remove("mbCashierOpenV370");
+      document.documentElement.classList.remove("mbCashierOpenV370");
+    };
+  }, []);
+
   const [step, setStep] = useState("method");
   const [method, setMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(5);
