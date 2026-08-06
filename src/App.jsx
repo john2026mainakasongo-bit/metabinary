@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v368-profile-cashier-fix-2026-07-29";
+const FRONTEND_BUILD = "metabinary-v369-cashier-two-methods-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -4308,8 +4308,52 @@ setSelectedBot(prepared);
   }
 
   async function submitWithdraw(data) {
+    const method = data?.method === "bank" ? "bank" : "mpesa";
     const amount = Number(data.amountUsd);
     const phone = String(data.phone || "").trim();
+    const bankName = String(data.bankName || "").trim();
+    const accountName = String(data.accountName || "").trim();
+    const accountNumber = String(data.accountNumber || "").trim();
+    const branch = String(data.branch || "").trim();
+
+    if (!Number.isFinite(amount) || amount < 5) {
+      notify("loss", "Minimum withdrawal", "Minimum withdrawal is 5 USD.");
+      return false;
+    }
+
+    if (balances.real < amount) {
+      notify("loss", "Low real balance", "You do not have enough real balance.");
+      return false;
+    }
+
+    if (method === "bank") {
+      if (!bankName || !accountName || accountNumber.length < 5) {
+        notify("loss", "Bank details required", "Enter the bank name, account holder and account number.");
+        return false;
+      }
+
+      addTx({
+        type: "Withdrawal request",
+        method: "Bank Transfer",
+        account: "real",
+        amount: -amount,
+        status: "Pending review",
+        details: `${bankName} · ${accountNumber}${branch ? ` · ${branch}` : ""}`,
+      });
+
+      notify(
+        "open",
+        "Bank withdrawal received",
+        "Your bank withdrawal is pending manual verification. Your balance will only be adjusted after approval."
+      );
+
+      return {
+        ok: true,
+        method: "bank",
+        status: "Pending review",
+        message: "Your bank withdrawal request has been received for manual verification.",
+      };
+    }
 
     if (!API_URL) {
       notify(
@@ -4320,18 +4364,8 @@ setSelectedBot(prepared);
       return false;
     }
 
-    if (!Number.isFinite(amount) || amount < 5) {
-      notify("loss", "Minimum withdrawal", "Minimum withdrawal is 5 USD.");
-      return false;
-    }
-
     if (!phone) {
-      notify("loss", "Phone required", "Enter the M-Pesa phone number.");
-      return false;
-    }
-
-    if (balances.real < amount) {
-      notify("loss", "Low real balance", "You do not have enough real balance.");
+      notify("loss", "Phone required", "Enter the M-PESA phone number.");
       return false;
     }
 
@@ -4342,6 +4376,7 @@ setSelectedBot(prepared);
         cache: "no-store",
         body: JSON.stringify({
           ...data,
+          method: "mpesa",
           phone,
           amountUsd: amount,
           email: user.email,
@@ -4364,11 +4399,9 @@ setSelectedBot(prepared);
         await refreshUser();
       }
 
-      setWithdrawOpen(false);
-
       addTx({
         type: "Withdrawal request",
-        method: "M-Pesa",
+        method: "M-PESA",
         account: "real",
         amount: -amount,
         status: result.status || "Processing",
@@ -4380,7 +4413,13 @@ setSelectedBot(prepared);
         "Withdrawal requested",
         result.message || "Your withdrawal is processing."
       );
-      return true;
+
+      return {
+        ok: true,
+        method: "mpesa",
+        status: result.status || "Processing",
+        message: result.message || "Your withdrawal request is being processed.",
+      };
     } catch (error) {
       console.error("Withdrawal request failed:", error);
 
@@ -9582,6 +9621,9 @@ function DepositModal({ close, submit }) {
   const [selectedMethod, setSelectedMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(10);
   const [phone, setPhone] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [reference, setReference] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [depositId, setDepositId] = useState("");
   const [depositStatus, setDepositStatus] = useState("");
@@ -9592,36 +9634,26 @@ function DepositModal({ close, submit }) {
       id: "mpesa",
       icon: "M",
       title: "M-PESA",
-      subtitle: "STK Push",
+      subtitle: "Mobile payment",
       timing: "Instant",
-      detail: "Secure mobile payment",
-      recommended: true,
+      detail: "Deposit from your registered phone",
     },
     {
       id: "bank",
       icon: "▦",
       title: "Bank Transfer",
-      subtitle: "Local bank account",
-      timing: "1–3 hours",
-      detail: "Transfer from your bank",
-    },
-    {
-      id: "card",
-      icon: "▰",
-      title: "Debit / Credit Card",
-      subtitle: "Visa or Mastercard",
-      timing: "Instant",
-      detail: "Secure card checkout",
+      subtitle: "Manual verification",
+      timing: "Pending",
+      detail: "Submit transfer details for review",
     },
   ];
 
   const selected = methods.find((method) => method.id === selectedMethod) || methods[0];
   const quickAmounts = [5, 10, 20, 50, 100];
   const safeAmount = Math.max(0, Number(amountUsd || 0));
-  const usdRate = Math.max(1, Number(import.meta.env.VITE_USD_RATE || 130));
-  const amountKes = Math.max(0, Math.round(safeAmount * usdRate));
   const phoneValid = /^[17]\d{8}$/.test(phone);
   const fullPhone = phoneValid ? `+254${phone}` : "";
+  const bankValid = bankName.trim().length >= 2 && accountName.trim().length >= 3 && reference.trim().length >= 4;
 
   useEffect(() => {
     const handleDepositStatus = (event) => {
@@ -9645,12 +9677,7 @@ function DepositModal({ close, submit }) {
     setPhone(digits.slice(0, 9));
   }
 
-  function continueWithMethod() {
-    setDepositMessage("");
-    setStep(selectedMethod === "mpesa" ? "mpesa" : "unavailable");
-  }
-
-  async function handleSubmit() {
+  async function handleMpesaSubmit() {
     if (submitting || safeAmount < 1 || !phoneValid) return;
     setSubmitting(true);
     setDepositMessage("");
@@ -9668,165 +9695,184 @@ function DepositModal({ close, submit }) {
 
     setDepositId(result.depositId || "");
     setDepositStatus("pending");
-    setDepositMessage(
-      result.message ||
-        "STK Push sent. Check your phone and enter your M-PESA PIN to complete the deposit."
-    );
+    setDepositMessage(result.message || "Payment request sent. Complete it from your phone.");
     setSubmitting(false);
+  }
+
+  function handleBankSubmit() {
+    if (submitting || safeAmount < 1 || !bankValid) return;
+    setSubmitting(true);
+    window.setTimeout(() => {
+      setDepositStatus("bank-pending");
+      setDepositMessage("Your bank transfer details have been submitted for manual verification.");
+      setSubmitting(false);
+    }, 1200);
   }
 
   if (depositStatus === "completed") {
     return (
-      <div className="modalLayer mbDepositLayerV223">
-        <div className="mbDepositResultV223" role="dialog" aria-modal="true" aria-label="Deposit complete">
-          <div className="mbDepositResultIconV223 success">✓</div>
-          <small>PAYMENT CONFIRMED</small>
-          <h2>Deposit successful</h2>
+      <div className="mbCashierOverlayV369">
+        <section className="mbCashierResultV369" role="dialog" aria-modal="true">
+          <div className="mbCashierResultIconV369 success">✓</div>
+          <small>DEPOSIT CONFIRMED</small>
+          <h2>Funds added</h2>
           <p>${money(safeAmount)} USD has been added to your Real Account.</p>
-          <button type="button" className="mbDepositPrimaryV223" onClick={close}>Done</button>
-        </div>
+          <button type="button" className="mbCashierPrimaryV369" onClick={close}>Done</button>
+        </section>
       </div>
     );
   }
 
   if (depositStatus === "failed") {
     return (
-      <div className="modalLayer mbDepositLayerV223">
-        <div className="mbDepositResultV223" role="dialog" aria-modal="true" aria-label="Deposit not completed">
-          <div className="mbDepositResultIconV223 failed">!</div>
-          <small>PAYMENT NOT COMPLETED</small>
+      <div className="mbCashierOverlayV369">
+        <section className="mbCashierResultV369" role="dialog" aria-modal="true">
+          <div className="mbCashierResultIconV369 failed">!</div>
+          <small>DEPOSIT NOT COMPLETED</small>
           <h2>Try again</h2>
-          <p>{depositMessage || "The M-PESA payment was not completed."}</p>
-          <button type="button" className="mbDepositPrimaryV223" onClick={() => {
+          <p>{depositMessage || "The payment was not completed."}</p>
+          <button type="button" className="mbCashierPrimaryV369" onClick={() => {
             setDepositId("");
             setDepositStatus("");
             setDepositMessage("");
           }}>Back to deposit</button>
-        </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (depositStatus === "bank-pending") {
+    return (
+      <div className="mbCashierOverlayV369">
+        <section className="mbCashierResultV369" role="dialog" aria-modal="true">
+          <div className="mbCashierResultIconV369 pending">⌛</div>
+          <small>BANK VERIFICATION</small>
+          <h2>Details received</h2>
+          <p>{depositMessage}</p>
+          <div className="mbCashierNoticeV369">Your balance will only change after the transfer is verified.</div>
+          <button type="button" className="mbCashierPrimaryV369" onClick={close}>Done</button>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="modalLayer mbDepositLayerV223">
-      <div className="mbDepositModalV223" role="dialog" aria-modal="true" aria-label="Deposit funds">
-        <button type="button" className="mbDepositCloseV223" onClick={close} aria-label="Close deposit" disabled={submitting}>×</button>
+    <div className="mbCashierOverlayV369" onMouseDown={(event) => {
+      if (event.target === event.currentTarget && !submitting && depositStatus !== "pending") close();
+    }}>
+      <section className="mbCashierModalV369" role="dialog" aria-modal="true" aria-label="Deposit funds">
+        <button type="button" className="mbCashierCloseV369" onClick={close} disabled={submitting || depositStatus === "pending"}>×</button>
 
         {step === "method" && (
           <>
-            <header className="mbDepositHeaderV223">
-              <span className="mbDepositHeaderIconV223">＋</span>
-              <div>
-                <small>REAL ACCOUNT</small>
-                <h2>Deposit Funds</h2>
-                <p>Choose how you would like to fund your account.</p>
-              </div>
+            <header className="mbCashierHeaderV369">
+              <span className="mbCashierHeroIconV369">＋</span>
+              <div><small>REAL ACCOUNT</small><h2>Deposit Funds</h2><p>Choose a payment method.</p></div>
             </header>
 
-            <div className="mbDepositStepV223"><b>1</b><span>Select payment method</span><i>Secure checkout</i></div>
+            <div className="mbCashierStepV369"><b>1</b><span>Select payment method</span></div>
 
-            <div className="mbDepositMethodsV223" role="radiogroup" aria-label="Deposit method">
+            <div className="mbCashierMethodsV369">
               {methods.map((method) => (
                 <button
                   type="button"
                   key={method.id}
-                  role="radio"
-                  aria-checked={selectedMethod === method.id}
-                  className={`mbDepositMethodV223 ${selectedMethod === method.id ? "selected" : ""}`}
+                  className={`mbCashierMethodV369 ${selectedMethod === method.id ? "selected" : ""}`}
                   onClick={() => setSelectedMethod(method.id)}
                 >
-                  <span className={`mbDepositMethodIconV223 ${method.id}`}>{method.icon}</span>
-                  <span className="mbDepositMethodCopyV223">
-                    <strong>{method.title}{method.recommended && <em>Recommended</em>}</strong>
-                    <small>{method.subtitle} · {method.detail}</small>
-                  </span>
-                  <span className="mbDepositMethodMetaV223"><b>{method.timing}</b><i></i></span>
+                  <span className={`mbCashierMethodIconV369 ${method.id}`}>{method.icon}</span>
+                  <span><strong>{method.title}</strong><small>{method.subtitle} · {method.detail}</small></span>
+                  <em><b>{method.timing}</b><i></i></em>
                 </button>
               ))}
             </div>
 
-            <div className="mbDepositSelectedV223">
-              <span>Selected method</span>
-              <strong>{selected.title}</strong>
-            </div>
-
-            <button type="button" className="mbDepositPrimaryV223" onClick={continueWithMethod}>
+            <div className="mbCashierSelectedV369"><span>Selected method</span><strong>{selected.title}</strong></div>
+            <button type="button" className="mbCashierPrimaryV369" onClick={() => setStep(selectedMethod)}>
               Continue with {selected.title} <span>›</span>
             </button>
-            <p className="mbDepositSecurityV223">🔒 Payments are protected with secure encryption</p>
           </>
-        )}
-
-        {step === "unavailable" && (
-          <div className="mbDepositUnavailableV223">
-            <button type="button" className="mbDepositBackV223" onClick={() => setStep("method")}>‹ Payment methods</button>
-            <span className={`mbDepositUnavailableIconV223 ${selectedMethod}`}>{selected.icon}</span>
-            <small>{selected.title.toUpperCase()}</small>
-            <h2>Method temporarily unavailable</h2>
-            <p>This payment route cannot complete deposits right now. Use M-PESA for an instant secure deposit.</p>
-            <button type="button" className="mbDepositPrimaryV223" onClick={() => { setSelectedMethod("mpesa"); setStep("mpesa"); }}>
-              Use M-PESA
-            </button>
-          </div>
         )}
 
         {step === "mpesa" && (
           <>
-            <header className="mbDepositHeaderV223 compact">
-              <button type="button" className="mbDepositBackV223" onClick={() => setStep("method")} disabled={submitting || depositStatus === "pending"}>‹ Methods</button>
-              <div>
-                <small>M-PESA · STK PUSH</small>
-                <h2>Complete your deposit</h2>
-                <p>Enter the amount and Safaricom number to receive the prompt.</p>
-              </div>
+            <header className="mbCashierHeaderV369 compact">
+              <button type="button" className="mbCashierBackV369" onClick={() => setStep("method")} disabled={submitting || depositStatus === "pending"}>‹ Methods</button>
+              <div><small>M-PESA</small><h2>Complete your deposit</h2><p>Enter the amount and your Safaricom number.</p></div>
             </header>
 
-            <div className="mbDepositMethodMiniV223">
-              <span className="mbDepositMethodIconV223 mpesa">M</span>
-              <div><strong>M-PESA</strong><small>Instant · Secure mobile payment</small></div>
-              <b>Selected</b>
+            <CashierMethodMini method="mpesa" title="M-PESA" subtitle="Instant mobile payment" />
+
+            <CashierAmountInput amount={amountUsd} setAmount={setAmountUsd} disabled={submitting || depositStatus === "pending"} quickAmounts={quickAmounts} />
+
+            <label className="mbCashierLabelV369">M-PESA PHONE NUMBER</label>
+            <div className={`mbCashierPhoneV369 ${phone && !phoneValid ? "invalid" : ""}`}>
+              <span>🇰🇪</span><strong>+254</strong>
+              <input type="tel" inputMode="numeric" placeholder="7XX XXX XXX" value={phone} onChange={handlePhoneChange} disabled={submitting || depositStatus === "pending"} />
             </div>
 
-            <label className="mbDepositLabelV223" htmlFor="mpesaDepositAmount">AMOUNT (USD)</label>
-            <div className="mbDepositAmountV223">
-              <span>$</span>
-              <input id="mpesaDepositAmount" type="number" min="1" step="0.01" inputMode="decimal" value={amountUsd} onChange={(event) => setAmountUsd(event.target.value)} disabled={submitting || depositStatus === "pending"} autoFocus />
-              <b>USD</b>
-            </div>
-
-            <div className="mbDepositQuickV223" aria-label="Quick deposit amounts">
-              {quickAmounts.map((value) => (
-                <button key={value} type="button" className={Number(amountUsd) === value ? "active" : ""} onClick={() => setAmountUsd(value)} disabled={submitting || depositStatus === "pending"}>${value}</button>
-              ))}
-            </div>
-
-            <label className="mbDepositLabelV223" htmlFor="mpesaDepositPhone">M-PESA PHONE NUMBER</label>
-            <div className={`mbDepositPhoneV223 ${phone && !phoneValid ? "invalid" : ""}`}>
-              <span aria-hidden="true">🇰🇪</span><strong>+254</strong><i></i>
-              <input id="mpesaDepositPhone" type="tel" inputMode="numeric" autoComplete="tel" placeholder="7XX XXX XXX" value={phone} onChange={handlePhoneChange} disabled={submitting || depositStatus === "pending"} aria-invalid={Boolean(phone && !phoneValid)} />
-            </div>
-
-            <div className="mbDepositSummaryV223">
-              <div><span>You deposit</span><strong>${money(safeAmount)} USD</strong></div>
-              <div><span>M-PESA charge</span><strong>KES {amountKes.toLocaleString()}</strong></div>
-              <div><span>Real account receives</span><strong className="green">${money(safeAmount)} USD</strong></div>
-              <small>Exchange rate: 1 USD = KES {money(usdRate)}</small>
+            <div className="mbCashierSummaryV369">
+              <p><span>You deposit</span><strong>${money(safeAmount)} USD</strong></p>
+              <p><span>Real account receives</span><strong className="green">${money(safeAmount)} USD</strong></p>
             </div>
 
             {depositStatus === "pending" && (
-              <div className="mbDepositPendingV223" role="status"><span></span><div><strong>STK Push sent</strong><p>{depositMessage || "Check your phone and enter your M-PESA PIN."}</p></div></div>
+              <div className="mbCashierPendingV369"><i></i><div><strong>Payment request sent</strong><p>{depositMessage}</p></div></div>
             )}
 
-            <button type="button" className="mbDepositPrimaryV223" onClick={handleSubmit} disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}>
-              {submitting ? "Sending STK Push…" : depositStatus === "pending" ? "Waiting for confirmation…" : `Send STK Push · $${money(safeAmount)}`}
+            <button type="button" className="mbCashierPrimaryV369" onClick={handleMpesaSubmit} disabled={submitting || depositStatus === "pending" || safeAmount < 1 || !phoneValid}>
+              {submitting ? "Submitting…" : depositStatus === "pending" ? "Waiting for confirmation…" : `Continue Deposit · $${money(safeAmount)}`}
             </button>
-
-            {phone && !phoneValid && <p className="mbDepositErrorV223">Enter a valid Kenyan number, for example 712345678.</p>}
-            <p className="mbDepositSecurityV223">🔒 Secure payment powered by M-PESA</p>
+            {phone && !phoneValid && <p className="mbCashierErrorV369">Enter a valid Kenyan mobile number.</p>}
           </>
         )}
-      </div>
+
+        {step === "bank" && (
+          <>
+            <header className="mbCashierHeaderV369 compact">
+              <button type="button" className="mbCashierBackV369" onClick={() => setStep("method")} disabled={submitting}>‹ Methods</button>
+              <div><small>BANK TRANSFER</small><h2>Submit transfer details</h2><p>Bank deposits are verified manually.</p></div>
+            </header>
+
+            <CashierMethodMini method="bank" title="Bank Transfer" subtitle="Manual verification" />
+            <CashierAmountInput amount={amountUsd} setAmount={setAmountUsd} disabled={submitting} quickAmounts={quickAmounts} />
+
+            <div className="mbCashierGridV369">
+              <label><span>Bank name</span><input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. Equity Bank" disabled={submitting} /></label>
+              <label><span>Account holder name</span><input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder="Name used for transfer" disabled={submitting} /></label>
+            </div>
+            <label className="mbCashierFieldV369"><span>Transfer reference</span><input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Bank transaction/reference number" disabled={submitting} /></label>
+
+            <div className="mbCashierNoticeV369">Never enter a card PIN, CVV or OTP here. Your deposit remains pending until verified.</div>
+            <button type="button" className="mbCashierPrimaryV369" onClick={handleBankSubmit} disabled={submitting || safeAmount < 1 || !bankValid}>
+              {submitting ? "Submitting details…" : "Submit for verification"}
+            </button>
+          </>
+        )}
+      </section>
     </div>
+  );
+}
+
+function CashierMethodMini({ method, title, subtitle }) {
+  return (
+    <div className="mbCashierMiniV369">
+      <span className={`mbCashierMethodIconV369 ${method}`}>{method === "mpesa" ? "M" : "▦"}</span>
+      <div><strong>{title}</strong><small>{subtitle}</small></div>
+      <b>Selected</b>
+    </div>
+  );
+}
+
+function CashierAmountInput({ amount, setAmount, disabled, quickAmounts }) {
+  return (
+    <>
+      <label className="mbCashierLabelV369">AMOUNT (USD)</label>
+      <div className="mbCashierAmountV369"><span>$</span><input type="number" min="1" step="0.01" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} disabled={disabled} /><b>USD</b></div>
+      <div className="mbCashierQuickV369">
+        {quickAmounts.map((value) => <button key={value} type="button" className={Number(amount) === value ? "active" : ""} onClick={() => setAmount(value)} disabled={disabled}>${value}</button>)}
+      </div>
+    </>
   );
 }
 
@@ -10624,182 +10670,172 @@ function WithdrawModal({ close, submit, availableBalance = 0, defaultPhone = "" 
   const [method, setMethod] = useState("mpesa");
   const [amountUsd, setAmountUsd] = useState(5);
   const [phone, setPhone] = useState(defaultPhone);
+  const [bankName, setBankName] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [branch, setBranch] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
 
   const amount = Number(amountUsd || 0);
   const maxAllowed = Math.min(150000, Math.max(0, Number(availableBalance || 0)));
   const amountValid = Number.isFinite(amount) && amount >= 5 && amount <= maxAllowed;
   const phoneValid = /^(?:254|0)?(?:7|1)\d{8}$/.test(String(phone).replace(/[\s+-]/g, ""));
+  const bankValid = bankName.trim().length >= 2 && accountName.trim().length >= 3 && accountNumber.replace(/\s/g, "").length >= 5;
 
   function continueToDetails() {
-    if (method !== "mpesa") return;
     setStep("details");
   }
 
   function continueToReview() {
-    if (!amountValid || !phoneValid) return;
+    if (!amountValid) return;
+    if (method === "mpesa" && !phoneValid) return;
+    if (method === "bank" && !bankValid) return;
     setStep("review");
   }
 
   async function handleSubmit() {
-    if (submitting || !amountValid || !phoneValid) return;
+    if (submitting || !amountValid) return;
+    if (method === "mpesa" && !phoneValid) return;
+    if (method === "bank" && !bankValid) return;
+
     setSubmitting(true);
-    const completed = await submit({ amountUsd: amount, phone });
-    if (!completed) setSubmitting(false);
+    setStep("processing");
+
+    const startedAt = Date.now();
+    const response = await submit({
+      method,
+      amountUsd: amount,
+      phone,
+      bankName,
+      accountName,
+      accountNumber,
+      branch,
+    });
+
+    const remaining = Math.max(0, 30000 - (Date.now() - startedAt));
+    window.setTimeout(() => {
+      if (!response) {
+        setSubmitting(false);
+        setStep("review");
+        return;
+      }
+      setResult(response);
+      setSubmitting(false);
+      setStep("complete");
+    }, remaining);
   }
 
+  const methodTitle = method === "bank" ? "Bank Transfer" : "M-PESA";
+  const destination = method === "bank" ? `${bankName} · ${accountNumber}` : phone;
+
   return (
-    <div className="modalLayer withdrawalFlowLayer" onMouseDown={(event) => {
+    <div className="mbCashierOverlayV369" onMouseDown={(event) => {
       if (event.target === event.currentTarget && !submitting) close();
     }}>
-      <section className="withdrawFlowModal" role="dialog" aria-modal="true" aria-label="Withdraw funds">
-        <header className="withdrawFlowHeader">
-          <button
-            className="withdrawBackBtn"
-            onClick={() => setStep(step === "review" ? "details" : "method")}
-            aria-label="Go back"
-            disabled={step === "method" || submitting}
-          >
-            ←
-          </button>
-          <div>
-            <span>Cashier</span>
-            <h2>Withdraw Funds</h2>
-          </div>
-          <button className="withdrawCloseBtn" onClick={close} aria-label="Close dialog" disabled={submitting}>×</button>
-        </header>
-
-        <div className="withdrawStepTrack" aria-label="Withdrawal progress">
-          <i className="active">1</i><span className={step !== "method" ? "active" : ""} />
-          <i className={step !== "method" ? "active" : ""}>2</i><span className={step === "review" ? "active" : ""} />
-          <i className={step === "review" ? "active" : ""}>3</i>
-        </div>
+      <section className="mbCashierModalV369 withdrawV369" role="dialog" aria-modal="true" aria-label="Withdraw funds">
+        <button type="button" className="mbCashierCloseV369" onClick={close} disabled={submitting}>×</button>
 
         {step === "method" && (
-          <div className="withdrawFlowBody">
-            <div className="withdrawBalanceCard">
-              <span>Available real balance</span>
-              <strong>${money(availableBalance)}</strong>
-              <small>Only your Real Account balance can be withdrawn.</small>
-            </div>
+          <>
+            <header className="mbCashierHeaderV369">
+              <span className="mbCashierHeroIconV369 withdraw">↗</span>
+              <div><small>REAL ACCOUNT</small><h2>Withdraw Funds</h2><p>Choose where you want to receive your funds.</p></div>
+            </header>
 
-            <div className="withdrawSectionTitle">
-              <strong>Select withdrawal method</strong>
-              <small>Choose where you want to receive your funds.</small>
-            </div>
+            <div className="mbCashierBalanceV369"><span>Available balance</span><strong>${money(availableBalance)}</strong><small>Minimum withdrawal: $5.00</small></div>
 
-            <div className="withdrawMethodList">
-              <button className={method === "mpesa" ? "selected" : ""} onClick={() => setMethod("mpesa")}>
-                <b className="withdrawMethodIcon mpesa">M</b>
-                <span><strong>M-PESA</strong><small>Receive directly to your mobile wallet</small></span>
-                <em>{method === "mpesa" ? "✓" : "›"}</em>
+            <div className="mbCashierMethodsV369">
+              <button type="button" className={`mbCashierMethodV369 ${method === "mpesa" ? "selected" : ""}`} onClick={() => setMethod("mpesa")}>
+                <span className="mbCashierMethodIconV369 mpesa">M</span><span><strong>M-PESA</strong><small>Receive to your mobile wallet</small></span><em><b>Mobile</b><i></i></em>
               </button>
-              <button className="disabledMethod" type="button">
-                <b className="withdrawMethodIcon">▣</b>
-                <span><strong>Bank Transfer</strong><small>Coming soon</small></span>
-                <em>🔒</em>
-              </button>
-              <button className="disabledMethod" type="button">
-                <b className="withdrawMethodIcon">₿</b>
-                <span><strong>Crypto Wallet</strong><small>Coming soon</small></span>
-                <em>🔒</em>
+              <button type="button" className={`mbCashierMethodV369 ${method === "bank" ? "selected" : ""}`} onClick={() => setMethod("bank")}>
+                <span className="mbCashierMethodIconV369 bank">▦</span><span><strong>Bank Transfer</strong><small>Receive to your bank account</small></span><em><b>Review</b><i></i></em>
               </button>
             </div>
 
-            <button className="withdrawPrimaryBtn" onClick={continueToDetails}>Continue</button>
-          </div>
+            <div className="mbCashierSelectedV369"><span>Selected method</span><strong>{methodTitle}</strong></div>
+            <button type="button" className="mbCashierPrimaryV369" onClick={continueToDetails}>Continue <span>›</span></button>
+          </>
         )}
 
         {step === "details" && (
-          <div className="withdrawFlowBody">
-            <div className="withdrawSelectedMethod">
-              <b className="withdrawMethodIcon mpesa">M</b>
-              <div><span>Withdrawal method</span><strong>M-PESA</strong></div>
-              <button onClick={() => setStep("method")}>Change</button>
-            </div>
+          <>
+            <header className="mbCashierHeaderV369 compact">
+              <button type="button" className="mbCashierBackV369" onClick={() => setStep("method")}>‹ Methods</button>
+              <div><small>{methodTitle.toUpperCase()}</small><h2>Withdrawal details</h2><p>Enter the receiving account information.</p></div>
+            </header>
 
-            <label className="withdrawField">
-              <span>Amount</span>
-              <div className="withdrawAmountInput">
-                <b>$</b>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  min="5"
-                  max={maxAllowed || 5}
-                  step="0.01"
-                  value={amountUsd}
-                  onChange={(event) => setAmountUsd(event.target.value)}
-                  disabled={submitting}
-                  autoFocus
-                />
-                <em>USD</em>
-              </div>
-              <small className={!amountValid && amount > 0 ? "fieldError" : ""}>
-                Minimum $5 · Maximum ${money(maxAllowed)}
-              </small>
-            </label>
+            <CashierMethodMini method={method} title={methodTitle} subtitle={method === "bank" ? "Manual verification" : "Mobile withdrawal"} />
 
-            <div className="withdrawQuickAmounts">
-              {[5, 10, 25, 50].map((value) => (
-                <button key={value} onClick={() => setAmountUsd(Math.min(value, maxAllowed || value))}>${value}</button>
-              ))}
-              <button onClick={() => setAmountUsd(maxAllowed)}>Max</button>
-            </div>
+            <CashierAmountInput amount={amountUsd} setAmount={setAmountUsd} disabled={submitting} quickAmounts={[5, 10, 25, 50, 100]} />
+            <small className="mbCashierLimitV369">Minimum $5 · Maximum ${money(maxAllowed)}</small>
 
-            <label className="withdrawField">
-              <span>M-PESA phone number</span>
-              <div className="withdrawPhoneInput">
-                <b>🇰🇪</b>
-                <input
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="07XXXXXXXX or 2547XXXXXXXX"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  disabled={submitting}
-                />
-              </div>
-              <small className={phone && !phoneValid ? "fieldError" : ""}>
-                Enter the number registered for M-PESA.
-              </small>
-            </label>
+            {method === "mpesa" ? (
+              <>
+                <label className="mbCashierLabelV369">M-PESA PHONE NUMBER</label>
+                <div className={`mbCashierPhoneV369 ${phone && !phoneValid ? "invalid" : ""}`}>
+                  <span>🇰🇪</span><input type="tel" inputMode="tel" placeholder="07XXXXXXXX or 2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+                {phone && !phoneValid && <p className="mbCashierErrorV369">Enter a valid Kenyan mobile number.</p>}
+              </>
+            ) : (
+              <>
+                <div className="mbCashierGridV369">
+                  <label><span>Bank name</span><input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. KCB Bank" /></label>
+                  <label><span>Account holder name</span><input value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder="Full legal name" /></label>
+                </div>
+                <label className="mbCashierFieldV369"><span>Account number</span><input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value.replace(/[^\dA-Za-z -]/g, ""))} placeholder="Bank account number" /></label>
+                <label className="mbCashierFieldV369"><span>Branch (optional)</span><input value={branch} onChange={(e) => setBranch(e.target.value)} placeholder="Branch name or code" /></label>
+                <div className="mbCashierNoticeV369">Do not enter a card PIN, CVV or OTP. Bank withdrawals are reviewed before processing.</div>
+              </>
+            )}
 
-            <div className="withdrawInfoRow">
-              <span><b>Fee</b><strong>Free</strong></span>
-              <span><b>Processing</b><strong>Usually within 24 hours</strong></span>
-            </div>
-
-            <button className="withdrawPrimaryBtn" onClick={continueToReview} disabled={!amountValid || !phoneValid}>
-              Review Withdrawal
-            </button>
-          </div>
+            <button type="button" className="mbCashierPrimaryV369" onClick={continueToReview} disabled={!amountValid || (method === "mpesa" ? !phoneValid : !bankValid)}>Review Withdrawal</button>
+          </>
         )}
 
         {step === "review" && (
-          <div className="withdrawFlowBody">
-            <div className="withdrawReviewHero">
-              <span>You are withdrawing</span>
-              <strong>${money(amount)}</strong>
-              <small>from your Real Account</small>
-            </div>
+          <>
+            <header className="mbCashierHeaderV369 compact">
+              <button type="button" className="mbCashierBackV369" onClick={() => setStep("details")}>‹ Edit</button>
+              <div><small>REVIEW REQUEST</small><h2>Confirm withdrawal</h2><p>Check the details before submitting.</p></div>
+            </header>
 
-            <div className="withdrawReviewCard">
-              <p><span>Method</span><strong>M-PESA</strong></p>
-              <p><span>Phone number</span><strong>{phone}</strong></p>
-              <p><span>Withdrawal fee</span><strong className="green">FREE</strong></p>
-              <p className="withdrawReceiveRow"><span>You’ll receive</span><strong>${money(amount)}</strong></p>
+            <div className="mbCashierReviewHeroV369"><span>You are withdrawing</span><strong>${money(amount)}</strong><small>from your Real Account</small></div>
+            <div className="mbCashierReviewV369">
+              <p><span>Method</span><strong>{methodTitle}</strong></p>
+              <p><span>Destination</span><strong>{destination}</strong></p>
+              <p><span>Fee</span><strong className="green">FREE</strong></p>
+              <p><span>Status after submit</span><strong>Processing</strong></p>
             </div>
+            <div className="mbCashierNoticeV369">Your request will first appear as Processing or Pending review. Completed status is shown only after approval.</div>
+            <button type="button" className="mbCashierPrimaryV369" onClick={handleSubmit}>Confirm ${money(amount)} Withdrawal</button>
+          </>
+        )}
 
-            <div className="withdrawNotice">
-              <b>✓</b>
-              <span>Confirm that the M-PESA number is correct. Your request will be submitted for processing.</span>
+        {step === "processing" && (
+          <div className="mbCashierProcessingV369">
+            <div className="mbCashierSpinnerV369"></div>
+            <small>WITHDRAWAL PROCESSING</small>
+            <h2>Please wait for 30 seconds</h2>
+            <p>Your withdrawal request is being checked. Do not close this window.</p>
+            <div className="mbCashierProgressV369"><i></i></div>
+          </div>
+        )}
+
+        {step === "complete" && (
+          <div className="mbCashierProcessingV369 complete">
+            <div className="mbCashierResultIconV369 pending">✓</div>
+            <small>REQUEST RECEIVED</small>
+            <h2>{method === "bank" ? "Pending bank review" : "Withdrawal is processing"}</h2>
+            <p>{result?.message || "Your withdrawal request has been received."}</p>
+            <div className="mbCashierReviewV369">
+              <p><span>Amount</span><strong>${money(amount)} USD</strong></p>
+              <p><span>Method</span><strong>{methodTitle}</strong></p>
+              <p><span>Status</span><strong>{result?.status || "Processing"}</strong></p>
             </div>
-
-            <button className="withdrawPrimaryBtn" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? "Submitting withdrawal…" : `Confirm $${money(amount)} Withdrawal`}
-            </button>
-            <button className="withdrawEditBtn" onClick={() => setStep("details")} disabled={submitting}>Edit details</button>
+            <button type="button" className="mbCashierPrimaryV369" onClick={close}>Done</button>
           </div>
         )}
       </section>
