@@ -1163,3 +1163,362 @@ body.mbCashierOpenV370 [class*="supportChat"] {
   }
 }
 
+/* ==========================================================================
+   METABINARY V371 — PROFESSIONAL BROKER CASHIER
+   Visual refinement only. No deposit/withdraw/trading logic is changed.
+   ========================================================================== */
+
+.mbCashierOverlayV369 {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(37, 99, 235, .10), transparent 38%),
+    rgba(3, 11, 24, .78) !important;
+  backdrop-filter: blur(10px) saturate(.9) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(.9) !important;
+}
+
+.mbCashierModalV369,
+.mbCashierResultV369 {
+  width: min(560px, calc(100vw - 28px)) !important;
+  border: 1px solid rgba(216, 225, 236, .95) !important;
+  border-radius: 24px !important;
+  padding: 24px !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, .36),
+    0 1px 0 rgba(255,255,255,.9) inset !important;
+}
+
+.mbCashierCloseV369 {
+  top: 16px !important;
+  right: 16px !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-color: #dce4ec !important;
+  background: #f7f9fc !important;
+  color: #344155 !important;
+  font-size: 27px !important;
+  box-shadow: none !important;
+}
+
+.mbCashierHeaderV369 {
+  grid-template-columns: 54px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  margin-bottom: 18px !important;
+  padding-right: 48px !important;
+}
+
+.mbCashierHeaderV369.compact {
+  grid-template-columns: 86px minmax(0, 1fr) !important;
+  gap: 12px !important;
+}
+
+.mbCashierHeaderV369 small,
+.mbCashierProcessingV369 > small,
+.mbCashierResultV369 > small {
+  color: #1677c8 !important;
+  font-size: 10px !important;
+  letter-spacing: .16em !important;
+}
+
+.mbCashierHeaderV369 h2,
+.mbCashierProcessingV369 h2,
+.mbCashierResultV369 h2 {
+  margin: 3px 0 4px !important;
+  font-size: 25px !important;
+  letter-spacing: -.025em !important;
+}
+
+.mbCashierHeaderV369 p,
+.mbCashierProcessingV369 p,
+.mbCashierResultV369 p {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+.mbCashierHeroIconV369 {
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 16px !important;
+  font-size: 31px !important;
+  box-shadow: 0 8px 18px rgba(15, 116, 241, .18) !important;
+}
+
+.mbCashierBackV369 {
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  border: 1px solid #e2e8ef !important;
+  background: #f7f9fb !important;
+  font-size: 12px !important;
+}
+
+.mbCashierStepV369 {
+  gap: 9px !important;
+  margin-bottom: 13px !important;
+  font-size: 13px !important;
+}
+
+.mbCashierStepV369 b {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 14px !important;
+}
+
+.mbCashierMethodsV369 {
+  gap: 10px !important;
+}
+
+.mbCashierMethodV369 {
+  min-height: 84px !important;
+  grid-template-columns: 50px minmax(0, 1fr) 60px !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  border-width: 1px !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+}
+
+.mbCashierMethodV369.selected {
+  border-color: #2592d7 !important;
+  background: #f4fbff !important;
+  box-shadow: 0 0 0 3px rgba(37, 146, 215, .08) !important;
+}
+
+.mbCashierMethodIconV369 {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 13px !important;
+  font-size: 23px !important;
+}
+
+.mbCashierMethodV369 strong,
+.mbCashierMiniV369 strong {
+  font-size: 15px !important;
+  letter-spacing: -.01em !important;
+}
+
+.mbCashierMethodV369 small,
+.mbCashierMiniV369 small {
+  font-size: 10.5px !important;
+  line-height: 1.35 !important;
+}
+
+.mbCashierMethodV369 em {
+  gap: 7px !important;
+  font-size: 9px !important;
+}
+
+.mbCashierMethodV369 em i {
+  width: 22px !important;
+  height: 22px !important;
+  border-width: 2px !important;
+}
+
+.mbCashierMethodV369.selected em i {
+  border-width: 6px !important;
+}
+
+.mbCashierSelectedV369 {
+  margin: 15px 2px 12px !important;
+  padding-top: 12px !important;
+  font-size: 12px !important;
+}
+
+.mbCashierPrimaryV369 {
+  min-height: 52px !important;
+  border-radius: 14px !important;
+  font-size: 14px !important;
+  box-shadow: 0 10px 22px rgba(13, 102, 238, .16) !important;
+}
+
+.mbCashierMiniV369 {
+  min-height: 72px !important;
+  grid-template-columns: 48px minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+  margin-bottom: 14px !important;
+  padding: 10px 13px !important;
+  border-radius: 15px !important;
+}
+
+.mbCashierMiniV369 .mbCashierMethodIconV369 {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 21px !important;
+}
+
+.mbCashierMiniV369 > b {
+  font-size: 9px !important;
+}
+
+.mbCashierLabelV369,
+.mbCashierFieldV369 > span,
+.mbCashierGridV369 label > span {
+  margin: 12px 2px 6px !important;
+  font-size: 9px !important;
+  letter-spacing: .11em !important;
+}
+
+.mbCashierAmountV369,
+.mbCashierPhoneV369 {
+  min-height: 58px !important;
+  border-radius: 14px !important;
+}
+
+.mbCashierAmountV369 {
+  grid-template-columns: 40px minmax(0, 1fr) 44px !important;
+}
+
+.mbCashierPhoneV369 {
+  grid-template-columns: 42px auto minmax(0, 1fr) !important;
+}
+
+.mbCashierAmountV369 span,
+.mbCashierPhoneV369 > span {
+  font-size: 20px !important;
+}
+
+.mbCashierAmountV369 input,
+.mbCashierPhoneV369 input {
+  min-height: 50px !important;
+  font-size: 17px !important;
+}
+
+.mbCashierFieldV369 input,
+.mbCashierGridV369 input {
+  min-height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+}
+
+.mbCashierQuickV369 {
+  gap: 7px !important;
+  margin-top: 9px !important;
+}
+
+.mbCashierQuickV369 button {
+  min-height: 42px !important;
+  border-radius: 11px !important;
+  font-size: 11px !important;
+}
+
+.mbCashierSummaryV369,
+.mbCashierReviewV369 {
+  gap: 9px !important;
+  margin: 13px 0 !important;
+  padding: 13px 14px !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+}
+
+.mbCashierNoticeV369 {
+  margin: 12px 0 !important;
+  padding: 11px 12px !important;
+  border-radius: 12px !important;
+  font-size: 10.5px !important;
+}
+
+.mbCashierPendingV369 {
+  margin: 12px 0 !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+  font-size: 11px !important;
+}
+
+.mbCashierBalanceV369 {
+  gap: 4px !important;
+  margin-bottom: 14px !important;
+  padding: 14px !important;
+  border-radius: 14px !important;
+}
+
+.mbCashierBalanceV369 span,
+.mbCashierBalanceV369 small {
+  font-size: 11px !important;
+}
+
+.mbCashierBalanceV369 strong {
+  font-size: 24px !important;
+}
+
+.mbCashierReviewHeroV369 {
+  gap: 4px !important;
+  margin: 8px 0 14px !important;
+  padding: 17px !important;
+  border-radius: 16px !important;
+}
+
+.mbCashierReviewHeroV369 strong {
+  font-size: 31px !important;
+}
+
+.mbCashierReviewHeroV369 span,
+.mbCashierReviewHeroV369 small {
+  font-size: 11px !important;
+}
+
+.mbCashierProcessingV369 {
+  min-height: 310px !important;
+  gap: 11px !important;
+  padding: 18px 8px !important;
+}
+
+.mbCashierSpinnerV369 {
+  width: 58px !important;
+  height: 58px !important;
+  border-width: 5px !important;
+}
+
+.mbCashierProgressV369 {
+  width: min(300px, 88%) !important;
+  height: 6px !important;
+}
+
+.mbCashierResultIconV369 {
+  width: 58px !important;
+  height: 58px !important;
+  margin-bottom: 12px !important;
+  font-size: 25px !important;
+}
+
+.mbCashierResultV369 {
+  width: min(420px, calc(100vw - 28px)) !important;
+}
+
+@media screen and (max-width: 600px) {
+  .mbCashierOverlayV369 {
+    align-items: center !important;
+    padding:
+      max(10px, env(safe-area-inset-top, 0px))
+      10px
+      max(10px, env(safe-area-inset-bottom, 0px))
+      !important;
+  }
+
+  .mbCashierModalV369,
+  .mbCashierResultV369 {
+    width: 100% !important;
+    max-height: calc(100dvh - 20px) !important;
+    padding: 20px 18px 18px !important;
+    border-radius: 22px !important;
+  }
+
+  .mbCashierHeaderV369 h2,
+  .mbCashierProcessingV369 h2,
+  .mbCashierResultV369 h2 {
+    font-size: 23px !important;
+  }
+
+  .mbCashierMethodV369 {
+    min-height: 78px !important;
+  }
+
+  .mbCashierQuickV369 button {
+    min-height: 40px !important;
+  }
+
+  .mbCashierProcessingV369 {
+    min-height: 290px !important;
+  }
+}
+
