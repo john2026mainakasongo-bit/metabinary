@@ -1833,3 +1833,249 @@ html[data-theme="light"] .profileCurrencyBadgeV374 span {
     font-size: 17px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V376 — COMPACT THEME-AWARE VOLATILITY SELECTOR
+   Scope is limited to marketOverlayRootV222 / marketSelector*V222.
+   ========================================================================== */
+
+.marketOverlayRootV222 {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147482500 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 14px !important;
+  pointer-events: none !important;
+}
+
+.marketMenuBackdropV222 {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  border: 0 !important;
+  background: rgba(5, 13, 24, .38) !important;
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+  pointer-events: auto !important;
+}
+
+.marketSelectorPanelV222 {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(390px, calc(100vw - 28px)) !important;
+  max-width: 390px !important;
+  max-height: min(620px, calc(100dvh - 46px)) !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  overflow: hidden !important;
+  border: 1px solid #dce5ee !important;
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  box-shadow: 0 24px 70px rgba(8, 25, 45, .24) !important;
+  pointer-events: auto !important;
+}
+
+.marketSelectorHeaderV222 {
+  min-height: 72px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  padding: 14px 16px !important;
+  border-bottom: 1px solid #e5ebf1 !important;
+  background: #ffffff !important;
+}
+
+.marketSelectorHeaderV222 strong {
+  display: block !important;
+  color: #111827 !important;
+  font-size: 17px !important;
+  line-height: 1.15 !important;
+}
+
+.marketSelectorHeaderV222 small {
+  display: block !important;
+  margin-top: 4px !important;
+  color: #7b8998 !important;
+  font-size: 11px !important;
+}
+
+.marketSelectorHeaderV222 > button {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  border: 1px solid #e0e7ef !important;
+  border-radius: 50% !important;
+  background: #f7f9fc !important;
+  color: #263548 !important;
+  font-size: 25px !important;
+  line-height: 1 !important;
+}
+
+.marketSelectorListV222 {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  padding: 5px 10px 9px !important;
+  background: #ffffff !important;
+}
+
+.marketSelectorListV222 > button {
+  width: 100% !important;
+  min-height: 57px !important;
+  display: grid !important;
+  grid-template-columns: 70px minmax(0, 1fr) 24px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 8px 6px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #edf1f5 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #111827 !important;
+  text-align: left !important;
+}
+
+.marketSelectorListV222 > button:last-child {
+  border-bottom: 0 !important;
+}
+
+.marketSelectorListV222 > button.active {
+  margin: 3px 0 !important;
+  border: 1px solid rgba(22, 143, 216, .28) !important;
+  border-radius: 13px !important;
+  background: #eff8ff !important;
+}
+
+.marketSelectorBadgeV222 {
+  color: #0bbf82 !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+.marketSelectorCopyV222 {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.marketSelectorCopyV222 strong {
+  overflow: hidden !important;
+  color: #111827 !important;
+  font-size: 13px !important;
+  line-height: 1.18 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.marketSelectorCopyV222 small {
+  overflow: hidden !important;
+  color: #7e8b9a !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.marketSelectorListV222 > button > i {
+  color: #536273 !important;
+  font-size: 21px !important;
+  font-style: normal !important;
+  text-align: center !important;
+}
+
+/* Dark theme uses the same geometry; only colors change. */
+html[data-theme="dark"] .marketSelectorPanelV222,
+body[data-theme="dark"] .marketSelectorPanelV222,
+body .app.theme-dark ~ .marketOverlayRootV222 .marketSelectorPanelV222 {
+  border-color: #294159 !important;
+  background: #071827 !important;
+  color: #f5f8fc !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .48) !important;
+}
+
+html[data-theme="dark"] .marketSelectorHeaderV222,
+body[data-theme="dark"] .marketSelectorHeaderV222 {
+  border-bottom-color: #20364b !important;
+  background: #071827 !important;
+}
+
+html[data-theme="dark"] .marketSelectorHeaderV222 strong,
+body[data-theme="dark"] .marketSelectorHeaderV222 strong,
+html[data-theme="dark"] .marketSelectorCopyV222 strong,
+body[data-theme="dark"] .marketSelectorCopyV222 strong {
+  color: #f5f8fc !important;
+}
+
+html[data-theme="dark"] .marketSelectorHeaderV222 small,
+body[data-theme="dark"] .marketSelectorHeaderV222 small,
+html[data-theme="dark"] .marketSelectorCopyV222 small,
+body[data-theme="dark"] .marketSelectorCopyV222 small {
+  color: #93a5b8 !important;
+}
+
+html[data-theme="dark"] .marketSelectorHeaderV222 > button,
+body[data-theme="dark"] .marketSelectorHeaderV222 > button {
+  border-color: #294159 !important;
+  background: #0d2235 !important;
+  color: #eef5fc !important;
+}
+
+html[data-theme="dark"] .marketSelectorListV222,
+body[data-theme="dark"] .marketSelectorListV222 {
+  background: #071827 !important;
+}
+
+html[data-theme="dark"] .marketSelectorListV222 > button,
+body[data-theme="dark"] .marketSelectorListV222 > button {
+  border-bottom-color: #1d3246 !important;
+  color: #f5f8fc !important;
+}
+
+html[data-theme="dark"] .marketSelectorListV222 > button.active,
+body[data-theme="dark"] .marketSelectorListV222 > button.active {
+  border-color: rgba(43, 145, 225, .40) !important;
+  background: #0d2941 !important;
+}
+
+html[data-theme="dark"] .marketSelectorListV222 > button > i,
+body[data-theme="dark"] .marketSelectorListV222 > button > i {
+  color: #d7e2ee !important;
+}
+
+@media screen and (max-width: 600px) {
+  .marketOverlayRootV222 {
+    padding: 10px !important;
+  }
+
+  .marketSelectorPanelV222 {
+    width: min(360px, calc(100vw - 20px)) !important;
+    max-width: 360px !important;
+    max-height: min(560px, calc(100dvh - 28px)) !important;
+    border-radius: 18px !important;
+  }
+
+  .marketSelectorHeaderV222 {
+    min-height: 66px !important;
+    padding: 12px 14px !important;
+  }
+
+  .marketSelectorListV222 > button {
+    min-height: 53px !important;
+    grid-template-columns: 64px minmax(0, 1fr) 22px !important;
+    padding: 7px 5px !important;
+  }
+
+  .marketSelectorBadgeV222 {
+    font-size: 16px !important;
+  }
+}
