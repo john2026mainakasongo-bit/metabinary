@@ -1244,3 +1244,40 @@ body[data-theme="light"] .mobile-header-menu span,
     gap: 5px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V374 — SINGLE SHARP ACCOUNT CHEVRON
+   Replaces the blurred text glyph. Geometry remains unchanged.
+   ========================================================================== */
+
+.mobile-header-chevron {
+  overflow: visible !important;
+}
+
+.mobile-header-chevron-icon {
+  width: 12px !important;
+  height: 12px !important;
+  display: block !important;
+  overflow: visible !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2.1 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  transform: rotate(0deg) !important;
+  transform-origin: center !important;
+  transition: transform 160ms ease !important;
+}
+
+.mobile-header-chevron-icon.open {
+  transform: rotate(180deg) !important;
+}
+
+body .app.theme-light > .mobile-header .mobile-header-chevron-icon {
+  color: #717d8c !important;
+}
+
+body .app.theme-dark > .mobile-header .mobile-header-chevron-icon {
+  color: #91a5ba !important;
+}

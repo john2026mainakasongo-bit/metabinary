@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v373-profile-privacy-theme-2026-08-06";
+const FRONTEND_BUILD = "metabinary-v374-header-chevron-balance-card-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -8530,10 +8530,17 @@ function ProfilePage({ user, account, balances, transactions, referral, applyRef
       </section>
 
       <section className="profileBalanceV237">
-        <div className="profileBalanceMainV237">
-          <span>Available balance</span>
-          <strong>{money(account === "real" ? realBalance : demoBalance)} USD</strong>
-          <small>{accountLabel}</small>
+        <div className="profileBalanceMainV237 profileBalanceMainProV374">
+          <div className="profileBalanceCopyV374">
+            <span>{account === "real" ? "Real account balance" : "Demo account balance"}</span>
+            <strong>{money(account === "real" ? realBalance : demoBalance)} <b>USD</b></strong>
+            <small>{accountLabel}</small>
+          </div>
+
+          <div className="profileCurrencyBadgeV374" aria-label="Account currency USD">
+            <i>▣</i>
+            <span>USD</span>
+          </div>
         </div>
 
         <div className="profileBalanceSideV237">

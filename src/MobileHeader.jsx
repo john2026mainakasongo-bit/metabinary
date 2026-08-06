@@ -8,6 +8,18 @@ function money(value) {
   });
 }
 
+function ChevronIcon({ open = false }) {
+  return (
+    <svg
+      className={open ? "mobile-header-chevron-icon open" : "mobile-header-chevron-icon"}
+      viewBox="0 0 20 20"
+      aria-hidden="true"
+    >
+      <path d="M5.25 7.5 10 12.25 14.75 7.5" />
+    </svg>
+  );
+}
+
 export default function MobileHeader({
   user,
   account,
@@ -79,9 +91,7 @@ export default function MobileHeader({
         </button>
 
         <div className="mobile-header-brand">
-          <span className="mobile-header-logo" aria-hidden="true">
-            M
-          </span>
+          <span className="mobile-header-logo" aria-hidden="true">M</span>
           <strong>Meta</strong>
         </div>
 
@@ -97,7 +107,9 @@ export default function MobileHeader({
               {isReal ? <span className="mobile-header-flag" /> : "D"}
             </span>
             <span className="mobile-header-account-balance">{money(balance)} USD</span>
-            <span className="mobile-header-chevron">⌄</span>
+            <span className="mobile-header-chevron">
+              <ChevronIcon open={panel === "account"} />
+            </span>
           </button>
         </div>
 
@@ -122,7 +134,14 @@ export default function MobileHeader({
         </div>
       </div>
 
-      {panel && <button type="button" className="mobile-header-backdrop" onClick={closePanel} aria-label="Close overlay" />}
+      {panel && (
+        <button
+          type="button"
+          className="mobile-header-backdrop"
+          onClick={closePanel}
+          aria-label="Close overlay"
+        />
+      )}
 
       {panel === "account" && (
         <section className="mobile-header-panel mobile-header-account-panel" role="listbox" aria-label="Choose account">
@@ -189,9 +208,7 @@ export default function MobileHeader({
               <button type="button" onClick={() => { closePanel(); setActivePage("history"); }}>
                 View activity
               </button>
-              <button type="button" onClick={clearNotifications}>
-                Clear
-              </button>
+              <button type="button" onClick={clearNotifications}>Clear</button>
             </div>
           )}
         </section>
