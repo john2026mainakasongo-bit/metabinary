@@ -1281,3 +1281,105 @@ body .app.theme-light > .mobile-header .mobile-header-chevron-icon {
 body .app.theme-dark > .mobile-header .mobile-header-chevron-icon {
   color: #91a5ba !important;
 }
+
+
+/* ==========================================================================
+   METABINARY V375 — COMPACT ACCOUNT SWITCHER POPOVER
+   Keeps the account selector small, rounded and anchored under the balance pill.
+   No trading, chart, cashier or account logic is changed.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  body .app > .mobile-header .mobile-header-account-panel {
+    left: 50% !important;
+    right: auto !important;
+    top: 46px !important;
+    width: min(310px, calc(100vw - 28px)) !important;
+    max-width: 310px !important;
+    padding: 8px !important;
+    transform: translateX(-50%) !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-row {
+    min-height: 66px !important;
+    grid-template-columns: 44px minmax(0, 1fr) 28px !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 9px 10px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-row + .mobile-header-panel-row {
+    border-top: 1px solid rgba(120, 145, 170, .16) !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-row.selected {
+    border-radius: 14px !important;
+    border: 1px solid rgba(30, 145, 255, .30) !important;
+    background: rgba(31, 145, 255, .08) !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    border-radius: 50% !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-row strong {
+    font-size: 15px !important;
+    line-height: 1.1 !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-row small {
+    margin-top: 4px !important;
+    font-size: 11px !important;
+  }
+
+  body .app > .mobile-header .mobile-header-account-panel .mobile-header-panel-check {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    border-radius: 50% !important;
+    font-size: 12px !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-account-panel {
+    border-color: #dde5ee !important;
+    background: #ffffff !important;
+    box-shadow: 0 16px 38px rgba(32, 52, 76, .16) !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-account-panel .mobile-header-panel-row {
+    color: #121b27 !important;
+  }
+
+  body .app.theme-light > .mobile-header .mobile-header-account-panel .mobile-header-panel-row small {
+    color: #8a98a8 !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-account-panel {
+    border-color: #24415d !important;
+    background: #071624 !important;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .40) !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-account-panel .mobile-header-panel-row {
+    color: #f4f8ff !important;
+  }
+
+  body .app.theme-dark > .mobile-header .mobile-header-account-panel .mobile-header-panel-row small {
+    color: #98a9bb !important;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  body .app > .mobile-header .mobile-header-account-panel {
+    width: min(286px, calc(100vw - 20px)) !important;
+    max-width: 286px !important;
+  }
+}
