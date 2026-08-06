@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v370-cashier-overlay-lock-2026-08-06";
+const FRONTEND_BUILD = "metabinary-v372-compact-confirmation-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -10835,11 +10835,19 @@ function WithdrawModal({ close, submit, availableBalance = 0, defaultPhone = "" 
         )}
 
         {step === "processing" && (
-          <div className="mbCashierProcessingV369">
+          <div className="mbCashierProcessingV369 compactV372">
             <div className="mbCashierSpinnerV369"></div>
-            <small>WITHDRAWAL PROCESSING</small>
-            <h2>Please wait for 30 seconds</h2>
-            <p>Your withdrawal request is being checked. Do not close this window.</p>
+            <small>{method === "mpesa" ? "M-PESA WITHDRAWAL" : "BANK WITHDRAWAL"}</small>
+            <h2>{method === "mpesa" ? "Wait for your M-PESA confirmation message" : "Your bank withdrawal is being reviewed"}</h2>
+            <p>
+              {method === "mpesa"
+                ? "Check your phone for the M-PESA confirmation message. This window will update automatically."
+                : "We are checking your bank details before placing the request under review."}
+            </p>
+            <div className="mbCashierStatusPillV372">
+              <i></i>
+              <span>{method === "mpesa" ? "Waiting for M-PESA confirmation" : "Checking bank details"}</span>
+            </div>
             <div className="mbCashierProgressV369"><i></i></div>
           </div>
         )}
