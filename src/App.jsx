@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v376-compact-volatility-round-flags-2026-08-06";
+const FRONTEND_BUILD = "metabinary-v377-clean-contract-tabs-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;

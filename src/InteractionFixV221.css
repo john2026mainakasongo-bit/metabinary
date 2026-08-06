@@ -2079,3 +2079,113 @@ body[data-theme="dark"] .marketSelectorListV222 > button > i {
     font-size: 16px !important;
   }
 }
+
+
+/* ==========================================================================
+   METABINARY V377 — CLEAN MOBILE CONTRACT TABS
+   Scope: trade-type selector only. Screen fitting and all trading logic stay unchanged.
+   ========================================================================== */
+
+@media screen and (max-width: 760px) {
+  body .app .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    box-sizing: border-box !important;
+    width: calc(100% - 16px) !important;
+    min-width: 0 !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin: 6px 8px 8px !important;
+    padding: 4px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(111, 135, 160, .18) !important;
+    border-radius: 15px !important;
+    background: rgba(122, 143, 164, .08) !important;
+    box-shadow: none !important;
+  }
+
+  body .app .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > span {
+    display: none !important;
+  }
+
+  body .app .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 5px !important;
+    overflow: hidden !important;
+    border: 1px solid transparent !important;
+    border-radius: 11px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #7d8998 !important;
+    font-size: clamp(10px, 2.7vw, 12px) !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -.15px !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    transform: none !important;
+  }
+
+  body .app .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    border-color: rgba(39, 113, 189, .18) !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: 0 3px 10px rgba(31, 54, 79, .10) !important;
+  }
+
+  body .app .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button:disabled {
+    opacity: .68 !important;
+  }
+
+  /* Dark theme: identical geometry, dark palette only. */
+  body .app.theme-dark .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    border-color: #20384d !important;
+    background: #071827 !important;
+  }
+
+  body .app.theme-dark .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    color: #91a1b2 !important;
+  }
+
+  body .app.theme-dark .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    border-color: #29465f !important;
+    background: #102537 !important;
+    color: #f5f8fc !important;
+    box-shadow: inset 0 0 0 1px rgba(84, 139, 190, .06) !important;
+  }
+
+  /* Light theme: clean white active tab. */
+  body .app.theme-light .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 {
+    border-color: #e2e8ef !important;
+    background: #f4f6f9 !important;
+  }
+
+  body .app.theme-light .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    color: #758190 !important;
+  }
+
+  body .app.theme-light .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button.active {
+    border-color: #e0e6ed !important;
+    background: #ffffff !important;
+    color: #101722 !important;
+    box-shadow: 0 3px 10px rgba(31, 54, 79, .10) !important;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  body .app .finalBinaryTradePage > .proTradeTypeRow.finalContractTabs.mbLightTradeTabsFinalV305 > button {
+    padding: 0 3px !important;
+    font-size: 9.5px !important;
+  }
+}
