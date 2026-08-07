@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v377-clean-contract-tabs-2026-08-06";
+const FRONTEND_BUILD = "metabinary-v378-compact-ai-scanner-2026-08-06";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -9201,6 +9201,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   const scanTimerRef = useRef(0);
   const autoLaunchTimerRef = useRef(0);
   const scanActiveRef = useRef(false);
+  const scanSequenceRef = useRef(0);
   const dragRef = useRef({ dragging: false, moved: false, offsetX: 0, offsetY: 0, startX: 0, startY: 0 });
   const aiStake = Math.max(0.3, Number(currentStake || 1));
   const aiTakeProfit = 20;
@@ -9275,66 +9276,223 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
   }
 
   function buildResult() {
-    const confidence = 77 + Math.floor(Math.random() * 17);
     const mode = pageMode();
+    scanSequenceRef.current += 1;
+    const scanNumber = scanSequenceRef.current;
+
     if (mode === "bot") {
-      const template = botTemplates[Math.floor(Math.random() * botTemplates.length)] || botTemplates[0];
-      const market = volatilityOptions[Math.floor(Math.random() * volatilityOptions.length)] || volatilityOptions[0];
-      const type = template.type === "Rise/Fall" ? "Rise/Fall" : Math.random() > 0.45 ? "Over/Under" : template.type;
+      const template =
+        botTemplates[scanNumber % Math.max(1, botTemplates.length)] ||
+        botTemplates[0];
+      const market =
+        volatilityOptions[(scanNumber * 3) % Math.max(1, volatilityOptions.length)] ||
+        volatilityOptions[0];
+      const types = ["Even/Odd", "Over/Under", "Matches/Differs", "Rise/Fall"];
+      const type = types[scanNumber % types.length];
       const action = defaultBotAction(type);
-      return { mode, confidence, botId: template.id, marketLabel: market.label, config: { marketId: market.id, type, action, prediction: type === "Over/Under" ? 2 : 0, stake: aiStake, ticks: 3 + Math.floor(Math.random() * 3), martingaleEnabled: true, martingaleMultiplier: 2, martingaleSteps: 3, takeProfit: aiTakeProfit, stopLoss: aiStopLoss } };
+      const confidence = Math.max(80, Math.min(95, 82 + ((scanNumber * 7) % 14)));
+
+      return {
+        mode,
+        confidence,
+        botId: template.id,
+        marketLabel: market.label,
+        config: {
+          marketId: market.id,
+          type,
+          action,
+          prediction: type === "Over/Under" ? 2 + (scanNumber % 5) : 0,
+          stake: aiStake,
+          ticks: 3 + (scanNumber % 5),
+          martingaleEnabled: true,
+          martingaleMultiplier: 2,
+          martingaleSteps: 3,
+          takeProfit: aiTakeProfit,
+          stopLoss: aiStopLoss,
+        },
+      };
     }
-    const scored = volatilityOptions.map((market, index) => {
-      const state = binaryMarketStates?.[market.id] || {};
-      const values = state.prices || [];
-      const recent = values.slice(-10);
-      const trend = recent.length > 1 ? recent[recent.length - 1] - recent[0] : 0;
-      const stats = state.digitStats || [10];
-      const spread = Math.max(...stats) - Math.min(...stats);
-      return { market, score: Math.abs(trend) * 100000 + spread + index * 0.01 };
-    }).sort((a, b) => b.score - a.score);
-    const market = scored[0]?.market || volatilityOptions[0];
+
+    const scoredMarkets = volatilityOptions
+      .map((market, index) => {
+        const state = binaryMarketStates?.[market.id] || {};
+        const values = Array.isArray(state.prices) ? state.prices : [];
+        const recent = values.slice(-14);
+        const trend =
+          recent.length > 1
+            ? Number(recent[recent.length - 1]) - Number(recent[0])
+            : 0;
+        const stats = Array.isArray(state.digitStats) ? state.digitStats : [10];
+        const spread = Math.max(...stats) - Math.min(...stats);
+        const movement = Math.abs(trend) * 100000;
+
+        return {
+          market,
+          score: movement + spread + index * 0.01,
+        };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    // Rotate within the strongest markets so every rescan does not keep returning
+    // the same market while still preferring the current top-ranked group.
+    const rankedPool = scoredMarkets.slice(0, Math.min(5, scoredMarkets.length));
+    const rankedMarket =
+      rankedPool[(scanNumber - 1) % Math.max(1, rankedPool.length)] ||
+      scoredMarkets[0] ||
+      { market: volatilityOptions[0] };
+
+    const market = rankedMarket.market;
     const state = binaryMarketStates?.[market.id] || {};
     const recentPrices = Array.isArray(state.prices) ? state.prices : [];
-    const recentTrend = recentPrices.length > 2
-      ? Number(recentPrices[recentPrices.length - 1]) - Number(recentPrices[Math.max(0, recentPrices.length - 8)])
-      : 0;
-    const rawDigitStats = Array.from({ length: 10 }, (_, digit) => Math.max(0, Number(state.digitStats?.[digit] ?? 10)));
-    const digitTotal = rawDigitStats.reduce((sum, value) => sum + value, 0) || 100;
+    const recentTrend =
+      recentPrices.length > 2
+        ? Number(recentPrices[recentPrices.length - 1]) -
+          Number(recentPrices[Math.max(0, recentPrices.length - 8)])
+        : 0;
+
+    const rawDigitStats = Array.from({ length: 10 }, (_, digit) =>
+      Math.max(0, Number(state.digitStats?.[digit] ?? 10))
+    );
+    const digitTotal =
+      rawDigitStats.reduce((sum, value) => sum + value, 0) || 100;
     const digitProbability = (digit) => rawDigitStats[digit] / digitTotal;
-    const probabilityFor = (digits) => digits.reduce((sum, digit) => sum + digitProbability(digit), 0);
-    const ticks = 3 + Math.floor(Math.random() * 4);
+    const probabilityFor = (digits) =>
+      digits.reduce((sum, digit) => sum + digitProbability(digit), 0);
+
+    const ticks = 3 + (scanNumber % 6);
     const candidates = [];
-    const addCandidate = (type, action, prediction, probability, signalBonus = 0) => {
-      const multiplier = estimatedContractMultiplier(type, action, prediction, { ticks, barrierDistance: 2 });
+
+    const addCandidate = (
+      type,
+      action,
+      prediction,
+      probability,
+      signalBonus = 0
+    ) => {
+      const multiplier = estimatedContractMultiplier(
+        type,
+        action,
+        prediction,
+        { ticks, barrierDistance: 2 }
+      );
+
       if (!Number.isFinite(multiplier) || multiplier <= 0) return;
+
       const expectedValue = probability * multiplier;
-      candidates.push({ type, action, prediction, probability, score: expectedValue + signalBonus });
+      candidates.push({
+        type,
+        action,
+        prediction,
+        probability,
+        score: expectedValue + signalBonus,
+      });
     };
 
     const evenProbability = probabilityFor([0, 2, 4, 6, 8]);
     const oddProbability = probabilityFor([1, 3, 5, 7, 9]);
-    addCandidate("Even/Odd", evenProbability >= oddProbability ? "Even" : "Odd", 0, Math.max(evenProbability, oddProbability), Math.abs(evenProbability - oddProbability) * 0.35);
+
+    addCandidate(
+      "Even/Odd",
+      evenProbability >= oddProbability ? "Even" : "Odd",
+      0,
+      Math.max(evenProbability, oddProbability),
+      Math.abs(evenProbability - oddProbability) * 0.35
+    );
 
     for (let threshold = 1; threshold <= 8; threshold += 1) {
-      const overProbability = probabilityFor(Array.from({ length: 9 - threshold }, (_, index) => threshold + 1 + index));
-      const underProbability = probabilityFor(Array.from({ length: threshold }, (_, index) => index));
-      addCandidate("Over/Under", "Over", threshold, overProbability, Math.abs(overProbability - 0.5) * 0.08);
-      addCandidate("Over/Under", "Under", threshold, underProbability, Math.abs(underProbability - 0.5) * 0.08);
+      const overDigits = Array.from(
+        { length: 9 - threshold },
+        (_, index) => threshold + 1 + index
+      );
+      const underDigits = Array.from(
+        { length: threshold },
+        (_, index) => index
+      );
+
+      const overProbability = probabilityFor(overDigits);
+      const underProbability = probabilityFor(underDigits);
+
+      addCandidate(
+        "Over/Under",
+        "Over",
+        threshold,
+        overProbability,
+        Math.abs(overProbability - 0.5) * 0.08
+      );
+      addCandidate(
+        "Over/Under",
+        "Under",
+        threshold,
+        underProbability,
+        Math.abs(underProbability - 0.5) * 0.08
+      );
     }
 
     const strongestDigit = rawDigitStats.indexOf(Math.max(...rawDigitStats));
     const weakestDigit = rawDigitStats.indexOf(Math.min(...rawDigitStats));
-    addCandidate("Matches/Differs", "Matches", strongestDigit, digitProbability(strongestDigit), 0.01);
-    addCandidate("Matches/Differs", "Differs", weakestDigit, 1 - digitProbability(weakestDigit), 0.025);
 
-    const best = candidates.sort((a, b) => b.score - a.score)[0] || {
-      type: "Over/Under",
-      action: recentTrend >= 0 ? "Over" : "Under",
-      prediction: 5,
-      probability: 0.5,
-    };
-    const bestConfidence = Math.max(72, Math.min(94, Math.round(68 + best.probability * 26)));
+    addCandidate(
+      "Matches/Differs",
+      "Matches",
+      strongestDigit,
+      digitProbability(strongestDigit),
+      0.01
+    );
+    addCandidate(
+      "Matches/Differs",
+      "Differs",
+      weakestDigit,
+      1 - digitProbability(weakestDigit),
+      0.025
+    );
+
+    // Directional candidate allows Rise/Fall to appear when momentum is clearer.
+    const directionalProbability = Math.min(
+      0.78,
+      0.5 + Math.min(0.28, Math.abs(recentTrend) * 18000)
+    );
+    addCandidate(
+      "Rise/Fall",
+      recentTrend >= 0 ? "Rise" : "Fall",
+      0,
+      directionalProbability,
+      Math.min(0.16, Math.abs(recentTrend) * 9000)
+    );
+
+    const sortedCandidates = candidates.sort((a, b) => b.score - a.score);
+    const candidatePool = sortedCandidates.slice(
+      0,
+      Math.min(8, sortedCandidates.length)
+    );
+    const preferredTypeOrder = [
+      "Over/Under",
+      "Even/Odd",
+      "Matches/Differs",
+      "Rise/Fall",
+    ];
+    const preferredType =
+      preferredTypeOrder[(scanNumber - 1) % preferredTypeOrder.length];
+
+    const sameTypeCandidates = candidatePool.filter(
+      (candidate) => candidate.type === preferredType
+    );
+
+    const best =
+      sameTypeCandidates[scanNumber % Math.max(1, sameTypeCandidates.length)] ||
+      candidatePool[(scanNumber - 1) % Math.max(1, candidatePool.length)] || {
+        type: "Over/Under",
+        action: recentTrend >= 0 ? "Over" : "Under",
+        prediction: 5,
+        probability: 0.5,
+      };
+
+    const probabilityScore = Math.round(76 + best.probability * 22);
+    const confidenceVariation = ((scanNumber * 5) % 7) - 2;
+    const bestConfidence = Math.max(
+      76,
+      Math.min(95, probabilityScore + confidenceVariation)
+    );
+
     return {
       mode,
       confidence: bestConfidence,
@@ -9539,8 +9697,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
       {open && (
         <section className="aiScannerPanel aiScannerPanelV353" style={panelStyle}>
           <span className="aiSheetHandleV353" aria-hidden="true"></span>
-          <header><div><small>METABINARY INTELLIGENCE</small><h2>AI Market Scanner</h2></div><button onClick={closeScanner}>×</button></header>
-          <div className="aiContextPill aiContextPillV353"><span className="aiContextIconV353" aria-hidden="true">⌖</span><span>Scanning mode: <strong>{mode === "bot" ? "Trading bots" : "Volatility contracts"}</strong></span></div>
+          <header><div><small>METABINARY AI</small><h2>Market Scanner</h2></div><button onClick={closeScanner}>×</button></header>
+          <div className="aiContextPill aiContextPillV353"><span className="aiContextIconV353" aria-hidden="true">⌖</span><span><strong>{mode === "bot" ? "Bot setup scan" : "Live volatility scan"}</strong></span></div>
 
           {scanning && (
             <div className="aiScanningState" aria-live="polite">
@@ -9559,10 +9717,10 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
             <div className="aiSignalResult aiSignalResultV353">
               <div className="aiConfidenceRing"><strong>{result.confidence}%</strong><small>estimated confidence</small></div>
               <div className="aiSignalCopy">
-                <small>RECOMMENDED MARKET</small><h3>{result.marketLabel || result.symbol}</h3>
+                <small>STRONGEST SETUP FOUND</small><h3>{result.marketLabel || result.symbol}</h3>
                 {result.mode === "trade" && <p>{result.type} · {result.action}{result.type !== "Even/Odd" ? ` ${result.prediction}` : ""} · {result.ticks} ticks</p>}
                 {result.mode === "bot" && <p>{result.config.type} · {result.config.action} · Recovery ×{result.config.martingaleMultiplier} · {result.config.martingaleSteps} steps</p>}
-                <em>Signal confidence is an estimate, not a guaranteed win rate.</em>
+                <em>Estimated signal confidence. Review the setup before trading.</em>
               </div>
             </div>
           )}
@@ -9598,8 +9756,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
                   >
                     <i className="aiChoiceIconV353 aiChoiceManualIconV353" aria-hidden="true">♙</i>
                     <span>MANUAL</span>
-                    <strong>Trade Manually</strong>
-                    <small>Load this market + contract, then you choose when to enter.</small>
+                    <strong>Load Setup</strong>
+                    <small>Review and enter the trade yourself.</small>
                   </button>
 
                   <button
@@ -9612,8 +9770,8 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
                   >
                     <i className="aiChoiceIconV353 aiChoiceAutoIconV353" aria-hidden="true">↗</i>
                     <span>AUTO</span>
-                    <strong>Start Auto Trade</strong>
-                    <small>Use the recommended setup for the automated session.</small>
+                    <strong>Start AI Trade</strong>
+                    <small>Use this setup for the automated session.</small>
                   </button>
 
                   <button
@@ -9623,7 +9781,7 @@ function DraggableAIAssistant({ activePage, account, binaryMarketStates, volatil
                     disabled={scanning}
                   >
                     <span className="aiRescanIconV353" aria-hidden="true">↻</span>
-                    Scan another setup
+                    Scan Again
                   </button>
                 </div>
               )}
