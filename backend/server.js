@@ -2726,6 +2726,35 @@ app.get("/api/mpesa/status/:checkoutRequestId", async (req, res, next) => {
     const db = await getDb();
     const payment = await db.collection("zentoraPayments").findOne({ checkoutRequestId });
 
+    // ZENTORA_FAST_DB_STATUS_V18
+    // Safaricom callback can arrive before the next STK Query. Return the saved
+    // callback result instantly so Shopify changes from "Waiting" without delay.
+    if (payment) {
+      const savedStatus = String(payment.status || "").toUpperCase();
+      if (["PAID", "COMPLETED", "SUCCESS", "SUCCESSFUL"].includes(savedStatus)) {
+        return res.json({
+          ok: true,
+          status: "paid",
+          checkoutRequestId,
+          receipt:
+            payment.confirmationCode ||
+            payment.mpesaReceiptNumber ||
+            payment.callbackMetadata?.MpesaReceiptNumber ||
+            "",
+          message: payment.resultDesc || "M-PESA payment confirmed.",
+          balanceOnDelivery: payment.paymentMode === "cod" ? null : 0,
+        });
+      }
+      if (["FAILED", "FAILURE", "CANCELLED", "CANCELED", "REVERSED", "EXPIRED"].includes(savedStatus)) {
+        return res.json({
+          ok: true,
+          status: "failed",
+          checkoutRequestId,
+          message: payment.resultDesc || "M-PESA payment was not completed.",
+        });
+      }
+    }
+
     let providerResponse;
     try {
       providerResponse = await queryMpesaStkPush(checkoutRequestId);
@@ -2830,7 +2859,83 @@ app.post("/api/mpesa/callback", async (req, res) => {
       .collection("deposits")
       .findOne({ $or: clauses });
 
-    if (!deposit) {
+
+if (!deposit) {
+      // ZENTORA_FAST_CALLBACK_V18
+      // Zentora checkout payments live in their own collection. Process their
+      // Daraja callback immediately instead of waiting for repeated STK queries.
+      const zentoraPayment = await db
+        .collection("zentoraPayments")
+        .findOne({ $or: clauses });
+
+      if (zentoraPayment) {
+        const paidAmount = Number(metadata.Amount);
+        const expectedAmount = Number(zentoraPayment.amountKes);
+        const receipt = String(metadata.MpesaReceiptNumber || "").trim();
+        const callbackPhone = String(metadata.PhoneNumber || "").trim();
+        const transactionDate = String(metadata.TransactionDate || "").trim();
+
+        let zentoraStatus =
+          resultCode === "0" ? "PAID" : mpesaFailureStatus(resultCode);
+        let verificationError = "";
+
+        if (
+          resultCode === "0" &&
+          Number.isFinite(paidAmount) &&
+          Number.isFinite(expectedAmount) &&
+          Math.abs(paidAmount - expectedAmount) > 0.01
+        ) {
+          zentoraStatus = "PAYMENT_REVIEW";
+          verificationError =
+            "M-PESA callback amount did not match the requested Zentora amount.";
+        }
+
+        await db.collection("zentoraPayments").updateOne(
+          { _id: zentoraPayment._id },
+          {
+            $set: {
+              status: zentoraStatus,
+              merchantRequestId:
+                merchantRequestId || zentoraPayment.merchantRequestId || "",
+              checkoutRequestId:
+                checkoutRequestId || zentoraPayment.checkoutRequestId || "",
+              providerCallback: req.body,
+              callbackMetadata: metadata,
+              resultCode,
+              resultDesc,
+              confirmationCode:
+                receipt || zentoraPayment.confirmationCode || "",
+              mpesaReceiptNumber:
+                receipt || zentoraPayment.mpesaReceiptNumber || "",
+              paymentAccount:
+                callbackPhone || zentoraPayment.phone || "",
+              verifiedAmountKes: Number.isFinite(paidAmount)
+                ? paidAmount
+                : null,
+              transactionDate,
+              verificationError,
+              paidAt:
+                resultCode === "0" && !verificationError
+                  ? nowIso()
+                  : zentoraPayment.paidAt || null,
+              updatedAt: nowIso(),
+            },
+          }
+        );
+
+        console.info("[ZENTORA STK] callback", {
+          checkoutRequestId,
+          resultCode,
+          status: zentoraStatus,
+          hasReceipt: Boolean(receipt),
+        });
+
+        return res.status(200).json({
+          ResultCode: 0,
+          ResultDesc: "Accepted",
+        });
+      }
+
       console.warn(
         `M-PESA callback could not match a deposit: ${checkoutRequestId || merchantRequestId}`
       );
