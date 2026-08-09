@@ -2558,6 +2558,233 @@ app.get("/api/deposit/:depositId/status", requireUser, async (req, res, next) =>
   }
 });
 
+
+// -----------------------------------------------------------------------------
+// Zentora Kenya public M-PESA STK checkout routes
+// These routes intentionally do NOT require MetaBinary user/admin authentication.
+// They are limited to customer checkout use. COD charges the fixed KSh190 delivery fee.
+// -----------------------------------------------------------------------------
+app.post("/api/mpesa/order-payment", async (req, res, next) => {
+  try {
+    const paymentMode = cleanText(req.body?.paymentMode || "cod", 20).toLowerCase();
+    const phone = normalizeKenyanPhone(req.body?.phone);
+    const customerName = cleanText(req.body?.name || "Zentora Customer", 120);
+    const variantId = cleanText(req.body?.variantId || "", 80);
+    const quantity = Math.max(1, Math.min(20, Number(req.body?.quantity || 1)));
+    const productTitle = cleanText(req.body?.productTitle || "Zentora Order", 120);
+    const productHandle = cleanText(req.body?.productHandle || "", 120);
+
+    // COD is the live checkout currently used on Zentora: KSh190 delivery fee now.
+    // Full-payment mode requires a verified server-side Shopify total, which this
+    // MetaBinary backend does not currently have, so do not trust a browser-supplied total.
+    if (paymentMode !== "cod") {
+      throw httpError(
+        400,
+        "Pay Full is temporarily unavailable. Please choose Cash on Delivery and pay the KSh190 delivery fee by M-PESA."
+      );
+    }
+
+    const amountKes = 190;
+    const accountReference = `ZENTORA${Date.now()}`.slice(-12);
+
+    console.info("[ZENTORA STK] request", {
+      paymentMode,
+      phone: phone.slice(0, 6) + "****" + phone.slice(-2),
+      amountKes,
+      variantId,
+      quantity,
+    });
+
+    const providerResponse = await startMpesaStkPush({
+      amountKes,
+      phone,
+      accountReference,
+    });
+
+    const merchantRequestId = String(providerResponse?.MerchantRequestID || "").trim();
+    const checkoutRequestId = String(providerResponse?.CheckoutRequestID || "").trim();
+
+    if (!checkoutRequestId) {
+      throw httpError(
+        502,
+        providerErrorMessage(providerResponse) ||
+          "Safaricom did not return a CheckoutRequestID."
+      );
+    }
+
+    const db = await getDb();
+    await db.collection("zentoraPayments").insertOne({
+      checkoutRequestId,
+      merchantRequestId,
+      phone,
+      amountKes,
+      paymentMode,
+      customerName,
+      variantId,
+      quantity,
+      productTitle,
+      productHandle,
+      city: cleanText(req.body?.city || "", 100),
+      address: cleanText(req.body?.address || "", 240),
+      email: cleanEmail(req.body?.email || ""),
+      status: "PENDING",
+      providerResponse,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    });
+
+    console.info("[ZENTORA STK] accepted", {
+      checkoutRequestId,
+      merchantRequestId,
+      amountKes,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      checkoutRequestId,
+      merchantRequestId,
+      amountKes,
+      status: "pending",
+      message: "STK Push sent. Check your phone and enter your M-PESA PIN.",
+    });
+  } catch (error) {
+    console.error("[ZENTORA STK] order-payment error", error?.message || error);
+    next(error);
+  }
+});
+
+app.post("/api/mpesa/stkpush", async (req, res, next) => {
+  try {
+    const phone = normalizeKenyanPhone(req.body?.phone);
+    const amountKes = 190;
+    const accountReference = cleanText(
+      req.body?.orderRef || `ZENTORA${Date.now()}`,
+      12
+    ) || "ZENTORA";
+
+    console.info("[ZENTORA STK] legacy request", {
+      phone: phone.slice(0, 6) + "****" + phone.slice(-2),
+      amountKes,
+    });
+
+    const providerResponse = await startMpesaStkPush({
+      amountKes,
+      phone,
+      accountReference,
+    });
+
+    const merchantRequestId = String(providerResponse?.MerchantRequestID || "").trim();
+    const checkoutRequestId = String(providerResponse?.CheckoutRequestID || "").trim();
+
+    if (!checkoutRequestId) {
+      throw httpError(
+        502,
+        providerErrorMessage(providerResponse) ||
+          "Safaricom did not return a CheckoutRequestID."
+      );
+    }
+
+    const db = await getDb();
+    await db.collection("zentoraPayments").insertOne({
+      checkoutRequestId,
+      merchantRequestId,
+      phone,
+      amountKes,
+      paymentMode: "cod",
+      status: "PENDING",
+      providerResponse,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    });
+
+    console.info("[ZENTORA STK] legacy accepted", {
+      checkoutRequestId,
+      merchantRequestId,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      checkoutRequestId,
+      merchantRequestId,
+      amountKes,
+      status: "pending",
+      message: "STK Push sent. Check your phone and enter your M-PESA PIN.",
+    });
+  } catch (error) {
+    console.error("[ZENTORA STK] stkpush error", error?.message || error);
+    next(error);
+  }
+});
+
+app.get("/api/mpesa/status/:checkoutRequestId", async (req, res, next) => {
+  try {
+    const checkoutRequestId = cleanText(req.params.checkoutRequestId, 120);
+    if (!checkoutRequestId) {
+      throw httpError(400, "CheckoutRequestID is required.");
+    }
+
+    const db = await getDb();
+    const payment = await db.collection("zentoraPayments").findOne({ checkoutRequestId });
+
+    let providerResponse;
+    try {
+      providerResponse = await queryMpesaStkPush(checkoutRequestId);
+    } catch (error) {
+      const message = providerErrorMessage(error) || error?.message || "M-PESA status check failed.";
+      if (isMpesaStillProcessing(message)) {
+        return res.json({
+          ok: true,
+          status: "pending",
+          checkoutRequestId,
+          message,
+        });
+      }
+      throw error;
+    }
+
+    const rawResultCode = pickFirst(
+      providerResponse?.ResultCode,
+      providerResponse?.resultCode,
+      providerResponse?.errorCode
+    );
+    const resultDesc = String(
+      pickFirst(providerResponse?.ResultDesc, providerResponse?.resultDesc) || ""
+    );
+
+    let status = "pending";
+    if (rawResultCode !== undefined && rawResultCode !== null && rawResultCode !== "") {
+      const code = String(rawResultCode);
+      if (code === "0") status = "paid";
+      else if (!isMpesaStillProcessing(resultDesc)) status = "failed";
+    }
+
+    if (payment) {
+      await db.collection("zentoraPayments").updateOne(
+        { checkoutRequestId },
+        {
+          $set: {
+            status: status.toUpperCase(),
+            providerStatusResponse: providerResponse,
+            resultCode: rawResultCode === undefined ? "" : String(rawResultCode),
+            resultDesc,
+            updatedAt: nowIso(),
+          },
+        }
+      );
+    }
+
+    return res.json({
+      ok: true,
+      status,
+      checkoutRequestId,
+      message: resultDesc || (status === "pending" ? "Waiting for M-PESA confirmation." : ""),
+      balanceOnDelivery: payment?.paymentMode === "cod" ? null : 0,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/mpesa/callback", async (req, res) => {
   const stkCallback =
     req.body?.Body?.stkCallback ||
