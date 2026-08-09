@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+﻿import crypto from "node:crypto";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -825,7 +825,7 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
     payout: roundMoney(claimed.payout),
     status: won ? "WON" : "LOST",
     reference: claimed.id,
-    details: `${claimed.strategy ? `${claimed.strategy} · ` : ""}${claimed.market || "Volatility"} · ${claimed.type} · ${claimed.action}${["Even/Odd", "Matches/Differs", "Over/Under"].includes(claimed.type) ? ` · digit ${resultDigit}` : ` · close ${closingPrice}`}`,
+    details: `${claimed.strategy ? `${claimed.strategy} Â· ` : ""}${claimed.market || "Volatility"} Â· ${claimed.type} Â· ${claimed.action}${["Even/Odd", "Matches/Differs", "Over/Under"].includes(claimed.type) ? ` Â· digit ${resultDigit}` : ` Â· close ${closingPrice}`}`,
     createdAt: settledAt,
   });
 
@@ -2798,7 +2798,7 @@ app.get("/api/pesapal/callback", async (req, res, next) => {
 </head>
 <body>
   <div class="card">
-    <div class="icon">✓</div>
+    <div class="icon">âœ“</div>
     <h1>Payment received</h1>
     <div class="muted">MetaBinary is confirming your deposit. You can keep this payment window open for a moment.</div>
   </div>
@@ -3106,7 +3106,7 @@ app.post("/api/forex/open", requireUser, async (req, res, next) => {
       amount: 0,
       status: "OPEN",
       reference: id,
-      details: `${side} ${instrument} · ${volume} lot · margin ${margin.toFixed(2)} USD`,
+      details: `${side} ${instrument} Â· ${volume} lot Â· margin ${margin.toFixed(2)} USD`,
       createdAt,
     });
 
@@ -3179,7 +3179,7 @@ app.post("/api/forex/:id/close", requireUser, async (req, res, next) => {
       amount: pl,
       status: "CLOSED",
       reference: position.id,
-      details: `${position.side} ${position.instrument} · ${position.volume} lot`,
+      details: `${position.side} ${position.instrument} Â· ${position.volume} lot`,
       createdAt: closedAt,
     });
 
@@ -3802,3 +3802,4 @@ await ensureIndexes();
 app.listen(PORT, () => {
   console.log(`MetaBinary backend running on port ${PORT} (Daraja: ${DARAJA_ENV}, MongoDB: ${MONGODB_DB})`);
 });
+
