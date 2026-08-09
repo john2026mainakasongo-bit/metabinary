@@ -1,4 +1,4 @@
-﻿import crypto from "node:crypto";
+import crypto from "node:crypto";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -259,12 +259,18 @@ app.disable("x-powered-by");
 
 const LOCAL_DEVELOPMENT_ORIGIN = /^https?:\/\/(?:localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}):5173$/i;
 
+const ZENTORA_PUBLIC_ORIGINS = new Set([
+  "https://zentorakenya.top",
+  "https://www.zentorakenya.top",
+]);
+
 function corsOriginAllowed(origin) {
   if (!origin) return true;
 
   const normalizedOrigin = String(origin).trim().replace(/\/$/, "");
 
   return (
+    ZENTORA_PUBLIC_ORIGINS.has(normalizedOrigin) ||
     FRONTEND_URLS.includes(normalizedOrigin) ||
     LOCAL_DEVELOPMENT_ORIGIN.test(normalizedOrigin)
   );
@@ -3802,4 +3808,3 @@ await ensureIndexes();
 app.listen(PORT, () => {
   console.log(`MetaBinary backend running on port ${PORT} (Daraja: ${DARAJA_ENV}, MongoDB: ${MONGODB_DB})`);
 });
-
