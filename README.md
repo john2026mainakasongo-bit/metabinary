@@ -1,4 +1,4 @@
-# MetaBinary v380 — Secure Server Trading
+# MetaBinary v381 — Secure Server Trading
 
 React/Vite frontend with an Express/MongoDB backend for accounts, trading,
 M-PESA/Pesapal deposits, withdrawals, referrals, support and administration.
@@ -17,6 +17,13 @@ M-PESA/Pesapal deposits, withdrawals, referrals, support and administration.
 - Helmet security headers are enabled.
 - Failed M-PESA callback processing returns an error so the provider may retry.
 - Frontend and backend dependency audits report zero known vulnerabilities.
+
+## v381 bot hotfix
+
+- Raises the default rolling daily stake-volume limit to 1,000 USD so normal
+  bot activity is not incorrectly blocked after 100 USD of cumulative stakes.
+- Permanent risk-limit responses now stop the bot and show their exact message;
+  only genuine temporary failures display the reconnecting notice.
 
 ## Local setup
 

@@ -164,7 +164,7 @@ const API_URL = String(
     : import.meta.env.VITE_API_URL || "https://metabinary-backend.onrender.com"
 ).replace(/\/+$/, "");
 
-const FRONTEND_BUILD = "metabinary-v380-secure-server-trading-2026-08-20";
+const FRONTEND_BUILD = "metabinary-v381-bot-limit-hotfix-2026-08-20";
 const DIGIT_TICK_MS = 1000;
 const BINARY_PRICE_HISTORY_LIMIT = 3600;
 const BOT_CYCLE_DELAY_MS = 250;
@@ -849,10 +849,18 @@ function makeApiError(response, result, fallbackMessage) {
 
 function isTransientTradeError(error) {
   const status = Number(error?.status || 0);
+  const message = String(error?.message || "").toLowerCase();
+  if (
+    message.includes("daily real-account stake limit") ||
+    message.includes("maximum real-account stake") ||
+    message.includes("real trades may be open") ||
+    message.includes("balance is too low")
+  ) {
+    return false;
+  }
   if ([408, 409, 425, 429].includes(status) || status >= 500) return true;
   if (error?.name === "AbortError" || error?.code === "TRADE_TIMEOUT") return true;
 
-  const message = String(error?.message || "").toLowerCase();
   return (
     !status ||
     message.includes("network") ||

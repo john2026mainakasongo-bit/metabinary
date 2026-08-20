@@ -17,7 +17,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-v380-secure-server-trading-2026-08-20";
+const BACKEND_BUILD = "metabinary-v381-bot-limit-hotfix-2026-08-20";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -74,7 +74,7 @@ const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const PASSWORD_RESET_FROM_EMAIL = String(process.env.PASSWORD_RESET_FROM_EMAIL || "MetaBinary <noreply@metabinaryfx.com>").trim();
 const PASSWORD_RESET_TTL_MINUTES = Math.max(5, Math.min(60, Number(process.env.PASSWORD_RESET_TTL_MINUTES || 15)));
 const MAX_REAL_STAKE_USD = Math.max(0.3, Number(process.env.MAX_REAL_STAKE_USD || 25));
-const MAX_REAL_DAILY_STAKE_USD = Math.max(MAX_REAL_STAKE_USD, Number(process.env.MAX_REAL_DAILY_STAKE_USD || 100));
+const MAX_REAL_DAILY_STAKE_USD = Math.max(MAX_REAL_STAKE_USD, Number(process.env.MAX_REAL_DAILY_STAKE_USD || 1000));
 const MAX_OPEN_REAL_TRADES = Math.max(1, Math.min(10, Number(process.env.MAX_OPEN_REAL_TRADES || 3)));
 const REAL_TRADE_COOLDOWN_MS = Math.max(1000, Number(process.env.REAL_TRADE_COOLDOWN_MS || 2500));
 
