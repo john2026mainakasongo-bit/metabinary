@@ -17,7 +17,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-v381-bot-limit-hotfix-2026-08-20";
+const BACKEND_BUILD = "metabinary-v382-expired-trade-recovery-2026-08-20";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -863,6 +863,51 @@ async function finalizeTradeWithDigit(db, user, trade, requestedDigit) {
     balance: roundMoney(updatedUser?.[balanceField]),
     alreadySettled: false,
   };
+}
+
+async function settleExpiredTradesForUser(db, user, account = "real") {
+  const expired = await db.collection("trades")
+    .find({
+      email: user.email,
+      account,
+      status: "RUNNING",
+      settleAt: { $lte: nowIso() },
+    })
+    .sort({ settleAt: 1 })
+    .limit(50)
+    .toArray();
+
+  for (const trade of expired) {
+    try {
+      if (trade.type === "Rise/Fall") {
+        const entry = Number(trade.entryPrice || trade.currentPrice || 1);
+        const step = Math.max(Number(trade.marketStep || 0.0002), 0.000001);
+        const currentPrice = Number((entry + Number(trade.serverDirection || 1) * step).toFixed(6));
+        await db.collection("trades").updateOne(
+          { _id: trade._id, status: "RUNNING" },
+          { $set: { currentPrice, updatedAt: nowIso() } }
+        );
+        trade.currentPrice = currentPrice;
+      }
+
+      if (trade.type === "Touch/No Touch" && typeof trade.serverTouched === "boolean") {
+        await db.collection("trades").updateOne(
+          { _id: trade._id, status: "RUNNING" },
+          { $set: { touched: trade.serverTouched, updatedAt: nowIso() } }
+        );
+        trade.touched = trade.serverTouched;
+      }
+
+      const resultDigit = Number.isInteger(trade.serverResultDigit)
+        ? trade.serverResultDigit
+        : crypto.randomInt(0, 10);
+      await finalizeTradeWithDigit(db, user, trade, resultDigit);
+    } catch (error) {
+      console.error("Expired trade recovery failed", { tradeId: trade.id, email: user.email, error: error.message });
+    }
+  }
+
+  return expired.length;
 }
 
 function normalizeMarketSymbol(value) {
@@ -3596,6 +3641,7 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
 
     if (account === "real") {
+      await settleExpiredTradesForUser(db, req.user, "real");
       if (stake > MAX_REAL_STAKE_USD) throw httpError(400, `Maximum real-account stake is ${MAX_REAL_STAKE_USD.toFixed(2)} USD.`);
       const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const [openCount, recentTrade, daily] = await Promise.all([

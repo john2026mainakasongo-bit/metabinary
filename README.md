@@ -1,4 +1,4 @@
-# MetaBinary v381 — Secure Server Trading
+# MetaBinary v382 — Secure Server Trading
 
 React/Vite frontend with an Express/MongoDB backend for accounts, trading,
 M-PESA/Pesapal deposits, withdrawals, referrals, support and administration.
@@ -24,6 +24,13 @@ M-PESA/Pesapal deposits, withdrawals, referrals, support and administration.
   bot activity is not incorrectly blocked after 100 USD of cumulative stakes.
 - Permanent risk-limit responses now stop the bot and show their exact message;
   only genuine temporary failures display the reconnecting notice.
+
+## v382 expired-trade recovery
+
+- Expired real trades left in `RUNNING` state after a browser or bot interruption
+  are settled automatically before the next contract is opened.
+- Stale records no longer trigger the incorrect “Only 3 real trades may be open”
+  block, and their payout/balance reconciliation remains idempotent.
 
 ## Local setup
 
