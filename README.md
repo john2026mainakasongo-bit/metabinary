@@ -1,16 +1,47 @@
-# React + Vite
+# MetaBinary v380 — Secure Server Trading
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React/Vite frontend with an Express/MongoDB backend for accounts, trading,
+M-PESA/Pesapal deposits, withdrawals, referrals, support and administration.
 
-Currently, two official plugins are available:
+## What changed in v380
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Final trade digits are generated and retained by the backend; they are not
+  derived from the public market clock and are never returned before settlement.
+- Client requests cannot force an early settlement.
+- Tick timing is enforced by the backend.
+- Real-account limits cover stake size, rolling daily stake, concurrent trades
+  and cooldown between trades.
+- Withdrawal completion/rejection uses an atomic status claim to stop duplicate
+  refunds and conflicting admin actions.
+- Login, payment and trade routes are rate limited.
+- Helmet security headers are enabled.
+- Failed M-PESA callback processing returns an error so the provider may retry.
+- Frontend and backend dependency audits report zero known vulnerabilities.
 
-## React Compiler
+## Local setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Copy `backend/.env.example` to `backend/.env` and add real credentials.
+2. Never enable `SIMULATE_PAYMENTS` in production.
+3. Run `npm install` in the project root and in `backend/`.
+4. Start the backend with `npm run dev --prefix backend`.
+5. Start the frontend with `npm run dev`.
 
-## Expanding the Oxlint configuration
+## Production checks
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- Use a long, unique `JWT_SECRET` and admin password.
+- Set `FRONTEND_URL`, `FRONTEND_PUBLIC_URL` and `PUBLIC_BACKEND_URL` exactly.
+- Use live Daraja/Pesapal values only after sandbox callback testing passes.
+- Keep real-account limits conservative until monitored load tests are complete.
+- Configure MongoDB backups and alerts.
+- Use a licensed/independently auditable market or RNG source before accepting
+  public real-money trading. These controls close known client-side prediction
+  and timing exploits, but do not replace legal or regulatory review.
+
+## Validation
+
+```bash
+npm run build
+npm audit --omit=dev
+node --check backend/server.js
+npm --prefix backend audit --omit=dev
+```

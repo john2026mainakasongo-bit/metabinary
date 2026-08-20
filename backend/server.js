@@ -2,6 +2,8 @@ import crypto from "node:crypto";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import { MongoClient, ObjectId } from "mongodb";
 
 dotenv.config();
@@ -15,7 +17,7 @@ const REFERRAL_COMMISSION_PERCENT = Math.max(
   0,
   Math.min(100, Number(process.env.REFERRAL_COMMISSION_PERCENT || 5))
 );
-const BACKEND_BUILD = "metabinary-v364-natural-market-candles-clean-chart-2026-07-29";
+const BACKEND_BUILD = "metabinary-v380-secure-server-trading-2026-08-20";
 const TRADE_TICK_MS = Number(process.env.TRADE_TICK_MS || 1000);
 const BOT_TRADE_TICK_MS = Number(process.env.BOT_TRADE_TICK_MS || 650);
 const AI_TRADE_TICK_MS = Number(process.env.AI_TRADE_TICK_MS || 750);
@@ -71,6 +73,10 @@ const FRONTEND_PUBLIC_URL = String(process.env.FRONTEND_PUBLIC_URL || FRONTEND_U
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
 const PASSWORD_RESET_FROM_EMAIL = String(process.env.PASSWORD_RESET_FROM_EMAIL || "MetaBinary <noreply@metabinaryfx.com>").trim();
 const PASSWORD_RESET_TTL_MINUTES = Math.max(5, Math.min(60, Number(process.env.PASSWORD_RESET_TTL_MINUTES || 15)));
+const MAX_REAL_STAKE_USD = Math.max(0.3, Number(process.env.MAX_REAL_STAKE_USD || 25));
+const MAX_REAL_DAILY_STAKE_USD = Math.max(MAX_REAL_STAKE_USD, Number(process.env.MAX_REAL_DAILY_STAKE_USD || 100));
+const MAX_OPEN_REAL_TRADES = Math.max(1, Math.min(10, Number(process.env.MAX_OPEN_REAL_TRADES || 3)));
+const REAL_TRADE_COOLDOWN_MS = Math.max(1000, Number(process.env.REAL_TRADE_COOLDOWN_MS || 2500));
 
 const PASSWORD_ITERATIONS = 120000;
 const PASSWORD_KEY_LENGTH = 32;
@@ -295,8 +301,19 @@ app.use(
   })
 );
 
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: false }));
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false });
+const paymentLimiter = rateLimit({ windowMs: 60 * 1000, limit: 10, standardHeaders: "draft-8", legacyHeaders: false });
+const tradeLimiter = rateLimit({ windowMs: 60 * 1000, limit: 120, standardHeaders: "draft-8", legacyHeaders: false });
+app.use("/api/auth", authLimiter);
+app.use("/api/admin/login", authLimiter);
+app.use("/api/deposit", paymentLimiter);
+app.use("/api/withdraw", paymentLimiter);
+app.use("/api/mpesa/stkpush", paymentLimiter);
+app.use("/api/trades", tradeLimiter);
 
 let mongoClientPromise;
 
@@ -3018,13 +3035,9 @@ if (!deposit) {
     });
   } catch (error) {
     console.error("M-PESA callback processing error:", error);
-
-    // Return 200 so Safaricom does not repeatedly retry a callback because
-    // of a temporary application-side error. The pending deposit can still
-    // be reconciled by STK query from the status endpoint.
-    return res.status(200).json({
-      ResultCode: 0,
-      ResultDesc: "Accepted",
+    return res.status(500).json({
+      ResultCode: 1,
+      ResultDesc: "Temporary processing failure",
     });
   }
 });
@@ -3257,9 +3270,12 @@ app.get("/api/admin/withdrawals", requireAdmin, async (req, res, next) => {
 app.post("/api/admin/withdrawals/:id/complete", requireAdmin, async (req, res, next) => {
   try {
     const db = await getDb();
-    const withdrawal = await db.collection("withdrawals").findOne({ id: req.params.id });
-    if (!withdrawal) throw httpError(404, "Withdrawal was not found.");
-    if (withdrawal.status === "REJECTED") throw httpError(400, "A rejected withdrawal cannot be completed.");
+    const withdrawal = await db.collection("withdrawals").findOneAndUpdate(
+      { id: req.params.id, status: "PENDING" },
+      { $set: { status: "PROCESSING", updatedAt: nowIso() } },
+      { returnDocument: "before" }
+    );
+    if (!withdrawal) throw httpError(409, "Withdrawal was already processed or was not found.");
 
     const completedAt = nowIso();
     await db.collection("withdrawals").updateOne(
@@ -3280,17 +3296,18 @@ app.post("/api/admin/withdrawals/:id/complete", requireAdmin, async (req, res, n
 app.post("/api/admin/withdrawals/:id/reject", requireAdmin, async (req, res, next) => {
   try {
     const db = await getDb();
-    const withdrawal = await db.collection("withdrawals").findOne({ id: req.params.id });
-    if (!withdrawal) throw httpError(404, "Withdrawal was not found.");
-    if (withdrawal.status === "COMPLETED") throw httpError(400, "A completed withdrawal cannot be rejected.");
-
     const rejectedAt = nowIso();
-    if (!withdrawal.refunded) {
-      await db.collection("users").updateOne(
-        { email: withdrawal.email },
-        { $inc: { realBalance: Number(withdrawal.amountUsd) }, $set: { updatedAt: rejectedAt } }
-      );
-      await db.collection("transactions").insertOne({
+    const withdrawal = await db.collection("withdrawals").findOneAndUpdate(
+      { id: req.params.id, status: "PENDING", refunded: { $ne: true } },
+      { $set: { status: "REJECTING", refunded: true, updatedAt: rejectedAt } },
+      { returnDocument: "before" }
+    );
+    if (!withdrawal) throw httpError(409, "Withdrawal was already processed or was not found.");
+    await db.collection("users").updateOne(
+      { email: withdrawal.email },
+      { $inc: { realBalance: Number(withdrawal.amountUsd) }, $set: { updatedAt: rejectedAt } }
+    );
+    await db.collection("transactions").insertOne({
         id: makeId("tx"),
         email: withdrawal.email,
         type: "withdrawal-refund",
@@ -3300,8 +3317,7 @@ app.post("/api/admin/withdrawals/:id/reject", requireAdmin, async (req, res, nex
         status: "COMPLETED",
         reference: withdrawal.id,
         createdAt: rejectedAt,
-      });
-    }
+    });
 
     await db.collection("withdrawals").updateOne(
       { id: withdrawal.id },
@@ -3579,6 +3595,22 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
     if (!allowedTradeActions(type).includes(action)) throw httpError(400, "Choose a valid trade action.");
     if (!Number.isFinite(stake) || stake < 0.3) throw httpError(400, "Minimum stake is 0.30 USD.");
 
+    if (account === "real") {
+      if (stake > MAX_REAL_STAKE_USD) throw httpError(400, `Maximum real-account stake is ${MAX_REAL_STAKE_USD.toFixed(2)} USD.`);
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const [openCount, recentTrade, daily] = await Promise.all([
+        db.collection("trades").countDocuments({ email: req.user.email, account: "real", status: "RUNNING" }),
+        db.collection("trades").findOne({ email: req.user.email, account: "real" }, { sort: { createdAt: -1 } }),
+        db.collection("trades").aggregate([
+          { $match: { email: req.user.email, account: "real", createdAt: { $gte: since } } },
+          { $group: { _id: null, total: { $sum: "$stake" } } },
+        ]).toArray(),
+      ]);
+      if (openCount >= MAX_OPEN_REAL_TRADES) throw httpError(429, `Only ${MAX_OPEN_REAL_TRADES} real trades may be open at once.`);
+      if (recentTrade && Date.now() - Date.parse(recentTrade.createdAt) < REAL_TRADE_COOLDOWN_MS) throw httpError(429, "Wait a moment before opening another real trade.");
+      if (Number(daily[0]?.total || 0) + stake > MAX_REAL_DAILY_STAKE_USD) throw httpError(429, "Daily real-account stake limit reached.");
+    }
+
     const multiplier = tradeMultiplier(type, action, prediction, { ticks, barrierDistance });
     if (!multiplier) throw httpError(400, "This contract has no possible winning digit. Choose another prediction.");
 
@@ -3624,6 +3656,10 @@ app.post("/api/trades/open", requireUser, async (req, res, next) => {
       ticksConsumed: 0,
       lastTickDigit: null,
       settledAt: "",
+      nextTickAt: new Date(Date.now() + tradeTickMs).toISOString(),
+      serverResultDigit: crypto.randomInt(0, 10),
+      serverDirection: crypto.randomInt(0, 2) === 1 ? 1 : -1,
+      serverTouched: crypto.randomInt(0, 1_000_000) / 1_000_000 < estimatedTouchProbability(ticks, barrierDistance),
     };
 
     try {
@@ -3684,6 +3720,11 @@ async function handleTradeTick(req, res, next) {
 
     const totalTicks = Math.min(trade.type === "Rise/Fall" ? 300 : 10, Math.max(1, Number(trade.ticks || 1)));
 
+    const nextTickAtMs = Date.parse(trade.nextTickAt || trade.createdAt) || 0;
+    if (Date.now() + 50 < nextTickAtMs) {
+      return res.status(429).json({ ok: false, remainingMs: nextTickAtMs - Date.now(), message: "The next server tick is not ready." });
+    }
+
     if (requestId && trade.lastTickRequestId === requestId) {
       const consumed = Math.max(0, Number(trade.ticksConsumed || 0));
       const remainingTicks = Math.max(0, totalTicks - consumed);
@@ -3704,17 +3745,24 @@ async function handleTradeTick(req, res, next) {
     const previousPrice = Number(trade.currentPrice || trade.entryPrice || 1);
     const syntheticMarket = resolveSyntheticMarket(trade.marketId, trade.market);
     const sharedSlot = Math.floor(Date.now() / 1000);
-    const nextPrice = syntheticPriceAt(syntheticMarket, sharedSlot);
-    const digit = syntheticDigitAt(syntheticMarket, sharedSlot);
+    const isFinalTick = Number(trade.ticksConsumed || 0) + 1 >= totalTicks;
+    const publicPrice = syntheticPriceAt(syntheticMarket, sharedSlot);
+    const nextPrice = isFinalTick && trade.type === "Rise/Fall"
+      ? Number((Number(trade.entryPrice || previousPrice) + Number(trade.serverDirection || 1) * Math.max(Number(trade.marketStep || 0.0002), 0.000001)).toFixed(6))
+      : publicPrice;
+    const digit = isFinalTick ? Number(trade.serverResultDigit) : syntheticDigitAt(syntheticMarket, sharedSlot);
     const barrier = Number(trade.barrier || 0);
     const crossedBarrier = barrier > 0 && ((previousPrice <= barrier && nextPrice >= barrier) || (previousPrice >= barrier && nextPrice <= barrier));
-    const touched = Boolean(trade.touched || crossedBarrier);
+    const touched = trade.type === "Touch/No Touch" && isFinalTick
+      ? Boolean(trade.serverTouched)
+      : Boolean(trade.touched || crossedBarrier);
 
     const tickSet = {
       lastTickDigit: digit,
       currentPrice: nextPrice,
       touched,
       updatedAt: nowIso(),
+      nextTickAt: new Date(Date.now() + Math.max(1, Number(trade.tickMs || TRADE_TICK_MS))).toISOString(),
       ...(requestId ? { lastTickRequestId: requestId } : {}),
     };
 
@@ -3750,10 +3798,9 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
     const trade = await db.collection("trades").findOne({ id, email: req.user.email });
     if (!trade) throw httpError(404, "Trade was not found.");
 
-    const forceTickSettlement = req.body?.forceTickSettlement === true;
     if (trade.status !== "SETTLED") {
       const remainingMs = new Date(trade.settleAt).getTime() - Date.now();
-      if (remainingMs > 0 && !forceTickSettlement) {
+      if (remainingMs > 0) {
         return res.status(409).json({
           ok: false,
           remainingMs,
@@ -3765,14 +3812,15 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
     if (trade.status !== "SETTLED" && Number(trade.ticksConsumed || 0) === 0 && !["Even/Odd", "Matches/Differs", "Over/Under"].includes(trade.type)) {
       const syntheticMarket = resolveSyntheticMarket(trade.marketId, trade.market);
       const sharedSlot = Math.floor(Date.now() / 1000);
-      const sharedPrice = syntheticPriceAt(syntheticMarket, sharedSlot);
+      const marketPrice = syntheticPriceAt(syntheticMarket, sharedSlot);
+      const sharedPrice = trade.type === "Rise/Fall"
+        ? Number((Number(trade.entryPrice || marketPrice) + Number(trade.serverDirection || 1) * Math.max(Number(trade.marketStep || 0.0002), 0.000001)).toFixed(6))
+        : marketPrice;
       const previousPrice = Number(trade.currentPrice || trade.entryPrice || sharedPrice);
       const barrier = Number(trade.barrier || 0);
-      const sharedTouched =
-        trade.type === "Touch/No Touch" &&
-        barrier > 0 &&
-        ((previousPrice <= barrier && sharedPrice >= barrier) ||
-          (previousPrice >= barrier && sharedPrice <= barrier));
+      const sharedTouched = trade.type === "Touch/No Touch"
+        ? Boolean(trade.serverTouched)
+        : barrier > 0 && ((previousPrice <= barrier && sharedPrice >= barrier) || (previousPrice >= barrier && sharedPrice <= barrier));
 
       await db.collection("trades").updateOne(
         { _id: trade._id },
@@ -3787,10 +3835,8 @@ app.post("/api/trades/:id/settle", requireUser, async (req, res, next) => {
       trade.currentPrice = sharedPrice;
       trade.touched = Boolean(trade.touched || sharedTouched);
     }
-    const resultDigit = Number.isInteger(trade.lastTickDigit)
-      ? trade.lastTickDigit
-      : Number.isInteger(trade.resultDigit)
-      ? trade.resultDigit
+    const resultDigit = Number.isInteger(trade.serverResultDigit)
+      ? trade.serverResultDigit
       : crypto.randomInt(0, 10);
     const final = await finalizeTradeWithDigit(db, req.user, trade, resultDigit);
 
